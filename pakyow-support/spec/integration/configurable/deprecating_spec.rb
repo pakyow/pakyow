@@ -158,7 +158,7 @@ RSpec.describe "deprecating a group of settings" do
 
     it "reports the deprecation" do
       expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
-        "config.group.name", "do not use"
+        "config.group", "do not use"
       )
     end
 
@@ -178,7 +178,7 @@ RSpec.describe "deprecating a group of settings" do
 
     it "reports the deprecation" do
       expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
-        "config.group.name", "do not use"
+        "config.group", "do not use"
       )
     end
 
@@ -208,7 +208,7 @@ RSpec.describe "deprecating a group of settings" do
 
     it "reports the given solution" do
       expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
-        "config.group.name", "use `other_group'"
+        "config.group", "use `other_group'"
       )
     end
   end

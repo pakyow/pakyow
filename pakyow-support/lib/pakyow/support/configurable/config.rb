@@ -48,11 +48,7 @@ module Pakyow
 
         def setting(name, default = default_omitted = true, &block)
           tap do
-            if @__deprecated
-              deprecated_setting(name, default, @__solution, &block)
-            else
-              build_setting(name, default, default_omitted, block)
-            end
+            build_setting(name, default, default_omitted, block)
           end
         end
 
@@ -137,6 +133,8 @@ module Pakyow
 
         def define_setting_methods(name)
           singleton_class.define_method name do |&block|
+            maybe_report_deprecation
+
             if block
               find_setting(name).set(block)
             else
@@ -145,6 +143,8 @@ module Pakyow
           end
 
           singleton_class.define_method :"#{name}=" do |value|
+            maybe_report_deprecation
+
             find_setting(name).set(value)
           end
         end
@@ -152,6 +152,24 @@ module Pakyow
         def define_group_methods(name)
           singleton_class.define_method name do
             find_group(name)
+          end
+        end
+
+        def names
+          unless defined?(@__names)
+            @__names = (["config"].concat(@__path) << @__name).freeze
+          end
+
+          @__names
+        end
+
+        def deprecation_message
+          "#{names.join(".")}"
+        end
+
+        def maybe_report_deprecation
+          if @__deprecated
+            Support::Deprecator.global.deprecated deprecation_message, @__solution
           end
         end
 
