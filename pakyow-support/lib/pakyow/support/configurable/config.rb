@@ -20,8 +20,10 @@ module Pakyow
         # @api private
         attr_reader :__settings, :__defaults, :__groups, :__name
 
-        def initialize(configurable, name: nil, path: [], deprecated: false)
-          @configurable, @__name, @__path, @__deprecated = configurable, name, path, deprecated
+        DEFAULT_SOLUTION = "do not use"
+
+        def initialize(configurable, name: nil, path: [], deprecated: false, solution: DEFAULT_SOLUTION)
+          @configurable, @__name, @__path, @__deprecated, @__solution = configurable, name, path, deprecated, solution
 
           @__settings = Concurrent::Hash.new
           @__defaults = Concurrent::Hash.new
@@ -47,16 +49,16 @@ module Pakyow
         def setting(name, default = default_omitted = true, &block)
           tap do
             if @__deprecated
-              deprecated_setting(name, default, &block)
+              deprecated_setting(name, default, @__solution, &block)
             else
               build_setting(name, default, default_omitted, block)
             end
           end
         end
 
-        def deprecated_setting(name, default = default_omitted = true, &block)
+        def deprecated_setting(name, default = default_omitted = true, solution = Setting::DEFAULT_SOLUTION, &block)
           tap do
-            build_setting(name, default, default_omitted, block, deprecated: true)
+            build_setting(name, default, default_omitted, block, deprecated: true, solution: solution)
           end
         end
 
@@ -70,8 +72,8 @@ module Pakyow
           build_configurable(group, block)
         end
 
-        def deprecated_configurable(group, &block)
-          build_configurable(group, block, deprecated: true)
+        def deprecated_configurable(group, solution = DEFAULT_SOLUTION, &block)
+          build_configurable(group, block, deprecated: true, solution: solution)
         end
 
         def configure_defaults!(configured_environment)

@@ -10,8 +10,10 @@ module Pakyow
       class Setting
         using DeepDup
 
-        def initialize(name:, path:, default:, configurable:, deprecated: false, &block)
-          @name, @path, @default, @configurable, @deprecated, @block = name, path, default, configurable, deprecated, block
+        DEFAULT_SOLUTION = "do not use"
+
+        def initialize(name:, path:, default:, configurable:, deprecated: false, solution: DEFAULT_SOLUTION, &block)
+          @name, @path, @default, @configurable, @deprecated, @solution, @block = name, path, default, configurable, deprecated, solution, block
         end
 
         def initialize_copy(_)
@@ -62,7 +64,7 @@ module Pakyow
 
         private def maybe_report_deprecation
           if @deprecated
-            Support::Deprecator.global.deprecated deprecation_message, "do not use"
+            Support::Deprecator.global.deprecated deprecation_message, @solution
           end
         end
       end

@@ -106,6 +106,30 @@ RSpec.describe "deprecating a setting" do
       )
     end
   end
+
+  describe "providing a solution" do
+    let(:object) {
+      Class.new do
+        include Pakyow::Support::Configurable
+
+        deprecated_setting :name, :default, "use `other_name'"
+      end
+    }
+
+    before do
+      object.configure!
+    end
+
+    let!(:value) {
+      object.config.name
+    }
+
+    it "reports the given solution" do
+      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
+        "config.name", "use `other_name'"
+      )
+    end
+  end
 end
 
 RSpec.describe "deprecating a group of settings" do
@@ -160,6 +184,32 @@ RSpec.describe "deprecating a group of settings" do
 
     it "returns the value" do
       expect(value).to eq(:default)
+    end
+  end
+
+  describe "providing a solution" do
+    let(:object) {
+      Class.new do
+        include Pakyow::Support::Configurable
+
+        deprecated_configurable :group, "use `other_group'" do
+          setting :name, :default
+        end
+      end
+    }
+
+    before do
+      object.configure!
+    end
+
+    let!(:value) {
+      object.config.group.name
+    }
+
+    it "reports the given solution" do
+      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
+        "config.group.name", "use `other_group'"
+      )
     end
   end
 end
