@@ -197,7 +197,9 @@ RSpec.describe Pakyow::Logger do
     end
 
     it "is deprecated" do
-      expect(Pakyow).to receive(:deprecated).with(instance, :silence, "use `Pakyow::Logger::ThreadLocal#silence'")
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+        instance, :silence, "use `Pakyow::Logger::ThreadLocal#silence'"
+      )
 
       instance.silence do; end
     end

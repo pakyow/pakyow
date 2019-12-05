@@ -658,7 +658,9 @@ RSpec.describe Pakyow do
 
   describe "::global_logger" do
     it "is deprecated" do
-      expect(Pakyow).to receive(:deprecated).with(:global_logger, "use `output'")
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+        Pakyow, :global_logger, "use `output'"
+      )
 
       Pakyow.global_logger
     end

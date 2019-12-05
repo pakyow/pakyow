@@ -5,10 +5,13 @@ require "socket"
 
 require "pakyow/support/class_state"
 require "pakyow/support/deprecator"
+require "pakyow/support/deprecatable"
 
 module Pakyow
   module Support
     module DeepFreeze
+      extend Deprecatable
+
       def self.extended(base)
         base.extend ClassState
         base.class_state :__insulated_variables, inheritable: true, default: []
@@ -23,10 +26,9 @@ module Pakyow
       end
 
       def unfreezable(*instance_variables)
-        Deprecator.global.deprecated :unfreezable, "use `insulate'"
-
         insulate(*instance_variables)
       end
+      deprecate :unfreezable, solution: "use `insulate'"
 
       [Object, Delegator].each do |klass|
         refine klass do
