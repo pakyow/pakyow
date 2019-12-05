@@ -27,7 +27,7 @@ RSpec.describe "deprecating a module" do
     end
 
     it "reports the deprecation" do
-      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, "do not use")
+      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, solution: "do not use")
     end
   end
 
@@ -37,7 +37,7 @@ RSpec.describe "deprecating a module" do
     end
 
     it "reports the deprecation" do
-      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, "do not use")
+      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, solution: "do not use")
     end
   end
 
@@ -63,7 +63,7 @@ RSpec.describe "deprecating a module" do
       }
 
       it "reports the deprecation" do
-        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, "do not use")
+        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, solution: "do not use")
       end
 
       it "calls the original included method" do
@@ -94,7 +94,7 @@ RSpec.describe "deprecating a module" do
       }
 
       it "reports the deprecation" do
-        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, "do not use")
+        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, solution: "do not use")
       end
 
       it "calls the original extended method" do

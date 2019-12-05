@@ -13,7 +13,7 @@ module Pakyow
         #     )
         #   )
         #
-        #   deprecator.deprecated :foo, "use `bar'"
+        #   deprecator.deprecated :foo, solution: "use `bar'"
         #   => [deprecation] `foo' is deprecated; solution: use `bar'
         #
         class Log

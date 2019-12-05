@@ -25,7 +25,7 @@ RSpec.describe "using a deprecator" do
         expect(block.call).to eq("[deprecation] `foo' is deprecated; solution: use `bar'")
       end
 
-      instance.deprecated :foo, "use `bar'"
+      instance.deprecated :foo, solution: "use `bar'"
     end
 
     context "with an explicit level" do
@@ -38,7 +38,7 @@ RSpec.describe "using a deprecator" do
       it "logs with the level" do
         expect(logger).to receive(:debug)
 
-        instance.deprecated :foo, "use `bar'"
+        instance.deprecated :foo, solution: "use `bar'"
       end
     end
   end

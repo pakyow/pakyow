@@ -11,7 +11,8 @@ module Pakyow
     class ThreadLocal
       def initialize(default_logger, key: nil)
         if key.nil?
-          Pakyow.deprecated "default value for `#{self.class}' argument `key'", "pass value for `key'"
+          Pakyow.deprecated "default value for `#{self.class}' argument `key'", solution: "pass value for `key'"
+
           key = :pakyow_logger
         end
 

@@ -45,7 +45,7 @@ RSpec.describe "deprecating a method" do
         end
 
         it "reports the deprecation" do
-          expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(instance, :foo, "do not use")
+          expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(instance, :foo, solution: "do not use")
         end
 
         it "calls the original initializer" do
@@ -90,7 +90,7 @@ RSpec.describe "deprecating a method" do
       end
 
       it "reports the deprecation" do
-        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, :foo, "do not use")
+        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, :foo, solution: "do not use")
       end
 
       it "calls the original initializer" do
@@ -137,7 +137,7 @@ RSpec.describe "deprecating a method" do
       }
 
       it "reports the deprecation" do
-        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, :foo, "do not use")
+        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, :foo, solution: "do not use")
       end
 
       it "calls the original initializer" do
@@ -181,7 +181,7 @@ RSpec.describe "deprecating a method" do
       end
 
       it "reports the deprecation" do
-        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, :foo, "do not use")
+        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(deprecatable, :foo, solution: "do not use")
       end
 
       it "calls the original initializer" do

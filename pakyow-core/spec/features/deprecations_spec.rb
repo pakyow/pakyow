@@ -133,8 +133,8 @@ RSpec.describe "reporting deprecations through the environment" do
   include_context "app"
 
   it "reports deprecations" do
-    expect(Pakyow.deprecator).to receive(:deprecated).with(:foo)
-    Pakyow.deprecated(:foo)
+    expect(Pakyow.deprecator).to receive(:deprecated).with(:foo, solution: "use `bar'")
+    Pakyow.deprecated(:foo, solution: "use `bar'")
   end
 end
 
@@ -142,7 +142,7 @@ RSpec.describe "reporting deprecations through the global deprecator" do
   include_context "app"
 
   it "forwards to the environment deprecator" do
-    expect(Pakyow.deprecator).to receive(:deprecated).with(:foo)
-    Pakyow::Support::Deprecator.global.deprecated(:foo)
+    expect(Pakyow.deprecator).to receive(:deprecated).with(:foo, solution: "use `bar'")
+    Pakyow::Support::Deprecator.global.deprecated(:foo, solution: "use `bar'")
   end
 end

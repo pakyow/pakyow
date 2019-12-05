@@ -48,7 +48,7 @@ module Pakyow
       private def build_deprecated_initializer(target, solution:)
         build_module_for_deprecation <<~CODE
           def initialize(*)
-            Deprecator.global.deprecated #{target}, #{solution.inspect}
+            Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
             super
           end
@@ -58,13 +58,13 @@ module Pakyow
       private def build_deprecated_extender_includer(target, solution:)
         build_module_for_deprecation <<~CODE
           def extended(*)
-            Deprecator.global.deprecated #{target}, #{solution.inspect}
+            Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
             super
           end
 
           def included(*)
-            Deprecator.global.deprecated #{target}, #{solution.inspect}
+            Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
             super
           end
@@ -80,7 +80,7 @@ module Pakyow
 
         build_module_for_deprecation <<~CODE
           def #{target}(*)
-            Deprecator.global.deprecated self, #{target.to_sym.inspect}, #{solution.inspect}
+            Deprecator.global.deprecated self, #{target.to_sym.inspect}, solution: #{solution.inspect}
 
             super
           end

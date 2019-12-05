@@ -16,7 +16,7 @@ RSpec.describe Pakyow::Logger::ThreadLocal do
       it "is deprecated" do
         expect(Pakyow).to receive(:deprecated).with(
           "default value for `Pakyow::Logger::ThreadLocal' argument `key'",
-          "pass value for `key'"
+          solution: "pass value for `key'"
         )
 
         instance

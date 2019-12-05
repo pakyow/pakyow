@@ -18,7 +18,7 @@ module Pakyow
     #
     def add(process)
       if process.is_a?(Hash)
-        Pakyow.deprecated "passing a `Hash' to `Pakyow::ProcessManager#add'", "pass a `Pakyow::Process' instance"
+        Pakyow.deprecated "passing a `Hash' to `Pakyow::ProcessManager#add'", solution: "pass a `Pakyow::Process' instance"
 
         process = build_process(process)
       end
