@@ -12,6 +12,9 @@ module Pakyow
     #     # only allows the extension to be used on descendants of `SomeBaseClass`
     #     restrict_extension SomeBaseClass
     #
+    #     # includes the module unless it is already present
+    #     dependency SomeBehavior
+    #
     #     apply_extension do
     #       # anything here is evaluated on the object including the extension
     #     end
@@ -50,8 +53,27 @@ module Pakyow
 
       def included(base)
         enforce_restrictions(base)
+        mixin_extension_dependencies(base)
         mixin_extension_modules(base)
         include_extensions(base)
+      end
+
+      # Register a dependency to be included into classes that include the extension. If the
+      # dependency is already present, it will not be included a second time.
+      #
+      def include_dependency(dependency)
+        extension_dependencies << {
+          method: :include, object: dependency
+        }
+      end
+
+      # Register a dependency to be extended into classes that include the extension. If the
+      # dependency is already present, it will not be extended a second time.
+      #
+      def extend_dependency(dependency)
+        extension_dependencies << {
+          method: :extend, object: dependency
+        }
       end
 
       private
@@ -75,6 +97,25 @@ module Pakyow
       def include_extensions(base)
         if instance_variable_defined?(:@__extension_block)
           base.instance_exec(&@__extension_block)
+        end
+      end
+
+      def extension_dependencies
+        @__extension_dependencies ||= []
+      end
+
+      def mixin_extension_dependencies(base)
+        extension_dependencies.each do |dependency|
+          case dependency[:method]
+          when :include
+            unless base.ancestors.include?(dependency[:object])
+              base.include(dependency[:object])
+            end
+          when :extend
+            unless base.singleton_class.ancestors.include?(dependency[:object])
+              base.extend(dependency[:object])
+            end
+          end
         end
       end
     end

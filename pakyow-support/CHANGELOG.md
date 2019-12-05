@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Add `Extension#dependency`.**
+
   * `add` **Add `Deprecator#ignore`.**
     - Allows deprecations to be ignored during the execution of a block.
 
