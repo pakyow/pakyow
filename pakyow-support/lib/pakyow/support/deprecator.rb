@@ -21,7 +21,7 @@ module Pakyow
     #     )
     #   )
     #
-    #   deprecator.deprecated :foo, "use `bar'"
+    #   deprecator.deprecated :foo, solution: "use `bar'"
     #   => [deprecation] `foo' is deprecated; solution: use `bar'
     #
     # = Creating a reporter
@@ -52,16 +52,16 @@ module Pakyow
       #     Pakyow::Support::Deprecator::Reporters::Log(logger: Pakyow.logger)
       #   )
       #
-      #   deprecator.deprecated Foo, :bar, "use `baz'"
+      #   deprecator.deprecated Foo, :bar, solution: "use `baz'"
       #   => [deprecation] `Foo::bar' is deprecated; solution: use `baz'
       #
-      #   deprecator.deprecated Foo.new, :bar, "use `baz'"
+      #   deprecator.deprecated Foo.new, :bar, solution: "use `baz'"
       #   => [deprecation] `Foo#bar' is deprecated; solution: use `baz'
       #
-      #   deprecator.deprecated "`foo.rb' is deprecated", "rename to `bar.rb'"
+      #   deprecator.deprecated "`foo.rb' is deprecated", solution: "rename to `bar.rb'"
       #   => [deprecation] `foo.rb' is deprecated; solution: rename to `baz.rb'
       #
-      def deprecated(*targets, solution)
+      def deprecated(*targets, solution:)
         reporter.report do
           Deprecation.new(*targets, solution: solution)
         end
@@ -102,7 +102,7 @@ module Pakyow
         # assumptions about the broader environment.
         #
         # @example
-        #   Pakyow::Support::Deprecator.global.deprecated :foo, "use `bar'"
+        #   Pakyow::Support::Deprecator.global.deprecated :foo, solution: "use `bar'"
         #   => warning: [deprecation] `foo' is deprecated; solution: use `bar'
         #
         # = Forwarding
@@ -112,7 +112,7 @@ module Pakyow
         #
         # @example
         #   Pakyow::Support::Deprecator.global >> Pakyow::Support::Deprecator::Reporters::Null
-        #   Pakyow::Support::Deprecator.global.deprecated :foo, "use `bar'"
+        #   Pakyow::Support::Deprecator.global.deprecated :foo, solution: "use `bar'"
         #
         def global
           unless defined?(@global)

@@ -118,7 +118,7 @@ RSpec.describe Pakyow::ProcessManager do
       it "is deprecated" do
         expect(Pakyow).to receive(:deprecated).with(
           "passing a `Hash' to `Pakyow::ProcessManager#add'",
-          "pass a `Pakyow::Process' instance"
+          solution: "pass a `Pakyow::Process' instance"
         )
 
         instance.add(process)

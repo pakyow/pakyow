@@ -11,7 +11,7 @@ module Pakyow
         #     reporter: Pakyow::Support::Deprecator::Reporters::Warn
         #   )
         #
-        #   deprecator.deprecated :foo, "use `bar'"
+        #   deprecator.deprecated :foo, solution: "use `bar'"
         #   => warning: [deprecation] `foo' is deprecated; solution: use `bar'
         #
         class Warn

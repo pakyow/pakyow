@@ -25,7 +25,7 @@ RSpec.describe Pakyow::Support::Deprecator do
         require "pakyow/support/deprecator/reporters/warn"
         expect(described_class::Reporters::Warn).to receive(:report)
 
-        global.deprecated :foo, "use `bar'"
+        global.deprecated :foo, solution: "use `bar'"
       end
 
       it "does not appear to be forwarding" do
@@ -62,17 +62,17 @@ RSpec.describe Pakyow::Support::Deprecator do
 
       it "reports to the other instances" do
         deprecators.each do |deprecator|
-          expect(deprecator).to receive(:deprecated).with(:foo, "use `bar'")
+          expect(deprecator).to receive(:deprecated).with(:foo, solution: "use `bar'")
         end
 
-        global.deprecated :foo, "use `bar'"
+        global.deprecated :foo, solution: "use `bar'"
       end
 
       it "does not report to its own reporter" do
         require "pakyow/support/deprecator/reporters/warn"
         expect(described_class::Reporters::Warn).not_to receive(:report)
 
-        global.deprecated :foo, "use `bar'"
+        global.deprecated :foo, solution: "use `bar'"
       end
 
       it "appears to be forwarding" do
@@ -92,7 +92,7 @@ RSpec.describe Pakyow::Support::Deprecator do
 
     it "does not build a deprecation" do
       expect(Pakyow::Support::Deprecation).not_to receive(:new)
-      instance.deprecated :foo, "use `bar'"
+      instance.deprecated :foo, solution: "use `bar'"
     end
 
     context "reporter yields" do
@@ -105,7 +105,7 @@ RSpec.describe Pakyow::Support::Deprecator do
           Pakyow::Support::Deprecation
         ).to receive(:new).with(:foo, solution: "use `bar'")
 
-        instance.deprecated(:foo, "use `bar'")
+        instance.deprecated(:foo, solution: "use `bar'")
       end
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe Pakyow::Support::Deprecator do
       expect(reporter).not_to receive(:report)
 
       instance.ignore do
-        instance.deprecated :foo, "use `bar'"
+        instance.deprecated :foo, solution: "use `bar'"
       end
     end
 
@@ -131,10 +131,10 @@ RSpec.describe Pakyow::Support::Deprecator do
       expect(reporter).to receive(:report).once
 
       instance.ignore do
-        instance.deprecated :foo, "use `bar'"
+        instance.deprecated :foo, solution: "use `bar'"
       end
 
-      instance.deprecated :foo, "use `bar'"
+      instance.deprecated :foo, solution: "use `bar'"
     end
 
     context "block fails" do
@@ -148,7 +148,7 @@ RSpec.describe Pakyow::Support::Deprecator do
         rescue
         end
 
-        instance.deprecated :foo, "use `bar'"
+        instance.deprecated :foo, solution: "use `bar'"
       end
     end
 
@@ -163,7 +163,7 @@ RSpec.describe Pakyow::Support::Deprecator do
         end
 
         thread2 = Thread.new do
-          instance.deprecated :foo, "use `bar'"
+          instance.deprecated :foo, solution: "use `bar'"
         end
 
         thread2.join

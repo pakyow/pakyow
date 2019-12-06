@@ -164,7 +164,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
     it "is deprecated" do
       expect(
         Pakyow::Support::Deprecator.global
-      ).to receive(:deprecated).with(:unfreezable, "use `insulate'")
+      ).to receive(:deprecated).with(unfreezable_class, :unfreezable, solution: "use `insulate'")
 
       unfreezable_class.unfreezable :foo
     end
