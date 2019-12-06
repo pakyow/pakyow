@@ -11,7 +11,7 @@ module Pakyow
         #     reporter: Pakyow::Support::Deprecator::Reporters::Null
         #   )
         #
-        #   deprecator.deprecated :foo, "use `bar'"
+        #   deprecator.deprecated :foo, solution: "use `bar'"
         #   # nothing happens
         #
         class Null

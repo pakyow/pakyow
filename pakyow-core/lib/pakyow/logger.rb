@@ -4,6 +4,8 @@ require "securerandom"
 
 require "console/filter"
 
+require "pakyow/support/deprecatable"
+
 module Pakyow
   # Logs messages throughout the lifetime of an environment, connection, etc.
   #
@@ -11,6 +13,8 @@ module Pakyow
   # `epilogue` for a connection, as well as a `houston` method for logging errors.
   #
   class Logger < Console::Filter[internal: 0, debug: 1, info: 2, warn: 3, error: 4, fatal: 5, unknown: 6]
+    extend Support::Deprecatable
+
     require "pakyow/logger/colorizer"
     require "pakyow/logger/timekeeper"
 
@@ -52,14 +56,13 @@ module Pakyow
     # @deprecated Use {Pakyow::Logger::ThreadLocal#silence} instead.
     #
     def silence(temporary_level = :error)
-      Pakyow.deprecated self, :silence, "use `Pakyow::Logger::ThreadLocal#silence'"
-
       original_level = @level
       self.level = self.class.const_get(:LEVELS)[temporary_level]
       yield
     ensure
       self.level = original_level
     end
+    deprecate :silence, solution: "use `Pakyow::Logger::ThreadLocal#silence'"
 
     LEVELS.keys.each do |method|
       class_eval <<~CODE, __FILE__, __LINE__ + 1

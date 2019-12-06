@@ -14,6 +14,7 @@ require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
+require "pakyow/support/deprecatable"
 
 require "pakyow/config"
 require "pakyow/behavior/deprecations"
@@ -137,6 +138,8 @@ module Pakyow
   class_state :setup_error, default: nil
 
   class << self
+    extend Support::Deprecatable
+
     # Name of the environment
     #
     attr_reader :env
@@ -163,10 +166,9 @@ module Pakyow
     # @deprecated Use {output} instead.
     #
     def global_logger
-      deprecated :global_logger, "use `output'"
-
       output
     end
+    deprecate :global_logger, solution: "use `output'"
 
     # Logger instance for the environment.
     #
