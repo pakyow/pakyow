@@ -5,7 +5,8 @@ require "pakyow/support/deep_dup"
 module Pakyow
   module Support
     module Configurable
-      # @api private
+      # A configurable setting.
+      #
       class Setting
         using DeepDup
 
@@ -15,30 +16,39 @@ module Pakyow
 
         def initialize_copy(_)
           @default = @default.deep_dup
+
           super
         end
 
         def freeze
+          # Make sure the value is constructed before freezing.
+          #
           value
+
           super
         end
 
+        # Sets the current value to `value`.
+        #
         def set(value)
           @value = value
         end
 
+        # Returns the current value.
+        #
         def value
-          if instance_variable_defined?(:@value)
-            @value
-          else
+          unless defined?(@value)
             @value = if @block
               @configurable.instance_eval(&@block)
             else
               @default
             end
           end
+
+          @value
         end
 
+        # @api private
         def update_configurable(configurable)
           @configurable = configurable
         end
