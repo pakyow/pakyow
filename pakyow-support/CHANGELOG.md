@@ -2,7 +2,15 @@
 
   * `chg` **Extension restriction violations now raise `RuntimeError`.**
 
+    *Related links:*
+    - [Pull Request #352][pr-352]
+    - [Commit d410904][d410904]
+
   * `add` **Add `Extension#dependency`.**
+
+    *Related links:*
+    - [Pull Request #352][pr-352]
+    - [Commit 3edf137][3edf137]
 
   * `add` **Add `Deprecator#ignore`.**
     - Allows deprecations to be ignored during the execution of a block.
@@ -33,10 +41,13 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-352]: https://github.com/pakyow/pakyow/pull/352
 [pr-349]: https://github.com/pakyow/pakyow/pull/349
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
+[d410904]: https://github.com/pakyow/pakyow/commit/d4109047797e8e5d7f4233fe61a42ed472c96cd7
+[3edf137]: https://github.com/pakyow/pakyow/commit/3edf1372869b4a49c4ad83cebc8eb55023f91278
 [59e6efe]: https://github.com/pakyow/pakyow/commit/59e6efe42f1d6f5d48d15359d2e1a63bea9a0600
 [787681d]: https://github.com/pakyow/pakyow/commit/787681dacbbd3ce79f6e38a5672749635903a85b
 
