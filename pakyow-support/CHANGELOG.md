@@ -2,6 +2,9 @@
 
   * `add` **Introduce `Deprecatable`.**
 
+    *Related links:*
+    - [Pull Request #351][pr-351]
+
   * `add` **Add `Deprecator#ignore`.**
     - Allows deprecations to be ignored during the execution of a block.
 
@@ -31,6 +34,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-351]: https://github.com/pakyow/pakyow/pull/351
 [pr-349]: https://github.com/pakyow/pakyow/pull/349
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
