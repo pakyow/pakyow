@@ -6,7 +6,7 @@
     - [Pull Request #352][pr-352]
     - [Commit d410904][d410904]
 
-  * `add` **Add `Extension#dependency`.**
+  * `add` **Add `Extension#include_dependency` and `Extension#extend_dependency`.**
 
     *Related links:*
     - [Pull Request #352][pr-352]
