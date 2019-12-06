@@ -53,7 +53,7 @@ module Pakyow
     #   class SomeOtherClass
     #     include SomeExtension
     #
-    #     # => RuntimeError: expected `SomeOtherClass' to be `SomeBaseClass'
+    #     # => RuntimeError: expected `SomeOtherClass' to be a decendent of `SomeBaseClass'
     #   end
     #
     # = Dependencies
@@ -146,7 +146,7 @@ module Pakyow
 
       def enforce_restrictions(base)
         if instance_variable_defined?(:@__extension_restriction) && !base.ancestors.include?(@__extension_restriction)
-          raise StandardError, "expected `#{base}' to be `#{@__extension_restriction}'"
+          raise RuntimeError, "expected `#{base}' to be a decendent of `#{@__extension_restriction}'"
         end
       end
 

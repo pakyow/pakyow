@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Extension restriction violations now raise `RuntimeError`.**
+
   * `add` **Add `Extension#dependency`.**
 
   * `add` **Add `Deprecator#ignore`.**
