@@ -68,6 +68,15 @@ module Pakyow
           end
         end
 
+        include Enumerable
+
+        # @api private
+        def each_hook(type, event, &block)
+          return enum_for(:each_hook, type, event) unless block_given?
+
+          hooks(type, event).each(&block)
+        end
+
         private def hooks(type, event)
           __hook_pipeline[type][event] || []
         end
