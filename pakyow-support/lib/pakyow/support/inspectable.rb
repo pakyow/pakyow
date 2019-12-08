@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require "pakyow/support/class_state"
+require "pakyow/support/extension"
 
 module Pakyow
   module Support
-    # Customized inspectors for your objects.
+    # Customize the inspector for an object.
     #
     # @example
     #   class FooBar
@@ -25,13 +26,15 @@ module Pakyow
     #   => #<FooBar:0x007fd3330248c0 @foo=:foo baz=:baz>
     #
     module Inspectable
-      def self.included(base)
-        base.extend ClassMethods
-        base.extend ClassState unless base.ancestors.include?(ClassState)
-        base.class_state :__inspectables, inheritable: true, default: []
+      extend Extension
+
+      extend_dependency ClassState
+
+      apply_extension do
+        class_state :__inspectables, inheritable: true, default: []
       end
 
-      module ClassMethods
+      class_methods do
         # Sets the instance vars and public methods that should be part of the inspection.
         #
         # @param inspectables [Array<Symbol>] The list of instance variables and public methods.
