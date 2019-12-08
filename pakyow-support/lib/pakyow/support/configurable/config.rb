@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "concurrent/array"
 require "concurrent/hash"
 
 require "pakyow/support/deep_dup"
@@ -10,7 +11,8 @@ require "pakyow/support/configurable/setting"
 module Pakyow
   module Support
     module Configurable
-      # @api private
+      # A group of configurable settings.
+      #
       class Config
         using DeepDup
 
@@ -33,21 +35,27 @@ module Pakyow
           @__settings = @__settings.deep_dup
           @__groups   = @__groups.deep_dup
 
-          @__settings.each do |key, _|
+          @__settings.each_pair do |key, _|
             define_setting_methods(key)
           end
 
-          @__groups.each do |key, _|
+          @__groups.each_pair do |key, _|
             define_group_methods(key)
           end
 
           super
         end
 
+        # Define setting `name` with `default`. If a block is given, the default value will be built
+        # eagerly the first time the setting is accessed.
+        #
         def setting(name, default = default_omitted = true, &block)
           tap do
             name = name.to_sym
-            default = nil if default_omitted
+
+            if default_omitted
+              default = nil
+            end
 
             unless @__settings.include?(name)
               define_setting_methods(name)
@@ -57,14 +65,19 @@ module Pakyow
           end
         end
 
+        # Define defaults for one or more environments.
+        #
         def defaults(*environments, &block)
           environments.each do |environment|
-            (@__defaults[environment] ||= []) << block
+            (@__defaults[environment] ||= Concurrent::Array.new) << block
           end
         end
 
+        # Define a nested configurable.
+        #
         def configurable(group, &block)
           group = group.to_sym
+
           config = Config.new(@configurable)
           config.instance_eval(&block)
 
@@ -75,28 +88,33 @@ module Pakyow
           @__groups[group] = config
         end
 
-        def configure_defaults!(configured_environment)
-          @__defaults[configured_environment.to_s.to_sym].to_a.each do |defaults|
+        # Configure default values for `environment`.
+        #
+        def configure_defaults!(environment)
+          @__defaults[environment.to_s.to_sym]&.each do |defaults|
             instance_eval(&defaults)
           end
 
-          @__groups.values.each do |group|
-            group.configure_defaults!(configured_environment)
+          @__groups.each_pair do |_, group|
+            group.configure_defaults!(environment)
           end
         end
 
-        def update_configurable(configurable)
-          @configurable = configurable
+        # If value for `setting` is a proc, the block will be evaled in `context`. The return value
+        # is the return value of `context`, or the value of the setting if not a proc.
+        #
+        def eval(setting, context)
+          value = public_send(setting)
 
-          @__settings.values.each do |setting|
-            setting.update_configurable(configurable)
-          end
-
-          @__groups.values.each do |group|
-            group.update_configurable(configurable)
+          if value.is_a?(Proc)
+            context.instance_eval(&value)
+          else
+            value
           end
         end
 
+        # Returns configuration as a hash.
+        #
         def to_h
           hash = {}
 
@@ -111,26 +129,28 @@ module Pakyow
           hash
         end
 
-        def eval(setting, context)
-          value = public_send(setting)
-          if value.is_a?(Proc)
-            context.instance_eval(&value)
-          else
-            value
+        # @api private
+        def update_configurable(configurable)
+          @configurable = configurable
+
+          @__settings.values.each do |setting|
+            setting.update_configurable(configurable)
+          end
+
+          @__groups.values.each do |group|
+            group.update_configurable(configurable)
           end
         end
 
-        private
-
-        def find_setting(name)
+        private def find_setting(name)
           @__settings[name.to_sym]
         end
 
-        def find_group(name)
+        private def find_group(name)
           @__groups[name.to_sym]
         end
 
-        def define_setting_methods(name)
+        private def define_setting_methods(name)
           singleton_class.define_method name do |&block|
             if block
               find_setting(name).set(block)
@@ -144,7 +164,7 @@ module Pakyow
           end
         end
 
-        def define_group_methods(name)
+        private def define_group_methods(name)
           singleton_class.define_method name do
             find_group(name)
           end

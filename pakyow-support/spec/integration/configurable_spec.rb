@@ -122,8 +122,4 @@ RSpec.describe "configuring a module" do
   end
 
   include_examples "configurable"
-
-  it "does not include the initializer" do
-    expect(object.ancestors).to_not include(Pakyow::Support::Configurable::Initializer)
-  end
 end
