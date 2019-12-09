@@ -26,7 +26,7 @@ RSpec.describe Pakyow::Realtime::WebSocket do
     double(
       :application,
       websocket_server: websocket_server,
-      hooks: [],
+      each_hook: nil,
       config: config
     )
   end
