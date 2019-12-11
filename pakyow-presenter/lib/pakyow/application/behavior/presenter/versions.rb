@@ -21,7 +21,7 @@ module Pakyow
                     logic_arr.each do |logic|
                       presenters.each do |presenter|
                         unless presenter.__versioning_logic.include?(version)
-                          plug_namespace = plug.class.__object_name.namespace.parts.last
+                          plug_namespace = plug.class.object_name.namespace.parts.last
 
                           prefix = if plug_namespace == :default
                             plug.class.plugin_name
@@ -48,7 +48,7 @@ module Pakyow
                   plug.isolated(:Presenter).__versioning_logic.each_pair do |version, logic_arr|
                     logic_arr.each do |logic|
                       presenters.each do |presenter|
-                        plug_namespace = plug.class.__object_name.namespace.parts.last
+                        plug_namespace = plug.class.object_name.namespace.parts.last
 
                         prefix = if plug_namespace == :default
                           plug.class.plugin_name

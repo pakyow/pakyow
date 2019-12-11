@@ -14,7 +14,7 @@ module Pakyow
         @connection, @sources = connection, sources
 
         @object_map = objects.each_with_object({}) { |object, map|
-          map[object.__object_name.name] = object
+          map[object.object_name.name] = object
         }
       end
 
@@ -96,7 +96,7 @@ module Pakyow
                 joining_source_name,
                 adapter: source.adapter,
                 connection: source.connection,
-                within: source.__object_name.namespace
+                within: source.object_name.namespace
               )
 
               @sources << joining_source

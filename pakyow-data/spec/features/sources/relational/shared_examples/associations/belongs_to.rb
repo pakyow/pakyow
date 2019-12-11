@@ -983,7 +983,7 @@ RSpec.shared_examples :source_associations_belongs_to do
 
     let :foreign_key do
       target_dataset.source.class.container.connection.adapter.connection.schema(
-        target_dataset.source.class.__object_name.name
+        target_dataset.source.class.object_name.name
       )[2][1]
     end
 

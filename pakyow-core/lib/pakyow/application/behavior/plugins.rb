@@ -20,7 +20,7 @@ module Pakyow
 
         def plug(name, instance = :default)
           @plugs.find { |plug|
-            plug.class.plugin_name == name && plug.class.__object_name.namespace.parts.last == instance
+            plug.class.plugin_name == name && plug.class.object_name.namespace.parts.last == instance
           }
         end
 
@@ -82,8 +82,8 @@ module Pakyow
               # Override config values that require a specific value.
               #
               full_name = [plug.plugin_name]
-              unless plug.__object_name.namespace.parts.last == :default
-                full_name << plug.__object_name.namespace.parts.last
+              unless plug.object_name.namespace.parts.last == :default
+                full_name << plug.object_name.namespace.parts.last
               end
 
               plug.config.name = full_name.join("_").to_sym
@@ -131,7 +131,7 @@ module Pakyow
             plug = plugin.make(
               "plug",
               within: Support::ObjectNamespace.new(
-                *__object_name.namespace.parts + [plugin_name, as]
+                *object_name.namespace.parts + [plugin_name, as]
               ),
               mount_path: at,
             ) do

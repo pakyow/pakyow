@@ -72,7 +72,7 @@ module Pakyow
                 parent.plugs.each do |plug|
                   plug.__ui_modes.each do |mode, block|
                     unless @__ui_modes.key?(mode)
-                      plug_namespace = plug.class.__object_name.namespace.parts.last
+                      plug_namespace = plug.class.object_name.namespace.parts.last
 
                       full_mode = if plug_namespace == :default
                         :"@#{plug.class.plugin_name}.#{mode}"
@@ -92,7 +92,7 @@ module Pakyow
                 plugs.each do |plug|
                   plug.__ui_modes.each do |mode, block|
                     unless @__ui_modes.key?(mode)
-                      plug_namespace = plug.class.__object_name.namespace.parts.last
+                      plug_namespace = plug.class.object_name.namespace.parts.last
 
                       full_mode = if plug_namespace == :default
                         :"@#{plug.class.plugin_name}.#{mode}"

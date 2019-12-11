@@ -73,7 +73,7 @@ module Pakyow
         apply_extension do
           template :resource do |param: DEFAULT_PARAM|
             resource_id = ":#{param}"
-            nested_param = "#{Support.inflector.singularize(controller.__object_name.name)}_#{param}".to_sym
+            nested_param = "#{Support.inflector.singularize(controller.object_name.name)}_#{param}".to_sym
             nested_resource_id = ":#{nested_param}"
 
             action :set_common_param do
@@ -141,7 +141,7 @@ module Pakyow
 
             unless controller.singleton_class.instance_methods(false).include?(:resource)
               controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
-                if existing_resource = children.find { |child| child.expansions.include?(:resource) && child.__object_name.name == name }
+                if existing_resource = children.find { |child| child.expansions.include?(:resource) && child.object_name.name == name }
                   existing_resource.instance_exec(&block); existing_resource
                 else
                   expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do

@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Behavior::Verification do
   include Pakyow::Behavior::Verification
 
   before do
-    self.class.instance_variable_set(:@__object_name_to_verify, nil)
+    self.class.instance_variable_set(:@object_name_to_verify, nil)
   end
 
   context "object to verify is not defined" do

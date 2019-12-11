@@ -18,7 +18,7 @@ RSpec.shared_context "mirror" do
   def controller(*names, state: controllers)
     name = names.shift.to_sym
     result = state.find { |c|
-      c.__object_name.name == name
+      c.object_name.name == name
     }
 
     if names.empty?

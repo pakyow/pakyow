@@ -753,12 +753,12 @@ module Pakyow
         end
 
         def name_of_self
-          return __object_name.name unless parent
-          [parent.name_of_self.to_s, __object_name.name.to_s].join("_").to_sym
+          return object_name.name unless parent
+          [parent.name_of_self.to_s, object_name.name.to_s].join("_").to_sym
         end
 
         def endpoints
-          self_name = __object_name&.name
+          self_name = object_name&.name
 
           # Ignore member and collection namespaces for endpoint building.
           #
@@ -811,15 +811,15 @@ module Pakyow
         def make_child(*args, **kwargs, &block)
           name, matcher = parse_name_and_matcher_from_args(*args)
 
-          if name && name.is_a?(Symbol) && child = children.find { |possible_child| possible_child.__object_name.name == name }
+          if name && name.is_a?(Symbol) && child = children.find { |possible_child| possible_child.object_name.name == name }
             if block_given?
               child.instance_exec(&block)
             end
 
             child
           else
-            if name && name.is_a?(Symbol) && __object_name
-              name = __object_name.isolate(name)
+            if name && name.is_a?(Symbol) && object_name
+              name = object_name.isolate(name)
             end
 
             make(name, matcher, parent: self, **kwargs, &block).tap do |controller|

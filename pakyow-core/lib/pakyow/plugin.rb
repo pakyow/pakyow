@@ -142,8 +142,8 @@ module Pakyow
     end
 
     # @api private
-    def __object_name
-      self.class.__object_name
+    def object_name
+      self.class.object_name
     end
 
     def plugin_path
@@ -165,10 +165,10 @@ module Pakyow
     end
 
     def exposed_value_name(name)
-      prefix = if self.class.__object_name.name == :default
+      prefix = if self.class.object_name.name == :default
         self.class.plugin_name
       else
-        "#{self.class.plugin_name}(#{self.class.__object_name.name})"
+        "#{self.class.plugin_name}(#{self.class.object_name.name})"
       end
 
       :"__#{prefix}.#{name}"
@@ -214,7 +214,7 @@ module Pakyow
     private
 
     def build_key
-      namespace = self.class.__object_name.namespace.parts.last
+      namespace = self.class.object_name.namespace.parts.last
       @key = case namespace
       when :default
         :"#{self.class.plugin_name}"
@@ -271,7 +271,7 @@ module Pakyow
 
         # Register endpoints accessible for frontend path building.
         #
-        namespace = self.class.__object_name.namespace.parts.last
+        namespace = self.class.object_name.namespace.parts.last
 
         endpoint_name = if namespace == :default
           :"@#{self.class.plugin_name}.#{endpoint.name}"

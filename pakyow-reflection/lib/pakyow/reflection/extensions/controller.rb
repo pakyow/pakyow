@@ -209,7 +209,7 @@ module Pakyow
 
         def reflects_specific_object?(object_name)
           (
-            self.class.__object_name.name == object_name && (
+            self.class.object_name.name == object_name && (
               connection.get(:__endpoint_name) == :show || connection.get(:__endpoint_name) == :edit
             )
           ) || parent_resource_named?(object_name)
@@ -217,14 +217,14 @@ module Pakyow
 
         def parent_resource_named?(object_name, context = self.class)
           if context && context.parent
-            context.parent.__object_name&.name == object_name || parent_resource_named?(object_name, context.parent)
+            context.parent.object_name&.name == object_name || parent_resource_named?(object_name, context.parent)
           else
             false
           end
         end
 
         def resource_with_name(object_name, context = self.class)
-          if context.__object_name&.name == object_name
+          if context.object_name&.name == object_name
             context
           elsif context.parent
             resource_with_name(object_name, context.parent)

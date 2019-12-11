@@ -37,7 +37,7 @@ RSpec.shared_context :source_associations_helpers do
         # Define an updatable attribute on the source.
         #
         state(:source).find { |instance|
-          instance.__object_name.name == spec_context.target_source
+          instance.object_name.name == spec_context.target_source
         }.class_eval do
           attribute :updatable
         end
