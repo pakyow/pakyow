@@ -819,7 +819,7 @@ module Pakyow
             child
           else
             if name && name.is_a?(Symbol) && __object_name
-              name = __object_name.isolated(name)
+              name = __object_name.isolate(name)
             end
 
             make(name, matcher, parent: self, **kwargs, &block).tap do |controller|

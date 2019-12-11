@@ -2,6 +2,9 @@
 
   * `add` **Introduce `ObjectName`, `ObjectNamespace`.**
 
+    *Related links:*
+    - [Pull Request #357][pr-357]
+
   * `chg` **Extension restriction violations now raise `RuntimeError`.**
 
     *Related links:*
@@ -48,6 +51,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-357]: https://github.com/pakyow/pakyow/pull/357
 [pr-352]: https://github.com/pakyow/pakyow/pull/352
 [pr-351]: https://github.com/pakyow/pakyow/pull/351
 [pr-349]: https://github.com/pakyow/pakyow/pull/349
