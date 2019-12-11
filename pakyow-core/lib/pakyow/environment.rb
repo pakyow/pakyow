@@ -309,7 +309,7 @@ module Pakyow
       else
         local_frameworks = (only || frameworks.keys) - Array.ensure(without)
 
-        Pakyow::Application.make(Support::ObjectName.namespace(app_name, "application")) {
+        Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
           config.name = app_name
           include_frameworks(*local_frameworks)
         }.tap do |app|

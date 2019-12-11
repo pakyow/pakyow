@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `ObjectName`, `ObjectNamespace`.**
+
   * `chg` **Extension restriction violations now raise `RuntimeError`.**
 
     *Related links:*
