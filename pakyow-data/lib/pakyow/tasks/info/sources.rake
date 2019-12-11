@@ -15,7 +15,7 @@ namespace :info do
     }
 
     source_locations = sources.map { |source|
-      source_location = source.__source_location.to_a.join(":")
+      source_location = source.source_name.to_a.join(":")
 
       source_location = if source_location.empty?
         "unknown"

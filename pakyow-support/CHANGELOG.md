@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Expose `source_location`.**
+
+    *Related links:*
+    - [Pull Request #359][pr-359]
+
   * `add` **Expose `object_name` for makeable, definable objects.**
 
     *Related links:*
@@ -56,6 +61,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-359]: https://github.com/pakyow/pakyow/pull/359
 [pr-358]: https://github.com/pakyow/pakyow/pull/358
 [pr-357]: https://github.com/pakyow/pakyow/pull/357
 [pr-352]: https://github.com/pakyow/pakyow/pull/352

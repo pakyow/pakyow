@@ -27,8 +27,8 @@ module Pakyow
           end
 
           (source_for_scope(scope) || define_source_for_scope(scope)).tap do |source|
-            unless source.__source_location
-              source.__source_location = block.source_location
+            unless source.source_name
+              source.source_name = block.source_location
             end
 
             source.class_eval(&block)
