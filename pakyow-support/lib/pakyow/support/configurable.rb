@@ -52,7 +52,30 @@ module Pakyow
     #   # => "qux"
     #
     module Configurable
-      module CommonMethods
+      extend Extension
+
+      extend_dependency ClassState
+
+      apply_extension do
+        class_state :__config, default: Config.new(self), inheritable: true
+        class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
+      end
+
+      class_methods do
+        # Define configuration to be applied when configuring for `environment`.
+        #
+        def configure(environment = :__global, &block)
+          __config_environments[environment] = block
+        end
+
+        def inherited(subclass)
+          super
+
+          subclass.config.update_configurable(subclass)
+        end
+      end
+
+      common_methods do
         extend Forwardable
 
         # @!method setting
@@ -98,33 +121,6 @@ module Pakyow
           end
         end
       end
-
-      extend Extension
-
-      extend_dependency ClassState
-
-      apply_extension do
-        class_state :__config, default: Config.new(self), inheritable: true
-        class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
-      end
-
-      class_methods do
-        include CommonMethods
-
-        # Define configuration to be applied when configuring for `environment`.
-        #
-        def configure(environment = :__global, &block)
-          __config_environments[environment] = block
-        end
-
-        def inherited(subclass)
-          super
-
-          subclass.config.update_configurable(subclass)
-        end
-      end
-
-      include CommonMethods
 
       private def __config
         unless defined?(@__config)

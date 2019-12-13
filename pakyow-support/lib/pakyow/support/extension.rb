@@ -20,6 +20,10 @@ module Pakyow
     #       # Define methods to prepend to the including object.
     #     end
     #
+    #     common_methods do
+    #       # Define methods to add both to the including object and its class.
+    #     end
+    #
     #     # Define instance methods for the including object, like with a normal module.
     #   end
     #
@@ -134,6 +138,12 @@ module Pakyow
         @__extension_prepend_module = Module.new(&block)
       end
 
+      # Register a block defining methods to be loaded into the including object and its class.
+      #
+      def common_methods(&block)
+        @__extension_common_module = Module.new(&block)
+      end
+
       # @api private
       def included(base)
         enforce_restrictions(base)
@@ -157,6 +167,11 @@ module Pakyow
 
         if instance_variable_defined?(:@__extension_prepend_module)
           base.prepend @__extension_prepend_module
+        end
+
+        if instance_variable_defined?(:@__extension_common_module)
+          base.extend @__extension_common_module
+          base.include @__extension_common_module
         end
       end
 

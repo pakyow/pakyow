@@ -41,7 +41,73 @@ module Pakyow
     #      resting
     #
     module Hookable
-      module CommonMethods
+      extend Extension
+
+      # Known hook priorities.
+      #
+      PRIORITIES = { default: 0, high: 1, low: -1 }.freeze
+
+      extend_dependency ClassState
+
+      apply_extension do
+        class_state :__events, default: [], inheritable: true, reader: false
+        class_state :__hooks, default: [], inheritable: true, reader: false
+        class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
+        class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
+      end
+
+      class_methods do
+        # Defines available events. Note that attempting to register a hook for an event that
+        # doesn't exist will result in an `ArgumentError`.
+        #
+        # @param events [Array<Symbol>] List of events.
+        #
+        def events(*events)
+          @__events.concat(events.map(&:to_sym)).uniq!; @__events
+        end
+
+        # Defines a hook to call before `event` occurs. If the hook is named it becomes an event
+        # that future hooks can be defined for.
+        #
+        # @param event [Symbol] The name of the event.
+        # @param name [Symbol] The name of the hook.
+        # @param priority [Symbol, Integer] The priority of the hook.
+        # @param exec [Boolean] If true, the hook will be called in context of the hookable object.
+        #
+        def before(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(:before, event, name, priority, exec, block)
+        end
+        alias on before
+
+        # Defines a hook to call after `event` occurs.
+        #
+        # @see #before
+        #
+        def after(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(:after, event, name, priority, exec, block)
+        end
+
+        # Defines a hook to call before and after `event` occurs.
+        #
+        # @see #before
+        #
+        def around(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
+          add_hook(:before, event, name, priority, exec, block)
+          add_hook(:after, event, name, priority, exec, block)
+        end
+
+        private def known_event?(event)
+          @__events.include?(event.to_sym)
+        end
+
+        private def known_hook?(event)
+          @__hooks.any? { |hook|
+            hook[:name] == event.to_sym
+          }
+        end
+      end
+
+      common_methods do
         # Calls all registered hooks for `event`, yielding between them.
         #
         # @param event [Symbol] The name of the event.
@@ -136,74 +202,6 @@ module Pakyow
         end
       end
 
-      # Known hook priorities.
-      #
-      PRIORITIES = { default: 0, high: 1, low: -1 }.freeze
-
-      extend Extension
-
-      extend_dependency ClassState
-
-      apply_extension do
-        class_state :__events, default: [], inheritable: true, reader: false
-        class_state :__hooks, default: [], inheritable: true, reader: false
-        class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
-        class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
-      end
-
-      class_methods do
-        include CommonMethods
-
-        # Defines available events. Note that attempting to register a hook for an event that
-        # doesn't exist will result in an `ArgumentError`.
-        #
-        # @param events [Array<Symbol>] List of events.
-        #
-        def events(*events)
-          @__events.concat(events.map(&:to_sym)).uniq!; @__events
-        end
-
-        # Defines a hook to call before `event` occurs. If the hook is named it becomes an event
-        # that future hooks can be defined for.
-        #
-        # @param event [Symbol] The name of the event.
-        # @param name [Symbol] The name of the hook.
-        # @param priority [Symbol, Integer] The priority of the hook.
-        # @param exec [Boolean] If true, the hook will be called in context of the hookable object.
-        #
-        def before(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(:before, event, name, priority, exec, block)
-        end
-        alias on before
-
-        # Defines a hook to call after `event` occurs.
-        #
-        # @see #before
-        #
-        def after(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(:after, event, name, priority, exec, block)
-        end
-
-        # Defines a hook to call before and after `event` occurs.
-        #
-        # @see #before
-        #
-        def around(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
-          add_hook(:before, event, name, priority, exec, block)
-          add_hook(:after, event, name, priority, exec, block)
-        end
-
-        private def known_event?(event)
-          @__events.include?(event.to_sym)
-        end
-
-        private def known_hook?(event)
-          @__hooks.any? { |hook|
-            hook[:name] == event.to_sym
-          }
-        end
-      end
-
       private def known_event?(event)
         self.class.known_event?(event.to_sym)
       end
@@ -211,8 +209,6 @@ module Pakyow
       private def __hook_pipeline
         self.class.__hook_pipeline
       end
-
-      include CommonMethods
     end
   end
 end
