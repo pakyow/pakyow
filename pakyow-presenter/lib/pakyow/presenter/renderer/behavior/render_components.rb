@@ -196,7 +196,7 @@ module Pakyow
               component_class.__object_name.name.to_s
             }.join("_")
 
-            object_name = Support::ObjectName.namespace(
+            object_name = Support::ObjectName.build(
               app.class.__object_name.namespace.parts[0], :components, compound_name, :presenter
             )
 
@@ -214,7 +214,7 @@ module Pakyow
               component_class.__object_name.name.to_s
             }.join("_")
 
-            object_name = Support::ObjectName.namespace(
+            object_name = Support::ObjectName.build(
               app.class.__object_name.namespace.parts[0], :components, compound_name, :presenter
             )
 

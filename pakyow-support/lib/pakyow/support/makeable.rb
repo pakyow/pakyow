@@ -3,7 +3,7 @@
 require "pakyow/support/hookable"
 
 require "pakyow/support/makeable/object_maker"
-require "pakyow/support/makeable/object_name"
+require "pakyow/support/object_name"
 
 module Pakyow
   module Support

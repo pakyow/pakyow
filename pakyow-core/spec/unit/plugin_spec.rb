@@ -7,7 +7,7 @@ RSpec.describe Pakyow::Plugin do
 
   let :subclass do
     Pakyow::Plugin(:test, "/").tap do |subclass|
-      subclass.instance_variable_set(:@__object_name, Pakyow::Support::ObjectName.namespace(:test, "plugin"))
+      subclass.instance_variable_set(:@__object_name, Pakyow::Support::ObjectName.build(:test, "plugin"))
     end
   end
 
