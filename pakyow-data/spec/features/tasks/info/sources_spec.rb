@@ -15,7 +15,7 @@ RSpec.describe "cli: info:sources" do
 
     Pakyow.app :test do
       source :posts do
-        self.__source_location = ["/posts.rb", 23]
+        self.source_name = ["/posts.rb", 23]
 
         has_many :comments
 
@@ -24,7 +24,7 @@ RSpec.describe "cli: info:sources" do
       end
 
       source :comments do
-        self.__source_location = [
+        self.source_name = [
           File.join(
             Pakyow::Support::System.local_framework_path_string,
             "pakyow-framework/comments.rb"

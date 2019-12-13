@@ -27,8 +27,8 @@ module Pakyow
 
       object = eval(code, TOPLEVEL_BINDING, @path, 1 - target.object_name.namespace.parts.count - 1)
 
-      if object.respond_to?(:__source_location)
-        object.__source_location = [@path, 1]
+      if object.respond_to?(:source_name)
+        object.source_name = [@path, 1]
       end
 
       object
