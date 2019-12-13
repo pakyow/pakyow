@@ -73,7 +73,7 @@ module Pakyow
         if associations.any?
           String.new(
             <<~MESSAGE
-              The following associations exist for #{@context.__object_name.name}:
+              The following associations exist for #{@context.object_name.name}:
             MESSAGE
           ).tap do |message|
             associations.each do |association|
@@ -83,7 +83,7 @@ module Pakyow
         else
           String.new(
             <<~MESSAGE
-              No associations exist for #{@context.__object_name.name}.
+              No associations exist for #{@context.object_name.name}.
             MESSAGE
           )
         end
@@ -105,7 +105,7 @@ module Pakyow
         if commands.any?
           String.new(
             <<~MESSAGE
-              The following commands are defined for #{@context.__object_name.name}:
+              The following commands are defined for #{@context.object_name.name}:
             MESSAGE
           ).tap do |message|
             commands.keys.each do |command|
@@ -115,7 +115,7 @@ module Pakyow
         else
           String.new(
             <<~MESSAGE
-              No commands are defined for #{@context.__object_name.name}.
+              No commands are defined for #{@context.object_name.name}.
             MESSAGE
           )
         end

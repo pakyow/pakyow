@@ -76,12 +76,12 @@ module Pakyow
         # Define helper methods for groups and namespaces
         #
         @expander.children.each do |child|
-          unless @controller.singleton_class.instance_methods(false).include?(child.__object_name.name)
-            @controller.define_singleton_method child.__object_name.name do |&block|
+          unless @controller.singleton_class.instance_methods(false).include?(child.object_name.name)
+            @controller.define_singleton_method child.object_name.name do |&block|
               if child.path.nil?
-                group(child.__object_name.name, &block)
+                group(child.object_name.name, &block)
               else
-                namespace(child.__object_name.name, child.path || child.matcher, &block)
+                namespace(child.object_name.name, child.path || child.matcher, &block)
               end
             end
           end

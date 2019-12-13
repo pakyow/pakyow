@@ -8,7 +8,7 @@ RSpec.describe Pakyow::Support::Makeable do
       end
 
       it "sets the name on the class" do
-        expect(object.make(:foo).__object_name.name).to eq(:foo)
+        expect(object.make(:foo).object_name.name).to eq(:foo)
       end
 
       it "evals the block on the class" do

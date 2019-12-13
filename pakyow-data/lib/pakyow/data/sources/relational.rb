@@ -230,7 +230,7 @@ module Pakyow
 
         # @api private
         def source_name
-          self.class.__object_name.name
+          self.class.object_name.name
         end
 
         # @api private

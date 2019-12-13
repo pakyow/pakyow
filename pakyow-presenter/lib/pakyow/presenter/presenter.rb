@@ -456,7 +456,7 @@ module Pakyow
         end
 
         binder = context.state(:binder).find { |possible_binder|
-          possible_binder.__object_name.name == @view.label(:binding)
+          possible_binder.object_name.name == @view.label(:binding)
         }
 
         unless binder

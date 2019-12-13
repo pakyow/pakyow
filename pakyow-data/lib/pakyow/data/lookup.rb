@@ -19,11 +19,11 @@ module Pakyow
         @containers = containers
         @containers.each do |container|
           container.sources.each do |source|
-            @sources[source.__object_name.name] = source
-            define_singleton_method source.__object_name.name do
+            @sources[source.object_name.name] = source
+            define_singleton_method source.object_name.name do
               Proxy.new(
                 container.source(
-                  source.__object_name.name
+                  source.object_name.name
                 ),
 
                 @subscribers, @app
@@ -67,7 +67,7 @@ module Pakyow
               unless @sources.key?(source_name)
                 raise(
                   UnknownSource.new_with_message(
-                    source: source.__object_name.name,
+                    source: source.object_name.name,
                     association_source: source_name,
                     association_type: association.specific_type,
                     association_name: association.name

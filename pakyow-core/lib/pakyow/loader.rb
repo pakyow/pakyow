@@ -13,19 +13,19 @@ module Pakyow
 
     def call(target)
       code = String.new
-      target.__object_name.namespace.parts.each do |part|
+      target.object_name.namespace.parts.each do |part|
         code << "module #{Support.inflector.camelize(part)}\n"
       end
 
-      code << "class #{Support.inflector.camelize(target.__object_name.name)}\n"
+      code << "class #{Support.inflector.camelize(target.object_name.name)}\n"
       code << File.read(@path)
       code << "end\n"
 
-      target.__object_name.namespace.parts.count.times do
+      target.object_name.namespace.parts.count.times do
         code << "end\n"
       end
 
-      object = eval(code, TOPLEVEL_BINDING, @path, 1 - target.__object_name.namespace.parts.count - 1)
+      object = eval(code, TOPLEVEL_BINDING, @path, 1 - target.object_name.namespace.parts.count - 1)
 
       if object.respond_to?(:__source_location)
         object.__source_location = [@path, 1]

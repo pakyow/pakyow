@@ -43,7 +43,7 @@ module Pakyow
                     if node.label(:components).count > 1
                       component_classes = node.label(:components).each_with_object([]) { |component_label, arr|
                         component_class = state(:component).find { |component|
-                          component.__object_name.name == component_label[:name]
+                          component.object_name.name == component_label[:name]
                         }
 
                         if component_class

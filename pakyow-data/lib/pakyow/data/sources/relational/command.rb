@@ -39,7 +39,7 @@ module Pakyow
               values.keys.each do |key|
                 key = key.to_sym
                 unless @source.class.attributes.include?(key) || @source.class.association_with_name?(key)
-                  raise UnknownAttribute.new_with_message(attribute: key, source: @source.class.__object_name.name)
+                  raise UnknownAttribute.new_with_message(attribute: key, source: @source.class.object_name.name)
                 end
               end
 
@@ -101,7 +101,7 @@ module Pakyow
 
                 case association_value
                 when Proxy
-                  if association_value.source.class.__object_name.name == association.associated_source.__object_name.name
+                  if association_value.source.class.object_name.name == association.associated_source.object_name.name
                     if association.result_type == :one && (association_value.count > 1 || (@updates && @source.count > 1))
                       raise ConstraintViolation.new_with_message(
                         :associate_multiple,
@@ -111,14 +111,14 @@ module Pakyow
                   else
                     raise TypeMismatch.new_with_message(
                       :associate_wrong_source,
-                      source: association_value.source.class.__object_name.name,
+                      source: association_value.source.class.object_name.name,
                       association: association.name
                     )
                   end
                 when Object
                   if association.result_type == :one
                     if association_value.originating_source
-                      if association_value.originating_source.__object_name.name == association.associated_source.__object_name.name
+                      if association_value.originating_source.object_name.name == association.associated_source.object_name.name
                         if association.associated_source.instance.send(:"by_#{association.associated_source.primary_key_field}", association_value[association.associated_source.primary_key_field]).count == 0
                           raise ConstraintViolation.new_with_message(
                             :associate_missing,
@@ -130,7 +130,7 @@ module Pakyow
                       else
                         raise TypeMismatch.new_with_message(
                           :associate_wrong_object,
-                          source: association_value.originating_source.__object_name.name,
+                          source: association_value.originating_source.object_name.name,
                           association: association.name
                         )
                       end
@@ -317,7 +317,7 @@ module Pakyow
 
                       raise ConstraintViolation.new_with_message(
                         :dependent_delete,
-                        source: @source.class.__object_name.name,
+                        source: @source.class.object_name.name,
                         count: dependent_count,
                         dependent: dependent_name
                       )
@@ -360,7 +360,7 @@ module Pakyow
                 # return a source containing locally updated values. This lets us see
                 # the original values but prevents us from fetching twice.
 
-                @source.class.container.source(@source.class.__object_name.name).tap do |updated_source|
+                @source.class.container.source(@source.class.object_name.name).tap do |updated_source|
                   updated_source.__setobj__(
                     @source.class.container.connection.adapter.result_for_attribute_value(
                       @source.class.primary_key_field, command_result, updated_source

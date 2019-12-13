@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Expose `object_name` for makeable, definable objects.**
+
+    *Related links:*
+    - [Pull Request #358][pr-358]
+
   * `add` **Introduce `ObjectName`, `ObjectNamespace`.**
 
     *Related links:*
@@ -51,6 +56,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-358]: https://github.com/pakyow/pakyow/pull/358
 [pr-357]: https://github.com/pakyow/pakyow/pull/357
 [pr-352]: https://github.com/pakyow/pakyow/pull/352
 [pr-351]: https://github.com/pakyow/pakyow/pull/351

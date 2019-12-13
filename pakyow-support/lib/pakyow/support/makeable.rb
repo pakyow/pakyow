@@ -16,7 +16,7 @@ module Pakyow
         end
       end
 
-      attr_reader :__object_name
+      attr_reader :object_name
       attr_accessor :__source_location
 
       def make(object_name, within: nil, set_const: true, **kwargs, &block)
@@ -26,7 +26,7 @@ module Pakyow
 
         local_eval_method = eval_method
         object.send(eval_method) do
-          @__object_name = object_name
+          @object_name = object_name
           send(local_eval_method, &block) if block_given?
         end
 
@@ -41,8 +41,8 @@ module Pakyow
 
       def build_object_name(object_name, within:)
         unless object_name.is_a?(ObjectName) || object_name.nil?
-          namespace = if within && within.respond_to?(:__object_name)
-            within.__object_name.namespace
+          namespace = if within && within.respond_to?(:object_name)
+            within.object_name.namespace
           elsif within.is_a?(ObjectNamespace)
             within
           else
@@ -90,8 +90,8 @@ module Pakyow
           Class.new(self)
         when Module
           Module.new do
-            def self.__object_name
-              @__object_name
+            def self.object_name
+              @object_name
             end
           end
         end

@@ -15,10 +15,10 @@ module Pakyow
 
       def verify(values = nil, &block)
         unless values
-          if self.class.__object_name_to_verify.nil?
+          if self.class.object_name_to_verify.nil?
             raise "Expected values to be passed"
           else
-            values = public_send(self.class.__object_name_to_verify)
+            values = public_send(self.class.object_name_to_verify)
           end
         end
 
@@ -34,12 +34,12 @@ module Pakyow
 
       apply_extension do
         extend Support::ClassState
-        class_state :__object_name_to_verify, inheritable: true
+        class_state :object_name_to_verify, inheritable: true
       end
 
       class_methods do
         def verifies(object)
-          @__object_name_to_verify = object
+          @object_name_to_verify = object
         end
       end
     end

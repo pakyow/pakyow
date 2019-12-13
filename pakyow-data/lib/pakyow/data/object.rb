@@ -27,7 +27,7 @@ module Pakyow
       end
 
       def source
-        @originating_source.__object_name.name
+        @originating_source.object_name.name
       end
 
       def include?(key)

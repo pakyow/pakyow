@@ -62,7 +62,7 @@ module Pakyow
 
               components = component_view.object.label(:components).each_with_object([]) { |component_label, arr|
                 component_class = component_state.find { |component|
-                  component.__object_name.name == component_label[:name]
+                  component.object_name.name == component_label[:name]
                 }
 
                 if component_class
@@ -193,11 +193,11 @@ module Pakyow
           # @api private
           def self.find_compound_presenter(app, component_classes)
             compound_name = component_classes.map { |component_class|
-              component_class.__object_name.name.to_s
+              component_class.object_name.name.to_s
             }.join("_")
 
             object_name = Support::ObjectName.build(
-              app.class.__object_name.namespace.parts[0], :components, compound_name, :presenter
+              app.class.object_name.namespace.parts[0], :components, compound_name, :presenter
             )
 
             if const_defined?(object_name.constant)
@@ -211,11 +211,11 @@ module Pakyow
           #
           def self.find_or_build_compound_presenter(app, component_classes)
             compound_name = component_classes.map { |component_class|
-              component_class.__object_name.name.to_s
+              component_class.object_name.name.to_s
             }.join("_")
 
             object_name = Support::ObjectName.build(
-              app.class.__object_name.namespace.parts[0], :components, compound_name, :presenter
+              app.class.object_name.namespace.parts[0], :components, compound_name, :presenter
             )
 
             if const_defined?(object_name.constant)
