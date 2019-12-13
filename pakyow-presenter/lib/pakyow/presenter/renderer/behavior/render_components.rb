@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/makeable"
 
 require "pakyow/presenter/composers/component"
 
@@ -222,7 +223,7 @@ module Pakyow
               const_get(object_name.constant)
             else
               component_presenter = Class.new(app.isolated(:Presenter))
-              Support::ObjectMaker.define_const_for_object_with_name(component_presenter, object_name)
+              Support::Makeable.define_const_for_object_with_name(component_presenter, object_name)
 
               component_classes.each do |component_class|
                 # Copy unique attached renders.
