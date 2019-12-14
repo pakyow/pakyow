@@ -47,4 +47,6 @@ group :test do
   gem "ruby-prof", "~> 1.0", require: false
 
   gem "benchmark-ips", "~> 2.7", require: false
+
+  gem "http", "~> 4.2"
 end
