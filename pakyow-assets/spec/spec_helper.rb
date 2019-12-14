@@ -12,19 +12,9 @@ require "pakyow/assets"
 
 require_relative "../../spec/helpers/mock_handler"
 
-module GlobalContext
-  extend RSpec::SharedContext
-
-  let :latest_pakyow_js do
-    @latest_pakyow_js
-  end
-end
+$latest_pakyow_js = "1.1.0-alpha.2"
 
 RSpec.configure do |spec_config|
-  spec_config.before :all do
-    @latest_pakyow_js = `npm show @pakyow/js version`.strip
-  end
-
   spec_config.before do
     local = self
     @default_app_def = Proc.new do
@@ -33,14 +23,14 @@ RSpec.configure do |spec_config|
       end
 
       define_method :pakyow_js_version do
-        local.latest_pakyow_js
+        $latest_pakyow_js
       end
 
       after "initialize" do
         self.class.__plugs.each do |plug|
           plug.class_exec do
             define_method :pakyow_js_version do
-              local.latest_pakyow_js
+              $latest_pakyow_js
             end
           end
         end
@@ -51,8 +41,6 @@ RSpec.configure do |spec_config|
   spec_config.after do
     Pakyow::Assets::Babel.instance_variable_set(:@context, nil)
   end
-
-  spec_config.include GlobalContext
 end
 
 require_relative "../../spec/context/app_context"
