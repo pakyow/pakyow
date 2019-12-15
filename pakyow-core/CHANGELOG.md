@@ -1,4 +1,4 @@
-# v1.0.3 (unreleased)
+# v1.0.3
 
   * `fix` **Resolve several issues with respawns, restarts.**
 

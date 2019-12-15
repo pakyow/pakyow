@@ -1,4 +1,4 @@
-# v1.0.3 (unreleased)
+# v1.0.3
 
   * `fix` **Make `pakyow/assets` compatible with Ruby 2.7.0.**
     - External assets used the `http` gem, which is failing on Ruby 2.7.0-preview3. We replaced it
