@@ -183,11 +183,11 @@ module Pakyow
       class Internal
         attr_reader :actions
 
-        def initialize
+        def initialize(&block)
           @actions = []
 
           if block_given?
-            instance_exec(&Proc.new)
+            instance_exec(&block)
           end
         end
 

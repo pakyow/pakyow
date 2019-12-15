@@ -60,9 +60,9 @@ module Pakyow
       @validations.any?
     end
 
-    def validate(validation_name = nil, **options)
+    def validate(validation_name = nil, **options, &block)
       validation_object = if block_given?
-        Validations::Inline.new(validation_name, Proc.new)
+        Validations::Inline.new(validation_name, block)
       else
         self.class.validation_object_for(validation_name)
       end

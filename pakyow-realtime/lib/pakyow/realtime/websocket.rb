@@ -133,12 +133,12 @@ module Pakyow
       end
 
       def transmit_system_info
-        transmit(
+        transmit({
           channel: "system",
           message: {
             version: @connection.app.config.version
           }
-        )
+        })
       end
 
       HEARTBEAT_INTERVAL = 1.freeze
