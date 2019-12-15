@@ -9,7 +9,7 @@
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
 [802295c]: https://github.com/pakyow/pakyow/commit/802295c0396383b96fadafd121192d41bb63457e
 
-# v1.0.3 (unreleased)
+# v1.0.3
 
   * `fix` **Make `pakyow/assets` compatible with Ruby 2.7.0.**
     - External assets used the `http` gem, which is failing on Ruby 2.7.0-preview3. We replaced it
