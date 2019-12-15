@@ -599,13 +599,13 @@ RSpec.describe Pakyow do
       end
 
       it "restarts before dispatch" do
-        expect(pipeline.instance_variable_get(:@stack).map(&:to_s)).to eq(
+        expect(pipeline.instance_variable_get(:@stack).map(&:owner).map(&:name)).to eq(
           [
-            "#<Method: Pakyow::Actions::Logger#call>",
-            "#<Method: Pakyow::Actions::Normalizer#call>",
-            "#<Method: Pakyow::Actions::InputParser#call>",
-            "#<Method: Pakyow::Actions::Restart#call>",
-            "#<Method: Pakyow::Actions::Dispatch#call>"
+            "Pakyow::Actions::Logger",
+            "Pakyow::Actions::Normalizer",
+            "Pakyow::Actions::InputParser",
+            "Pakyow::Actions::Restart",
+            "Pakyow::Actions::Dispatch"
           ]
         )
       end
@@ -621,13 +621,13 @@ RSpec.describe Pakyow do
       end
 
       it "restarts before dispatch" do
-        expect(pipeline.instance_variable_get(:@stack).map(&:to_s)).to eq(
+        expect(pipeline.instance_variable_get(:@stack).map(&:owner).map(&:name)).to eq(
           [
-            "#<Method: Pakyow::Actions::Logger#call>",
-            "#<Method: Pakyow::Actions::Normalizer#call>",
-            "#<Method: Pakyow::Actions::InputParser#call>",
-            "#<Method: Pakyow::Actions::Restart#call>",
-            "#<Method: Pakyow::Actions::Dispatch#call>"
+            "Pakyow::Actions::Logger",
+            "Pakyow::Actions::Normalizer",
+            "Pakyow::Actions::InputParser",
+            "Pakyow::Actions::Restart",
+            "Pakyow::Actions::Dispatch"
           ]
         )
       end

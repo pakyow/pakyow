@@ -21,10 +21,10 @@ module Pakyow
           @forwards.any?
         end
 
-        def deprecated(*args)
+        def deprecated(*args, **kwargs)
           if forwarding?
             @forwards.each do |forward|
-              forward.deprecated(*args)
+              forward.deprecated(*args, **kwargs)
             end
           else
             super

@@ -121,7 +121,7 @@ RSpec.describe "external scripts" do
       end
 
       it "downloads the latest pakyow" do
-        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest_pakyow_js}.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{$latest_pakyow_js}.js"))).to be(true)
       end
     end
 
@@ -145,7 +145,7 @@ RSpec.describe "external scripts" do
       end
 
       it "downloads the latest version" do
-        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest_pakyow_js}.js"))).to be(true)
+        expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{$latest_pakyow_js}.js"))).to be(true)
       end
     end
 
@@ -214,7 +214,7 @@ RSpec.describe "external scripts" do
     end
 
     it "does not download" do
-      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{latest_pakyow_js}.js"))).to be(false)
+      expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{$latest_pakyow_js}.js"))).to be(false)
     end
   end
 end

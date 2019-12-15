@@ -11,7 +11,7 @@ jobs:
     name: Pakyow.js
 
     container:
-      image: pakyow/ci-ruby-2.6.5
+      image: pakyow/ci-npm
 
     steps:
       - uses: actions/checkout@v1
