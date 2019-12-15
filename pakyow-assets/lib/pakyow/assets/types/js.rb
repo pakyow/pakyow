@@ -25,7 +25,7 @@ module Pakyow
 
         def process(content)
           result = if transformable?
-            transformed = Babel.transform(content, @options)
+            transformed = Babel.transform(content, **@options)
             { content: transformed["code"], map: transformed["map"] }
           else
             { content: content, map: "" }

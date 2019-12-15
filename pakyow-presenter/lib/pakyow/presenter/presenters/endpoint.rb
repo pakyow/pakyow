@@ -53,7 +53,7 @@ module Pakyow
             end
           elsif view.object.labeled?(:endpoint_object)
             view.object.label(:endpoint_object).path(
-              __endpoint.params.merge(view.object.label(:endpoint_params).to_h)
+              **__endpoint.params.merge(view.object.label(:endpoint_params).to_h)
             )
           else
             nil

@@ -73,7 +73,7 @@ module Pakyow
         end
 
         def call(**params)
-          @route.build_path(@path, params)
+          @route.build_path(@path, **params)
         end
 
         def source_location

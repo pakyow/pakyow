@@ -257,7 +257,7 @@ module Pakyow
             endpoint_path << possible_endpoint_name
             endpoint_path.uniq!
 
-            app.endpoints.path_to(*endpoint_path, action, params)
+            app.endpoints.path_to(*endpoint_path, action, **params)
           }.compact.first
         end
 
