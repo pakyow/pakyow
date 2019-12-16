@@ -27,7 +27,6 @@ module Pakyow
             load_aspect(:operations)
           end
 
-          attr_reader :operations
           after "initialize" do
             @operations = Lookup.new(operations: state(:operation), app: self)
           end
@@ -38,11 +37,15 @@ module Pakyow
           #
           # @api private
           def make(*)
+            isolate Operation
+
             super.tap do |new_class|
-              new_class.stateful :operation, Operation
+              new_class.stateful :operation, isolated(:Operation)
             end
           end
         end
+
+        attr_reader :operations
       end
     end
   end

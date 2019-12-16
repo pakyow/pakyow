@@ -1,4 +1,6 @@
 # v1.1.0 (unreleased)
+  * `add` **Introduce `Isolable`.**
+    - [Pull Request #363][pr-363]
 
   * `add` **Add a `common_methods` pattern to extensions.**
 
@@ -66,6 +68,7 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+[pr-363]: https://github.com/pakyow/pakyow/pull/363
 [pr-361]: https://github.com/pakyow/pakyow/pull/361
 [pr-359]: https://github.com/pakyow/pakyow/pull/359
 [pr-358]: https://github.com/pakyow/pakyow/pull/358

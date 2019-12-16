@@ -54,7 +54,9 @@ module Pakyow
           # Define helpers as stateful after an app is made.
           #
           after "make", priority: :high do
-            stateful :helper, Helper
+            isolate Helper
+
+            stateful :helper, isolated(:Helper)
           end
         end
 
