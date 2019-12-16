@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "pakyow/support/class_state"
+require "pakyow/support/deprecator"
+require "pakyow/support/extension"
 
 module Pakyow
   module Support
@@ -44,84 +46,60 @@ module Pakyow
     #   Application.new.call(Result.new).results
     #   => ["foo", "bar"]
     #
-    # = Modules
-    #
-    # Pipeline actions can be defined in a module and included in a pipelined object.
-    #
-    # @example
-    #   module VerifyRequest
-    #     extend Pakyow::Support::Pipeline
-    #
-    #     action :verify_request
-    #
-    #     def verify_request
-    #       ...
-    #     end
-    #   end
-    #
-    #   class Application
-    #     include Pakyow::Support::Pipeline
-    #
-    #     use_pipeline VerifyRequest
-    #
-    #     ...
-    #   end
-    #
     module Pipeline
-      # @api private
+      require "pakyow/support/pipeline/action"
+      require "pakyow/support/pipeline/callable"
+      require "pakyow/support/pipeline/extension"
+      require "pakyow/support/pipeline/internal"
+
+      extend Support::Extension
+
+      extend_dependency ClassState
+
       def self.extended(base)
-        base.extend ClassMethods
-        base.extend ClassState unless base.ancestors.include?(ClassState)
-        base.class_state :__pipelines, default: {}, inheritable: true
-        base.class_state :__pipeline, inheritable: true
+        Pakyow::Support::Deprecator.global.deprecated "using `extend Pakyow::Support::Pipeline'", solution: "use `extend Pakyow::Support::Pipeline::Extension'"
 
-        base.instance_variable_set(:@__pipeline, Internal.new)
+        base.extend Pipeline::Extension
       end
 
-      # @api private
-      def self.included(base)
-        base.extend ClassMethods
-        base.extend ClassState unless base.ancestors.include?(ClassState)
-        base.prepend Initializer
-        base.class_state :__pipelines, default: {}, inheritable: true
-        base.class_state :__pipeline, inheritable: true
+      apply_extension do
+        class_state :__pipelines, default: {}, inheritable: true
+        class_state :__pipeline, default: Internal.new, inheritable: true
 
-        # Define a default pipeline so that actions can be defined immediately without ceremony.
+        # Define a default pipeline.
         #
-        base.pipeline :default do; end
-        base.use_pipeline :default
+        pipeline :default do
+        end
+
+        # Use the default pipeline so that actions can be defined immediately without ceremony.
+        #
+        use_pipeline :default
       end
 
-      # Calls the pipeline, passing +state+.
-      #
-      def call(state)
-        @__pipeline.call(state)
-      end
-
-      def initialize_copy(_)
-        super
-
-        @__pipeline = @__pipeline.dup
-
-        # rebind any methods to the new instance
-        @__pipeline.instance_variable_get(:@stack).map! { |action|
-          if action.is_a?(::Method) && action.receiver.is_a?(self.class)
-            action.unbind.bind(self)
-          else
-            action
-          end
-        }
-      end
-
-      # @api private
-      module Initializer
+      prepend_methods do
         def initialize(*)
           @__pipeline = self.class.__pipeline.callable(self)
+
           super
+        end
+
+        def initialize_copy(_)
+          super
+
+          @__pipeline = @__pipeline.dup
+
+          # rebind any methods to the new instance
+          @__pipeline.instance_variable_get(:@stack).map! { |action|
+            if action.is_a?(::Method) && action.receiver.is_a?(self.class)
+              action.unbind.bind(self)
+            else
+              action
+            end
+          }
         end
       end
 
-      module ClassMethods
+      class_methods do
         # Defines a pipeline.
         #
         def pipeline(name, &block)
@@ -132,7 +110,7 @@ module Pakyow
         #
         def use_pipeline(name_or_pipeline)
           pipeline = find_pipeline(name_or_pipeline)
-          include name_or_pipeline if name_or_pipeline.is_a?(Pipeline)
+          include name_or_pipeline if name_or_pipeline.is_a?(Pipeline::Extension)
           @__pipeline = pipeline
         end
 
@@ -140,7 +118,7 @@ module Pakyow
         #
         def include_pipeline(name_or_pipeline)
           pipeline = find_pipeline(name_or_pipeline)
-          include name_or_pipeline if name_or_pipeline.is_a?(Pipeline)
+          include name_or_pipeline if name_or_pipeline.is_a?(Pipeline::Extension)
           @__pipeline.include_actions(pipeline.actions)
         end
 
@@ -161,174 +139,24 @@ module Pakyow
           @__pipeline.skip(*actions)
         end
 
-        private
-
-        def find_pipeline(name_or_pipeline)
-          if name_or_pipeline.is_a?(Pipeline)
+        private def find_pipeline(name_or_pipeline)
+          case name_or_pipeline
+          when Pipeline::Extension
             name_or_pipeline.instance_variable_get(:@__pipeline)
-          elsif name_or_pipeline.is_a?(Internal)
+          when Internal
             name_or_pipeline
           else
-            name_or_pipeline = name_or_pipeline.to_sym
-            if @__pipelines.key?(name_or_pipeline)
-              @__pipelines[name_or_pipeline]
-            else
+            @__pipelines.fetch(name_or_pipeline.to_sym) {
               raise ArgumentError, "could not find a pipeline named `#{name_or_pipeline}'"
-            end
+            }
           end
         end
       end
 
-      # @api private
-      class Internal
-        attr_reader :actions
-
-        def initialize(&block)
-          @actions = []
-
-          if block_given?
-            instance_exec(&block)
-          end
-        end
-
-        def initialize_copy(_)
-          @actions = @actions.dup
-          super
-        end
-
-        def callable(context)
-          Callable.new(@actions, context)
-        end
-
-        def action(target, *options, before: nil, after: nil, &block)
-          Action.new(target, *options, &block).tap do |action|
-            if before
-              if i = @actions.index { |a| a.name == before }
-                @actions.insert(i, action)
-              else
-                @actions.unshift(action)
-              end
-            elsif after
-              if i = @actions.index { |a| a.name == after }
-                @actions.insert(i + 1, action)
-              else
-                @actions << action
-              end
-            else
-              @actions << action
-            end
-          end
-        end
-
-        def skip(*actions)
-          @actions.delete_if { |action|
-            actions.include?(action.name)
-          }
-        end
-
-        def include_actions(actions)
-          @actions.concat(actions).uniq!
-        end
-
-        def exclude_actions(actions)
-          # Map input into a common denominator, to exclude both names and other action objects.
-          targets = actions.map { |action|
-            if action.is_a?(Action)
-              action.target
-            else
-              action
-            end
-          }
-
-          @actions.delete_if { |action|
-            targets.include?(action.target)
-          }
-        end
-      end
-
-      # @api private
-      class Callable
-        def initialize(actions, context)
-          @stack = actions.map { |action|
-            action.finalize(context)
-          }
-        end
-
-        def initialize_copy(_)
-          @stack = @stack.dup
-
-          super
-        end
-
-        def call(object, stack = @stack.dup)
-          catch :halt do
-            until stack.empty? || object.halted?
-              action = stack.shift
-              if action.arity == 0
-                action.call do
-                  call(object, stack)
-                end
-              else
-                action.call(object) do
-                  call(object, stack)
-                end
-              end
-            end
-          end
-
-          object.pipelined
-        end
-      end
-
-      # @api private
-      class Action
-        attr_reader :target, :name, :options
-
-        def initialize(target, *options, &block)
-          @target, @options, @block = target, options, block
-
-          if target.is_a?(Symbol)
-            @name = target
-          end
-        end
-
-        def finalize(context = nil)
-          if @block
-            if context
-              if @block.arity == 0
-                Proc.new do
-                  context.instance_exec(&@block)
-                end
-              else
-                Proc.new do |object|
-                  context.instance_exec(object, &@block)
-                end
-              end
-            else
-              @block
-            end
-          elsif @target.is_a?(Symbol) && context.respond_to?(@target, true) && (options[0].nil? || !options[0].instance_methods(false).include?(:call))
-            if context
-              context.method(@target)
-            else
-              raise "finalizing pipeline action #{@target} requires context"
-            end
-          else
-            target, target_options = if @target.is_a?(Symbol)
-              [@options[0], @options[1..-1]]
-            else
-              [@target, @options]
-            end
-
-            instance = if target.is_a?(Class)
-              target.new(*target_options)
-            else
-              target
-            end
-
-            instance.method(:call)
-          end
-        end
+      # Calls the pipeline, passing +state+.
+      #
+      def call(state)
+        @__pipeline.call(state)
       end
     end
   end
