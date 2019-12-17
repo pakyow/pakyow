@@ -1,4 +1,8 @@
 # v1.1.0 (unreleased)
+
+  * `add` **Introduce `Pipeline::Extension`.**
+    - [Pull Request #364][pr-364]
+
   * `add` **Introduce `Isolable`.**
     - [Pull Request #363][pr-363]
 
@@ -68,6 +72,15 @@
     *Related links:*
     - [Commit 787681d][787681d]
 
+## Deprecations
+
+  * Pipeline extensions should be created with `extend Pakyow::Support::Pipeline::Extension` instead
+    of using `extend Pakyow::Support::Pipeline`.
+
+    *Related links:*
+    - [Pull Request #364][pr-364]
+
+[pr-364]: https://github.com/pakyow/pakyow/pull/364
 [pr-363]: https://github.com/pakyow/pakyow/pull/363
 [pr-361]: https://github.com/pakyow/pakyow/pull/361
 [pr-359]: https://github.com/pakyow/pakyow/pull/359
