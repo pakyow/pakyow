@@ -147,10 +147,6 @@ module Pakyow
       @parent.respond_to?(method_name) || super
     end
 
-    def helpers(connection)
-      @helper_class.new(self, connection)
-    end
-
     # @api private
     def object_name
       self.class.object_name

@@ -61,25 +61,26 @@ module Pakyow
         end
 
         class_methods do
-          # Registers a helper module to be loaded on defined endpoints.
+          # Register a helper module for `context`.
           #
           def register_helper(context, helper_module)
             (config.helpers[context.to_sym] << helper_module).uniq!
           end
 
-          # Includes helpers of a particular context into an object. Global helpers
+          # Includes helpers of a particular `context` into `object`. Global helpers
           # will automatically be included into active and passive contexts, and
           # passive helpers will automatically be included into the active context.
           #
           def include_helpers(context, object)
             @__included_helpers[object] = context
 
-            helpers(context.to_sym).each do |helper|
+            helpers_for_context(context.to_sym).each do |helper|
               object.include helper
             end
           end
 
-          def helpers(context)
+          # @api private
+          def helpers_for_context(context)
             case context.to_sym
             when :global
               config.helpers[:global]
