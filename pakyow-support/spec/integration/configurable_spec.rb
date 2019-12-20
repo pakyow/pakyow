@@ -58,6 +58,60 @@ RSpec.shared_examples "configurable" do
     expect(object.config.foo.respond_to?(:baz)).to be(false)
   end
 
+  describe "configuring for an environment" do
+    before do
+      object.setting :foo
+      object.setting :bar
+      object.setting :baz
+
+      object.configure do
+        config.foo = :global_foo
+        config.baz = :global_baz
+      end
+
+      object.configure :specific do
+        config.bar = :bar
+        config.baz = :baz
+      end
+
+      object.configure :other do
+        config.foo = :other_foo
+        config.bar = :other_bar
+        config.baz = :other_baz
+      end
+
+      object.configure!(environment)
+    end
+
+    let(:environment) {
+      :specific
+    }
+
+    it "configures globally" do
+      expect(object.config.foo).to eq(:global_foo)
+    end
+
+    it "configures for the environment" do
+      expect(object.config.bar).to eq(:bar)
+    end
+
+    it "gives precedence to the environment" do
+      expect(object.config.baz).to eq(:baz)
+    end
+
+    context "environment is not a symbol" do
+      let(:environment) {
+        "specific"
+      }
+
+      it "still configures" do
+        expect(object.config.foo).to eq(:global_foo)
+        expect(object.config.bar).to eq(:bar)
+        expect(object.config.baz).to eq(:baz)
+      end
+    end
+  end
+
   describe "memoization" do
     it "memoizes default values" do
       object.setting :foo, []

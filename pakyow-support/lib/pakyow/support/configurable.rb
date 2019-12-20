@@ -104,6 +104,8 @@ module Pakyow
         # Configures for `environment`.
         #
         def configure!(environment = nil)
+          environment = environment&.to_sym
+
           __config.configure_defaults!(environment)
 
           each_configurable_environment(environment) do |configurable_environment|
