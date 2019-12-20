@@ -14,6 +14,8 @@ require "pakyow/application/behavior/realtime/silencing"
 
 require "pakyow/presenter/renderer/behavior/realtime/install_websocket"
 
+require "pakyow/application/actions/realtime/upgrader"
+
 module Pakyow
   module Realtime
     class Framework < Pakyow::Framework(:realtime)
@@ -40,6 +42,12 @@ module Pakyow
           isolated :Connection do
             after "initialize" do
               set(:__socket_client_id, params[:socket_client_id] || Support::MessageVerifier.key)
+            end
+          end
+
+          after "load" do
+            if Pakyow.config.realtime.server && !is_a?(Plugin)
+              action(Application::Actions::Realtime::Upgrader)
             end
           end
         end

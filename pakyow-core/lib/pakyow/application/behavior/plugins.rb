@@ -102,9 +102,15 @@ module Pakyow
                 end
               }
 
+              plug_instance = plug.new(self)
+
+              # Register the plug as an action in the app's pipeline.
+              #
+              top.action(plug_instance)
+
               # Finally, create the plugin instance.
               #
-              @plugs << plug.new(self)
+              @plugs << plug_instance
             end
 
             @plugs.finalize

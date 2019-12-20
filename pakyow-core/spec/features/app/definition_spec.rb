@@ -4,16 +4,10 @@ RSpec.describe "defining an app" do
   let :app_def do
     Proc.new do
       config.name = "define-test"
-    end
-  end
 
-  let :app_init do
-    Proc.new do
-      def load_pipeline_defaults(pipeline)
-        pipeline.action Proc.new { |connection|
-          connection.body = StringIO.new(config.name)
-          connection.halt
-        }
+      action do |connection|
+        connection.body = StringIO.new(config.name)
+        connection.halt
       end
     end
   end
@@ -31,11 +25,9 @@ RSpec.describe "defining an app" do
       klass.define do
         config.name = "define-test"
 
-        def load_pipeline_defaults(pipeline)
-          pipeline.action Proc.new { |connection|
-            connection.body = StringIO.new(config.name)
-            connection.halt
-          }
+        action do |connection|
+          connection.body = StringIO.new(config.name)
+          connection.halt
         end
       end
 
@@ -77,13 +69,6 @@ RSpec.describe "defining an app" do
     let :app_init do
       Proc.new do
         config.name = "runtime-test"
-
-        def load_pipeline_defaults(pipeline)
-          pipeline.action Proc.new { |connection|
-            connection.body = StringIO.new(config.name)
-            connection.halt
-          }
-        end
       end
     end
 

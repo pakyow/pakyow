@@ -16,19 +16,12 @@ RSpec.describe "configuring an app" do
   context "when configured for an environment" do
     let :app_def do
       Proc.new do
-        configure :test do
-        end
+        configure :test do; end
         config.name = "config-env-test"
-      end
-    end
 
-    let :app_init do
-      Proc.new do
-        def load_pipeline_defaults(pipeline)
-          pipeline.action Proc.new { |connection|
-            connection.body = StringIO.new(config.name)
-            connection.halt
-          }
+        action do |connection|
+          connection.body = StringIO.new(config.name)
+          connection.halt
         end
       end
     end
@@ -48,16 +41,10 @@ RSpec.describe "accessing the app's config" do
     let :app_def do
       Proc.new do
         config.name = "config-test"
-      end
-    end
 
-    let :app_init do
-      Proc.new do
-        def load_pipeline_defaults(pipeline)
-          pipeline.action Proc.new { |connection|
-            connection.body = StringIO.new(config.name)
-            connection.halt
-          }
+        action do |connection|
+          connection.body = StringIO.new(config.name)
+          connection.halt
         end
       end
     end

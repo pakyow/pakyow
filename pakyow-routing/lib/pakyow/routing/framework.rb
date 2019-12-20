@@ -6,6 +6,7 @@ require "pakyow/routing/controller"
 require "pakyow/routing/extensions"
 require "pakyow/routing/helpers/exposures"
 
+require "pakyow/application/actions/routing/respond_missing"
 require "pakyow/application/behavior/routing/definition"
 
 require "pakyow/security/config"
@@ -57,6 +58,24 @@ module Pakyow
           #
           after "initialize" do
             @global_controller = isolated(:Controller).new(self)
+          end
+
+          # Register controllers as pipeline actions.
+          #
+          after "initialize" do
+            unless Pakyow.env?(:prototype)
+              state(:controller).each do |controller|
+                action(controller, self)
+              end
+            end
+          end
+
+          # Register the respond missing action as the last registered action.
+          #
+          after "initialize", priority: -10 do
+            unless Pakyow.env?(:prototype) || is_a?(Plugin)
+              action(Application::Actions::Routing::RespondMissing)
+            end
           end
 
           # Expose the global controller for handling errors from other frameworks.

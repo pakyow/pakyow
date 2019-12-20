@@ -11,7 +11,6 @@ require "pakyow/support/pipeline"
 require "pakyow/application/config"
 require "pakyow/application/behavior/sessions"
 require "pakyow/application/behavior/endpoints"
-require "pakyow/application/behavior/pipeline"
 require "pakyow/application/behavior/frameworks"
 require "pakyow/application/behavior/aspects"
 require "pakyow/application/behavior/helpers"
@@ -134,7 +133,6 @@ module Pakyow
     include Config
     include Behavior::Sessions
     include Behavior::Endpoints
-    include Behavior::Pipeline
     include Behavior::Frameworks
     include Behavior::Aspects
     include Behavior::Helpers

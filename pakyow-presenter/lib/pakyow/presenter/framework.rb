@@ -14,6 +14,7 @@ require "pakyow/application/behavior/presenter/modes"
 require "pakyow/application/behavior/presenter/versions"
 require "pakyow/application/behavior/presenter/watching"
 
+require "pakyow/application/actions/presenter/auto_render"
 require "pakyow/application/helpers/presenter/rendering"
 
 require "pakyow/presenter/renderable"
@@ -144,6 +145,12 @@ module Pakyow
             app_version.update(config.version)
             app_version.update(config.presenter.version)
             config.version = app_version.to_s
+          end
+
+          # Add auto render action to the pipeline.
+          #
+          after "initialize", priority: :low do
+            action(Application::Actions::Presenter::AutoRender)
           end
 
           include Application::Config::Presenter

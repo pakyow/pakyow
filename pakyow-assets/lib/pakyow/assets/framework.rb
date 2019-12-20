@@ -16,6 +16,9 @@ require "pakyow/presenter/renderer/behavior/assets/install_assets"
 require "pakyow/assets/asset"
 require "pakyow/assets/pack"
 
+require "pakyow/application/actions/assets/process"
+require "pakyow/application/actions/assets/public"
+
 module Pakyow
   module Assets
     class Framework < Pakyow::Framework(:assets)
@@ -37,6 +40,11 @@ module Pakyow
           include Application::Behavior::Assets::Watching
           include Application::Behavior::Assets::Prelaunching
           include Application::Behavior::Assets::Processing
+
+          on "initialize" do
+            action(Application::Actions::Assets::Public, self)
+            action(Application::Actions::Assets::Process)
+          end
 
           after "load" do
             isolated(:Renderer) do

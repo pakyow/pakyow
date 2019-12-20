@@ -12,7 +12,6 @@ require "pakyow/application/behavior/frameworks"
 require "pakyow/application/behavior/helpers"
 require "pakyow/application/behavior/isolating"
 require "pakyow/application/behavior/operations"
-require "pakyow/application/behavior/pipeline"
 require "pakyow/application/behavior/rescuing"
 require "pakyow/application/behavior/restarting"
 
@@ -68,7 +67,6 @@ module Pakyow
     include Application::Behavior::Helpers
     include Application::Behavior::Isolating
     include Application::Behavior::Operations
-    include Application::Behavior::Pipeline
     include Application::Behavior::Rescuing
     include Application::Behavior::Restarting
 
