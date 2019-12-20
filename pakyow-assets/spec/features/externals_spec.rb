@@ -32,7 +32,7 @@ RSpec.describe "external scripts" do
 
         after "configure" do
           external_script :pakyow, "1.0.0-alpha.4", package: "@pakyow/js"
-          external_script :jquery, "3.3.1"
+          external_script :jquery, "<=3.3.1"
         end
       end
     end

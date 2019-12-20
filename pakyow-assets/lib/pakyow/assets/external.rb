@@ -58,12 +58,12 @@ module Pakyow
         Support::CLI::Runner.new(message: "Fetching #{file_with_version}").run do |runner|
           Async do
             downloader = Downloader.new(
-              File.join(@config.externals.provider, package_with_version, file.to_s)
+              File.join(@config.externals.provider, CGI.escape(package_with_version), CGI.escape(file.to_s))
             ).perform
 
             FileUtils.mkdir_p(@config.externals.path)
 
-            fetched_version = downloader.path.to_s.split(@package.to_s, 2)[1].split("/", 2)[0].split("@", 2)[1]
+            fetched_version = CGI.unescape(downloader.path.to_s).split(@package.to_s, 2)[1].split("/", 2)[0].split("@", 2)[1]
             file_basename = File.basename(file.to_s, File.extname(file.to_s))
 
             local_path = if file && file_basename != name.to_s
