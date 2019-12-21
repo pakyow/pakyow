@@ -927,4 +927,57 @@ RSpec.describe "pipelines" do
       expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
     end
   end
+
+  describe "adding an action during initialization" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo
+
+        def initialize
+          action :bar
+        end
+
+        def foo(result)
+          result << "foo"
+        end
+
+        def bar(result)
+          result << "bar"
+        end
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar"])
+    end
+  end
+
+  describe "adding an action after initialization" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo
+
+        def foo(result)
+          action :bar
+          result << "foo"
+        end
+
+        def bar(result)
+          result << "bar"
+        end
+      end
+    end
+
+    it "fails" do
+      expect {
+        pipelined.new.call(result.new)
+      }.to raise_error(RuntimeError) do |error|
+        expect(error.message).to eq("cannot define action on a finalized pipeline")
+      end
+    end
+  end
 end

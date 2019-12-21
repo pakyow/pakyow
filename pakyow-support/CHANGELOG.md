@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Register pipeline actions during initialization.**
+    - [Pull Request #365][pr-365]
+
   * `add` **Introduce `Pipeline::Extension`.**
     - [Pull Request #364][pr-364]
 
@@ -80,6 +83,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-365]: https://github.com/pakyow/pakyow/pull/365
 [pr-364]: https://github.com/pakyow/pakyow/pull/364
 [pr-363]: https://github.com/pakyow/pakyow/pull/363
 [pr-361]: https://github.com/pakyow/pakyow/pull/361

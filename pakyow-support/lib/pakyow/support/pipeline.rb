@@ -78,9 +78,11 @@ module Pakyow
 
       prepend_methods do
         def initialize(*)
-          @__pipeline = self.class.__pipeline.callable(self)
+          @__pipeline = self.class.__pipeline.dup
 
           super
+
+          @__pipeline = @__pipeline.callable(self)
         end
 
         def initialize_copy(_)
@@ -96,6 +98,14 @@ module Pakyow
               action
             end
           }
+        end
+
+        def action(*args, &block)
+          if @__pipeline.is_a?(Internal)
+            @__pipeline.action(*args, &block)
+          else
+            raise RuntimeError, "cannot define action on a finalized pipeline"
+          end
         end
       end
 

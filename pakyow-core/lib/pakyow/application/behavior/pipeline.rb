@@ -15,10 +15,7 @@ module Pakyow
           # state that should be loaded into the pipeline (e.g. controllers).
           #
           after "initialize", "initialize.pipeline", priority: -10 do
-            self.class.__pipeline.dup.tap do |pipeline|
-              load_pipeline_defaults(pipeline)
-              @__pipeline = pipeline.callable(self)
-            end
+            load_pipeline_defaults(@__pipeline)
           end
         end
 
