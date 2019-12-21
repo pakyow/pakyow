@@ -44,7 +44,7 @@ module Pakyow
           # Automatically bundle.
           #
           watch File.join(config.root, "Gemfile") do
-            Bundler.with_clean_env do
+            Bundler.with_original_env do
               Support::CLI::Runner.new(message: "Bundling").run("bundle install")
             end
           end

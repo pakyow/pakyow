@@ -8,7 +8,7 @@ RSpec.describe "cli: creating the example project" do
 
   before do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
-    allow(Bundler).to receive(:with_clean_env)
+    allow(Bundler).to receive(:with_original_env)
   end
 
   let :command do

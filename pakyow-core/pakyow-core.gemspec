@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "async", "~> 1.23"
   spec.add_dependency "async-http", "~> 0.49.0"
   spec.add_dependency "async-io", "~> 1.27"
-  spec.add_dependency "bundler", ">= 1.17"
+  spec.add_dependency "bundler", "~> 2.0"
   spec.add_dependency "console", "~> 1.6"
   spec.add_dependency "dry-types", "~> 1.2"
   spec.add_dependency "filewatcher", "~> 1.1"
