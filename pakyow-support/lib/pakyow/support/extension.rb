@@ -150,6 +150,26 @@ module Pakyow
         mixin_extension_dependencies(base)
         mixin_extension_modules(base)
         include_extensions(base)
+
+        super
+      end
+
+      # @api private
+      INHERITED_IVARS = [
+        :@__extension_block,
+        :@__extension_extend_module,
+        :@__extension_prepend_module,
+        :@__extension_common_module,
+        :@__extension_dependencies
+      ].freeze
+
+      # @api private
+      def inherit_extension(object)
+        INHERITED_IVARS.each do |ivar|
+          if object.instance_variable_defined?(ivar)
+            instance_variable_set(ivar, object.instance_variable_get(ivar))
+          end
+        end
       end
 
       private
