@@ -56,13 +56,13 @@ RSpec.configure do |config|
   end
 
   def install
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       system "bundle exec rake release:install"
     end
   end
 
   def clean
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       system "bundle exec rake release:clean"
     end
   end
@@ -72,7 +72,7 @@ RSpec.configure do |config|
     FileUtils.mkdir_p(@working_path)
     Dir.chdir(@working_path)
 
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       system "pakyow create #{@project_name}"
     end
 
@@ -80,7 +80,7 @@ RSpec.configure do |config|
   end
 
   def boot(environment: self.environment, envars: self.envars, port: self.port, host: self.host)
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       @server = Process.spawn(envars, "pakyow boot -e #{environment} -p #{port} --host #{host}")
     end
 

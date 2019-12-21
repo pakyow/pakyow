@@ -9,7 +9,7 @@ RSpec.describe "cli: create" do
 
   before do
     allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
-    allow(Bundler).to receive(:with_clean_env)
+    allow(Bundler).to receive(:with_original_env)
   end
 
   let :command do
@@ -34,7 +34,7 @@ RSpec.describe "cli: create" do
     end
 
     before do
-      allow(Bundler).to receive(:with_clean_env)
+      allow(Bundler).to receive(:with_original_env)
       allow_any_instance_of(Pakyow::Generators::Project).to receive(:run)
     end
 
@@ -52,7 +52,7 @@ RSpec.describe "cli: create" do
         message: "Bundling dependencies"
       )
 
-      allow(Bundler).to receive(:with_clean_env) do |&block|
+      allow(Bundler).to receive(:with_original_env) do |&block|
         block.call
       end
 
@@ -65,7 +65,7 @@ RSpec.describe "cli: create" do
         message: "Updating external assets"
       )
 
-      allow(Bundler).to receive(:with_clean_env) do |&block|
+      allow(Bundler).to receive(:with_original_env) do |&block|
         block.call
       end
 
