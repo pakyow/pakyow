@@ -102,7 +102,17 @@ module Pakyow
             Class.new(object)
           when Module
             Module.new do
-              include object
+              object.included_modules.each do |included_module|
+                include included_module
+              end
+
+              object.singleton_class.included_modules.each do |extended_module|
+                extend extended_module
+              end
+
+              if respond_to?(:inherit_extension)
+                inherit_extension(object)
+              end
             end
           end
         end

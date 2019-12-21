@@ -243,12 +243,44 @@ RSpec.describe "isolating objects" do
         class_methods do
           def foo; end
         end
+
+        include IncludedModule
+        extend ExtendedModule
       end
     }
 
+    let(:extended_module) {
+      Module.new do
+        def baz; end
+      end
+    }
+
+    let(:included_module) {
+      Module.new do
+        def bar; end
+      end
+    }
+
+    before do
+      stub_const "ExtendedModule", extended_module
+      stub_const "IncludedModule", included_module
+    end
+
     it_behaves_like "isolable" do
-      it "includes the original module into the isolated object" do
-        expect(isolable.isolate(State)).to respond_to(:foo)
+      it "correctly inherits defined extension behavior" do
+        klass = Class.new
+        klass.include isolable.isolate(State)
+        expect(klass).to respond_to(:foo)
+      end
+
+      it "extends the isolated object with other extended modules" do
+        expect(isolable.isolate(State)).to respond_to(:baz)
+      end
+
+      it "includes other included modules into the isolated object" do
+        klass = Class.new
+        klass.include isolable.isolate(State)
+        expect(klass.new).to respond_to(:bar)
       end
     end
   end
