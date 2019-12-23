@@ -73,6 +73,12 @@ RSpec.describe "isolating objects" do
       end
     end
 
+    describe "passing the isolated object name" do
+      it "isolates the object" do
+        expect(isolable.isolate(State, as: :foo_state)).to be(IsolableObject::FooState)
+      end
+    end
+
     describe "isolating a namespaced object" do
       let(:isolated_state_name) {
         "Foo::Bar::State"
