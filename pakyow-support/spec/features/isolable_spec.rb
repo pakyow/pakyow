@@ -63,13 +63,13 @@ RSpec.describe "isolating objects" do
       end
     end
 
-    describe "isolating within another binding" do
+    describe "isolating within another context" do
       before do
         stub_const "FooBarBaz", Module.new
       end
 
       it "isolates the object" do
-        expect(isolable.isolate(State, binding: FooBarBaz)).to be(FooBarBaz::State)
+        expect(isolable.isolate(State, context: FooBarBaz)).to be(FooBarBaz::State)
       end
     end
 
@@ -129,17 +129,17 @@ RSpec.describe "isolating objects" do
           end
         end
 
-        context "isolated within a binding" do
+        context "isolated within a context" do
           before do
             stub_const "FooBarBaz", Module.new
           end
 
           def isolate_object
-            isolable.isolate(State, binding: FooBarBaz)
+            isolable.isolate(State, context: FooBarBaz)
           end
 
           def get_isolated_object
-            context.isolated(:State, binding: FooBarBaz)
+            context.isolated(:State, context: FooBarBaz)
           end
 
           it "gets the isolated object" do
@@ -180,14 +180,14 @@ RSpec.describe "isolating objects" do
         end
       end
 
-      context "isolated within another binding" do
+      context "isolated within another context" do
         def isolate
           stub_const "FooBarBaz", Module.new
-          isolable.isolate(State, binding: FooBarBaz)
+          isolable.isolate(State, context: FooBarBaz)
         end
 
         it "detects the isolated object" do
-          expect(isolable.isolated?(:State, binding: FooBarBaz)).to be(true)
+          expect(isolable.isolated?(:State, context: FooBarBaz)).to be(true)
         end
       end
 
