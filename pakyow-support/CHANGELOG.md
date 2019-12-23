@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Rename isolable binding to context.**
+    - [Pull Request #367][pr-367]
+
   * `chg` **Improve isolated module inheritance.**
     - [Pull Request #366][pr-366]
 
@@ -86,6 +89,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-367]: https://github.com/pakyow/pakyow/pull/367
 [pr-366]: https://github.com/pakyow/pakyow/pull/366
 [pr-365]: https://github.com/pakyow/pakyow/pull/365
 [pr-364]: https://github.com/pakyow/pakyow/pull/364
