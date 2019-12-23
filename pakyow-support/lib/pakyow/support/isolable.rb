@@ -3,6 +3,7 @@
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
 require "pakyow/support/object_namespace"
+require "pakyow/support/object_name"
 
 module Pakyow
   module Support
@@ -44,10 +45,16 @@ module Pakyow
       class_methods do
         # Isolates `object_to_isolate` within `self` or `context`, evaluating the given block in context.
         #
-        def isolate(object_to_isolate, namespace: [], context: self, &block)
+        def isolate(object_to_isolate, as: nil, namespace: [], context: self, &block)
           object_to_isolate = ensure_object(object_to_isolate)
 
-          isolated_class_name = Support.inflector.demodulize(object_to_isolate.to_s).to_sym
+          object_name = if as
+            build_isolable_object_name(*namespace, as).constant
+          else
+            object_to_isolate.name || object_to_isolate.to_s
+          end
+
+          isolated_class_name = Support.inflector.demodulize(object_name.to_s).to_s.to_sym
 
           isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
             constant_name = Support.inflector.camelize(object_name_part.to_s)
@@ -94,6 +101,43 @@ module Pakyow
           else
             nil
           end
+        end
+
+        private def build_isolable_object_name(*namespace, object_name)
+          unless object_name.is_a?(ObjectName)
+            object_name_parts = Support.inflector.underscore(object_name.to_s).split("/").reject(&:empty?)
+            object_name = object_name_parts.pop || :index
+
+            if object_name_parts.any?
+              namespace = case namespace
+              when ObjectNamespace
+                ObjectNamespace.new(*namespace.parts, *object_name_parts)
+              when Array
+                namespace + object_name_parts
+              when NilClass
+                object_name_parts
+              end
+            end
+          end
+
+          object_namespace = if namespace.any?
+            case namespace.first
+            when ObjectNamespace
+              namespace.first
+            else
+              ObjectNamespace.new(*namespace)
+            end
+          end
+
+          if object_name.is_a?(ObjectName)
+            if object_namespace.is_a?(ObjectNamespace) && object_name.namespace != object_namespace
+              object_name.rebase(object_namespace)
+            end
+          else
+            object_name = ObjectName.new(object_namespace || ObjectNamespace.new, object_name)
+          end
+
+          object_name
         end
 
         private def define_isolated_object(object)
