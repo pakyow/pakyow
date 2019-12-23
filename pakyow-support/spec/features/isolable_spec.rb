@@ -85,12 +85,12 @@ RSpec.describe "isolating objects" do
 
     describe "isolating an object within a namespace" do
       it "isolates the object" do
-        expect(isolable.isolate(:foo, :bar, State)).to be(IsolableObject::Foo::Bar::State)
+        expect(isolable.isolate(State, namespace: [:foo, :bar])).to be(IsolableObject::Foo::Bar::State)
       end
 
       context "namespace is an ObjectNamespace" do
         it "isolates the object" do
-          expect(isolable.isolate(Pakyow::Support::ObjectNamespace.new(:foo, :bar), State)).to be(IsolableObject::Foo::Bar::State)
+          expect(isolable.isolate(State, namespace: Pakyow::Support::ObjectNamespace.new(:foo, :bar))).to be(IsolableObject::Foo::Bar::State)
         end
       end
     end
@@ -207,20 +207,20 @@ RSpec.describe "isolating objects" do
 
       context "isolating an object within a namespace" do
         def isolate
-          isolable.isolate(:foo, :bar, State)
+          isolable.isolate(State, namespace: [:foo, :bar])
         end
 
         it "detects the isolated object" do
-          expect(isolable.isolated?(:foo, :bar, State)).to be(true)
+          expect(isolable.isolated?(State, namespace: [:foo, :bar])).to be(true)
         end
 
         context "namespace is an ObjectNamespace" do
           def isolate
-            isolable.isolate(Pakyow::Support::ObjectNamespace.new(:foo, :bar), State)
+            isolable.isolate(State, namespace: Pakyow::Support::ObjectNamespace.new(:foo, :bar))
           end
 
           it "detects the isolated object" do
-            expect(isolable.isolated?(Pakyow::Support::ObjectNamespace.new(:foo, :bar), State)).to be(true)
+            expect(isolable.isolated?(State, namespace: Pakyow::Support::ObjectNamespace.new(:foo, :bar))).to be(true)
           end
         end
       end

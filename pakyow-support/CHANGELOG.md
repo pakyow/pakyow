@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Pass isolable namespace as a keyword argument.**
+    - [Pull Request #368][pr-368]
+
   * `chg` **Rename isolable binding to context.**
     - [Pull Request #367][pr-367]
 
@@ -89,6 +92,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-368]: https://github.com/pakyow/pakyow/pull/368
 [pr-367]: https://github.com/pakyow/pakyow/pull/367
 [pr-366]: https://github.com/pakyow/pakyow/pull/366
 [pr-365]: https://github.com/pakyow/pakyow/pull/365
