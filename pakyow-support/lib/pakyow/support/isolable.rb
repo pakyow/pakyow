@@ -44,7 +44,7 @@ module Pakyow
       class_methods do
         # Isolates `object_to_isolate` within `self` or `context`, evaluating the given block in context.
         #
-        def isolate(*namespace, object_to_isolate, context: self, &block)
+        def isolate(object_to_isolate, namespace: [], context: self, &block)
           object_to_isolate = ensure_object(object_to_isolate)
 
           isolated_class_name = Support.inflector.demodulize(object_to_isolate.to_s).to_sym
@@ -63,14 +63,14 @@ module Pakyow
             isolation_target.const_set(isolated_class_name, define_isolated_object(object_to_isolate))
           end
 
-          isolated(*namespace, isolated_class_name, context: context).tap do |defined_subclass|
+          isolated(isolated_class_name, namespace: namespace, context: context).tap do |defined_subclass|
             defined_subclass.class_eval(&block) if block_given?
           end
         end
 
         # Returns true if `class_name` is isolated within `self` or `context`.
         #
-        def isolated?(*namespace, class_name, context: self)
+        def isolated?(class_name, namespace: [], context: self)
           isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
             target_for_part.const_get(Support.inflector.camelize(object_name_part.to_s))
           }
@@ -80,7 +80,7 @@ module Pakyow
 
         # Returns the isolated class for `class_name`, evaluating the given block in context.
         #
-        def isolated(*namespace, class_name, context: self, &block)
+        def isolated(class_name, namespace: [], context: self, &block)
           class_name = Support.inflector.camelize(class_name.to_s)
 
           isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
@@ -136,8 +136,8 @@ module Pakyow
 
       # Convenience method for getting an isolated object through an instance.
       #
-      def isolated(*namespace, class_name, context: self.class, &block)
-        self.class.isolated(class_name, context: context, &block)
+      def isolated(class_name, namespace: [], context: self.class, &block)
+        self.class.isolated(class_name, namespace: namespace, context: context, &block)
       end
     end
   end
