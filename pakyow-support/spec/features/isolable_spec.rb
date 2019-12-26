@@ -21,6 +21,12 @@ RSpec.describe "isolating objects" do
       expect(isolable.isolate(State)).to be(IsolableObject::State)
     end
 
+    it "assigns the object name" do
+      object_name = isolable.isolate(State).instance_variable_get(:@object_name)
+      expect(object_name).to be_instance_of(Pakyow::Support::ObjectName)
+      expect(object_name.path).to eq("state")
+    end
+
     context "object is already defined" do
       before do
         stub_const "IsolableObject::State", existing_object
@@ -228,6 +234,100 @@ RSpec.describe "isolating objects" do
           it "detects the isolated object" do
             expect(isolable.isolated?(State, namespace: Pakyow::Support::ObjectNamespace.new(:foo, :bar))).to be(true)
           end
+        end
+      end
+    end
+
+    describe "all the ways to name an isolated object" do
+      context "given name is nil" do
+        it "is anonymous" do
+          expect(isolable.isolate(State, as: nil).name).to be(nil)
+        end
+      end
+
+      context "given name is a symbol" do
+        it "creates a camelized class name" do
+          expect(isolable.isolate(State, as: :foo_state)).to be(IsolableObject::FooState)
+        end
+      end
+
+      context "given name is an instance of ObjectName" do
+        context "given name has an underscore" do
+          let (:class_name) {
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new,
+              :foo_bar
+            )
+          }
+
+          it "creates a camelized class name" do
+            expect(isolable.isolate(State, as: class_name)).to be(IsolableObject::FooBar)
+          end
+        end
+
+        context "given name has more than one underscore" do
+          let(:class_name) {
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new,
+              :foo_bar_baz
+            )
+          }
+
+          it "creates a camelized class name" do
+            expect(isolable.isolate(State, as: class_name)).to be(IsolableObject::FooBarBaz)
+          end
+        end
+      end
+
+      context "given name is a namespaced instance of ObjectName" do
+        context "given name has a single namespace" do
+          let(:class_name) {
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new(:foo),
+              :bar
+            )
+          }
+
+          it "creates a namespaced class name" do
+            expect(isolable.isolate(State, as: class_name)).to be(IsolableObject::Foo::Bar)
+          end
+        end
+
+        context "given name has multiple namespaces" do
+          let(:class_name) {
+            Pakyow::Support::ObjectName.new(
+              Pakyow::Support::ObjectNamespace.new(:foo, :bar),
+              :baz
+            )
+          }
+
+          it "creates a namespaced class name" do
+            expect(isolable.isolate(State, as: class_name)).to be(IsolableObject::Foo::Bar::Baz)
+          end
+        end
+      end
+
+      context "given name is a root path" do
+        it "creates a camelized class name" do
+          expect(isolable.isolate(State, as: "/")).to be(IsolableObject::Index)
+        end
+      end
+
+      context "given name is a path with a simple part" do
+        it "creates a camelized class name" do
+          expect(isolable.isolate(State, as: "/foo")).to be(IsolableObject::Foo)
+        end
+      end
+
+      context "given name is a path with multiple parts" do
+        it "creates a camelized class name" do
+          expect(isolable.isolate(State, as: "/foo/bar")).to be(IsolableObject::Foo::Bar)
+        end
+      end
+
+      context "given name is oddly constructed" do
+        it "creates a camelized class name" do
+          expect(isolable.isolate(State, as: "/foo/bar-baz")).to be(IsolableObject::Foo::BarBaz)
         end
       end
     end

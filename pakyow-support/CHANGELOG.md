@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support complex object naming in isolable.**
+    - [Pull Request #371][pr-371]
+
   * `fix` **Build the correct object name when namespace is empty.**
     - [Pull Request #370][pr-370]
 
@@ -98,6 +101,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-371]: https://github.com/pakyow/pakyow/pull/371
 [pr-370]: https://github.com/pakyow/pakyow/pull/370
 [pr-369]: https://github.com/pakyow/pakyow/pull/369
 [pr-368]: https://github.com/pakyow/pakyow/pull/368
