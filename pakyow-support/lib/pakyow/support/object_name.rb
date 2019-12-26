@@ -75,7 +75,11 @@ module Pakyow
       private def rebuild
         @parts = (@namespace.parts + [@name]).freeze
         @path = [@namespace.path, @name].reject(&:empty?).join("/").freeze
-        @constant = (@namespace.constant + "::" + Support.inflector.camelize(@name)).freeze
+        @constant = if @namespace.parts.any?
+          (@namespace.constant + "::" + Support.inflector.camelize(@name)).freeze
+        else
+          Support.inflector.camelize(@name).freeze
+        end
       end
     end
   end
