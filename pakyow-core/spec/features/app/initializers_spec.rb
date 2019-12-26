@@ -5,12 +5,6 @@ RSpec.describe "app initializers" do
     false
   end
 
-  let :app_def do
-    Proc.new do
-      config.root = File.expand_path("../../support", __FILE__)
-    end
-  end
-
   before do
     Pakyow.config.root = File.expand_path("../../support", __FILE__)
   end

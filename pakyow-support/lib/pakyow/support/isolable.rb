@@ -45,34 +45,54 @@ module Pakyow
       class_methods do
         # Isolates `object_to_isolate` within `self` or `context`, evaluating the given block in context.
         #
-        def isolate(object_to_isolate, as: nil, namespace: [], context: self, &block)
+        def isolate(object_to_isolate, as: default_omitted = true, namespace: [], context: self, &block)
           object_to_isolate = ensure_object(object_to_isolate)
 
-          object_name = if as
-            build_isolable_object_name(*namespace, as).constant
+          as = if default_omitted
+            Support.inflector.demodulize(object_to_isolate.name)
           else
-            object_to_isolate.name || object_to_isolate.to_s
+            as
           end
 
-          isolated_class_name = Support.inflector.demodulize(object_name.to_s).to_s.to_sym
+          isolated_object_name = if as
+            build_isolable_object_name(*namespace, as)
+          else
+            nil
+          end
 
-          isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
-            constant_name = Support.inflector.camelize(object_name_part.to_s)
+          isolated_object = if isolated_object_name
+            isolation_target = ensure_isolatable_namespace(*isolated_object_name.namespace.parts).inject(context) { |target_for_part, object_name_part|
+              constant_name = Support.inflector.camelize(object_name_part.to_s)
 
-            unless target_for_part.const_defined?(constant_name, false)
-              target_for_part.const_set(constant_name, Module.new)
+              unless target_for_part.const_defined?(constant_name, false)
+                target_for_part.const_set(constant_name, Module.new)
+              end
+
+              target_for_part.const_get(constant_name)
+            }
+
+            isolated_constant_name = Support.inflector.demodulize(isolated_object_name.constant)
+
+            if isolation_target.const_defined?(isolated_constant_name, false)
+              isolation_target.const_get(isolated_constant_name)
+            else
+              newly_isolated_object = define_isolated_object(object_to_isolate)
+
+              isolation_target.const_set(isolated_constant_name, newly_isolated_object)
+
+              unless newly_isolated_object.instance_variable_defined?(:@object_name)
+                newly_isolated_object.instance_variable_set(:@object_name, isolated_object_name)
+              end
+
+              newly_isolated_object
             end
-
-            target_for_part.const_get(constant_name)
-          }
-
-          unless isolation_target.const_defined?(isolated_class_name, false)
-            isolation_target.const_set(isolated_class_name, define_isolated_object(object_to_isolate))
+          else
+            define_isolated_object(object_to_isolate)
           end
 
-          isolated(isolated_class_name, namespace: namespace, context: context).tap do |defined_subclass|
-            defined_subclass.class_eval(&block) if block_given?
-          end
+          isolated_object.class_eval(&block) if block_given?
+
+          isolated_object
         end
 
         # Returns true if `class_name` is isolated within `self` or `context`.
@@ -82,7 +102,7 @@ module Pakyow
             target_for_part.const_get(Support.inflector.camelize(object_name_part.to_s))
           }
 
-          isolation_target.const_defined?(Support.inflector.camelize(class_name.to_s))
+          isolation_target.const_defined?(Support.inflector.camelize(class_name.to_s), false)
         end
 
         # Returns the isolated class for `class_name`, evaluating the given block in context.

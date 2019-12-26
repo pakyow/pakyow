@@ -16,8 +16,8 @@ module Pakyow
     class Framework < Pakyow::Framework(:data)
       def boot
         object.class_eval do
-          isolate Sources::Relational
-          isolate Object
+          isolate Sources::Relational, as: :Relational
+          isolate Pakyow::Data::Object, as: :Object
 
           stateful :source, isolated(:Relational)
           stateful :object, isolated(:Object)
