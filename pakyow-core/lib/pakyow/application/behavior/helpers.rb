@@ -35,12 +35,14 @@ module Pakyow
 
                   active: []
 
-          on "load" do
-            # Helpers are loaded first so that other aspects inherit them.
-            #
-            load_aspect(:helpers)
+          after "make", priority: :high do
+            definable :helper, Helper
 
-            self.class.state(:helper).each do |helper|
+            aspect :helpers
+          end
+
+          after "load" do
+            helpers.each do |helper|
               context = if helper.instance_variable_defined?(:@type)
                 helper.instance_variable_get(:@type)
               else
@@ -49,14 +51,6 @@ module Pakyow
 
               self.class.register_helper(context, helper)
             end
-          end
-
-          # Define helpers as stateful after an app is made.
-          #
-          after "make", priority: :high do
-            isolate Helper
-
-            stateful :helper, isolated(:Helper)
           end
         end
 

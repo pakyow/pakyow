@@ -1,7 +1,7 @@
 require "pakyow/plugin"
 
 RSpec.describe "booting plugins" do
-  before do
+  let!(:plugin) {
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
       action :test
       def test(connection)
@@ -9,7 +9,9 @@ RSpec.describe "booting plugins" do
         connection.halt
       end
     end
-  end
+
+    TestPlugin
+  }
 
   include_context "app"
 
@@ -35,7 +37,7 @@ RSpec.describe "booting plugins" do
 
   context "plugin implements boot" do
     before do
-      TestPlugin.class_eval do
+      plugin.class_eval do
         def boot
           @value = :booted
         end
@@ -52,8 +54,8 @@ RSpec.describe "booting plugins" do
 
   context "plugin does not implement boot" do
     before do
-      if TestPlugin.method_defined?(:boot)
-        TestPlugin.remove_method(:boot)
+      if plugin.method_defined?(:boot)
+        plugin.remove_method(:boot)
       end
 
       setup_and_run

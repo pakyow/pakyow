@@ -31,7 +31,7 @@ RSpec.describe "plugin connection" do
   end
 
   it "is a plugin connection" do
-    expect(result[:connection_class]).to eq(Test::Testable::Default::Plug::Connection)
+    expect(result[:connection_class]).to eq(Test::Testable::Default::Connection)
   end
 
   describe "connection verifier" do

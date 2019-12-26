@@ -307,11 +307,13 @@ module Pakyow
           app.config.name == app_name
         }
       else
-        local_frameworks = (only || frameworks.keys) - Array.ensure(without)
-
+        local = self
         Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
           config.name = app_name
-          include_frameworks(*local_frameworks)
+
+          # Including frameworks during make lets frameworks attach `after :make` hooks.
+          #
+          include_frameworks(*(only || local.frameworks.keys) - Array.ensure(without))
         }.tap do |app|
           app.define(&block) if block_given?
           mount(app, at: path) if mount

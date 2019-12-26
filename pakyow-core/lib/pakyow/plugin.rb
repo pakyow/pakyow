@@ -4,13 +4,13 @@ require "pakyow/support/class_state"
 require "pakyow/support/configurable"
 require "pakyow/support/definable"
 require "pakyow/support/hookable"
+require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 
 require "pakyow/application/behavior/aspects"
 require "pakyow/application/behavior/endpoints"
 require "pakyow/application/behavior/frameworks"
 require "pakyow/application/behavior/helpers"
-require "pakyow/application/behavior/isolating"
 require "pakyow/application/behavior/operations"
 require "pakyow/application/behavior/rescuing"
 require "pakyow/application/behavior/restarting"
@@ -53,6 +53,7 @@ module Pakyow
 
     include Support::Definable
     include Support::Hookable
+    include Support::Makeable
     include Support::Pipeline
 
     # Use the same events as app.
@@ -65,7 +66,6 @@ module Pakyow
     include Application::Behavior::Endpoints
     include Application::Behavior::Frameworks
     include Application::Behavior::Helpers
-    include Application::Behavior::Isolating
     include Application::Behavior::Operations
     include Application::Behavior::Rescuing
     include Application::Behavior::Restarting
@@ -73,8 +73,6 @@ module Pakyow
     attr_reader :parent
 
     def initialize(parent, &block)
-      super()
-
       @parent = parent
       @state = []
       @features = self.class.features
@@ -85,9 +83,7 @@ module Pakyow
       end
 
       performing :initialize do
-        if block_given?
-          instance_exec(&block)
-        end
+        define!(&block)
 
         # Load state prior to calling the load hooks so that helpers are available.
         #
@@ -96,8 +92,6 @@ module Pakyow
         # We still want to call the load hooks so that behavior works properly.
         #
         performing :load do; end
-
-        defined!
       end
 
       define_app_endpoints
@@ -154,6 +148,10 @@ module Pakyow
 
     def plugin_path
       self.class.plugin_path
+    end
+
+    def mount_path
+      self.class.mount_path
     end
 
     def helper_caller(helper_context, connection, call_context)
@@ -315,10 +313,7 @@ module Pakyow
 
       # rubocop:disable Naming/MethodName
       def Plugin(name, path)
-        Class.new(self) do
-          @plugin_name = name
-          @plugin_path = path
-        end
+        make name, plugin_name: name, plugin_path: path
       end
       # rubocop:enabled Naming/MethodName
 
@@ -360,6 +355,10 @@ module Pakyow
             end
           end
         end
+      end
+
+      private def isolable_context
+        object_name && object_name.namespace.parts.any? ? Kernel.const_get(object_name.namespace.constant) : self
       end
     end
 

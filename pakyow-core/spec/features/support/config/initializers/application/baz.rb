@@ -1,1 +1,2 @@
-"baz"
+def baz
+end

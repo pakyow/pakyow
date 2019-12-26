@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require "pakyow/support/definable"
-require "pakyow/support/deep_freeze"
 require "pakyow/support/class_state"
-require "pakyow/support/inspectable"
-require "pakyow/support/hookable"
 require "pakyow/support/configurable"
+require "pakyow/support/deep_freeze"
+require "pakyow/support/definable"
+require "pakyow/support/hookable"
+require "pakyow/support/inspectable"
+require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 
 require "pakyow/application/config"
+require "pakyow/application/connection"
 require "pakyow/application/behavior/sessions"
 require "pakyow/application/behavior/endpoints"
 require "pakyow/application/behavior/frameworks"
@@ -16,7 +18,6 @@ require "pakyow/application/behavior/aspects"
 require "pakyow/application/behavior/helpers"
 require "pakyow/application/behavior/rescuing"
 require "pakyow/application/behavior/restarting"
-require "pakyow/application/behavior/isolating"
 require "pakyow/application/behavior/initializers"
 require "pakyow/application/behavior/plugins"
 require "pakyow/application/behavior/operations"
@@ -100,18 +101,6 @@ module Pakyow
   # @see Support::Hookable
   #
   class Application
-    require "pakyow/application/connection"
-
-    class << self
-      def inherited(subclass)
-        super
-
-        # Creates a connection subclass that other frameworks can safely extend.
-        #
-        subclass.isolate Connection
-      end
-    end
-
     # Environment the app is booted in, e.g. +:development+.
     #
     attr_reader :environment
@@ -128,6 +117,7 @@ module Pakyow
 
     include Support::Configurable
     include Support::Definable
+    include Support::Makeable
     include Support::Pipeline
 
     include Config
@@ -138,14 +128,19 @@ module Pakyow
     include Behavior::Helpers
     include Behavior::Rescuing
     include Behavior::Restarting
-    include Behavior::Isolating
     include Behavior::Initializers
     include Behavior::Plugins
     include Behavior::Operations
 
-    def initialize(environment, mount_path: "/", &block)
-      super()
+    # Isolate the connection before making the app so that other before make hooks and the make
+    # block itself has access to the isolated connection class. In practice, this design detail
+    # allows frameworks to access and extend the isolated connection class.
+    #
+    on "make", priority: :high do
+      isolate Connection
+    end
 
+    def initialize(environment, mount_path: "/", &block)
       @environment, @mount_path, @rescued = environment, mount_path, false
 
       performing :initialize do
@@ -155,16 +150,11 @@ module Pakyow
 
         performing :load do
           $LOAD_PATH.unshift(config.lib)
+
+          define!(&block)
         end
 
         config.version = Support::PathVersion.build(config.src)
-
-        # Call the Pakyow::Definable initializer.
-        #
-        # This ensures that any state registered in the passed block
-        # has the proper priority against instance and global state.
-        #
-        defined!(&block)
       end
     rescue ScriptError, StandardError => error
       rescue!(error)
@@ -217,6 +207,12 @@ module Pakyow
     # @api private
     def perform(app_connection)
       @__pipeline.call(app_connection)
+    end
+
+    class << self
+      private def isolable_context
+        object_name && object_name.namespace.parts.any? ? Kernel.const_get(object_name.namespace.constant) : self
+      end
     end
   end
 end

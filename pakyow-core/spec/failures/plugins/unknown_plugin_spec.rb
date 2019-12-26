@@ -2,8 +2,7 @@ require "pakyow/plugin"
 
 RSpec.describe "failure caused by plugging an unknown plugin" do
   before do
-    class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
-    end
+    Class.new(Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin")))
   end
 
   include_context "app"

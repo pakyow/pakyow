@@ -45,13 +45,8 @@ end
 
 RSpec.describe "accessing helpers from another plugin" do
   before do
-    class TestPluginFoo < Pakyow::Plugin(:testable_foo, File.join(__dir__, "support/plugin"))
-      # intentionally empty
-    end
-
-    class TestPluginBar < Pakyow::Plugin(:testable_bar, File.join(__dir__, "support/plugin-bar"))
-      # intentionally empty
-    end
+    class TestFooPlugin < Pakyow::Plugin(:testable_foo, File.join(__dir__, "support/plugin")); end
+    class TestBarPlugin < Pakyow::Plugin(:testable_bar, File.join(__dir__, "support/plugin-bar")); end
   end
 
   include_context "app"

@@ -6,22 +6,20 @@ RSpec.describe Pakyow::Plugin do
   end
 
   let :subclass do
-    Pakyow::Plugin(:test, "/").tap do |subclass|
-      subclass.instance_variable_set(:@object_name, Pakyow::Support::ObjectName.build(:test, "plugin"))
-    end
+    Pakyow::Plugin(:test, "/")
   end
 
   let :app do
-    Class.new(Pakyow::Application).new(:test)
+    double(:app, environment: :test)
   end
 
   describe "#top" do
     before do
-      allow(app).to receive(:top).and_return(:top)
+      allow(app).to receive(:top).and_return(app)
     end
 
     it "returns parent top" do
-      expect(instance.top).to eq(:top)
+      expect(instance.top).to be(app)
     end
   end
 end

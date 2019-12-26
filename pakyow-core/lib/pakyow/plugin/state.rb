@@ -19,16 +19,16 @@ module Pakyow
       end
 
       def load_frontend
-        @plugin.state(:templates) << Presenter::Templates.new(
+        @plugin.templates << Presenter::Templates.new(
           @plugin.config.name,
           frontend_path,
           processor: Presenter::ProcessorCaller.new(
-            @plugin.parent.state(:processor).map { |processor|
+            @plugin.parent.processors.each.map { |processor|
               processor.new(@plugin.parent)
             }
           )
         ).tap do |plugin_templates|
-          if app_templates = @plugin.parent.state(:templates).find { |templates| templates.name == :default }
+          if app_templates = @plugin.parent.templates.each.find { |templates| templates.name == :default }
             plugin_templates.paths.each do |path|
               plugin_info = plugin_templates.info(path)
 
