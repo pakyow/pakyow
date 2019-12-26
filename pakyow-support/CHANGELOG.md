@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Publicize `Definable`, `Makeable`.**
+    - These two modules introduce patterns for defining isolated state on an object.
+    - Resolves several related bugs across all frameworks, including:
+      - Defining named state within an anonymous parent will result in the defined state also being
+        anonymous rather than being defined in the top-level namespace.
+
   * `chg` **Make default isolable context overridable.**
 
     *Related links:*

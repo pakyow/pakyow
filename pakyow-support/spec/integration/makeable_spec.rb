@@ -4,174 +4,195 @@ RSpec.describe Pakyow::Support::Makeable do
   shared_examples :making do
     describe ".make" do
       after do
-        Object.send(:remove_const, :Foo)
+        if defined?(Foo)
+          Object.send(:remove_const, :Foo)
+        end
       end
 
-      it "sets the name on the class" do
-        expect(object.make(:foo).object_name.name).to eq(:foo)
+      let(:result) {
+        object.make(*namespaces, name, **kwargs, &block)
+      }
+
+      let(:name) {
+        :foo
+      }
+
+      let(:namespaces) {
+        []
+      }
+
+      let(:kwargs) {
+        {}
+      }
+
+      let(:block) {
+        Proc.new {}
+      }
+
+      it "sets the object name" do
+        expect(result.object_name.name).to eq(:foo)
       end
 
-      it "evals the block on the class" do
-        expect(object.make(:foo) { @foo = :bar }.instance_variable_get(:@foo)).to eq(:bar)
+      it "sets the object namespace" do
+        expect(result.object_name.path).to eq("foo")
       end
 
-      it "returns the new class" do
-        expect(object.make(:foo)).to eq(Foo)
+      it "sets the constant" do
+        expect {
+          result
+        }.to change {
+          defined?(Foo)
+        }.from(nil).to("constant")
       end
 
-      context "passing arbitrary args" do
+      it "returns the result" do
+        expect(result).to eq(Foo)
+      end
+
+      it "uses isolable" do
+        expect(object).to receive(:isolate).with(object, as: :foo, context: Object, namespace: []).and_call_original
+
+        result
+      end
+
+      context "block is passed" do
+        let(:block) {
+          Proc.new {
+            @foo = :bar
+          }
+        }
+
+        it "evals the block on the result" do
+          expect(result.instance_variable_get(:@foo)).to eq(:bar)
+        end
+      end
+
+      context "name is an ObjectName" do
+        let(:name) {
+          Pakyow::Support::ObjectName.build(:foo)
+        }
+
+        it "sets the object name" do
+          expect(result.object_name.name).to eq(:foo)
+        end
+      end
+
+      describe "setting state on the result" do
+        let(:kwargs) {
+          { bar: :baz }
+        }
+
         it "sets each arg as a class ivar" do
-          expect(object.make(:foo, bar: :baz).instance_variable_get(:@bar)).to eq(:baz)
-        end
-      end
-    end
-
-    describe "the defined class" do
-      context "given name is nil" do
-        it "is anonymous" do
-          expect(object.make(nil).name).to be(nil)
+          expect(result.instance_variable_get(:@bar)).to eq(:baz)
         end
       end
 
-      context "given name is a symbol" do
+      describe "making the object within a namespace" do
         after do
-          Object.send(:remove_const, :FooBar)
-        end
-
-        it "creates a camelized class name" do
-          expect(object.make(:foo_bar)).to eq(FooBar)
-        end
-      end
-
-      context "given name is an instance of ObjectName" do
-        context "given name has an underscore" do
-          after do
-            Object.send(:remove_const, :FooBar)
-          end
-
-          let :class_name do
-            Pakyow::Support::ObjectName.new(
-              Pakyow::Support::ObjectNamespace.new,
-              :foo_bar
-            )
-          end
-
-          it "creates a camelized class name" do
-            expect(object.make(class_name)).to eq(FooBar)
-          end
-        end
-
-        context "given name has more than one underscore" do
-          after do
-            Object.send(:remove_const, :FooBarBaz)
-          end
-
-          let :class_name do
-            Pakyow::Support::ObjectName.new(
-              Pakyow::Support::ObjectNamespace.new,
-              :foo_bar_baz
-            )
-          end
-
-          it "creates a camelized class name" do
-            expect(object.make(class_name)).to eq(FooBarBaz)
-          end
-        end
-      end
-
-      context "given name is a namespaced instance of ObjectName" do
-        context "given name has a single namespace" do
-          after do
-            Foo.send(:remove_const, :Bar)
-            Object.send(:remove_const, :Foo)
-          end
-
-          let :class_name do
-            Pakyow::Support::ObjectName.new(
-              Pakyow::Support::ObjectNamespace.new(:foo),
-              :bar
-            )
-          end
-
-          it "creates a namespaced class name" do
-            expect(object.make(class_name)).to eq(Foo::Bar)
-          end
-        end
-
-        context "given name has multiple namespaces" do
-          after do
+          if defined?(Foo::Bar::Baz)
             Foo::Bar.send(:remove_const, :Baz)
+          end
+
+          if defined?(Foo::Bar)
             Foo.send(:remove_const, :Bar)
-            Object.send(:remove_const, :Foo)
-          end
-
-          let :class_name do
-            Pakyow::Support::ObjectName.new(
-              Pakyow::Support::ObjectNamespace.new(:foo, :bar),
-              :baz
-            )
-          end
-
-          it "creates a namespaced class name" do
-            expect(object.make(class_name)).to eq(Foo::Bar::Baz)
           end
         end
+
+        let(:namespaces) {
+          [:foo, :bar]
+        }
+
+        let(:name) {
+          :baz
+        }
+
+        it "sets the object name" do
+          expect(result.object_name.name).to eq(:baz)
+        end
+
+        it "sets the object namespace" do
+          expect(result.object_name.path).to eq("foo/bar/baz")
+        end
+
+        it "sets the constant" do
+          expect {
+            result
+          }.to change {
+            defined?(Foo::Bar::Baz)
+          }.from(nil).to("constant")
+        end
+
+        context "namespace is an ObjectNamespace" do
+          let(:namespaces) {
+            [Pakyow::Support::ObjectNamespace.new(:foo, :bar)]
+          }
+
+          it "sets the object name" do
+            expect(result.object_name.name).to eq(:baz)
+          end
+
+          it "sets the object namespace" do
+            expect(result.object_name.path).to eq("foo/bar/baz")
+          end
+
+          it "sets the constant" do
+            expect {
+              result
+            }.to change {
+              defined?(Foo::Bar::Baz)
+            }.from(nil).to("constant")
+          end
+
+          context "name is an ObjectName" do
+            let(:name) {
+              Pakyow::Support::ObjectName.build(:baz)
+            }
+
+            it "sets the object name" do
+              expect(result.object_name.name).to eq(:baz)
+            end
+
+            it "sets the object namespace" do
+              expect(result.object_name.path).to eq("foo/bar/baz")
+            end
+          end
+        end
       end
 
-      context "given name is a root path" do
-        after do
-          Object.send(:remove_const, :Index)
-        end
+      describe "not setting the constant" do
+        context "set_const = false" do
+          let(:kwargs) {
+            {
+              set_const: false
+            }
+          }
 
-        it "creates a camelized class name" do
-          expect(object.make("/")).to eq(Index)
-        end
-      end
-
-      context "given name is a path with a simple part" do
-        after do
-          Object.send(:remove_const, :Foo)
-        end
-
-        it "creates a camelized class name" do
-          expect(object.make("/foo")).to eq(Foo)
-        end
-      end
-
-      context "given name is a path with multiple parts" do
-        after do
-          Foo.send(:remove_const, :Bar)
-          Object.send(:remove_const, :Foo)
-        end
-
-        it "creates a camelized class name" do
-          expect(object.make("/foo/bar")).to eq(Foo::Bar)
-        end
-      end
-
-      context "given name is oddly constructed" do
-        after do
-          Foo.send(:remove_const, :BarBaz)
-          Object.send(:remove_const, :Foo)
-        end
-
-        it "creates a camelized class name" do
-          expect(object.make("/foo/bar-baz")).to eq(Foo::BarBaz)
+          it "does not define a constant" do
+            expect {
+              result
+            }.not_to change {
+              defined?(Foo)
+            }
+          end
         end
       end
     end
   end
 
   describe "making a class" do
+    before do
+      stub_const "MakeableClass", object
+    end
+
     let :object do
       Class.new do
-        extend Pakyow::Support::Makeable
+        include Pakyow::Support::Makeable
       end
     end
 
     include_examples :making
 
-    describe "the make hook" do
+    context "hooking into make" do
       after do
         Object.send(:remove_const, :Foo)
       end
@@ -180,35 +201,97 @@ RSpec.describe Pakyow::Support::Makeable do
         let :object do
           Class.new do
             include Pakyow::Support::Hookable
-            extend Pakyow::Support::Makeable
+            include Pakyow::Support::Makeable
           end
         end
 
         before do
           local = self
-          object.after "make" do
-            local.instance_variable_set(:@called, self.name)
+
+          object.before "make" do
+            local.instance_variable_set(:@called_before, self.name)
           end
+
+          object.after "make" do
+            local.instance_variable_set(:@called_after, self.name)
+          end
+        end
+
+        it "calls the before make hook" do
+          expect {
+            object.make(:foo)
+          }.to change {
+            @called_before
+          }.from(nil).to("Foo")
         end
 
         it "calls the after make hook" do
           expect {
             object.make(:foo)
           }.to change {
-            @called
+            @called_after
           }.from(nil).to("Foo")
+        end
+
+        describe "accessing source location in a before make hook" do
+          before do
+            local = self
+
+            object.before "make" do
+              local.instance_variable_set(:@source_location, source_location)
+            end
+          end
+
+          it "is set" do
+            object.make(:foo) do; end
+            expect(@source_location).to be_instance_of(Array)
+          end
+        end
+
+        describe "accessing class level instance state in a before make hook" do
+          before do
+            local = self
+
+            object.before "make" do
+              local.instance_variable_set(:@some_key, @some_key)
+            end
+          end
+
+          it "is set" do
+            expect {
+              object.make(:foo, some_key: :some_value)
+            }.to change {
+              @some_key
+            }.from(nil).to(:some_value)
+          end
         end
       end
     end
   end
 
   describe "making a module" do
+    before do
+      stub_const "MakeableModule", object
+    end
+
     let :object do
       Module.new do
-        extend Pakyow::Support::Makeable
+        include Pakyow::Support::Makeable
+
+        def foo
+          :foo
+        end
+
+        module_function :foo
       end
     end
 
     include_examples :making
+
+    describe "module inheritence" do
+      it "inherits methods from the module" do
+        expect(object.foo).to eq(:foo)
+      end
+    end
   end
 end
