@@ -15,6 +15,7 @@ jobs:
         ruby:
           - 2.5.7
           - 2.6.5
+          - 2.7.0
 
       fail-fast: false
 
