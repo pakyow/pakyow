@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Build the correct object name when namespace is empty.**
+    - [Pull Request #370][pr-370]
+
   * `add` **Allow object name to be passed explicitly when isolating an object.**
     - [Pull Request #369][pr-369]
 
@@ -95,6 +98,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-370]: https://github.com/pakyow/pakyow/pull/370
 [pr-369]: https://github.com/pakyow/pakyow/pull/369
 [pr-368]: https://github.com/pakyow/pakyow/pull/368
 [pr-367]: https://github.com/pakyow/pakyow/pull/367
