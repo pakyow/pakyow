@@ -60,7 +60,7 @@ module Pakyow
             nil
           end
 
-          isolated_object = if isolated_object_name
+          isolated_object = if isolated_object_name && context
             isolation_target = ensure_isolatable_namespace(*isolated_object_name.namespace.parts).inject(context) { |target_for_part, object_name_part|
               constant_name = Support.inflector.camelize(object_name_part.to_s)
 
@@ -77,17 +77,15 @@ module Pakyow
               isolation_target.const_get(isolated_constant_name)
             else
               newly_isolated_object = define_isolated_object(object_to_isolate)
-
               isolation_target.const_set(isolated_constant_name, newly_isolated_object)
-
-              unless newly_isolated_object.instance_variable_defined?(:@object_name)
-                newly_isolated_object.instance_variable_set(:@object_name, isolated_object_name)
-              end
-
               newly_isolated_object
             end
           else
             define_isolated_object(object_to_isolate)
+          end
+
+          unless isolated_object_name.nil? || isolated_object.instance_variable_defined?(:@object_name)
+            isolated_object.instance_variable_set(:@object_name, isolated_object_name)
           end
 
           isolated_object.class_eval(&block) if block_given?

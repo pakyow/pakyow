@@ -3,9 +3,13 @@ require "pakyow/support/isolable"
 RSpec.describe "isolating objects" do
   shared_examples "isolable" do
     let(:isolable) {
-      Class.new do
+      isolable = Class.new do
         include Pakyow::Support::Isolable
       end
+
+      stub_const "IsolableObject", isolable
+
+      isolable
     }
 
     let(:isolated_state_name) {
@@ -13,7 +17,6 @@ RSpec.describe "isolating objects" do
     }
 
     before do
-      stub_const "IsolableObject", isolable
       stub_const isolated_state_name, object
     end
 
@@ -29,6 +32,8 @@ RSpec.describe "isolating objects" do
 
     context "object is already defined" do
       before do
+        isolable
+
         stub_const "IsolableObject::State", existing_object
       end
 
@@ -329,6 +334,32 @@ RSpec.describe "isolating objects" do
         it "creates a camelized class name" do
           expect(isolable.isolate(State, as: "/foo/bar-baz")).to be(IsolableObject::Foo::BarBaz)
         end
+      end
+    end
+
+    describe "isolating within an anonymous parent" do
+      let(:isolable) {
+        Class.new do
+          include Pakyow::Support::Isolable
+        end
+      }
+
+      it "creates an anonymous child" do
+        expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).name).to be(nil)
+      end
+
+      it "sets the object name" do
+        expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).instance_variable_get(:@object_name).constant).to eq("Foo::Bar::Baz")
+      end
+    end
+
+    describe "isolating within a nil context" do
+      it "creates an anonymous child" do
+        expect(isolable.isolate(State, context: nil, as: :baz, namespace: [:foo, :bar]).name).to be(nil)
+      end
+
+      it "sets the object name" do
+        expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).instance_variable_get(:@object_name).constant).to eq("Foo::Bar::Baz")
       end
     end
   end
