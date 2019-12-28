@@ -45,7 +45,7 @@ module Pakyow
       class_methods do
         # Isolates `object_to_isolate` within `self` or `context`, evaluating the given block in context.
         #
-        def isolate(object_to_isolate, as: default_omitted = true, namespace: [], context: self, &block)
+        def isolate(object_to_isolate, as: default_omitted = true, namespace: [], context: isolable_context, &block)
           object_to_isolate = ensure_object(object_to_isolate)
 
           as = if default_omitted
@@ -95,7 +95,7 @@ module Pakyow
 
         # Returns true if `class_name` is isolated within `self` or `context`.
         #
-        def isolated?(class_name, namespace: [], context: self)
+        def isolated?(class_name, namespace: [], context: isolable_context)
           isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
             target_for_part.const_get(Support.inflector.camelize(object_name_part.to_s))
           }
@@ -105,7 +105,7 @@ module Pakyow
 
         # Returns the isolated class for `class_name`, evaluating the given block in context.
         #
-        def isolated(class_name, namespace: [], context: self, &block)
+        def isolated(class_name, namespace: [], context: isolable_context, &block)
           class_name = Support.inflector.camelize(class_name.to_s)
 
           isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
@@ -119,6 +119,10 @@ module Pakyow
           else
             nil
           end
+        end
+
+        private def isolable_context
+          self
         end
 
         private def build_isolable_object_name(*namespace, object_name)
@@ -198,7 +202,7 @@ module Pakyow
 
       # Convenience method for getting an isolated object through an instance.
       #
-      def isolated(class_name, namespace: [], context: self.class, &block)
+      def isolated(class_name, namespace: [], context: self.class.send(:isolable_context), &block)
         self.class.isolated(class_name, namespace: namespace, context: context, &block)
       end
     end

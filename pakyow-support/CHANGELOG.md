@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Override default isolable context.**
+
   * `chg` **Set isolable object name even when isolated object is anonymous.**
     - [Pull Request #372][pr-372]
 
