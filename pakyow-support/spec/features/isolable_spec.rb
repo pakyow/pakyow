@@ -362,6 +362,59 @@ RSpec.describe "isolating objects" do
         expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).instance_variable_get(:@object_name).constant).to eq("Foo::Bar::Baz")
       end
     end
+
+    describe "overriding the isolable context" do
+      let(:isolable) {
+        isolable = Class.new do
+          include Pakyow::Support::Isolable
+
+          class << self
+            attr_writer :context
+
+            private def isolable_context
+              @context
+            end
+          end
+        end
+
+        isolable.context = other_context
+
+        stub_const "IsolableObject", isolable
+
+        isolable
+      }
+
+      let(:other_context) {
+        stub_const "OtherContext", Module.new
+      }
+
+      def isolate
+        isolable.isolate(State)
+      end
+
+      it "isolates state in the correct context" do
+        expect(isolate).to be(OtherContext::State)
+        expect(defined?(IsolableObject::State)).to be(nil)
+      end
+
+      it "discovers isolated state in the correct context" do
+        isolate
+
+        expect(isolable.isolated?(:State)).to be(true)
+      end
+
+      it "returns isolated state in the correct context on a class" do
+        isolate
+
+        expect(isolable.isolated(:State)).to be(OtherContext::State)
+      end
+
+      it "returns isolated state in the correct context on an instance" do
+        isolate
+
+        expect(isolable.new.isolated(:State)).to be(OtherContext::State)
+      end
+    end
   end
 
   context "object is a class" do
