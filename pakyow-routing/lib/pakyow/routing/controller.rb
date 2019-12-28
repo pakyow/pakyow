@@ -5,7 +5,6 @@ require "uri"
 
 require "pakyow/support/aargv"
 require "pakyow/support/hookable"
-require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/core_refinements/string/normalization"
 
@@ -148,7 +147,6 @@ module Pakyow
     #
     class Controller
       using Support::DeepDup
-      extend Support::Makeable
       extend Support::ClassState
 
       include Support::Hookable
@@ -160,13 +158,6 @@ module Pakyow
       include Support::Pipeline
 
       using Support::Refinements::String::Normalization
-
-      controller = self
-      Pakyow::Routing.singleton_class.class_eval do
-        define_method :Controller do |path|
-          controller.Controller(path)
-        end
-      end
 
       METHOD_GET    = :get
       METHOD_HEAD   = :head
@@ -465,7 +456,6 @@ module Pakyow
         throw :reject
       end
 
-      class_state :children, default: [], inheritable: false
       class_state :templates, default: {}, inheritable: true
       class_state :expansions, default: [], inheritable: false
       class_state :routes, default: DEFINABLE_HTTP_METHODS.each_with_object({}) { |supported_method, routes_hash|
@@ -631,7 +621,7 @@ module Pakyow
         #   # => "/baz"
         #
         def group(name = nil, **kwargs, &block)
-          make_child(name, nil, **kwargs, &block)
+          define(name, nil, **kwargs, &block)
         end
 
         # Creates a group of routes and mounts them at a path, with an optional name. A namespace
@@ -654,8 +644,8 @@ module Pakyow
         #   end
         #
         def namespace(*args, **kwargs, &block)
-          name, matcher = parse_name_and_matcher_from_args(*args)
-          make_child(name, matcher, **kwargs, &block)
+          controller_name, matcher = parse_name_and_matcher_from_args(*args)
+          define(controller_name, matcher, **kwargs, &block)
         end
 
         # Creates a route template with a name and block. The block is evaluated within a
@@ -715,7 +705,7 @@ module Pakyow
         # @see template
         #
         def expand(name, *args, **options, &block)
-          make_child(*args).expand_within(name, **options, &block)
+          define(*args).expand_within(name, **options, &block)
         end
 
         # Attempts to find and expand a template, avoiding the need to call {expand} explicitly. For
@@ -743,9 +733,6 @@ module Pakyow
 
         # @api private
         attr_reader :path, :matcher
-
-        # @api private
-        attr_accessor :parent
 
         def path_to_self
           return path unless parent
@@ -798,37 +785,6 @@ module Pakyow
         end
 
         # @api private
-        def make(*args, **kwargs, &block)
-          name, matcher = parse_name_and_matcher_from_args(*args)
-
-          path = path_from_matcher(matcher)
-          matcher = finalize_matcher(matcher || "/")
-
-          super(name, path: path, matcher: matcher, **kwargs, &block)
-        end
-
-        # @api private
-        def make_child(*args, **kwargs, &block)
-          name, matcher = parse_name_and_matcher_from_args(*args)
-
-          if name && name.is_a?(Symbol) && child = children.find { |possible_child| possible_child.object_name.name == name }
-            if block_given?
-              child.instance_exec(&block)
-            end
-
-            child
-          else
-            if name && name.is_a?(Symbol) && object_name
-              name = object_name.isolate(name)
-            end
-
-            make(name, matcher, parent: self, **kwargs, &block).tap do |controller|
-              children << controller
-            end
-          end
-        end
-
-        # @api private
         def expand_within(name, **options, &block)
           raise NameError, "unknown template `#{name}'" unless template = templates[name]
           Routing::Expansion.new(name, self, options, &template)
@@ -836,39 +792,17 @@ module Pakyow
           self
         end
 
-        private
-
+        # @api private
         def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
-          Support::Aargv.normalize([name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ObjectName], matcher: Object).values_at(:name, :matcher)
+          return Support::Aargv.normalize(
+            [name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ObjectName], matcher: Object
+          ).values_at(:name, :matcher)
         end
 
-        def finalize_matcher(matcher)
-          if matcher.is_a?(String)
-            converted_matcher = String.normalize_path(matcher.split("/").map { |segment|
-              if segment.include?(":")
-                "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])+)"
-              else
-                segment
-              end
-            }.join("/"))
+        private def build_route(method, *args, &block)
+          route_name, matcher = parse_name_and_matcher_from_args(*args)
 
-            Regexp.new("^#{String.normalize_path(converted_matcher)}")
-          else
-            matcher
-          end
-        end
-
-        def path_from_matcher(matcher)
-          if matcher.is_a?(String)
-            matcher
-          else
-            nil
-          end
-        end
-
-        def build_route(method, *args, &block)
-          name, matcher = parse_name_and_matcher_from_args(*args)
-          Routing::Route.new(matcher, name: name, method: method, &block).tap do |route|
+          Routing::Route.new(matcher, name: route_name, method: method, &block).tap do |route|
             routes[method] << route
           end
         end

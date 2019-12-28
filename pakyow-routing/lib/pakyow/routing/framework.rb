@@ -18,17 +18,43 @@ require "pakyow/security/behavior/pipeline"
 module Pakyow
   module Routing
     class Framework < Pakyow::Framework(:routing)
+      using Support::Refinements::String::Normalization
+
       def boot
         object.class_eval do
           include Pakyow::Application::Behavior::Routing::Definition
 
-          isolate Controller do
-            include Extension::Resource
-          end
-
           # Make controllers definable on the app.
           #
-          stateful :controller, isolated(:Controller)
+          definable :controller, Controller, builder: -> (*args, **kwargs) {
+            controller_name, matcher = Controller.parse_name_and_matcher_from_args(*args)
+
+            path = if matcher.is_a?(String)
+              matcher
+            else
+              nil
+            end
+
+            matcher ||= "/"
+
+            matcher = if matcher.is_a?(String)
+              converted_matcher = String.normalize_path(matcher.split("/").map { |segment|
+                if segment.include?(":")
+                  "(?<#{segment[1..-1]}>(\\w|[-.~:@!$\\'\\(\\)\\*\\+,;])+)"
+                else
+                  segment
+                end
+              }.join("/"))
+
+              Regexp.new("^#{String.normalize_path(converted_matcher)}")
+            else
+              matcher
+            end
+
+            return controller_name, path: path, matcher: matcher, **kwargs
+          } do
+            include Extension::Resource
+          end
 
           # Load controllers for the app.
           #
@@ -46,6 +72,16 @@ module Pakyow
             self.class.include_helpers :active, isolated(:Controller)
           end
 
+          # Register controllers as pipeline actions.
+          #
+          after "initialize" do
+            unless Pakyow.env?(:prototype)
+              controllers.each do |controller|
+                action(controller, self)
+              end
+            end
+          end
+
           # Create the global controller instance.
           #
           after "initialize" do
@@ -56,18 +92,8 @@ module Pakyow
           #
           after "initialize" do
             unless Pakyow.env?(:prototype)
-              state(:controller).each do |controller|
+              controllers.each do |controller|
                 controller.build_endpoints(endpoints)
-              end
-            end
-          end
-
-          # Register controllers as pipeline actions.
-          #
-          after "initialize" do
-            unless Pakyow.env?(:prototype)
-              state(:controller).each do |controller|
-                action(controller, self)
               end
             end
           end

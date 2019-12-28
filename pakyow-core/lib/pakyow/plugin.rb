@@ -125,10 +125,6 @@ module Pakyow
       end
     end
 
-    def mount_path
-      self.class.mount_path
-    end
-
     def method_missing(method_name, *args, &block)
       if @parent.respond_to?(method_name)
         @parent.public_send(method_name, *args, &block)

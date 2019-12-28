@@ -43,7 +43,7 @@ RSpec.describe "route templating" do
   end
 
   it "tracks the expansion on the controller" do
-    expect(Pakyow.apps.first.state(:controller)[0].children[0].expansions).to eq([:talkback])
+    expect(Pakyow.apps.first.controllers.definitions[0].children[0].expansions).to eq([:talkback])
   end
 
   context "when the template defines actions" do

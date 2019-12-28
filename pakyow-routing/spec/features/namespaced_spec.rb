@@ -114,7 +114,7 @@ RSpec.describe "namespaced routes" do
     end
 
     let :controllers do
-      Pakyow.apps.first.state(:controller)
+      Pakyow.apps.first.controllers.definitions
     end
 
     it "adds routes to the existing group" do
