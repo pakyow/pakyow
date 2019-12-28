@@ -1,36 +1,58 @@
 # v1.1.0 (unreleased)
 
   * `chg` **Make default isolable context overridable.**
+
+    *Related links:*
     - [Pull Request #373][pr-373]
 
   * `chg` **Set isolable object name even when isolated object is anonymous.**
+
+    *Related links:*
     - [Pull Request #372][pr-372]
 
   * `chg` **Support complex object naming in isolable.**
+
+    *Related links:*
     - [Pull Request #371][pr-371]
 
   * `fix` **Build the correct object name when namespace is empty.**
+
+    *Related links:*
     - [Pull Request #370][pr-370]
 
   * `add` **Allow object name to be passed explicitly when isolating an object.**
+
+    *Related links:*
     - [Pull Request #369][pr-369]
 
   * `chg` **Pass isolable namespace as a keyword argument.**
+
+    *Related links:*
     - [Pull Request #368][pr-368]
 
   * `chg` **Rename isolable binding to context.**
+
+    *Related links:*
     - [Pull Request #367][pr-367]
 
   * `chg` **Improve isolated module inheritance.**
+
+    *Related links:*
     - [Pull Request #366][pr-366]
 
   * `chg` **Register pipeline actions during initialization.**
+
+    *Related links:*
     - [Pull Request #365][pr-365]
 
   * `add` **Introduce `Pipeline::Extension`.**
+
+    *Related links:*
     - [Pull Request #364][pr-364]
 
   * `add` **Introduce `Isolable`.**
+
+    *Related links:*
     - [Pull Request #363][pr-363]
 
   * `add` **Add a `common_methods` pattern to extensions.**
