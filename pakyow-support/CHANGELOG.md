@@ -1,6 +1,7 @@
 # v1.1.0 (unreleased)
 
-  * `add` **Override default isolable context.**
+  * `chg` **Make default isolable context overridable.**
+    - [Pull Request #373][pr-373]
 
   * `chg` **Set isolable object name even when isolated object is anonymous.**
     - [Pull Request #372][pr-372]
@@ -106,6 +107,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-373]: https://github.com/pakyow/pakyow/pull/373
 [pr-372]: https://github.com/pakyow/pakyow/pull/372
 [pr-371]: https://github.com/pakyow/pakyow/pull/371
 [pr-370]: https://github.com/pakyow/pakyow/pull/370
