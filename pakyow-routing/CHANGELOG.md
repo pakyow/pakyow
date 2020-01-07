@@ -2,6 +2,13 @@
 
   * `fix` **Build endpoints relative to the app mount path.**
 
+    *Related links:*
+    - [Pull Request #374][pr-374]
+    - [Commit d7ef764][d7ef764]
+
+[pr-374]: https://github.com/pakyow/pakyow/pull/374
+[d7ef764]: https://github.com/pakyow/pakyow/commit/d7ef76437f4c8948ac09d9b5be77bc02a44caa06
+
 # v1.0.2
 
   * `fix` **Incorrect connection path after reroute.**
