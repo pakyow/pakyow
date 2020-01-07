@@ -60,6 +60,16 @@ module Pakyow
             @global_controller = isolated(:Controller).new(self)
           end
 
+          # Register routes as endpoints.
+          #
+          after "initialize" do
+            unless Pakyow.env?(:prototype)
+              state(:controller).each do |controller|
+                controller.build_endpoints(endpoints)
+              end
+            end
+          end
+
           # Register controllers as pipeline actions.
           #
           after "initialize" do

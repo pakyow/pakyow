@@ -753,33 +753,29 @@ module Pakyow
         end
 
         def name_of_self
-          return object_name.name unless parent
-          [parent.name_of_self.to_s, object_name.name.to_s].join("_").to_sym
-        end
-
-        def endpoints
           self_name = object_name&.name
 
-          # Ignore member and collection namespaces for endpoint building.
-          #
-          self_name = nil if self_name == :member || self_name == :collection
+          if parent
+            # Ignore member and collection namespaces for endpoint building.
+            #
+            if self_name == :member || self_name == :collection
+              self_name = nil
+            end
 
-          [].tap do |endpoints|
-            @routes.values.flatten.each do |route|
-              if route.name == :default && self_name
-                # Register the endpoint without the default name for easier lookup.
-                #
-                endpoints << Endpoint.new(
-                  name: self_name,
-                  method: route.method,
-                  builder: Routing::Route::EndpointBuilder.new(
-                    route: route, path: path_to_self
-                  )
-                )
-              end
+            [parent.name_of_self, self_name].compact.join("_").to_sym
+          else
+            self_name
+          end
+        end
 
-              endpoints << Endpoint.new(
-                name: [self_name, route.name.to_s].compact.join("_"),
+        # @api private
+        def build_endpoints(endpoints)
+          @routes.values.flatten.each do |route|
+            if route.name == :default && name_of_self
+              # Register the endpoint without the default name for easier lookup.
+              #
+              endpoints.build(
+                name: name_of_self,
                 method: route.method,
                 builder: Routing::Route::EndpointBuilder.new(
                   route: route, path: path_to_self
@@ -787,13 +783,17 @@ module Pakyow
               )
             end
 
-            children.flat_map(&:endpoints).each do |child_endpoint|
-              endpoints << Endpoint.new(
-                name: [self_name, child_endpoint.name].compact.join("_"),
-                method: child_endpoint.method,
-                builder: child_endpoint.builder
+            endpoints.build(
+              name: [name_of_self, route.name].compact.join("_"),
+              method: route.method,
+              builder: Routing::Route::EndpointBuilder.new(
+                route: route, path: path_to_self
               )
-            end
+            )
+          end
+
+          children.each do |child|
+            child.build_endpoints(endpoints)
           end
         end
 

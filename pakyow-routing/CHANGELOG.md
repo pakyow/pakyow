@@ -1,3 +1,7 @@
+# v1.1.0 (unreleased)
+
+  * `fix` **Build endpoints relative to the app mount path.**
+
 # v1.0.2
 
   * `fix` **Incorrect connection path after reroute.**

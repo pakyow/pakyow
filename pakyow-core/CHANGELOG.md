@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Build endpoints explicitly, relative to app mount path.**
+
   * `chg` **Boot the environment once, prior to forking child processes.**
 
     *Related links:*

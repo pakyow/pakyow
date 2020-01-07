@@ -52,4 +52,18 @@ RSpec.describe "presenting a view that defines an anchor endpoint" do
       )
     end
   end
+
+  context "app is mounted at a non-root path" do
+    let :mount_path do
+      "/foo"
+    end
+
+    it "sets the href" do
+      expect(call("/foo/presentation/endpoints/anchor")[2]).to eq_sans_whitespace(
+        <<~HTML
+          <a href="/foo/posts" data-e="posts_list"></a>
+        HTML
+      )
+    end
+  end
 end

@@ -184,4 +184,16 @@ RSpec.describe "rerouting requests" do
       end
     end
   end
+
+  context "app is mounted at a non-root path" do
+    let :mount_path do
+      "/foo"
+    end
+
+    it "reroutes to a route" do
+      res = call("/foo/reroute_to_route")
+      expect(res[0]).to eq(200)
+      expect(res[2]).to eq("destination")
+    end
+  end
 end

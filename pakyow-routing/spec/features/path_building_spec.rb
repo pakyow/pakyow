@@ -1,6 +1,63 @@
 RSpec.describe "path building" do
+  shared_examples :path_building do
+    it "returns nil when no path found" do
+      expect(call(File.join(mount_path, "/path/missing"))[2]).to eq("")
+    end
+
+    it "builds path to a default route" do
+      expect(call(File.join(mount_path, "/path/main_default"))[2]).to eq(mount_path)
+    end
+
+    it "builds path to a named route" do
+      expect(call(File.join(mount_path, "/path/main_foo"))[2]).to eq(File.join(mount_path, "/foo"))
+    end
+
+    it "builds path to a named route with params" do
+      expect(call(File.join(mount_path, "/path/main_bar"), params: { id: "123" })[2]).to eq(File.join(mount_path, "/bar/123"))
+    end
+
+    it "builds path to a grouped route" do
+      expect(call(File.join(mount_path, "/path/main_grouped_default"))[2]).to eq(mount_path)
+    end
+
+    it "builds path to a namespaced route" do
+      expect(call(File.join(mount_path, "/path/main_namespaced_default"))[2]).to eq(File.join(mount_path, "/ns"))
+    end
+
+    it "builds path to a deeply nested route" do
+      expect(call(File.join(mount_path, "/path/main_namespaced_deep_default"))[2]).to eq(File.join(mount_path, "/ns/deep"))
+    end
+
+    it "builds path to a resource route" do
+      expect(call(File.join(mount_path, "/path/posts_list"))[2]).to eq(File.join(mount_path, "/posts"))
+    end
+
+    it "builds path to a nested resource route" do
+      expect(call(File.join(mount_path, "/path/posts_comments_list"), params: { post_id: "123" })[2]).to eq(File.join(mount_path, "/posts/123/comments"))
+    end
+
+    it "builds path to a named internal route" do
+      expect(call(File.join(mount_path, "/path/main_internal_static"))[2]).to eq(File.join(mount_path, "/internal#foo"))
+    end
+
+    it "builds path to a named internal route with params" do
+      expect(call(File.join(mount_path, "/path/main_internal_params"), params: { id: "123" })[2]).to eq(File.join(mount_path, "/internal#123"))
+    end
+
+    it "builds path to a collection route within a resource" do
+      expect(call(File.join(mount_path, "/path/posts_meta"), params: { id: "123" })[2]).to eq(File.join(mount_path, "/posts/meta"))
+    end
+
+    it "builds path to a route within an unnamed controller" do
+      expect(call(File.join(mount_path, "/path/unnamed"))[2]).to eq(File.join(mount_path, "/unnamed"))
+    end
+
+    it "builds path to a route to a route with a hash" do
+      expect(call(File.join(mount_path, "/path/main_slug"), params: { slug: "foo" })[2]).to eq(File.join(mount_path, "#foo"))
+    end
+  end
+
   include_context "app"
-  using Pakyow::Support::DeepDup
 
   let :app_init do
     Proc.new {
@@ -59,59 +116,13 @@ RSpec.describe "path building" do
     }
   end
 
-  it "returns nil when no path found" do
-    expect(call("/path/missing")[2]).to eq("")
-  end
+  include_examples :path_building
 
-  it "builds path to a default route" do
-    expect(call("/path/main_default")[2]).to eq("/")
-  end
+  context "app is mounted at a non-root path" do
+    let :mount_path do
+      "/mounted"
+    end
 
-  it "builds path to a named route" do
-    expect(call("/path/main_foo")[2]).to eq("/foo")
-  end
-
-  it "builds path to a named route with params" do
-    expect(call("/path/main_bar", params: { id: "123" })[2]).to eq("/bar/123")
-  end
-
-  it "builds path to a grouped route" do
-    expect(call("/path/main_grouped_default")[2]).to eq("/")
-  end
-
-  it "builds path to a namespaced route" do
-    expect(call("/path/main_namespaced_default")[2]).to eq("/ns")
-  end
-
-  it "builds path to a deeply nested route" do
-    expect(call("/path/main_namespaced_deep_default")[2]).to eq("/ns/deep")
-  end
-
-  it "builds path to a resource route" do
-    expect(call("/path/posts_list")[2]).to eq("/posts")
-  end
-
-  it "builds path to a nested resource route" do
-    expect(call("/path/posts_comments_list", params: { post_id: "123" })[2]).to eq("/posts/123/comments")
-  end
-
-  it "builds path to a named internal route" do
-    expect(call("/path/main_internal_static")[2]).to eq("/internal#foo")
-  end
-
-  it "builds path to a named internal route with params" do
-    expect(call("/path/main_internal_params", params: { id: "123" })[2]).to eq("/internal#123")
-  end
-
-  it "builds path to a collection route within a resource" do
-    expect(call("/path/posts_meta", params: { id: "123" })[2]).to eq("/posts/meta")
-  end
-
-  it "builds path to a route within an unnamed controller" do
-    expect(call("/path/unnamed")[2]).to eq("/unnamed")
-  end
-
-  it "builds path to a route to a route with a hash" do
-    expect(call("/path/main_slug", params: { slug: "foo" })[2]).to eq("#foo")
+    include_examples :path_building
   end
 end
