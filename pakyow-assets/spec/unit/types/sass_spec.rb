@@ -29,7 +29,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
       expect(::SassC::Engine).to receive(:new) do |_, options|
         @syntax = options[:syntax]
       end.and_return(double.as_null_object)
-      instance.each
+      instance.each {}
 
       expect(@syntax).to eq(:sass)
     end
@@ -38,7 +38,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
       expect(::SassC::Engine).to receive(:new) do |_, options|
         @cache = options[:cache]
       end.and_return(double.as_null_object)
-      instance.each
+      instance.each {}
 
       expect(@cache).to eq(false)
     end
@@ -48,7 +48,7 @@ RSpec.describe Pakyow::Assets::Types::Sass do
         expect(::SassC::Engine).to receive(:new) do |_, options|
           @load_paths = options[:load_paths]
         end.and_return(double.as_null_object)
-        instance.each
+        instance.each {}
       end
 
       it "includes the containing directory" do

@@ -47,4 +47,14 @@ RSpec.describe "redirecting requests" do
       expect(call("/redirect_with_custom_status")[0]).to eq(301)
     end
   end
+
+  context "app is mounted at a non-root path" do
+    let :mount_path do
+      "/foo"
+    end
+
+    it "redirects to a route" do
+      expect(call("/foo/redirect_to_route")[1]["location"]).to eq("/foo/destination")
+    end
+  end
 end

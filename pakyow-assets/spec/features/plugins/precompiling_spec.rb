@@ -32,6 +32,14 @@ RSpec.describe "precompiling assets from a plugin" do
       )
     )
 
+    FileUtils.rm_r(
+      File.join(
+        running_app.config.assets.compile_path,
+        "foo",
+        running_app.config.assets.prefix
+      )
+    )
+
     # Put back the assets that are needed for other tests.
     #
     FileUtils.mkdir_p(
@@ -81,8 +89,9 @@ RSpec.describe "precompiling assets from a plugin" do
       File.exist?(
         File.join(
           running_app.config.assets.compile_path,
+          "foo",
           running_app.config.assets.prefix,
-          "foo/plugin.css"
+          "plugin.css"
         )
       )
     ).to be(true)
@@ -105,8 +114,9 @@ RSpec.describe "precompiling assets from a plugin" do
       File.exist?(
         File.join(
           running_app.config.assets.compile_path,
+          "foo",
           running_app.config.assets.prefix,
-          "foo/packs/plugin-pack.js"
+          "packs/plugin-pack.js"
         )
       )
     ).to be(true)

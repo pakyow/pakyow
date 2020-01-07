@@ -17,12 +17,6 @@ module Pakyow
             @asset_paths = app.state(:asset).map(&:public_path) + app.state(:pack).flat_map { |pack|
               [pack.public_css_path, pack.public_js_path]
             }
-
-            @prefix = if app.is_a?(Plugin)
-              Pathname.new(app.class.mount_path)
-            else
-              Pathname.new("/")
-            end
           end
 
           def call(connection)
@@ -51,12 +45,7 @@ module Pakyow
           end
 
           def public_path(connection)
-            File.join(
-              connection.app.config.assets.public_path,
-              String.normalize_path(
-                Pathname.new(connection.path).relative_path_from(@prefix).to_s
-              )
-            )
+            File.join(connection.app.config.assets.public_path, connection.path)
           end
 
           def asset?(connection)

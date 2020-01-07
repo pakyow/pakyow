@@ -4,7 +4,7 @@ RSpec.describe Pakyow::Endpoints do
       name: :foo_bar,
       method: :get,
       builder: Proc.new { |**params|
-        [self, params]
+        [self.class, params.inspect].join("__")
       }
     )
   end
@@ -15,12 +15,12 @@ RSpec.describe Pakyow::Endpoints do
 
   describe "#path" do
     it "builds a path to the named endpoint" do
-      expect(instance.path(:foo_bar)).to eq([self, {}])
+      expect(instance.path(:foo_bar)).to eq("/" + [self.class, {}.inspect].join("__"))
     end
 
     context "passed a hash" do
       it "builds a path to the named endpoint with the values" do
-        expect(instance.path(:foo_bar, foo: :bar)).to eq([self, { foo: :bar }])
+        expect(instance.path(:foo_bar, foo: :bar)).to eq("/" + [self.class, { foo: :bar }.inspect].join("__"))
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe Pakyow::Endpoints do
           end
         end
 
-        expect(instance.path(:foo_bar, klass.new(foo: :bar))).to eq([self, { foo: :bar }])
+        expect(instance.path(:foo_bar, klass.new(foo: :bar))).to eq("/" + [self.class, { foo: :bar }.inspect].join("__"))
       end
     end
 

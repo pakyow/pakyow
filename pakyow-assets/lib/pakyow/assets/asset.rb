@@ -132,6 +132,8 @@ module Pakyow
       end
 
       def each(&block)
+        return enum_for(:each) unless block_given?
+
         ensure_content do |content|
           StringIO.new(post_process(content)).each(&block)
         end

@@ -22,9 +22,6 @@ module Pakyow
         @plugin.state(:templates) << Presenter::Templates.new(
           @plugin.config.name,
           frontend_path,
-          config: {
-            prefix: @plugin.class.mount_path
-          },
           processor: Presenter::ProcessorCaller.new(
             @plugin.parent.state(:processor).map { |processor|
               processor.new(@plugin.parent)
@@ -42,7 +39,7 @@ module Pakyow
                 plugin_info[:partials].merge!(app_templates.includes)
               end
 
-              if app_info = app_templates.info(path)
+              if app_info = app_templates.info(File.join(@plugin.mount_path, path))
                 # Define the plugin view as the `plug` partial so that it can be included.
                 #
                 plugin_info[:partials][:plug] = Presenter::Views::Partial.from_object(

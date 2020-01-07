@@ -21,13 +21,7 @@ module Pakyow
                 }.map { |pack_path, pack_asset_paths|
                   [accessible_pack_path(pack_path), pack_asset_paths]
                 }.reverse.each do |pack_path, pack_asset_paths|
-                  prefix = if is_a?(Plugin)
-                    self.class.mount_path
-                  else
-                    "/"
-                  end
-
-                  asset_pack = Pakyow::Assets::Pack.new(File.basename(pack_path).to_sym, config.assets, prefix: prefix)
+                  asset_pack = Pakyow::Assets::Pack.new(File.basename(pack_path).to_sym, config.assets)
 
                   pack_asset_paths.each do |pack_asset_path|
                     if config.assets.extensions.include?(File.extname(pack_asset_path))

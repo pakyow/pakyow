@@ -28,15 +28,7 @@ module Pakyow
 
           # Make controllers definable on the app.
           #
-          stateful :controller, isolated(:Controller) do |args, _opts|
-            if self.ancestors.include?(Plugin)
-              # When using plugins, prefix controller paths with the mount path.
-              #
-              name, matcher = Controller.send(:parse_name_and_matcher_from_args, *args)
-              path = File.join(@mount_path, Controller.send(:path_from_matcher, matcher).to_s)
-              args.replace([name, path])
-            end
-          end
+          stateful :controller, isolated(:Controller)
 
           # Load controllers for the app.
           #
@@ -58,6 +50,16 @@ module Pakyow
           #
           after "initialize" do
             @global_controller = isolated(:Controller).new(self)
+          end
+
+          # Register routes as endpoints.
+          #
+          after "initialize" do
+            unless Pakyow.env?(:prototype)
+              state(:controller).each do |controller|
+                controller.build_endpoints(endpoints)
+              end
+            end
           end
 
           # Register controllers as pipeline actions.

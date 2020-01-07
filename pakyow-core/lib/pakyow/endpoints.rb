@@ -2,6 +2,8 @@
 
 require "forwardable"
 
+require "pakyow/support/deprecatable"
+
 module Pakyow
   # Lookup for endpoints.
   #
@@ -11,8 +13,15 @@ module Pakyow
     extend Forwardable
     def_delegator :@endpoints, :each
 
-    def initialize
+    extend Support::Deprecatable
+
+    def initialize(prefix: "/")
+      @prefix = prefix
       @endpoints = []
+    end
+
+    def build(name:, method:, builder:, prefix: "/")
+      self << Endpoint.new(name: name, method: method, builder: builder, prefix: File.join(@prefix, prefix))
     end
 
     def find(name:)
@@ -34,6 +43,7 @@ module Pakyow
         end
       end
     end
+    deprecate :load, solution: "build endpoints explicitly"
 
     # Builds the path to a named route.
     #
@@ -77,18 +87,24 @@ module Pakyow
     end
   end
 
+  require "pakyow/support/core_refinements/string/normalization"
+
   class Endpoint
+    using Support::Refinements::String::Normalization
+
     extend Forwardable
     def_delegators :@builder, :params, :source_location
 
-    attr_reader :name, :method, :builder
+    attr_reader :name, :method, :builder, :prefix
 
-    def initialize(name:, method:, builder:)
-      @name, @method, @builder = name.to_sym, method.to_sym, builder
+    def initialize(name:, method:, builder:, prefix: "/")
+      @name, @method, @builder, @prefix = name.to_sym, method.to_sym, builder, prefix
     end
 
     def path(hashlike_object = nil, **params)
-      @builder.call(**(hashlike_object || params).to_h)
+      String.normalize_path(
+        File.join(@prefix, @builder.call(**(hashlike_object || params).to_h).to_s)
+      )
     end
   end
 end
