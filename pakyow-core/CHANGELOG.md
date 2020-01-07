@@ -96,6 +96,8 @@
 
 ## Deprecations
 
+  * `Pakyow::Endpoints#load` is deprecated in favor of registering endpoints explicitly with `Pakyow::Endpoints#build`.
+
   * The environment's `freeze_on_boot` config option is deprecated and will be removed.
 
     *Related links:*

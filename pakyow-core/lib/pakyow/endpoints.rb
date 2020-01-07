@@ -43,6 +43,7 @@ module Pakyow
         end
       end
     end
+    deprecate :load, solution: "build endpoints explicitly"
 
     # Builds the path to a named route.
     #
