@@ -11,7 +11,7 @@ module Pakyow
 
           prepend_methods do
             def render(view_path = nil, as: nil, modes: [:default])
-              super(File.join(@connection.app.class.mount_path, view_path), as: as, modes: modes)
+              super(view_path, as: as, modes: modes)
             rescue Pakyow::Presenter::UnknownPage
               # Try rendering the view from the app.
               #

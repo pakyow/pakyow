@@ -48,7 +48,12 @@ module Pakyow
             end
 
             setting :compile_path do
-              config.assets.public_path
+              case self
+              when Plugin
+                File.join(top.config.assets.public_path, mount_path)
+              else
+                config.assets.public_path
+              end
             end
 
             setting :version do

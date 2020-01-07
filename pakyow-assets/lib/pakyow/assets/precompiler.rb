@@ -2,6 +2,8 @@
 
 require "fileutils"
 
+require "pakyow/application"
+
 module Pakyow
   module Assets
     class Precompiler
@@ -10,31 +12,37 @@ module Pakyow
       end
 
       def precompile!
-        assets.each do |asset|
-          precompile_asset!(asset)
+        @app.state(:asset).each do |asset|
+          precompile_asset!(asset, @app.config.assets.compile_path)
         end
 
-        packs.each do |pack|
+        @app.state(:pack).each do |pack|
           if pack.javascripts?
-            precompile_asset!(pack.javascripts)
+            precompile_asset!(pack.javascripts, @app.config.assets.compile_path)
           end
 
           if pack.stylesheets?
-            precompile_asset!(pack.stylesheets)
+            precompile_asset!(pack.stylesheets, @app.config.assets.compile_path)
+          end
+        end
+
+        if @app.is_a?(Application)
+          @app.plugs.each do |plug|
+            self.class.new(plug).precompile!
           end
         end
       end
 
       private
 
-      def precompile_asset!(asset)
-        compile_path = File.join(@app.config.assets.compile_path, asset.public_path)
+      def precompile_asset!(asset, path)
+        compile_path = File.join(path, asset.public_path)
+
         FileUtils.mkdir_p(File.dirname(compile_path))
 
-        asset_content = String.new
-        asset.each do |content|
-          asset_content << content
-        end
+        asset_content = asset.each.each_with_object(String.new) { |asset, content|
+          content << asset
+        }
 
         File.open(compile_path, "w+") do |file|
           file.write(asset_content)
@@ -45,19 +53,6 @@ module Pakyow
             file.write(source_map.read)
           end
         end
-      end
-
-
-      def assets
-        @app.state(:asset) + @app.plugs.flat_map { |plug|
-          plug.state(:asset)
-        }
-      end
-
-      def packs
-        @app.state(:pack) + @app.plugs.flat_map { |plug|
-          plug.state(:pack)
-        }
       end
     end
   end

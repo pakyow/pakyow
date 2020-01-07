@@ -77,7 +77,6 @@ module Pakyow
 
       @parent = parent
       @state = []
-      @endpoints = Endpoints.new
       @features = self.class.features
       @key = build_key
 
@@ -101,6 +100,7 @@ module Pakyow
         defined!
       end
 
+      define_app_endpoints
       create_helper_contexts
 
       if respond_to?(:boot)
@@ -120,7 +120,19 @@ module Pakyow
     end
 
     def call(connection)
-      super(isolated(:Connection).from_connection(connection, :@app => self))
+      if connection.path.start_with?(mount_path)
+        plugin_connection = isolated(:Connection).from_connection(connection, :@app => self)
+
+        if plugin_connection.instance_variable_defined?(:@path)
+          plugin_connection.remove_instance_variable(:@path)
+        end
+
+        super(plugin_connection)
+      end
+    end
+
+    def mount_path
+      self.class.mount_path
     end
 
     def method_missing(method_name, *args, &block)
@@ -247,24 +259,15 @@ module Pakyow
       end
     end
 
-    def load_endpoints
-      state.each_with_object(@endpoints) do |(_, state_object), endpoints|
-        state_object.instances.each do |state_instance|
-          endpoints.load(state_instance)
-        end
-      end
-
-      define_app_endpoints
-    end
-
     def define_app_endpoints
       @endpoints.each do |endpoint|
         # Register endpoints accessible for backend path building.
         #
-        @parent.endpoints << Endpoint.new(
+        top.endpoints.build(
           name: [config.name.to_s, endpoint.name].join("_"),
           method: endpoint.method,
-          builder: endpoint.builder
+          builder: endpoint.builder,
+          prefix: endpoint.prefix
         )
 
         # Register endpoints accessible for frontend path building.
@@ -277,10 +280,11 @@ module Pakyow
           :"@#{self.class.plugin_name}(#{namespace}).#{endpoint.name}"
         end
 
-        @parent.endpoints << Endpoint.new(
+        top.endpoints.build(
           name: endpoint_name,
           method: endpoint.method,
-          builder: endpoint.builder
+          builder: endpoint.builder,
+          prefix: endpoint.prefix
         )
       end
     end

@@ -10,8 +10,8 @@ RSpec.describe "serving assets from a plugin" do
 
   let :app_def do
     Proc.new do
-      plug :testable
       plug :testable, at: "/foo", as: :foo
+      plug :testable
     end
   end
 
@@ -20,7 +20,7 @@ RSpec.describe "serving assets from a plugin" do
   end
 
   it "serves plugin assets at a specific mount path" do
-    expect(call("/assets/foo/plugin.css")[0]).to eq(200)
+    expect(call("/foo/assets/plugin.css")[0]).to eq(200)
   end
 
   it "serves plugin packs at the default mount path" do
@@ -28,7 +28,7 @@ RSpec.describe "serving assets from a plugin" do
   end
 
   it "serves plugin packs at a specific mount path" do
-    expect(call("/assets/foo/packs/plugin-pack.js")[0]).to eq(200)
+    expect(call("/foo/assets/packs/plugin-pack.js")[0]).to eq(200)
   end
 
   it "serves plugin public files at the default mount path" do

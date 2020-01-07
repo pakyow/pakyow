@@ -15,10 +15,8 @@ RSpec.describe "accessing helpers within the plugin" do
 
       action :test
       def test(connection)
-        if connection.path == File.join(self.class.mount_path, "test-plugin/helpers")
-          connection.body = StringIO.new(@object.new(connection).test_helper)
-          connection.halt
-        end
+        connection.body = StringIO.new(@object.new(connection).test_helper)
+        connection.halt
       end
     end
   end
@@ -27,8 +25,8 @@ RSpec.describe "accessing helpers within the plugin" do
 
   let :app_def do
     Proc.new do
-      plug :testable, at: "/"
       plug :testable, at: "/foo", as: :foo
+      plug :testable, at: "/"
     end
   end
 
