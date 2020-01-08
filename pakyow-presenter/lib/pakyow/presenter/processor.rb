@@ -10,7 +10,7 @@ module Pakyow
       class_state :block
       class_state :extensions, default: [], reader: false
 
-      extend Support::Makeable
+      include Support::Makeable
 
       def initialize(app)
         @app = app

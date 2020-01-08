@@ -39,16 +39,6 @@ module Pakyow
 
       def boot
         object.class_eval do
-          isolate Binder
-          isolate Presenter
-
-          # Make sure component presenters inherit from this app's presenter.
-          #
-          isolated_presenter = isolated(:Presenter)
-          isolate Component do
-            @__presenter_class = isolated_presenter
-          end
-
           isolate Renderer do
             include Renderer::Behavior::CleanupPrototypeNodes
             include Renderer::Behavior::CleanupUnboundBindings
@@ -73,12 +63,20 @@ module Pakyow
             )
           end
 
-          stateful :binder,    isolated(:Binder)
-          stateful :component, isolated(:Component)
-          stateful :presenter, isolated(:Presenter)
+          definable :binder, Binder
+          definable :presenter, Presenter, builder: -> (path, *args, **kwargs) {
+            path = String.normalize_path(path)
+            return path, *args, path: path, **kwargs
+          }
+          definable :processor, Processor
+          definable :templates, Templates
 
-          stateful :processor, Processor
-          stateful :templates, Templates
+          # Make sure component presenters inherit from this app's presenter.
+          #
+          isolated_presenter = isolated(:Presenter)
+          definable :component, Component do
+            @__presenter_class = isolated_presenter
+          end
 
           aspect :binders
           aspect :components
@@ -128,9 +126,9 @@ module Pakyow
           #
           after "initialize", priority: :low do
             [isolated(:Presenter)].concat(
-              state(:presenter)
+              presenters.each.to_a
             ).concat(
-              state(:component).map(&:__presenter_class)
+              components.each.map(&:__presenter_class)
             ).uniq.each do |presenter|
               isolated(:Renderer).attach!(presenter, app: self)
             end
@@ -164,7 +162,7 @@ module Pakyow
           def view_info_for_path(path)
             path = String.collapse_path(path)
 
-            state(:templates).lazy.map { |store|
+            templates.each.lazy.map { |store|
               store.info(path)
             }.find(&:itself)
           end

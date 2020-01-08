@@ -12,6 +12,6 @@ RSpec.describe "defining the same component twice" do
   end
 
   it "does not create a second object" do
-    expect(Pakyow.apps.first.state(:component).count).to eq(1)
+    expect(Pakyow.apps.first.components.each.count).to eq(1)
   end
 end

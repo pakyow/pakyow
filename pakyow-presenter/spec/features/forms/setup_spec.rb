@@ -32,7 +32,7 @@ RSpec.describe "setting up a form via presenter" do
 
       expect(yielded).to be(form)
       expect(form.view).to have_received(:bind) do |bind_value|
-        expect(bind_value).to be_instance_of(Test::Application::Binder)
+        expect(bind_value).to be_instance_of(Test::Binder)
         expect(bind_value.object).to be(object)
       end
     end

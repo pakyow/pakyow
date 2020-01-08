@@ -234,7 +234,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   end
 
   context "mode is nested in a binding" do
-    let :app_def do
+    let :app_init do
       Proc.new do
         presenter "/presentation/ui_modes/nested" do
           render :post do

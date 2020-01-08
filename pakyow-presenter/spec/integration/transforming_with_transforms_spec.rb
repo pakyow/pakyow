@@ -3,6 +3,8 @@ require "pakyow/support/deep_freeze"
 RSpec.describe "transforming a presenter that has future transforms" do
   using Pakyow::Support::DeepFreeze
 
+  include_context "app"
+
   let :doc do
     StringDoc.new(html)
   end
@@ -35,7 +37,7 @@ RSpec.describe "transforming a presenter that has future transforms" do
   end
 
   let :presenter_class do
-    Class.new(Pakyow::Presenter::Presenter) do
+    app.isolated(:Presenter) do
       render :post do
         present(
           [
@@ -50,12 +52,6 @@ RSpec.describe "transforming a presenter that has future transforms" do
         attributes[:class] << :red
       end
     end
-  end
-
-  let :app do
-    Class.new(Pakyow::Application) {
-      isolate(Pakyow::Presenter::Binder)
-    }.new(:test)
   end
 
   it "applies the future transforms to each node" do

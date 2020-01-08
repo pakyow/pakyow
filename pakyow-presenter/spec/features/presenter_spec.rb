@@ -16,12 +16,12 @@ RSpec.describe "defining the same presenter twice" do
   end
 
   it "does not create a second object" do
-    expect(Pakyow.apps.first.state(:presenter).count).to eq(1)
+    expect(Pakyow.apps.first.presenters.each.count).to eq(1)
   end
 
   it "extends the first object" do
     expect(
-      Pakyow.apps.first.state(:presenter)[0].__attached_renders.select { |render|
+      Pakyow.apps.first.presenters.each.to_a[0].__attached_renders.select { |render|
         render[:block].source_location.to_s.include?("presenter_spec.rb")
       }.count
     ).to eq(2)

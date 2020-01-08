@@ -217,7 +217,6 @@ module Pakyow
 
         # @api private
         def find_presenter(app, path)
-          path = String.normalize_path(path)
           unless presenter = @__presenters_by_path[path]
             presenter = if path.nil? || Pakyow.env?(:prototype)
               app.isolated(:Presenter)
@@ -258,7 +257,7 @@ module Pakyow
         end
 
         def presenter_for_path(app, path)
-          app.state(:presenter).find { |presenter|
+          app.presenters.each.find { |presenter|
             presenter.path == path
           }
         end

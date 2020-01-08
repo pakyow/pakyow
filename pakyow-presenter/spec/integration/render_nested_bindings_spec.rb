@@ -3,6 +3,8 @@ require "pakyow/support/deep_freeze"
 RSpec.describe "rendering nested bindings from a presenter" do
   using Pakyow::Support::DeepFreeze
 
+  include_context "app"
+
   let :doc do
     StringDoc.new(html)
   end
@@ -39,7 +41,7 @@ RSpec.describe "rendering nested bindings from a presenter" do
   end
 
   let :presenter_class do
-    Class.new(Pakyow::Presenter::Presenter) do
+    app.isolated(:Presenter) do
       render :post do
         present(
           [
@@ -52,12 +54,6 @@ RSpec.describe "rendering nested bindings from a presenter" do
         attributes[:class] << :red
       end
     end
-  end
-
-  let :app do
-    Class.new(Pakyow::Application) {
-      isolate(Pakyow::Presenter::Binder)
-    }.new(:test)
   end
 
   it "renders the nested binding correctly" do

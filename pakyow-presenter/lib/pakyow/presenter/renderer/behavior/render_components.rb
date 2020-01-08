@@ -56,9 +56,9 @@ module Pakyow
               # If view will be rendered from the app, look for the component on the app.
               #
               component_state = if app.is_a?(Plugin) && app.parent.view?(composer.view_path)
-                app.parent.state(:component)
+                app.parent.components.each.to_a
               else
-                app.state(:component)
+                app.components.each.to_a
               end
 
               components = component_view.object.label(:components).each_with_object([]) { |component_label, arr|
@@ -222,8 +222,9 @@ module Pakyow
             if const_defined?(object_name.constant)
               const_get(object_name.constant)
             else
-              component_presenter = Class.new(app.isolated(:Presenter))
-              Support::Makeable.define_const_for_object_with_name(component_presenter, object_name)
+              component_presenter = app.class.isolate(
+                Class.new(app.isolated(:Presenter)), as: object_name, context: Object
+              )
 
               component_classes.each do |component_class|
                 # Copy unique attached renders.
