@@ -28,9 +28,7 @@ module Pakyow
             fn.source_location[0].end_with?("create_template_nodes.rb")
           }
 
-          unless const_defined?(:MailRenderer, false)
-            const_set(:MailRenderer, mail_renderer)
-          end
+          isolate(mail_renderer, as: "MailRenderer")
 
           def mailer(path = nil, presentables)
             if path
