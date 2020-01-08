@@ -21,33 +21,33 @@ module Pakyow
                 }.map { |pack_path, pack_asset_paths|
                   [accessible_pack_path(pack_path), pack_asset_paths]
                 }.reverse.each do |pack_path, pack_asset_paths|
-                  asset_pack = Pakyow::Assets::Pack.new(File.basename(pack_path).to_sym, config.assets)
+                  asset_pack = isolated(:Pack).new(File.basename(pack_path).to_sym, config.assets)
 
                   pack_asset_paths.each do |pack_asset_path|
                     if config.assets.extensions.include?(File.extname(pack_asset_path))
-                      asset_pack << Pakyow::Assets::Asset.new_from_path(
+                      asset_pack << isolated(:Asset).new_from_path(
                         pack_asset_path,
                         config: config.assets,
-                        related: state(:asset)
+                        related: assets#.each.to_a
                       )
                     end
                   end
 
-                  self.pack << asset_pack.finalize
+                  packs << asset_pack.finalize
                 end
               end
 
-              state(:templates).each do |template_store|
+              templates.each do |template_store|
                 build_layout_packs(template_store)
                 build_page_packs(template_store)
               end
             end
           end
 
-          def packs(view)
-            (autoloaded_packs + view_packs(view) + component_packs(view)).uniq.each_with_object([]) { |pack_name, packs|
-              if found_pack = state(:pack).find { |pack| pack.name == pack_name.to_sym }
-                packs << found_pack
+          def packs_for_view(view)
+            (autoloaded_packs + view_packs(view) + component_packs(view)).uniq.each_with_object([]) { |pack_name, packs_for_view|
+              if found_pack = packs.each.find { |pack| pack.name == pack_name.to_sym }
+                packs_for_view << found_pack
               end
             }
           end
@@ -85,19 +85,19 @@ module Pakyow
 
           def build_layout_packs(template_store)
             template_store.layouts.each do |layout_name, layout|
-              layout_pack = Pakyow::Assets::Pack.new(:"layouts/#{layout_name}", config.assets)
+              layout_pack = isolated(:Pack).new(:"layouts/#{layout_name}", config.assets)
               register_pack_with_view(layout_pack, layout)
 
               Pathname.glob(File.join(template_store.layouts_path, "#{layout_name}.*")) do |potential_asset_path|
                 next if template_store.template?(potential_asset_path)
-                layout_pack << Pakyow::Assets::Asset.new_from_path(
+                layout_pack << isolated(:Asset).new_from_path(
                   potential_asset_path,
                   config: config.assets,
-                  related: state(:asset)
+                  related: assets.each.to_a
                 )
               end
 
-              self.pack << layout_pack.finalize
+              self.packs << layout_pack.finalize
             end
           end
 
@@ -105,7 +105,7 @@ module Pakyow
             template_store.paths.each do |view_path|
               template_info = template_store.info(view_path)
 
-              page_pack = Pakyow::Assets::Pack.new(:"#{template_info[:page].logical_path[1..-1]}", config.assets)
+              page_pack = isolated(:Pack).new(:"#{template_info[:page].logical_path[1..-1]}", config.assets)
               register_pack_with_view(page_pack, template_info[:page])
 
               # Find all partials used by the page.
@@ -120,10 +120,10 @@ module Pakyow
                 if partial = template_info[:partials][partial_name]
                   Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |potential_asset_path|
                     next if template_store.template?(potential_asset_path)
-                    page_pack << Pakyow::Assets::Asset.new_from_path(
+                    page_pack << isolated(:Asset).new_from_path(
                       potential_asset_path,
                       config: config.assets,
-                      related: state(:asset)
+                      related: assets.each.to_a
                     )
                   end
                 end
@@ -133,14 +133,14 @@ module Pakyow
               #
               Pathname.glob(File.join(template_info[:page].path.dirname, "#{template_info[:page].path.basename(template_info[:page].path.extname)}.*")) do |potential_asset_path|
                 next if template_store.template?(potential_asset_path)
-                page_pack << Pakyow::Assets::Asset.new_from_path(
+                page_pack << isolated(:Asset).new_from_path(
                   potential_asset_path,
                   config: config.assets,
-                  related: state(:asset)
+                  related: assets.each.to_a
                 )
               end
 
-              self.pack << page_pack.finalize
+              self.packs << page_pack.finalize
             end
           end
 

@@ -12,11 +12,11 @@ module Pakyow
       end
 
       def precompile!
-        @app.state(:asset).each do |asset|
+        @app.assets.each do |asset|
           precompile_asset!(asset, @app.config.assets.compile_path)
         end
 
-        @app.state(:pack).each do |pack|
+        @app.packs.each do |pack|
           if pack.javascripts?
             precompile_asset!(pack.javascripts, @app.config.assets.compile_path)
           end

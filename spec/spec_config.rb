@@ -158,10 +158,12 @@ RSpec.configure do |config|
 
   def remove_constants(constant_names, within = Object)
     constant_names.each do |constant_name|
-      if within.const_defined?(constant_name)
-        constant = within.const_get(constant_name)
-        remove_constants(constant.constants(false), constant.respond_to?(:remove_const) ? constant : within)
-        within.__send__(:remove_const, constant_name)
+      if within.const_defined?(constant_name, false)
+        constant = within.const_get(constant_name, false)
+        if constant.respond_to?(:constants)
+          remove_constants(constant.constants(false), constant.respond_to?(:remove_const, true) ? constant : within)
+          within.__send__(:remove_const, constant_name)
+        end
       end
     end
   end

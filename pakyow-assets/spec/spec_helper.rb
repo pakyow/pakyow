@@ -9,6 +9,7 @@ start_simplecov do
 end
 
 require "pakyow/assets"
+require "pakyow/assets/babel"
 
 require_relative "../../spec/helpers/mock_handler"
 

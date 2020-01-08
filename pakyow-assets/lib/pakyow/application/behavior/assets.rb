@@ -21,11 +21,11 @@ module Pakyow
                 } || File.basename(path).start_with?("_")
 
                 if config.assets.extensions.include?(File.extname(path))
-                  self.class.asset << Pakyow::Assets::Asset.new_from_path(
+                  assets << isolated(:Asset).new_from_path(
                     path,
                     config: config.assets,
                     source_location: assets_path,
-                    related: state(:asset)
+                    related: assets
                   )
                 end
               end

@@ -80,6 +80,10 @@ module Pakyow
         @public_path + ".css"
       end
 
+      def object_name
+        self.class.object_name
+      end
+
       private
 
       def pack_assets!

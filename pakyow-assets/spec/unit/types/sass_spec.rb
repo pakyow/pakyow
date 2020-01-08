@@ -1,4 +1,6 @@
-RSpec.describe Pakyow::Assets::Types::Sass do
+require "pakyow/application/behavior/assets/types/sass"
+
+RSpec.describe Pakyow::Application::Behavior::Assets::Types::Sass do
   require "sassc"
 
   let :config do
@@ -17,8 +19,26 @@ RSpec.describe Pakyow::Assets::Types::Sass do
     File.expand_path("../../../support/app/frontend/assets/types-sass.sass", __FILE__)
   end
 
+  let :klass do
+    Class.new do
+      def self.asset_type(type, &block)
+        asset_types[type] = Class.new(Pakyow::Assets::Asset, &block)
+      end
+
+      def self.asset_types
+        @asset_types ||= {}
+      end
+
+      include Pakyow::Application::Behavior::Assets::Types::Sass
+    end
+  end
+
+  let :asset_type do
+    klass.asset_types[:sass]
+  end
+
   let :instance do
-    Pakyow::Assets::Types::Sass.new(
+    asset_type.new(
       local_path: local_path,
       config: config
     )

@@ -9,6 +9,8 @@ require "pakyow/application/behavior/assets/externals"
 require "pakyow/application/behavior/assets/watching"
 require "pakyow/application/behavior/assets/prelaunching"
 require "pakyow/application/behavior/assets/processing"
+require "pakyow/application/behavior/assets/types"
+
 require "pakyow/application/config/assets"
 
 require "pakyow/presenter/renderer/behavior/assets/install_assets"
@@ -24,13 +26,15 @@ module Pakyow
     class Framework < Pakyow::Framework(:assets)
       def boot
         object.class_eval do
+          definable :asset_type, Asset
+
           # Let other frameworks load their own assets.
           #
-          stateful :asset, Asset
+          definable :asset, Asset
 
           # Let other frameworks load their own asset packs.
           #
-          stateful :pack, Pack
+          definable :pack, Pack
 
           include Application::Config::Assets
           include Application::Behavior::Assets
@@ -40,10 +44,11 @@ module Pakyow
           include Application::Behavior::Assets::Watching
           include Application::Behavior::Assets::Prelaunching
           include Application::Behavior::Assets::Processing
+          include Application::Behavior::Assets::Types
 
-          on "initialize" do
-            action(Application::Actions::Assets::Public, self)
-            action(Application::Actions::Assets::Process)
+          after "initialize" do
+            action Application::Actions::Assets::Public, self
+            action Application::Actions::Assets::Process
           end
 
           after "load" do

@@ -2,12 +2,17 @@
 
 require "sassc"
 
+require "pakyow/support/deprecatable"
+
 require "pakyow/assets/asset"
 
 module Pakyow
   module Assets
     module Types
       class CSS < Asset
+        extend Support::Deprecatable
+        deprecate
+
         extension :css
 
         def initialize(local_path:, config:, **kwargs)

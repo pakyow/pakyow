@@ -6,6 +6,11 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+## Deprecations
+
+  * `Pakyow::Assets::Types::CSS`, `Pakyow::Assets::Types::JS`, `Pakyow::Assets::Types::Sass`, and
+    `Pakyow::Assets::Types::Scss` are all deprecated with no direct replacement.
+
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
 [802295c]: https://github.com/pakyow/pakyow/commit/802295c0396383b96fadafd121192d41bb63457e
 

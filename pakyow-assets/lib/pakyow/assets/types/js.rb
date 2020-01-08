@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deprecatable"
+
 require "pakyow/assets/asset"
 require "pakyow/assets/babel"
 
@@ -9,6 +11,9 @@ module Pakyow
   module Assets
     module Types
       class JS < Asset
+        extend Support::Deprecatable
+        deprecate
+
         extension :js
 
         def initialize(*)
