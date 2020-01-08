@@ -134,8 +134,6 @@ module Pakyow
           end
         end
 
-        include Enumerable
-
         # @api private
         def each_hook(type, event, &block)
           return enum_for(:each_hook, type, event) unless block_given?

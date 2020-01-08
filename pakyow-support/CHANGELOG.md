@@ -155,6 +155,15 @@
 [59e6efe]: https://github.com/pakyow/pakyow/commit/59e6efe42f1d6f5d48d15359d2e1a63bea9a0600
 [787681d]: https://github.com/pakyow/pakyow/commit/787681dacbbd3ce79f6e38a5672749635903a85b
 
+# v1.0.3 (unreleased)
+
+  * `fix` **Hookable no longer makes including objects Enumerable**
+
+    *Related links:*
+    - [Pull Request #375][pr-375]
+
+[pr-375]: https://github.com/pakyow/pakyow/pull/375
+
 # v1.0.2
 
   * `fix` **Message verification no longer fails when the digest contains `--`.**
