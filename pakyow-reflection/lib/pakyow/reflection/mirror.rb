@@ -41,7 +41,7 @@ module Pakyow
       private
 
       def view_paths
-        @app.state(:templates).reject { |template_store|
+        @app.templates.each.reject { |template_store|
           @app.config.reflection.ignored_template_stores.include?(template_store.name)
         }.flat_map(&:paths)
       end

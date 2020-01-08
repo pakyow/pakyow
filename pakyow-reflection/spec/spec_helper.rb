@@ -54,11 +54,11 @@ RSpec.shared_context "reflectable app" do
             ),
           )
 
-          state(:templates) << @case_templates
+          templates << @case_templates
         end
 
         after "initialize.presenter", priority: :high do
-          if app_templates = state(:templates).find { |templates| templates.name == :default }
+          if app_templates = templates.each.find { |templates| templates.name == :default }
             @case_templates.paths.each do |path|
               case_info = @case_templates.info(path)
 
@@ -89,7 +89,7 @@ RSpec.shared_context "reflectable app" do
   end
 
   let :controllers do
-    Pakyow.apps.first.state(:controller).reject { |controller|
+    Pakyow.apps.first.controllers.each.reject { |controller|
       controller == Test::Controllers::Authenticity
     }
   end

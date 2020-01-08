@@ -2,11 +2,11 @@ RSpec.describe "reflected sources" do
   include_context "reflectable app"
 
   let :posts do
-    Pakyow.apps.first.state(:source)[0]
+    Pakyow.apps.first.sources.each.to_a[0]
   end
 
   let :comments do
-    Pakyow.apps.first.state(:source)[1]
+    Pakyow.apps.first.sources.each.to_a[1]
   end
 
   let :frontend_test_case do
