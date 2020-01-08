@@ -20,14 +20,14 @@ RSpec.describe "defining the same source twice" do
   end
 
   it "does not create a second source" do
-    expect(Pakyow.apps.first.state(:source).count).to eq(1)
+    expect(Pakyow.apps.first.sources.each.count).to eq(1)
   end
 
   it "includes the attribute from the first definition" do
-    expect(Pakyow.apps.first.state(:source)[0].attributes.keys).to include(:foo)
+    expect(Pakyow.apps.first.sources.each.to_a[0].attributes.keys).to include(:foo)
   end
 
   it "includes the attribute from the second definition" do
-    expect(Pakyow.apps.first.state(:source)[0].attributes.keys).to include(:bar)
+    expect(Pakyow.apps.first.sources.each.to_a[0].attributes.keys).to include(:bar)
   end
 end

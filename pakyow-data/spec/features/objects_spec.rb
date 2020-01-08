@@ -345,13 +345,13 @@ RSpec.describe "data objects" do
     end
 
     it "does not create a second object" do
-      expect(Pakyow.apps.first.state(:object).count).to eq(1)
+      expect(Pakyow.apps.first.objects.each.count).to eq(1)
     end
 
     it "extends the first object" do
-      expect(Pakyow.apps.first.state(:object)[0].instance_methods(false).count).to eq(2)
-      expect(Pakyow.apps.first.state(:object)[0].instance_methods(false)).to include(:foo)
-      expect(Pakyow.apps.first.state(:object)[0].instance_methods(false)).to include(:bar)
+      expect(Pakyow.apps.first.objects.each.to_a[0].instance_methods(false).count).to eq(2)
+      expect(Pakyow.apps.first.objects.each.to_a[0].instance_methods(false)).to include(:foo)
+      expect(Pakyow.apps.first.objects.each.to_a[0].instance_methods(false)).to include(:bar)
     end
   end
 end

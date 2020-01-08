@@ -6,7 +6,7 @@ require "pakyow/support/dependencies"
 desc "Show defined sources for an app"
 namespace :info do
   task :sources, [:app] do |_, args|
-    sources = args[:app].state(:source).sort_by { |source|
+    sources = args[:app].sources.each.sort_by { |source|
       source.plural_name
     }
 
@@ -15,7 +15,7 @@ namespace :info do
     }
 
     source_locations = sources.map { |source|
-      source_location = source.source_name.to_a.join(":")
+      source_location = source.source_location.join(":")
 
       source_location = if source_location.empty?
         "unknown"

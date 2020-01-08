@@ -20,7 +20,7 @@ module Pakyow
       extend Support::ClassState
       class_state :__serialized_methods, default: [], inheritable: true
 
-      extend Support::Makeable
+      include Support::Makeable
 
       def initialize(values)
         @values = Support::IndifferentHash.new(values).freeze
@@ -83,13 +83,6 @@ module Pakyow
       end
 
       class << self
-        attr_reader :name
-
-        # @api private
-        def make(name, state: nil, parent: nil, **kwargs, &block)
-          super(name, state: state, parent: parent, **kwargs, &block)
-        end
-
         def serialize(*methods)
           @__serialized_methods.concat(methods.map(&:to_sym)).uniq!
         end

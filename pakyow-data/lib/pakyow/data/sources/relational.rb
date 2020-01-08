@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/hookable"
 require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 require "pakyow/support/inflector"
@@ -415,9 +416,30 @@ module Pakyow
           end
         end
 
-        extend Support::Makeable
-        extend Support::ClassState
+        include Support::Hookable
+        include Support::Makeable
 
+        on "make" do
+          if defined?(@adapter)
+            adapter_class = Connection.adapter(@adapter)
+
+            if adapter_class.const_defined?("SourceExtension")
+              # Extend the source with any adapter-specific behavior.
+              #
+              extension_module = adapter_class.const_get("SourceExtension")
+              unless ancestors.include?(extension_module)
+                include(extension_module)
+              end
+
+              # Define default fields
+              #
+              self.primary_id if defined?(@primary_id) && @primary_id
+              self.timestamps if defined?(@timestamps) && @timestamps
+            end
+          end
+        end
+
+        extend Support::ClassState
         class_state :__default_query
         class_state :timestamp_fields
         class_state :primary_key_field
@@ -427,7 +449,7 @@ module Pakyow
         class_state :commands, default: {}
 
         class << self
-          attr_reader :name, :adapter, :connection
+          attr_reader :adapter, :connection
 
           def command(command_name, provides_dataset: true, creates: false, updates: false, deletes: false, &block)
             @commands[command_name] = {
@@ -539,30 +561,6 @@ module Pakyow
               associations[association.specific_type][
                 associations[association.specific_type].index(association)
               ] = through_association
-            end
-          end
-
-          def make(name, adapter: Pakyow.config.data.default_adapter, connection: Pakyow.config.data.default_connection, state: nil, parent: nil, primary_id: true, timestamps: true, **kwargs, &block)
-            super(name, state: state, parent: parent, adapter: adapter, connection: connection, attributes: {}, **kwargs) do
-              adapter_class = Connection.adapter(adapter)
-
-              if adapter_class.const_defined?("SourceExtension")
-                # Extend the source with any adapter-specific behavior.
-                #
-                extension_module = adapter_class.const_get("SourceExtension")
-                unless ancestors.include?(extension_module)
-                  include(extension_module)
-                end
-
-                # Define default fields
-                #
-                self.primary_id if primary_id
-                self.timestamps if timestamps
-              end
-
-              # Call the original block.
-              #
-              class_eval(&block) if block_given?
             end
           end
 

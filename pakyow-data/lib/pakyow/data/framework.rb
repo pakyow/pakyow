@@ -16,11 +16,27 @@ module Pakyow
     class Framework < Pakyow::Framework(:data)
       def boot
         object.class_eval do
-          isolate Sources::Relational, as: :Relational
-          isolate Pakyow::Data::Object, as: :Object
+          definable :source, Sources::Relational, builder: -> (*args, **kwargs) {
+            unless kwargs.key?(:adapter)
+              kwargs[:adapter] = Pakyow.config.data.default_adapter
+            end
 
-          stateful :source, isolated(:Relational)
-          stateful :object, isolated(:Object)
+            unless kwargs.key?(:connection)
+              kwargs[:connection] = Pakyow.config.data.default_connection
+            end
+
+            unless kwargs.key?(:primary_id)
+              kwargs[:primary_id] = true
+            end
+
+            unless kwargs.key?(:timestamps)
+              kwargs[:timestamps] = true
+            end
+
+            return *args, **kwargs
+          }
+
+          definable :object, Object
 
           # Autoload sources from the `sources` directory.
           #
