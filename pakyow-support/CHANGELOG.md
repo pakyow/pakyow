@@ -6,6 +6,10 @@
       - Defining named state within an anonymous parent will result in the defined state also being
         anonymous rather than being defined in the top-level namespace.
 
+    *Related links:*
+    - [Pull Request #376][pr-376]
+    - [Commit 59d983b][59d983b]
+
   * `chg` **Make default isolable context overridable.**
 
     *Related links:*
@@ -135,6 +139,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-376]: https://github.com/pakyow/pakyow/pull/376
 [pr-373]: https://github.com/pakyow/pakyow/pull/373
 [pr-372]: https://github.com/pakyow/pakyow/pull/372
 [pr-371]: https://github.com/pakyow/pakyow/pull/371
@@ -156,6 +161,7 @@
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
+[59d983b]: https://github.com/pakyow/pakyow/commit/59d983b3cc31fd92d4ed8616f25c9a20d15da27b
 [d410904]: https://github.com/pakyow/pakyow/commit/d4109047797e8e5d7f4233fe61a42ed472c96cd7
 [3edf137]: https://github.com/pakyow/pakyow/commit/3edf1372869b4a49c4ad83cebc8eb55023f91278
 [59e6efe]: https://github.com/pakyow/pakyow/commit/59e6efe42f1d6f5d48d15359d2e1a63bea9a0600
