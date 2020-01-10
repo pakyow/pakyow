@@ -10,7 +10,7 @@ RSpec.describe "presenter name" do
     end
 
     it "has the expected value" do
-      expect(Pakyow.apps[0].state(:presenter)[0].name).to eq("Test::Presenters::Index")
+      expect(Pakyow.apps[0].presenters.each.to_a[0].name).to eq("Test::Presenters::Index")
     end
   end
 
@@ -23,7 +23,7 @@ RSpec.describe "presenter name" do
     end
 
     it "has the expected value" do
-      expect(Pakyow.apps[0].state(:presenter)[0].name).to eq("Test::Presenters::Foo")
+      expect(Pakyow.apps[0].presenters.each.to_a[0].name).to eq("Test::Presenters::Foo")
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.describe "presenter name" do
     end
 
     it "has the expected value" do
-      expect(Pakyow.apps[0].state(:presenter)[0].name).to eq("Test::Presenters::Foo::BarBaz")
+      expect(Pakyow.apps[0].presenters.each.to_a[0].name).to eq("Test::Presenters::Foo::BarBaz")
     end
   end
 end

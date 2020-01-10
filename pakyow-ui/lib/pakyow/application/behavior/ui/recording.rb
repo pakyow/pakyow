@@ -33,9 +33,9 @@ module Pakyow
             #
             after "initialize" do
               @ui_presenters = [isolated(:Presenter)].concat(
-                state(:presenter)
+                presenters.each.to_a
               ).concat(
-                state(:component).map(&:__presenter_class)
+                components.each.map(&:__presenter_class)
               ).map { |presenter_class|
                 Class.new(presenter_class) do
                   include Pakyow::UI::Recordable

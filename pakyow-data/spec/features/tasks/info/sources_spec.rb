@@ -15,7 +15,9 @@ RSpec.describe "cli: info:sources" do
 
     Pakyow.app :test do
       source :posts do
-        self.source_name = ["/posts.rb", 23]
+        def self.source_location
+          ["/posts.rb", 23]
+        end
 
         has_many :comments
 
@@ -24,12 +26,14 @@ RSpec.describe "cli: info:sources" do
       end
 
       source :comments do
-        self.source_name = [
-          File.join(
-            Pakyow::Support::System.local_framework_path_string,
-            "pakyow-framework/comments.rb"
-          ), 1
-        ]
+        def self.source_location
+          [
+            File.join(
+              Pakyow::Support::System.local_framework_path_string,
+              "pakyow-framework/comments.rb"
+            ), 1
+          ]
+        end
 
         attribute :body
       end
@@ -44,13 +48,13 @@ RSpec.describe "cli: info:sources" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, "-h")).to eq("\e[34;1mShow defined sources for an app\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow info:sources\n\n\e[1mOPTIONS\e[0m\n      --app=app  \e[33mThe app to run the command on\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, "-h", cleanup: false)).to eq("\e[34;1mShow defined sources for an app\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow info:sources\n\n\e[1mOPTIONS\e[0m\n      --app=app  \e[33mThe app to run the command on\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
     end
   end
 
   describe "running" do
     it "shows sources info" do
-      expect(run_command(command)).to eq("\e[1m:comments\e[0m \e[34mpakyow/framework\e[0m\n  belongs_to :post\n\n  attribute :body, :string\n  attribute :created_at, :datetime\n  attribute :id, :bignum\n  attribute :post_id, :bignum\n  attribute :updated_at, :datetime\n\n\e[1m:posts\e[0m /posts.rb:23\n  has_many :comments\n\n  attribute :body, :string\n  attribute :created_at, :datetime\n  attribute :id, :bignum\n  attribute :title, :string\n  attribute :updated_at, :datetime\n\n")
+      expect(run_command(command, cleanup: false)).to eq("\e[1m:comments\e[0m \e[34mpakyow/framework\e[0m\n  belongs_to :post\n\n  attribute :body, :string\n  attribute :created_at, :datetime\n  attribute :id, :bignum\n  attribute :post_id, :bignum\n  attribute :updated_at, :datetime\n\n\e[1m:posts\e[0m /posts.rb:23\n  has_many :comments\n\n  attribute :body, :string\n  attribute :created_at, :datetime\n  attribute :id, :bignum\n  attribute :title, :string\n  attribute :updated_at, :datetime\n\n")
     end
 
     it "needs more specific tests"

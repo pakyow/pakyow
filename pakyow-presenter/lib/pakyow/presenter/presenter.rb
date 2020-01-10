@@ -5,7 +5,6 @@ require "forwardable"
 require "string_doc/meta_node"
 
 require "pakyow/support/core_refinements/array/ensurable"
-require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/support/class_state"
 require "pakyow/support/safe_string"
@@ -21,7 +20,7 @@ module Pakyow
     # will be interacting with presenters rather than the {View} directly.
     #
     class Presenter
-      extend Support::Makeable
+      include Support::Makeable
       extend Support::ClassState
       class_state :__attached_renders, default: [], inheritable: true
       class_state :__global_options, default: {}, inheritable: true
@@ -455,7 +454,7 @@ module Pakyow
           @app
         end
 
-        binder = context.state(:binder).find { |possible_binder|
+        binder = context.binders.each.find { |possible_binder|
           possible_binder.object_name.name == @view.label(:binding)
         }
 
@@ -600,15 +599,7 @@ module Pakyow
       end
 
       class << self
-        using Support::Refinements::String::Normalization
-
         attr_reader :path
-
-        # @api private
-        def make(path, **kwargs, &block)
-          path = String.normalize_path(path)
-          super(path, path: path, **kwargs, &block)
-        end
 
         # Defines a render to attach to a node.
         #

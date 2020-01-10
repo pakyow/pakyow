@@ -93,10 +93,12 @@ module Pakyow
               joining_source = source.ancestors.find { |ancestor|
                 ancestor != source && ancestor.ancestors.include?(Sources::Base)
               }.make(
+                source.object_name.namespace,
                 joining_source_name,
                 adapter: source.adapter,
                 connection: source.connection,
-                within: source.object_name.namespace
+                primary_id: true,
+                timestamps: true
               )
 
               @sources << joining_source

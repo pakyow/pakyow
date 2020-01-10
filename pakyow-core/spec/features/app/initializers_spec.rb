@@ -15,17 +15,8 @@ RSpec.describe "app initializers" do
 
   context "single app environment" do
     it "evals each initializer in context of the app" do
-      allow(Pakyow::Application).to receive(:class_eval).and_call_original
-
-      expect(Pakyow::Application).to receive(:class_eval).with(
-        "\"baz\"\n",
-        File.join(File.expand_path("../../support", __FILE__), "config/initializers/application/baz.rb")
-      ).and_return(nil)
-
-      expect(Pakyow::Application).to receive(:class_eval).with(
-        "\"qux\"\n",
-        File.join(File.expand_path("../../support", __FILE__), "config/initializers/application/qux.rb")
-      ).and_return(nil)
+      expect(app.instance_methods(false)).to include(:baz)
+      expect(app.instance_methods(false)).to include(:qux)
     end
   end
 

@@ -29,7 +29,7 @@ module Pakyow
             #
             # @see Routing::Behavior::ErrorHandling#handle
             def handle(name_exception_or_code, as: nil, &block)
-              const_get(:Controller).handle(name_exception_or_code, as: as, &block)
+              isolated(:Controller).handle(name_exception_or_code, as: as, &block)
             end
           end
         end

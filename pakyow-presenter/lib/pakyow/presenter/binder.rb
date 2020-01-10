@@ -7,7 +7,7 @@ module Pakyow
     # Decorates an object being bound to the view.
     #
     class Binder
-      extend Support::Makeable
+      include Support::Makeable
 
       # The object being bound.
       #

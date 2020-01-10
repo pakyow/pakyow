@@ -324,12 +324,12 @@ RSpec.describe "defining the same binder twice" do
   end
 
   it "does not create a second object" do
-    expect(Pakyow.apps.first.state(:binder).count).to eq(2)
+    expect(Pakyow.apps.first.binders.each.count).to eq(2)
   end
 
   it "extends the first object" do
-    expect(Pakyow.apps.first.state(:binder)[1].instance_methods(false).count).to eq(2)
-    expect(Pakyow.apps.first.state(:binder)[1].instance_methods(false)).to include(:foo)
-    expect(Pakyow.apps.first.state(:binder)[1].instance_methods(false)).to include(:bar)
+    expect(Pakyow.apps.first.binders.each.to_a[1].instance_methods(false).count).to eq(2)
+    expect(Pakyow.apps.first.binders.each.to_a[1].instance_methods(false)).to include(:foo)
+    expect(Pakyow.apps.first.binders.each.to_a[1].instance_methods(false)).to include(:bar)
   end
 end

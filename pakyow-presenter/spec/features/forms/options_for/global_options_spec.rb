@@ -40,7 +40,7 @@ RSpec.describe "defining global options in the presenter" do
     it "calls the block in context of the expected presenter instance" do
       call("/presentation/forms/options_for/global_options")
       expect(@context).to be_instance_of(Pakyow::Presenter::Presenters::Form)
-      expect(@context.__getobj__.class.ancestors).to include(Test::Application::Presenter)
+      expect(@context.__getobj__.class.ancestors).to include(Test::Presenter)
     end
   end
 

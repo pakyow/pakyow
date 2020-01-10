@@ -17,7 +17,7 @@ module Pakyow
                 # silence asset requests
                 Pakyow.silence do |connection|
                   # TODO: do we need the second check?
-                  connection.path.start_with?(config.assets.prefix) || self.class.asset.instances.any? { |asset|
+                  connection.path.start_with?(config.assets.prefix) || self.class.assets.each.any? { |asset|
                     asset.logical_path == connection.path
                   }
                 end

@@ -1,136 +1,118 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deprecator"
+require "pakyow/support/extension"
 require "pakyow/support/hookable"
+require "pakyow/support/inflector"
+require "pakyow/support/isolable"
 require "pakyow/support/object_name"
 
 module Pakyow
   module Support
+    # Make named copies of a class or module.
+    #
+    # @example
+    #   class MakeableObject
+    #     include Pakyow::Support::Makeable
+    #   end
+    #
+    #   foo_bar = MakeableObject.make(:foo_bar)
+    #
+    #   foo_bar.class
+    #   => FooBar
+    #
+    #   foo_bar.ancestors.include?(MakeableObject)
+    #   => true
+    #
+    # @example Making a namespaced object:
+    #
+    #   class MakeableObject
+    #     include Pakyow::Support::Makeable
+    #   end
+    #
+    #   baz = MakeableObject.make(:foo, :bar, :baz)
+    #
+    #   baz.class
+    #   => Foo::Bar::Baz
+    #
+    #   baz.ancestors.include?(MakeableObject)
+    #   => true
+    #
+    # @example Making a namespaced object from a path:
+    #
+    #   class MakeableObject
+    #     include Pakyow::Support::Makeable
+    #   end
+    #
+    #   baz = MakeableObject.make("foo/bar/baz")
+    #
+    #   baz.class
+    #   => Foo::Bar::Baz
+    #
+    #   baz.ancestors.include?(MakeableObject)
+    #   => true
+    #
     module Makeable
-      def self.extended(base)
+      extend Extension
+
+      include_dependency Isolable
+
+      class_methods do
+        attr_reader :source_location, :object_name
+
+        # Make a copy of `self` named `object_name`.
+        #
+        # @param namespace [Array<Symbol>, ObjectNamespace] The new object's namespace.
+        # @param object_name [Symbol, ObjectName] The new object's name.
+        # @param set_const [Boolean] If true, a constant will be defined for the new object.
+        # @param kwargs [Hash] Additional keys/values to set as instance variables on the new object.
+        #
+        def make(*namespace, object_name, set_const: true, **kwargs, &block)
+          object = isolate(
+            self,
+            as: object_name,
+            namespace: namespace,
+            context: set_const ? TOPLEVEL_BINDING.receiver.class : nil
+          ) do
+            # TODO: Test that source location, ivars are available to before make hooks.
+
+            if block_given?
+              instance_variable_set(:@source_location, block.source_location)
+            end
+
+            kwargs.each do |arg, value|
+              instance_variable_set(:"@#{arg}", value)
+            end
+
+            if ancestors.include?(Hookable)
+              call_hooks(:before, :make)
+            end
+
+            if block_given?
+              class_exec(&block)
+            end
+          end
+
+          if object.ancestors.include?(Hookable)
+            object.call_hooks(:after, :make)
+          end
+
+          object
+        end
+
+        # @api private
+        attr_writer :source_location
+
+        private def type_of_self?(object)
+          object.ancestors.include?(ancestors[1])
+        end
+      end
+
+      apply_extension do
         # Mixin the `make` event for objects that are hookable.
         #
-        if base.ancestors.include?(Hookable)
-          base.events :make
-        end
-      end
-
-      attr_reader :object_name
-      attr_accessor :source_name
-
-      def make(object_name, within: nil, set_const: true, **kwargs, &block)
-        @source_name = block&.source_location
-        object_name = build_object_name(object_name, within: within)
-        object = find_or_define_object(object_name, kwargs, set_const)
-
-        local_eval_method = eval_method
-        object.send(eval_method) do
-          @object_name = object_name
-          send(local_eval_method, &block) if block_given?
-        end
-
-        if object.ancestors.include?(Hookable)
-          object.call_hooks(:after, :make)
-        end
-
-        object
-      end
-
-      # @api private
-      def self.define_const_for_object_with_name(object_to_define, object_name)
-        return if object_name.nil?
-
-        target = object_name.namespace.parts.inject(Object) { |target_for_part, object_name_part|
-          define_object_on_target_with_constant_name(Module.new, target_for_part, object_name_part)
-        }
-
-        define_object_on_target_with_constant_name(object_to_define, target, object_name.name)
-      end
-
-      # @api private
-      def self.define_object_on_target_with_constant_name(object, target, constant_name)
-        constant_name = Support.inflector.camelize(constant_name)
-
-        unless target.const_defined?(constant_name, false)
-          target.const_set(constant_name, object)
-        end
-
-        target.const_get(constant_name)
-      end
-
-      private
-
-      def build_object_name(object_name, within:)
-        unless object_name.is_a?(ObjectName) || object_name.nil?
-          namespace = if within && within.respond_to?(:object_name)
-            within.object_name.namespace
-          elsif within.is_a?(ObjectNamespace)
-            within
-          else
-            ObjectNamespace.new
-          end
-
-          object_name_parts = object_name.to_s.gsub("-", "_").split("/").reject(&:empty?)
-          class_name = object_name_parts.pop || :index
-
-          object_name = Support::ObjectName.new(
-            Support::ObjectNamespace.new(
-              *(namespace.parts + object_name_parts)
-            ), class_name
-          )
-        end
-
-        object_name
-      end
-
-      def find_or_define_object(object_name, kwargs, set_const)
-        if object_name && ::Object.const_defined?(object_name.constant, false)
-          existing_object = ::Object.const_get(object_name.constant)
-
-          if type_of_self?(existing_object)
-            existing_object
-          else
-            define_object(kwargs)
-          end
-        else
-          define_object(kwargs).tap do |defined_object|
-            if set_const
-              Makeable.define_const_for_object_with_name(defined_object, object_name)
-            end
-          end
-        end
-      end
-
-      def type_of_self?(object)
-        object.ancestors.include?(ancestors[1])
-      end
-
-      def define_object(kwargs)
-        object = case self
-        when Class
-          Class.new(self)
-        when Module
-          Module.new do
-            def self.object_name
-              @object_name
-            end
-          end
-        end
-
-        object.send(eval_method) do
-          kwargs.each do |arg, value|
-            instance_variable_set(:"@#{arg}", value)
-          end
-        end
-
-        object
-      end
-
-      def eval_method
-        case self
-        when Class
-          :class_exec
-        when Module
-          :module_exec
+        if ancestors.include?(Hookable)
+          events :make
         end
       end
     end

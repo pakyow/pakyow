@@ -2,7 +2,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
   include_context "app"
 
   let :presenter do
-    Pakyow.apps.first.class.const_get(:Presenter).new(view, app: Pakyow.apps[0])
+    Pakyow.apps.first.isolated(:Presenter).new(view, app: Pakyow.apps[0])
   end
 
   let :view do

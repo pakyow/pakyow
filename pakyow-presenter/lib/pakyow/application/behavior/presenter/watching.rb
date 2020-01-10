@@ -11,7 +11,7 @@ module Pakyow
 
           apply_extension do
             after "load" do
-              ([:html] + state(:processor).map(&:extensions).flatten).uniq.each do |extension|
+              ([:html] + processors.each.map(&:extensions).flatten).uniq.each do |extension|
                 config.process.watched_paths << File.join(config.presenter.path, "**/*.#{extension}")
               end
             end

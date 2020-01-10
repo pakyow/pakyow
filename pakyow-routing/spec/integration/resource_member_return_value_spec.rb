@@ -10,7 +10,7 @@ RSpec.describe "return value from resource member definition" do
   end
 
   let :resource do
-    Pakyow.app(:test).state(:controller)[0]
+    Pakyow.app(:test).controllers.definitions[0]
   end
 
   it "returns the member" do

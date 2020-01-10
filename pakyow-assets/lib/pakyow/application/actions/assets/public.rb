@@ -14,7 +14,7 @@ module Pakyow
           # Pipeline Action that serves files out of your public directory.
           #
           def initialize(app)
-            @asset_paths = app.state(:asset).map(&:public_path) + app.state(:pack).flat_map { |pack|
+            @asset_paths = app.assets.each.map(&:public_path) + app.packs.each.flat_map { |pack|
               [pack.public_css_path, pack.public_js_path]
             }
           end

@@ -9,7 +9,7 @@ module Pakyow
     # Reusable functionality for a view component.
     #
     class Component
-      extend Support::Makeable
+      include Support::Makeable
 
       extend Support::ClassState
       class_state :__presenter_class, default: Presenter, inheritable: true
@@ -34,9 +34,7 @@ module Pakyow
             class_eval(&block)
           end
 
-          Support::Makeable.define_object_on_target_with_constant_name(
-            @__presenter_class, self, :Presenter
-          )
+          const_set(:Presenter, @__presenter_class)
         end
 
         def parse(string)

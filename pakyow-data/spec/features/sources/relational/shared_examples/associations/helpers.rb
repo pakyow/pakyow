@@ -36,7 +36,7 @@ RSpec.shared_context :source_associations_helpers do
       after "initialize", priority: :high do
         # Define an updatable attribute on the source.
         #
-        state(:source).find { |instance|
+        sources.each.find { |instance|
           instance.object_name.name == spec_context.target_source
         }.class_eval do
           attribute :updatable

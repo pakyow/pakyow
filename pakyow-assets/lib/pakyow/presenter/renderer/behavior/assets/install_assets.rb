@@ -13,10 +13,10 @@ module Pakyow
             apply_extension do
               build do |view, app:|
                 if head = view.head
-                  packs = app.packs(view)
+                  packs = app.packs_for_view(view)
 
                   if app.is_a?(Plugin)
-                    packs = app.parent.packs(view).concat(packs)
+                    packs = app.parent.packs_for_view(view).concat(packs)
                   end
 
                   packs.uniq { |pack|

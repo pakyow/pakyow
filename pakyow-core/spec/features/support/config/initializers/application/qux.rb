@@ -1,1 +1,2 @@
-"qux"
+def qux
+end

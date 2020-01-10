@@ -133,20 +133,9 @@ module Pakyow
               )
             end
 
-            app = self
-            plug = plugin.make(
-              "plug",
-              within: Support::ObjectNamespace.new(
-                *object_name.namespace.parts + [plugin_name, as]
-              ),
-              mount_path: at,
-            ) do
-              # Creates a connection subclass that other frameworks can safely extend.
-              #
-              isolate(app.isolated(:Connection))
-
-              instance_exec(&block) if block
-            end
+            plug = plugin.make(*object_name.namespace.parts, plugin_name, as, "plug", mount_path: at)
+            plug.isolate(isolated(:Connection))
+            plug.class_eval(&block) if block
 
             @__plugs << plug
           end

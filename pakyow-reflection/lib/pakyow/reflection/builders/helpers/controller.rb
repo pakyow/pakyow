@@ -13,7 +13,7 @@ module Pakyow
             controller_at_path(path) || define_controller_at_path(path)
           end
 
-          def controller_at_path(path, state = @app.state(:controller))
+          def controller_at_path(path, state = @app.controllers.each.to_a)
             if state.any?
               state.find { |controller|
                 String.normalize_path(String.collapse_path(controller.path_to_self)) == String.normalize_path(path)
@@ -23,7 +23,7 @@ module Pakyow
             end
           end
 
-          def controller_closest_to_path(path, state = @app.state(:controller))
+          def controller_closest_to_path(path, state = @app.controllers.each.to_a)
             if state.any?
               controller_closest_to_path(path, state.flat_map(&:children)) || state.find { |controller|
                 String.normalize_path(path).start_with?(String.normalize_path(String.collapse_path(controller.path_to_self)))
@@ -37,7 +37,7 @@ module Pakyow
             nested_state = if within
               within.children
             else
-              @app.state(:controller)
+              @app.controllers.each.to_a
             end
 
             path = String.normalize_path(path)
@@ -78,7 +78,7 @@ module Pakyow
 
           def within_resource?(view_path)
             view_path.split("/").any? { |view_path_part|
-              @app.state(:source).any? { |source|
+              @app.sources.each.any? { |source|
                 source.plural_name == view_path_part.to_sym
               }
             }
@@ -102,7 +102,7 @@ module Pakyow
 
           def resource_source_at_path(view_path)
             view_path.split("/").reverse.each do |view_path_part|
-              @app.state(:source).each do |source|
+              @app.sources.each do |source|
                 if source.plural_name == view_path_part.to_sym
                   return source
                 end
@@ -111,7 +111,7 @@ module Pakyow
           end
 
           def view_path_directory?(view_path)
-            @app.state(:templates).any? { |templates|
+            @app.templates.each.any? { |templates|
               File.directory?(File.join(templates.path, templates.config[:paths][:pages], view_path))
             }
           end
@@ -148,7 +148,7 @@ module Pakyow
             end
           end
 
-          def resource_for_scope_at_path(scope, path, state = @app.state(:controller))
+          def resource_for_scope_at_path(scope, path, state = @app.controllers.each.to_a)
             if state.any?
               state.select { |controller|
                 controller.expansions.include?(:resource)

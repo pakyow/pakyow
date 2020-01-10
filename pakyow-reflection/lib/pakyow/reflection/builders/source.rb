@@ -27,9 +27,11 @@ module Pakyow
           end
 
           (source_for_scope(scope) || define_source_for_scope(scope)).tap do |source|
-            unless source.source_name
-              source.source_name = block.source_location
-            end
+            # TODO: What was the purpose of this?
+            #
+            # unless source.source_name
+            #   source.source_name = block.source_location
+            # end
 
             source.class_eval(&block)
           end
@@ -38,7 +40,7 @@ module Pakyow
         private
 
         def source_for_scope(scope)
-          @app.state(:source).find { |source|
+          @app.sources.each.find { |source|
             source.plural_name == scope.plural_name
           }
         end

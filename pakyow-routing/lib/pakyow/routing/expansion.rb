@@ -19,7 +19,7 @@ module Pakyow
 
         # Create the controller that stores available routes, groups, and namespaces.
         #
-        @expander = Controller.make(set_const: false)
+        @expander = controller.make(nil, set_const: false)
 
         # Evaluate the template to define available routes, groups, and namespaces.
         #

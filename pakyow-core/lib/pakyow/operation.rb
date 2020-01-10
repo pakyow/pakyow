@@ -12,7 +12,7 @@ module Pakyow
     extend Support::ClassState
     class_state :__handlers, default: {}, inheritable: true
 
-    extend Support::Makeable
+    include Support::Makeable
 
     include Support::Pipeline
     include Support::Pipeline::Object

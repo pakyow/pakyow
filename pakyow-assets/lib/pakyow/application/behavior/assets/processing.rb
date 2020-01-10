@@ -12,8 +12,8 @@ module Pakyow
           apply_extension do
             on "load" do
               if self.class.includes_framework?(:presenter)
-                self.class.processor :html do |content|
-                  state(:asset).each do |asset|
+                processor :html do |content|
+                  assets.each do |asset|
                     content.gsub!(asset.logical_path, File.join(config.assets.host, asset.public_path))
                   end
 

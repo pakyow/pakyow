@@ -20,7 +20,7 @@ RSpec.describe "defining an app" do
 
   context "when app is a subclass" do
     let :base do
-      klass = Class.new(Pakyow::Application)
+      klass = Pakyow::Application.make(:base)
 
       klass.define do
         config.name = "define-test"
@@ -35,7 +35,7 @@ RSpec.describe "defining an app" do
     end
 
     let :app do
-      Class.new(base).tap do |app|
+      base.make(:test).tap do |app|
         app.define(&app_def)
       end
     end

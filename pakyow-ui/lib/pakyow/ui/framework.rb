@@ -67,9 +67,7 @@ module Pakyow
             fn.source_location[0].end_with?("render_components.rb")
           }
 
-          unless const_defined?(:UIRenderer, false)
-            const_set(:UIRenderer, ui_renderer)
-          end
+          isolate(ui_renderer, as: Support::ObjectName.build("UIRenderer"))
 
           after "initialize" do
             config.data.subscriptions.version = config.version

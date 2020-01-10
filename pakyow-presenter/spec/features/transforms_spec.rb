@@ -48,7 +48,7 @@ RSpec.describe "attaching transforms to a presenter" do
 
     it "calls in context of the presenter" do
       call("/presentation/transforms")
-      expect(@context.class.ancestors).to include(Test::Application::Presenter)
+      expect(@context.class.ancestors).to include(Test::Presenter)
     end
   end
 

@@ -35,12 +35,14 @@ module Pakyow
 
                   active: []
 
-          on "load" do
-            # Helpers are loaded first so that other aspects inherit them.
-            #
-            load_aspect(:helpers)
+          after "make", priority: :high do
+            definable :helper, Helper
 
-            self.class.state(:helper).each do |helper|
+            aspect :helpers
+          end
+
+          after "load" do
+            helpers.each do |helper|
               context = if helper.instance_variable_defined?(:@type)
                 helper.instance_variable_get(:@type)
               else
@@ -50,36 +52,29 @@ module Pakyow
               self.class.register_helper(context, helper)
             end
           end
-
-          # Define helpers as stateful after an app is made.
-          #
-          after "make", priority: :high do
-            isolate Helper
-
-            stateful :helper, isolated(:Helper)
-          end
         end
 
         class_methods do
-          # Registers a helper module to be loaded on defined endpoints.
+          # Register a helper module for `context`.
           #
           def register_helper(context, helper_module)
             (config.helpers[context.to_sym] << helper_module).uniq!
           end
 
-          # Includes helpers of a particular context into an object. Global helpers
+          # Includes helpers of a particular `context` into `object`. Global helpers
           # will automatically be included into active and passive contexts, and
           # passive helpers will automatically be included into the active context.
           #
           def include_helpers(context, object)
             @__included_helpers[object] = context
 
-            helpers(context.to_sym).each do |helper|
+            helpers_for_context(context.to_sym).each do |helper|
               object.include helper
             end
           end
 
-          def helpers(context)
+          # @api private
+          def helpers_for_context(context)
             case context.to_sym
             when :global
               config.helpers[:global]

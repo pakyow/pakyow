@@ -21,7 +21,7 @@ module Pakyow
             after "boot", "initialize.data", priority: :high do
               # Validate that each source connection exists.
               #
-              state(:source).each do |source|
+              sources.each do |source|
                 Pakyow.connection(source.adapter, source.connection)
               end
 
@@ -41,10 +41,10 @@ module Pakyow
                 connections.values.each do |connection|
                   arr << Pakyow::Data::Container.new(
                     connection: connection,
-                    sources: state(:source).select { |source|
+                    sources: sources.each.select { |source|
                       connection.name == source.connection && connection.type == source.adapter
                     },
-                    objects: state(:object)
+                    objects: objects.each.to_a
                   )
                 end
               }

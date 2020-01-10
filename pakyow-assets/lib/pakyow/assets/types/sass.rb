@@ -4,6 +4,7 @@ require "json"
 
 require "sassc"
 
+require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
 require "pakyow/assets/asset"
@@ -12,6 +13,9 @@ module Pakyow
   module Assets
     module Types
       class Sass < Asset
+        extend Support::Deprecatable
+        deprecate
+
         module Behavior
           extend Support::Extension
 

@@ -14,12 +14,12 @@ module Pakyow
               # Copy global versioning logic from other plugins to this plugin.
               #
               after "load" do
-                presenters = [isolated(:Presenter)].concat(state(:presenter))
+                presenter_definitions = [isolated(:Presenter)].concat(presenters.each.to_a)
 
                 parent.plugs.each do |plug|
                   plug.isolated(:Presenter).__versioning_logic.each_pair do |version, logic_arr|
                     logic_arr.each do |logic|
-                      presenters.each do |presenter|
+                      presenter_definitions.each do |presenter|
                         unless presenter.__versioning_logic.include?(version)
                           plug_namespace = plug.class.object_name.namespace.parts.last
 
@@ -42,12 +42,12 @@ module Pakyow
               # Copy global versioning logic from plugin presenters.
               #
               after "load.plugins" do
-                presenters = [isolated(:Presenter)].concat(state(:presenter))
+                presenter_definitions = [isolated(:Presenter)].concat(presenters.each.to_a)
 
                 plugs.each do |plug|
                   plug.isolated(:Presenter).__versioning_logic.each_pair do |version, logic_arr|
                     logic_arr.each do |logic|
-                      presenters.each do |presenter|
+                      presenter_definitions.each do |presenter|
                         plug_namespace = plug.class.object_name.namespace.parts.last
 
                         prefix = if plug_namespace == :default

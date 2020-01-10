@@ -1,3 +1,5 @@
+require "pakyow/assets/babel"
+
 RSpec.describe Pakyow::Assets::Babel do
   describe "#transform" do
     let :content do

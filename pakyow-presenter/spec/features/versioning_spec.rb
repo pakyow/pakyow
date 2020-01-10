@@ -357,7 +357,7 @@ RSpec.describe "view versioning via presenter" do
 
     it "returns the view matching the version" do
       call("/presentation/versioning/multiple-without-default")
-      expect(@versioned.class.ancestors).to include(Test::Application::Presenter)
+      expect(@versioned.class.ancestors).to include(Test::Presenter)
       expect(@versioned.version).to eq(:two)
     end
 

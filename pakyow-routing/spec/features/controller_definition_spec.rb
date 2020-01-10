@@ -89,38 +89,4 @@ RSpec.describe "defining a controller" do
       end
     end
   end
-
-  xcontext "when the controller is a subclass" do
-    class ChildController < Pakyow::Routing::Controller
-      default
-    end
-
-    let :autorun do
-      false
-    end
-
-    before do
-      Pakyow::Application.controller << ChildController
-      run
-    end
-
-    it "defines the controller" do
-      expect(call[0]).to eq(200)
-    end
-  end
-
-  xcontext "when the controller is a subclass and we create the subclass with options" do
-    class ChildControllerWithOptions < Pakyow::Routing::Controller("/foo")
-      default
-    end
-
-    before do
-      Pakyow::Application.controller << ChildControllerWithOptions
-      run
-    end
-
-    it "defines the controller" do
-      expect(call("/foo")[0]).to eq(200)
-    end
-  end
 end
