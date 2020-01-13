@@ -33,16 +33,16 @@ module Pakyow
         else
           build_deprecated_method(target, solution: solution)
         end
+
+        unless ancestors.include?(deprecation_module)
+          apply_deprecation_module(self, deprecation_module)
+        end
       end
 
       def self.extended(object)
         super
 
-        object.class_eval do
-          apply_deprecation_module(self, deprecation_module)
-
-          include DeprecationReferences
-        end
+        object.include DeprecationReferences
       end
 
       private def deprecation_module
@@ -108,7 +108,7 @@ module Pakyow
           self.class
         end
 
-        context.instance_methods
+        context.instance_methods(false)
       end
 
       # @api private

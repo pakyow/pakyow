@@ -55,6 +55,52 @@ RSpec.describe "deprecating a method" do
     end
   end
 
+  context "method is defined on a single instance" do
+    let!(:deprecatable) {
+      Class.new {
+        extend Pakyow::Support::Deprecatable
+
+        attr_reader :args, :kwargs, :block
+
+        def define_and_deprecate
+          singleton_class.define_method :foo do |*args, **kwargs, &block|
+            @args, @kwargs, @block = args, kwargs, block
+          end
+
+          singleton_class.deprecate :foo
+        end
+      }.tap do |deprecatable|
+        stub_const "DeprecatableClass", deprecatable
+      end
+    }
+
+    let(:instance) {
+      deprecatable.new
+    }
+
+    before do
+      instance.define_and_deprecate
+    end
+
+    context "method is called" do
+      before do
+        instance.foo(:foo, :bar, baz: :qux) do
+          :test
+        end
+      end
+
+      it "reports the deprecation" do
+        expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(instance, :foo, solution: "do not use")
+      end
+
+      it "calls the original method" do
+        expect(instance.args).to eq([:foo, :bar])
+        expect(instance.kwargs).to eq(baz: :qux)
+        expect(instance.block.call).to eq(:test)
+      end
+    end
+  end
+
   context "method is a class method" do
     let!(:deprecatable) {
       Class.new {
@@ -216,6 +262,33 @@ RSpec.describe "deprecating a method" do
 
     it "reports the correct name" do
       expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(DeprecatableClass, :foo, solution: "do not use")
+
+      instance.foo
+    end
+  end
+
+  describe "overriding the deprecated method reference" do
+    let!(:deprecatable) {
+      Class.new {
+        extend Pakyow::Support::Deprecatable
+
+        def deprecated_method_reference(target)
+          "Foo##{target}"
+        end
+
+        def foo; end
+        deprecate :foo
+      }.tap do |deprecatable|
+        stub_const "DeprecatableClass", deprecatable
+      end
+    }
+
+    let(:instance) {
+      deprecatable.new
+    }
+
+    it "uses the correct reference" do
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with("Foo#foo", solution: "do not use")
 
       instance.foo
     end
