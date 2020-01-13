@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce config deprecations.**
+
   * `chg` **Support deprecating dynamic instance methods defined on a singleton.**
 
     *Related links:*

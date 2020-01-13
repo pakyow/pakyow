@@ -5,6 +5,7 @@ require "concurrent/hash"
 
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
 
 require "pakyow/support/configurable/setting"
 
@@ -19,21 +20,25 @@ module Pakyow
         extend DeepFreeze
         insulate :configurable
 
+        extend Pakyow::Support::Deprecatable
+
         # @api private
         attr_reader :__settings, :__defaults, :__groups
 
-        def initialize(configurable)
-          @configurable = configurable
+        def initialize(configurable, name: nil, path: [])
+          @configurable, @__name, @__path = configurable, name, path
 
           @__settings = Concurrent::Hash.new
           @__defaults = Concurrent::Hash.new
-          @__groups   = Concurrent::Hash.new
+          @__groups = Concurrent::Hash.new
+          @__deprecations = Concurrent::Array.new
         end
 
         def initialize_copy(_)
           @__defaults = @__defaults.deep_dup
           @__settings = @__settings.deep_dup
-          @__groups   = @__groups.deep_dup
+          @__groups = @__groups.deep_dup
+          @__deprecations = @__deprecations.deep_dup
 
           @__settings.each_pair do |key, _|
             define_setting_methods(key)
@@ -41,6 +46,10 @@ module Pakyow
 
           @__groups.each_pair do |key, _|
             define_group_methods(key)
+          end
+
+          @__deprecations.each do |deprecation|
+            define_deprecation deprecation[:target], deprecation[:solution]
           end
 
           super
@@ -78,7 +87,7 @@ module Pakyow
         def configurable(group, &block)
           group = group.to_sym
 
-          config = Config.new(@configurable)
+          config = Config.new(@configurable, name: group, path: path_to_self)
           config.instance_eval(&block)
 
           unless @__groups.include?(group)
@@ -129,6 +138,20 @@ module Pakyow
           hash
         end
 
+        def deprecate(target = self, solution: "do not use")
+          define_deprecation(target, solution)
+
+          @__deprecations << { target: target, solution: solution }
+        end
+
+        private def define_deprecation(target, solution)
+          if @__settings.include?(target)
+            singleton_class.deprecate(:"#{target}=", solution: solution)
+          end
+
+          singleton_class.deprecate(target, solution: solution)
+        end
+
         # @api private
         def update_configurable(configurable)
           @configurable = configurable
@@ -140,6 +163,33 @@ module Pakyow
           @__groups.values.each do |group|
             group.update_configurable(configurable)
           end
+        end
+
+        private def path_to_self
+          @__path_to_self ||= (@__path.dup << @__name).compact
+        end
+
+        private def deprecated_method_reference(target)
+          unless defined?(@deprecated_method_reference)
+            configurable_context = case @configurable
+            when Class, Module
+              @configurable
+            else
+              @configurable.class
+            end
+
+            target = if target.to_s[-1] == "="
+              target[0..-2]
+            else
+              target
+            end
+
+            @deprecated_method_reference = ([
+              configurable_context.name, "config"
+            ].concat(path_to_self) << target).compact.join(".")
+          end
+
+          @deprecated_method_reference
         end
 
         private def find_setting(name)
