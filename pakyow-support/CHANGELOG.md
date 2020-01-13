@@ -2,6 +2,9 @@
 
   * `add` **Introduce config deprecations.**
 
+    *Related links:*
+    - [Pull Request #379][pr-379]
+
   * `chg` **Support deprecating dynamic instance methods defined on a singleton.**
 
     *Related links:*
@@ -151,6 +154,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-379]: https://github.com/pakyow/pakyow/pull/379
 [pr-378]: https://github.com/pakyow/pakyow/pull/378
 [pr-377]: https://github.com/pakyow/pakyow/pull/377
 [pr-376]: https://github.com/pakyow/pakyow/pull/376
