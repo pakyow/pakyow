@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support deprecating dynamic instance methods defined on a singleton.**
+
+    *Related links:*
+    - [Pull Request #378][pr-378]
+
   * `fix` **Report deprecations correctly for previously anonymous classes.**
 
     *Related links:*
@@ -144,6 +149,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-378]: https://github.com/pakyow/pakyow/pull/378
 [pr-377]: https://github.com/pakyow/pakyow/pull/377
 [pr-376]: https://github.com/pakyow/pakyow/pull/376
 [pr-373]: https://github.com/pakyow/pakyow/pull/373
