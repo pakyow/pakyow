@@ -9,18 +9,16 @@ RSpec.describe "deprecating a method" do
     let!(:deprecatable) {
       Class.new {
         extend Pakyow::Support::Deprecatable
+
+        attr_reader :args, :kwargs, :block
+
+        def foo(*args, **kwargs, &block)
+          @args, @kwargs, @block = args, kwargs, block
+        end
+
+        deprecate :foo
       }.tap do |deprecatable|
         stub_const "DeprecatableClass", deprecatable
-
-        deprecatable.class_eval do
-          attr_reader :args, :kwargs, :block
-
-          def foo(*args, **kwargs, &block)
-            @args, @kwargs, @block = args, kwargs, block
-          end
-
-          deprecate :foo
-        end
       end
     }
 
@@ -48,7 +46,7 @@ RSpec.describe "deprecating a method" do
           expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(instance, :foo, solution: "do not use")
         end
 
-        it "calls the original initializer" do
+        it "calls the original method" do
           expect(instance.args).to eq([:foo, :bar])
           expect(instance.kwargs).to eq(baz: :qux)
           expect(instance.block.call).to eq(:test)
@@ -59,22 +57,20 @@ RSpec.describe "deprecating a method" do
 
   context "method is a class method" do
     let!(:deprecatable) {
-      Class.new.tap do |deprecatable|
-        stub_const "DeprecatableClass", deprecatable
+      Class.new {
+        class << self
+          extend Pakyow::Support::Deprecatable
 
-        deprecatable.class_eval do
-          class << self
-            extend Pakyow::Support::Deprecatable
+          attr_reader :args, :kwargs, :block
 
-            attr_reader :args, :kwargs, :block
-
-            def foo(*args, **kwargs, &block)
-              @args, @kwargs, @block = args, kwargs, block
-            end
-
-            deprecate :foo
+          def foo(*args, **kwargs, &block)
+            @args, @kwargs, @block = args, kwargs, block
           end
+
+          deprecate :foo
         end
+      }.tap do |deprecatable|
+        stub_const "DeprecatableClass", deprecatable
       end
     }
 
@@ -103,19 +99,17 @@ RSpec.describe "deprecating a method" do
 
   context "method is a mixin" do
     let!(:deprecatable) {
-      Module.new.tap do |deprecatable|
-        stub_const "DeprecatableModule", deprecatable
+      Module.new {
+        attr_reader :args, :kwargs, :block
 
-        deprecatable.module_eval do
-          attr_reader :args, :kwargs, :block
-
-          def foo(*args, **kwargs, &block)
-            @args, @kwargs, @block = args, kwargs, block
-          end
-
-          extend Pakyow::Support::Deprecatable
-          deprecate :foo
+        def foo(*args, **kwargs, &block)
+          @args, @kwargs, @block = args, kwargs, block
         end
+
+        extend Pakyow::Support::Deprecatable
+        deprecate :foo
+      }.tap do |deprecatable|
+        stub_const "DeprecatableModule", deprecatable
       end
     }
 
@@ -150,22 +144,20 @@ RSpec.describe "deprecating a method" do
 
   context "method is a module function" do
     let!(:deprecatable) {
-      Module.new.tap do |deprecatable|
-        stub_const "DeprecatableModule", deprecatable
+      Module.new {
+        def foo(*args, **kwargs, &block)
+          @args, @kwargs, @block = args, kwargs, block
+        end
+        module_function :foo
 
-        deprecatable.module_eval do
-          class << self
-            attr_reader :args, :kwargs, :block
-          end
-
-          def foo(*args, **kwargs, &block)
-            @args, @kwargs, @block = args, kwargs, block
-          end
-          module_function :foo
+        class << self
+          attr_reader :args, :kwargs, :block
 
           extend Pakyow::Support::Deprecatable
           deprecate :foo
         end
+      }.tap do |deprecatable|
+        stub_const "DeprecatableModule", deprecatable
       end
     }
 
@@ -203,6 +195,29 @@ RSpec.describe "deprecating a method" do
       }.to raise_error(RuntimeError) do |error|
         expect(error.message).to eq("could not find method `foo' to deprecate")
       end
+    end
+  end
+
+  context "class is named after method is deprecated" do
+    let!(:deprecatable) {
+      Class.new {
+        extend Pakyow::Support::Deprecatable
+
+        def foo; end
+        deprecate :foo
+      }.tap do |deprecatable|
+        stub_const "DeprecatableClass", deprecatable
+      end
+    }
+
+    let(:instance) {
+      deprecatable.new
+    }
+
+    it "reports the correct name" do
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(DeprecatableClass, :foo, solution: "do not use")
+
+      instance.foo
     end
   end
 end

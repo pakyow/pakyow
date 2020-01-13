@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Report deprecations correctly for previously anonymous classes.**
+
+    *Related links:*
+    - [Pull Request #377][pr-377]
+
   * `add` **Publicize `Definable`, `Makeable`.**
     - These two modules introduce patterns for defining isolated state on an object.
     - Resolves several related bugs across all frameworks, including:
@@ -139,6 +144,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-377]: https://github.com/pakyow/pakyow/pull/377
 [pr-376]: https://github.com/pakyow/pakyow/pull/376
 [pr-373]: https://github.com/pakyow/pakyow/pull/373
 [pr-372]: https://github.com/pakyow/pakyow/pull/372
