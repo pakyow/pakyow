@@ -45,6 +45,8 @@ module Pakyow
         setting :secrets, [ENV["SECRET"].to_s.strip]
       end
 
+      config.deprecate :freeze_on_boot
+
       configurable :server do
         setting :host, "localhost"
         setting :port, 3000
