@@ -100,13 +100,7 @@ RSpec.configure do |config|
       $original_class_state.each do |ivar, original_value|
         Pakyow.instance_variable_set(ivar, original_value.deep_dup)
       end
-
-      # Replace the builder, because duping isn't quite enough to prevent contamination.
-      #
-      Pakyow.instance_variable_set(:@builder, Rack::Builder.new)
     end
-
-    Pakyow.instance_variable_set(:@config, $original_pakyow_config.deep_dup)
 
     @defined_constants = Module.constants.dup
   end
