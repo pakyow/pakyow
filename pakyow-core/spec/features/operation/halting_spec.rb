@@ -1,7 +1,7 @@
 RSpec.describe "halting an operation" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       operation :test do
         attr_reader :foo_result, :bar_result

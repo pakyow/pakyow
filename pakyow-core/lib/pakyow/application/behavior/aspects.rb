@@ -28,21 +28,19 @@ module Pakyow
           def aspect(name)
             (config.aspects << name.to_sym).uniq!
           end
-        end
 
-        private
-
-        def load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self)
-          __load_aspect(aspect, path: path, target: target)
-        end
-
-        def __load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self)
-          Dir.glob(File.join(path, "*.rb")).sort.each do |file_path|
-            Loader.new(file_path).call(target)
+          private def load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self)
+            __load_aspect(aspect, path: path, target: target)
           end
 
-          Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.sort.each do |directory|
-            __load_aspect(aspect, path: directory, target: target)
+          private def __load_aspect(aspect, path: File.join(config.src, aspect.to_s), target: self)
+            Dir.glob(File.join(path, "*.rb")).sort.each do |file_path|
+              Loader.new(file_path).call(target)
+            end
+
+            Dir.glob(File.join(path, "*")).select { |sub_path| File.directory?(sub_path) }.sort.each do |directory|
+              __load_aspect(aspect, path: directory, target: target)
+            end
           end
         end
       end

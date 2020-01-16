@@ -32,7 +32,7 @@ module Pakyow
             end
           end
 
-          after "initialize" do
+          after "setup" do
             setup_for_restarting
           end
 
@@ -40,34 +40,36 @@ module Pakyow
           # the developer fix the problem and let the server restart on its own.
           #
           after "rescue" do
-            setup_for_restarting
+            unless is_a?(Application)
+              setup_for_restarting
+            end
           end
         end
 
-        def touch_restart
-          FileUtils.mkdir_p(File.join(config.root, "tmp"))
-          FileUtils.touch(File.join(config.root, "tmp/restart.txt"))
-        end
+        class_methods do
+          private def setup_for_restarting
+            if config.process.restartable
+              config.process.watched_paths << File.join(config.src, "**/*.rb")
+              config.process.watched_paths << File.join(config.lib, "**/*.rb")
 
-        private
+              # FIXME: this doesn't need to be hardcoded, but instead determined
+              # from the source location when registered with the environment
+              config.process.watched_paths << File.join(config.root, "config/application.rb")
 
-        def setup_for_restarting
-          if config.process.restartable
-            config.process.watched_paths << File.join(config.src, "**/*.rb")
-            config.process.watched_paths << File.join(config.lib, "**/*.rb")
-
-            # FIXME: this doesn't need to be hardcoded, but instead determined
-            # from the source location when registered with the environment
-            config.process.watched_paths << File.join(config.root, "config/application.rb")
-
-            Thread.new do
-              Filewatcher.new(
-                config.process.watched_paths,
-                exclude: config.process.excluded_paths
-              ).watch do |_path, _event|
-                touch_restart
+              Thread.new do
+                Filewatcher.new(
+                  config.process.watched_paths,
+                  exclude: config.process.excluded_paths
+                ).watch do |_path, _event|
+                  touch_restart
+                end
               end
             end
+          end
+
+          def touch_restart
+            FileUtils.mkdir_p(File.join(config.root, "tmp"))
+            FileUtils.touch(File.join(config.root, "tmp/restart.txt"))
           end
         end
       end

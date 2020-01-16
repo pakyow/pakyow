@@ -131,6 +131,7 @@ module Pakyow
   class_state :apps,        default: []
   class_state :tasks,       default: []
   class_state :mounts,      default: []
+  class_state :setups,      default: {}
   class_state :frameworks,  default: {}
   class_state :booted,      default: false, reader: false
   class_state :server,      default: nil, reader: false
@@ -178,16 +179,13 @@ module Pakyow
       @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: output, level: :all), key: :pakyow_logger)
     end
 
-    # Mounts an app at a path.
+    # Mounts an app at a path. The app can be any object that responds to `call`.
     #
-    # The app can be any rack endpoint, but must implement an
-    # initializer like {Application#initialize}.
-    #
-    # @param app the rack endpoint to mount
+    # @param app [Object] the app object to mount
     # @param at [String] where the endpoint should be mounted
     #
-    def mount(app, at:, &block)
-      mounts << { app: app, block: block, path: at }
+    def mount(app, at:)
+      mounts << { app: app, path: at }
     end
 
     # Loads the Pakyow environment for the current project.
@@ -270,6 +268,16 @@ module Pakyow
         #
         @tasks = [] unless unsafe
 
+        # Setup each app.
+        #
+        mounts.map { |mount| mount[:app] }.uniq.each do |app|
+          if block = setups[app]
+            app.setup(&block)
+          else
+            app.setup
+          end
+        end
+
         # Mount each app.
         #
         @apps = mounts.map { |mount|
@@ -315,7 +323,7 @@ module Pakyow
           #
           include_frameworks(*(only || local.frameworks.keys) - Array.ensure(without))
         }.tap do |app|
-          app.define(&block) if block_given?
+          @setups[app] = block if block_given?
           mount(app, at: path) if mount
         end
       end
@@ -358,7 +366,7 @@ module Pakyow
     # @api private
     def initialize_app_for_mount(mount)
       if mount[:app].ancestors.include?(Pakyow::Application)
-        mount[:app].new(env, mount_path: mount[:path], &mount[:block])
+        mount[:app].new(mount_path: mount[:path])
       else
         mount[:app].new
       end

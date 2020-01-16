@@ -32,20 +32,6 @@ RSpec.describe Pakyow do
         expect(Pakyow.mounts.last[:app]).to be(app)
         expect(Pakyow.mounts.last[:path]).to be(path)
       end
-
-      context "passed a block" do
-        let :block do
-          -> {}
-        end
-
-        before do
-          Pakyow.mount app, at: path, &block
-        end
-
-        it "registers the block" do
-          expect(Pakyow.mounts.last[:block]).to be(block)
-        end
-      end
     end
 
     context "called without an app" do
@@ -429,7 +415,7 @@ RSpec.describe Pakyow do
     end
 
     let :app do
-      Class.new(Pakyow::Application)
+      Pakyow::Application.make(:test)
     end
 
     let :app_instance do
@@ -522,7 +508,7 @@ RSpec.describe Pakyow do
     include_context "app"
 
     let :app do
-      Class.new
+      Pakyow::Application.make(:test)
     end
 
     it "contains mounted app instances after boot" do

@@ -64,19 +64,14 @@ RSpec.describe "handling errors when calling the environment" do
 
     context "app implements `controller_for_connection`" do
       let :app_def do
+        local = self
         Proc.new do
           action do |connection|
             fail "something went wrong"
           end
-        end
-      end
 
-      let :app_init do
-        local = self
-        Proc.new do
-          @local = local
-          def controller_for_connection(connection)
-            @local.controller.new(connection)
+          define_method :controller_for_connection do |connection|
+            local.controller.new(connection)
           end
         end
       end

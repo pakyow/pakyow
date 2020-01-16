@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Setup applications on the class rather than the instance.**
+
   * `chg` **Build endpoints explicitly, relative to app mount path.**
 
     *Related links:*

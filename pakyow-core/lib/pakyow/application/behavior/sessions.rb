@@ -10,7 +10,8 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          attr_reader :session_object, :session_options
+          class_state :session_object, inheritable: true
+          class_state :session_options, inheritable: true
 
           after "configure" do
             if config.session.enabled
@@ -31,6 +32,16 @@ module Pakyow
             #
             raise error
           end
+        end
+
+        def session_object
+          # TODO: Deprecate.
+          self.class.session_object
+        end
+
+        def session_options
+          # TODO: Deprecate.
+          self.class.session_options
         end
       end
     end

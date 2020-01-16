@@ -113,7 +113,7 @@ module Pakyow
     inspectable :@environment
 
     include Support::Hookable
-    events :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
+    events :setup, :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
 
     include Support::Configurable
     include Support::Definable
@@ -140,24 +140,38 @@ module Pakyow
       isolate Connection
     end
 
-    def initialize(environment, mount_path: "/", &block)
-      @environment, @mount_path, @rescued = environment, mount_path, false
-
-      performing :initialize do
-        performing :configure do
-          configure!(environment)
+    class << self
+      def setup(environment: Pakyow.env, &block)
+        if block_given?
+          class_eval(&block)
         end
 
-        performing :load do
-          $LOAD_PATH.unshift(config.lib)
+        performing :setup do
+          performing :configure do
+            configure!(environment)
+          end
 
-          define!(&block)
+          performing :load do
+            $LOAD_PATH.unshift(config.lib)
+          end
+
+          config.version = Support::PathVersion.build(config.src)
         end
-
-        config.version = Support::PathVersion.build(config.src)
+      rescue ScriptError, StandardError => error
+        rescue!(error)
       end
-    rescue ScriptError, StandardError => error
-      rescue!(error)
+    end
+
+    def initialize(environment = Pakyow.env, mount_path: "/")
+      @environment, @mount_path = environment, mount_path
+
+      # Prevent full initialization if rescued, probably because of an error during setup.
+      #
+      unless rescued?
+        performing :initialize do
+          # Empty, but still need to perform initialize.
+        end
+      end
     end
 
     # Called by the environment after it boots the app.

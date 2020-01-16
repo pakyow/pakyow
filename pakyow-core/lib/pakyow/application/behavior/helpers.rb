@@ -49,7 +49,7 @@ module Pakyow
                 :global
               end
 
-              self.class.register_helper(context, helper)
+              register_helper(context, helper)
             end
           end
         end

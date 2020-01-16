@@ -37,6 +37,8 @@ RSpec.describe Pakyow::Application do
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))
+
+        app_class.setup
       end
 
       it "halts" do
@@ -63,7 +65,7 @@ RSpec.describe Pakyow::Application do
       end
     end
 
-    context "when initialization fails because of a syntax error" do
+    context "when setup fails because of a syntax error" do
       before do
         app_class.before "load" do
           eval("if")
@@ -73,7 +75,7 @@ RSpec.describe Pakyow::Application do
       end
 
       it "enters rescue mode" do
-        app.booted
+        app_class.setup
 
         catch :halt do
           app.call(connection)

@@ -18,7 +18,7 @@ module Pakyow
               (block ? Class.new(operation, &block) : operation).new(app: app, **values).perform
             }
 
-            aspect :operation
+            aspect :operations
           end
         end
       end
