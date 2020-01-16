@@ -33,7 +33,20 @@ module Pakyow
 
     include Support::Configurable
 
-    setting :name
+    setting :name do
+      if object_name
+        if object_name.namespace.parts.any?
+          parts = object_name.namespace.parts
+          parts = parts[parts.index(plugin_name)..-1]
+          parts.pop if parts.last == :default
+          parts.join("_").to_sym
+        else
+          plugin_name
+        end
+      else
+        nil
+      end
+    end
 
     setting :root do
       plugin_path
@@ -72,34 +85,67 @@ module Pakyow
 
     attr_reader :parent
 
-    def initialize(parent, &block)
-      @parent = parent
-      @state = []
-      @features = self.class.features
-      @key = build_key
+    class << self
+      attr_reader :parent
 
-      performing :configure do
-        configure!(@parent.environment)
+      def setup(environment: Pakyow.env)
+        performing :setup do
+          performing :configure do
+            configure!(environment)
+          end
+
+          performing :load do
+            load_state
+          end
+        end
       end
 
+      def feature?(name)
+        name = name.to_sym
+        features.any? { |feature|
+          feature[:name] == name
+        }
+      end
+
+      private def load_aspect(aspect, **)
+        @state.each do |state|
+          super(aspect, path: state.backend_path(aspect), target: self)
+        end
+      end
+
+      private def load_state
+        @state = []
+        load_global_state
+        load_feature_state
+      end
+
+      private def load_global_state
+        @state << State.new(self)
+      end
+
+      private def load_feature_state
+        features.each do |feature|
+          @state << State.new(self, path: feature[:path])
+
+          initializer = File.join(feature[:path], "initializer.rb")
+
+          if File.exist?(initializer)
+            class_eval(File.read(initializer), initializer)
+          end
+        end
+      end
+    end
+
+    def initialize(parent)
+      @parent = parent
+      @key = build_key
+
       performing :initialize do
-        define!(&block)
-
-        # Load state prior to calling the load hooks so that helpers are available.
-        #
-        load_state
-
-        # We still want to call the load hooks so that behavior works properly.
-        #
-        performing :load do; end
+        # Empty, but still need to perform initialize.
       end
 
       define_app_endpoints
       create_helper_contexts
-
-      if respond_to?(:boot)
-        boot
-      end
     end
 
     def booted
@@ -107,10 +153,7 @@ module Pakyow
     end
 
     def feature?(name)
-      name = name.to_sym
-      @features.any? { |feature|
-        feature[:name] == name
-      }
+      self.class.feature?(name)
     end
 
     def call(connection)
@@ -140,6 +183,10 @@ module Pakyow
     # @api private
     def object_name
       self.class.object_name
+    end
+
+    def plugin_name
+      self.class.plugin_name
     end
 
     def plugin_path
@@ -215,37 +262,12 @@ module Pakyow
 
     def build_key
       namespace = self.class.object_name.namespace.parts.last
-      @key = case namespace
+
+      case namespace
       when :default
         :"#{self.class.plugin_name}"
       else
         :"#{self.class.plugin_name}.#{namespace}"
-      end
-    end
-
-    def load_aspect(aspect, **)
-      @state.each do |state|
-        super(aspect, path: state.backend_path(aspect), target: self)
-      end
-    end
-
-    def load_state
-      load_global_state
-      load_feature_state
-    end
-
-    def load_global_state
-      @state << State.new(self)
-    end
-
-    def load_feature_state
-      @features.each do |feature|
-        @state << State.new(self, path: feature[:path])
-
-        initializer = File.join(feature[:path], "initializer.rb")
-        if File.exist?(initializer)
-          instance_eval(File.read(initializer), initializer)
-        end
       end
     end
 

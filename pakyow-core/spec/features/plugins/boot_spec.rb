@@ -38,7 +38,7 @@ RSpec.describe "booting plugins" do
   context "plugin implements boot" do
     before do
       plugin.class_eval do
-        def boot
+        after "boot" do
           @value = :booted
         end
       end

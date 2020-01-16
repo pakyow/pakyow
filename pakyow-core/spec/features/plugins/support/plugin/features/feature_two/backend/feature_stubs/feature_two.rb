@@ -1,3 +1,3 @@
-if self.class.respond_to?(:loaded_features)
-  self.class.loaded_features << :feature_two
+if respond_to?(:loaded_features)
+  loaded_features << :feature_two
 end

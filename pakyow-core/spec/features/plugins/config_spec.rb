@@ -52,24 +52,6 @@ RSpec.describe "accessing plugin config" do
     ).to eq(:bar)
   end
 
-  it "copies settings from the app" do
-    expect(
-      Pakyow.app(:test).plugs.testable.config.app_setting
-    ).to eq(:app_value)
-  end
-
-  it "copies groups from the app" do
-    expect {
-      Pakyow.app(:test).plugs.testable.config.app_group.app_group_setting
-    }.not_to raise_error
-  end
-
-  it "copies defaults from the app" do
-    expect(
-      Pakyow.app(:test).plugs.testable.config.app_group.app_group_setting
-    ).to eq(true)
-  end
-
   context "plugin defines the same setting as the app" do
     it "gives precedence to the plugin value" do
       expect(
