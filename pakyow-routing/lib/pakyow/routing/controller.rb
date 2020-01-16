@@ -757,7 +757,7 @@ module Pakyow
 
         # @api private
         def build_endpoints(endpoints)
-          @routes.values.flatten.each do |route|
+          @routes.values.flatten.reject { |route| route.name.nil? }.each do |route|
             if route.name == :default && name_of_self
               # Register the endpoint without the default name for easier lookup.
               #

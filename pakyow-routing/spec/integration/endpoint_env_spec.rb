@@ -2,7 +2,7 @@ RSpec.describe "exposing the endpoint in the request env" do
   include_context "app"
 
   describe "routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller :endpoint, "/endpoint" do
           get :name, "name" do

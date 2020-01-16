@@ -8,7 +8,7 @@ RSpec.describe "verifying that the request is from the same origin" do
   end
 
   describe "skipping verify_same_origin" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           skip :verify_same_origin
@@ -25,7 +25,7 @@ RSpec.describe "verifying that the request is from the same origin" do
   end
 
   describe "overriding verify_same_origin" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           post "/" do

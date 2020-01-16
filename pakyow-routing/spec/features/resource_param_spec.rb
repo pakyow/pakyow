@@ -1,7 +1,7 @@
 RSpec.describe "resource params" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       resource :posts, "/posts" do
         list do
@@ -28,7 +28,7 @@ RSpec.describe "resource params" do
   end
 
   context "custom param" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         resource :posts, "/posts", param: :slug do
           list do

@@ -7,7 +7,7 @@ RSpec.describe "routing performance", benchmark: true do
   include_context "app"
 
   context "with a simple route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do; end
@@ -23,7 +23,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with a single deeply nested route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller :api, "/api" do
           namespace :project, "/projects" do
@@ -41,7 +41,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with a single parameterized route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           get "/:foo" do; end
@@ -57,7 +57,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with a single formatted route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           get "/foo.json|xml" do; end
@@ -73,7 +73,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with a single regex route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           get(/(.*)/) do; end
@@ -89,7 +89,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with many simple routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           1_000.times do
@@ -109,7 +109,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with many parameterized routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           1_000.times do
@@ -129,7 +129,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with many formatted routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           1_000.times do
@@ -149,7 +149,7 @@ RSpec.describe "routing performance", benchmark: true do
   end
 
   context "with many regex routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           1_000.times do

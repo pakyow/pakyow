@@ -42,11 +42,7 @@ RSpec.describe "building a path to a plugin endpoint" do
     let :app_def do
       Proc.new do
         plug :testable, at: "/foo"
-      end
-    end
 
-    let :app_init do
-      Proc.new do
         controller :root, "/" do
           default
         end
@@ -97,11 +93,7 @@ RSpec.describe "building a path to a plugin endpoint" do
     let :app_def do
       Proc.new do
         plug :testable, at: "/foo"
-      end
-    end
 
-    let :app_init do
-      Proc.new do
         controller :root, "/" do
           default
         end

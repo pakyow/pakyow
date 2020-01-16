@@ -6,7 +6,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "when a single action is defined" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           action :foo
@@ -35,7 +35,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "when multiple actions are defined" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           action :foo
@@ -76,7 +76,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "when the action method is defined in a parent controller" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           def foo
@@ -107,7 +107,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "when actions are defined on a parent controller" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :foo
@@ -145,7 +145,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "when actions are defined in a template" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           template :call_foo do
@@ -178,7 +178,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "defining an action only for some routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :foo, only: [:default]
@@ -223,7 +223,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "defining an action that skips some routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :foo, skip: [:default]
@@ -268,7 +268,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "skipping an action" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :foo
@@ -330,7 +330,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "skipping an action only for some routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :foo
@@ -396,7 +396,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "skipping an action before the action is defined" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           skip :bar
@@ -428,7 +428,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "using another pipeline module" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :bar
@@ -467,7 +467,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "including a pipeline" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :bar
@@ -507,7 +507,7 @@ RSpec.describe "controller pipelines" do
   end
 
   context "excluding a pipeline" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :foo
@@ -559,7 +559,7 @@ RSpec.describe "controller pipelines" do
   end
 
   describe "defining an action with the same name for different routes" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           action :test_same_name, only: [:foo_route] do

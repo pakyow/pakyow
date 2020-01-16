@@ -3,7 +3,7 @@ RSpec.describe "error handling" do
 
   context "when an error is triggered" do
     context "and a handler is defined by name" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             handle :not_found do
@@ -27,7 +27,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined by code" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             handle 404 do
@@ -51,7 +51,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined on a route as well as the controller" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             handle 404 do
@@ -79,7 +79,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a parent controller" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :top do
             handle 404 do
@@ -105,7 +105,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a nested parent controller" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :top do
             group :foo do
@@ -133,7 +133,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is defined in a sibling controller" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             handle 404 do
@@ -159,7 +159,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is not defined" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             default do
@@ -182,7 +182,7 @@ RSpec.describe "error handling" do
 
   context "when an exception occurs" do
     context "and a handler is defined for the exception" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             handle StandardError, as: 401 do
@@ -205,7 +205,7 @@ RSpec.describe "error handling" do
       end
 
       context "and another error of the same type occurs" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             controller do
               handle StandardError, as: 401 do
@@ -238,7 +238,7 @@ RSpec.describe "error handling" do
       end
 
       context "and a handler is defined for the exception in a parent controller" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             controller :top do
               handle StandardError, as: 401 do
@@ -264,7 +264,7 @@ RSpec.describe "error handling" do
       end
 
       context "and the handler accepts the error object" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             controller do
               handle StandardError, as: 401 do |error|
@@ -285,7 +285,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a blockless handler is defined for the exception" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             handle StandardError, as: 401
@@ -303,7 +303,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a handler is not defined for the exception" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             default do
@@ -364,11 +364,7 @@ RSpec.describe "error handling" do
           handle 500 do
             send "boom"
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           controller do
             default do
               fail
@@ -399,11 +395,7 @@ RSpec.describe "error handling" do
           handle ArgumentError, as: 406 do
             send "boom"
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           controller do
             default do
               raise ArgumentError
@@ -424,7 +416,7 @@ RSpec.describe "error handling" do
     end
 
     context "and a global handler is not defined" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             default do
@@ -447,7 +439,7 @@ RSpec.describe "error handling" do
   end
 
   describe "the handling context" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           handle 500 do
@@ -473,7 +465,7 @@ RSpec.describe "error handling" do
   end
 
   describe "rejecting from handlers" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           handle 500 do

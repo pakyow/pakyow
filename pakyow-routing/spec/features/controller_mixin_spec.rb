@@ -7,7 +7,7 @@ RSpec.describe "including mixins into a controller" do
     end
   end
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         include RouteMixins

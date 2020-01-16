@@ -7,7 +7,7 @@ RSpec.describe "verifying the request's authenticity token" do
     ).to receive(:allowed?).and_return(true)
   end
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         get "/" do
@@ -54,7 +54,7 @@ RSpec.describe "verifying the request's authenticity token" do
   end
 
   describe "skipping verify_authenticity_token" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           skip :verify_authenticity_token
@@ -71,7 +71,7 @@ RSpec.describe "verifying the request's authenticity token" do
   end
 
   describe "overriding verify_authenticity_token" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           post "/" do

@@ -2,7 +2,7 @@ RSpec.describe "routing with custom matchers" do
   include_context "app"
 
   context "when route is defined with a custom matcher" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         matcher = Class.new do
           def match(path)
@@ -32,7 +32,7 @@ RSpec.describe "routing with custom matchers" do
     end
 
     context "and the custom matcher provides a match" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           matcher = Class.new do
             def match(path)
@@ -59,7 +59,7 @@ RSpec.describe "routing with custom matchers" do
   end
 
   context "when route is defined with a custom matcher within a namespace" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         matcher = Class.new do
           def match(path)
@@ -89,7 +89,7 @@ RSpec.describe "routing with custom matchers" do
   end
 
   context "when route is defined with a custom matcher within a parameterized namespace" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         matcher = Class.new do
           def match(path)
@@ -120,7 +120,7 @@ RSpec.describe "routing with custom matchers" do
   end
 
   context "when a controller is defined with a custom matcher" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         matcher = Class.new do
           def match(path)
@@ -147,7 +147,7 @@ RSpec.describe "routing with custom matchers" do
   end
 
   context "when a namespace is defined with a custom matcher" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         matcher = Class.new do
           def match(path)

@@ -1,7 +1,7 @@
 RSpec.describe "overriding the request method" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         disable_protection :csrf

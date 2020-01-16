@@ -266,7 +266,7 @@ end
 RSpec.describe "verifying all routes in a controller" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         verify do
@@ -287,7 +287,7 @@ end
 RSpec.describe "verifying a specific route in a controller" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         verify :test do
@@ -308,7 +308,7 @@ end
 RSpec.describe "verifying inside of a route" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         get :test, "/test" do
@@ -330,7 +330,7 @@ RSpec.describe "handling failed verification" do
   context "without a custom handler" do
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           verify :test do
@@ -350,7 +350,7 @@ RSpec.describe "handling failed verification" do
   context "with a custom handler" do
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           handle Pakyow::InvalidData, as: :not_found
@@ -375,7 +375,7 @@ RSpec.describe "setting allowed params" do
   include_context "verification helpers"
 
   context "verified in the controller" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           allow_params :value1
@@ -400,7 +400,7 @@ RSpec.describe "setting allowed params" do
   end
 
   context "verified in the route" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           allow_params :value1
@@ -425,7 +425,7 @@ RSpec.describe "setting allowed params" do
   end
 
   context "allow params is called twice" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           allow_params :value1
@@ -450,7 +450,7 @@ RSpec.describe "setting allowed params" do
   end
 
   describe "inheriting allowed params" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         isolated :Controller do
           allow_params :value2
@@ -481,7 +481,7 @@ RSpec.describe "allowing resource ids" do
   include_context "app"
   include_context "verification helpers"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         show do

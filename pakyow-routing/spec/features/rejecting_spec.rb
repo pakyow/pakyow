@@ -2,7 +2,7 @@ RSpec.describe "rejecting requests" do
   include_context "app"
 
   context "when rejecting from a route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do

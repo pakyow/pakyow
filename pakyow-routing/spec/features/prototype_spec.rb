@@ -1,7 +1,7 @@
 RSpec.describe "routing in prototype mode" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Pakyow.config.logger.enabled = false
 
     Proc.new {

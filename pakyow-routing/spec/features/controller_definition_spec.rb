@@ -1,7 +1,7 @@
 RSpec.describe "defining a controller" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         default
@@ -14,7 +14,7 @@ RSpec.describe "defining a controller" do
   end
 
   context "when the controller is defined with a path" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller "/foo" do
           default
@@ -28,7 +28,7 @@ RSpec.describe "defining a controller" do
   end
 
   context "when the controller is defined with a custom matcher" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         klass = Class.new do
           def match(path)
@@ -52,7 +52,7 @@ RSpec.describe "defining a controller" do
   end
 
   context "controller is defined with a name" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller :foo do
           default do
@@ -67,7 +67,7 @@ RSpec.describe "defining a controller" do
     end
 
     context "controller was defined previously" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller :foo do
             get "/foo" do
