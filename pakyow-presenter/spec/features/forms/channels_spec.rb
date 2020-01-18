@@ -1,7 +1,7 @@
 RSpec.describe "forms with channeled bindings" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/presentation/forms/channeled/posts" do
         new do
@@ -30,7 +30,7 @@ RSpec.describe "forms with channeled bindings" do
   end
 
   context "form endpoint is contextual" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           resource :comments, "/comments" do

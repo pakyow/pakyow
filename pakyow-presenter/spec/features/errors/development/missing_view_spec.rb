@@ -6,7 +6,7 @@ RSpec.describe "telling the user about a missing view in development" do
   end
 
   context "view was explicitly rendered" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           default do

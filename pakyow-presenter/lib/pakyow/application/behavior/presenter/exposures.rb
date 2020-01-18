@@ -13,7 +13,7 @@ module Pakyow
             unless ancestors.include?(Plugin)
               # Copy exposures from the plugin renderer.
               #
-              after "load.plugins" do
+              after "initialize.plugins" do
                 plugs.each do |plug|
                   plug.isolated(:Renderer).__expose_fns.each do |fn|
                     isolated(:Renderer).send(:expose) do |connection|

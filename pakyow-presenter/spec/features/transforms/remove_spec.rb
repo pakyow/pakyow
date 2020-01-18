@@ -3,7 +3,7 @@ RSpec.describe "attaching a transform that removes a node" do
 
   context "attached to binding" do
     describe "removing top level node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render :post do
@@ -38,7 +38,7 @@ RSpec.describe "attaching a transform that removes a node" do
     end
 
     describe "removing child node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render :post do
@@ -78,7 +78,7 @@ RSpec.describe "attaching a transform that removes a node" do
 
   context "attached to node" do
     describe "removing top level node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post) } do
@@ -113,7 +113,7 @@ RSpec.describe "attaching a transform that removes a node" do
     end
 
     describe "removing child node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post) } do

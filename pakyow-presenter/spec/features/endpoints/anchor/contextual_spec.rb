@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view that defines an anchor endpoint that needs additional context" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         show do
@@ -20,7 +20,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
   end
 
   context "endpoint node is within a binding" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           show do
@@ -50,7 +50,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that needs add
   end
 
   context "endpoint node is a binding prop" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           show do

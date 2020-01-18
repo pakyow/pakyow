@@ -2,7 +2,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint in a nested sc
   include_context "app"
 
   context "binding is bound to" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts", param: :slug do
           show do

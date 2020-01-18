@@ -9,7 +9,7 @@ RSpec.describe "automatically rendering when no controller is called" do
     end
 
     context "presenter is defined" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/other" do
             def perform

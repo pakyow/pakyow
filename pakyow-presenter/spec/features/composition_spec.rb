@@ -1,7 +1,7 @@
 RSpec.describe "view template composition via presenter" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       handle 500 do
         res.body = "#{connection.error.class}: #{connection.error.message}"
@@ -9,7 +9,7 @@ RSpec.describe "view template composition via presenter" do
     end
   end
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller :default do
         get(/.*/) do
@@ -73,7 +73,7 @@ RSpec.describe "view template composition via presenter" do
     end
 
     context "partial file is defined for a non-processable type" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           processor :md do |content|
             "md: #{content}"

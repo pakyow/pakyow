@@ -134,6 +134,10 @@ module Pakyow
           end
         end
       end
+
+      private def load_frontend
+        @state.each(&:load_frontend)
+      end
     end
 
     def initialize(parent)
@@ -205,10 +209,6 @@ module Pakyow
         connection: connection,
         helpers: @helper_contexts[helper_context.to_sym].new(connection, call_context)
       )
-    end
-
-    def load_frontend
-      @state.each(&:load_frontend)
     end
 
     def exposed_value_name(name)

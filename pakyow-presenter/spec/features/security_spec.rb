@@ -28,7 +28,7 @@ RSpec.describe "sanitization during presentation" do
   end
 
   context "binding with a binder" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         binder :post do
           def title

@@ -6,7 +6,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
   end
 
   context "binding is bound to" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           list do

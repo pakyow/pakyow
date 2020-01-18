@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view that defines an endpoint for delete" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         show do
@@ -43,7 +43,7 @@ RSpec.describe "presenting a view that defines an endpoint for delete" do
   end
 
   context "node is a link" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           show do

@@ -1,7 +1,7 @@
 RSpec.describe "setting up a form with method override" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     local = self
     Proc.new do
       resource :posts, "/presentation/forms/method_override" do

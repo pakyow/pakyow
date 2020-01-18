@@ -2,7 +2,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint with an existi
   include_context "app"
 
   context "defined endpoint is not found, but current endpoint matches the href" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           list do
@@ -36,7 +36,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint with an existi
   end
 
   context "anchor does not define an endpoint, but current endpoint matches the href" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           list do

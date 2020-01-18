@@ -3,7 +3,7 @@ require "pakyow/plugin"
 RSpec.describe "using endpoints defined in plugins" do
   before do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
-      on :initialize do
+      on :load do
         controller do
           get :root, "/"
         end

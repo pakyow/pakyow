@@ -8,11 +8,7 @@ RSpec.describe "forms csrf" do
           configure :test do
             config.presenter.embed_authenticity_token = true
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           controller :default do
             get "/form" do
               $connection_verifier_key = connection.verifier.key
@@ -42,11 +38,7 @@ RSpec.describe "forms csrf" do
           configure :test do
             config.presenter.embed_authenticity_token = true
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           controller :default do
             get "/form" do
               $connection_verifier_key = connection.verifier.key
@@ -87,11 +79,7 @@ RSpec.describe "forms csrf" do
         configure :test do
           config.presenter.embed_authenticity_token = false
         end
-      end
-    end
 
-    let :app_init do
-      Proc.new do
         controller :default do
           get "/form" do
             $connection_verifier_key = connection.verifier.key

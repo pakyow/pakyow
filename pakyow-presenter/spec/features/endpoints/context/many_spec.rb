@@ -1,25 +1,21 @@
 RSpec.describe "presenting a view with an endpoint that requires many levels of context" do
   include_context "app"
 
-  let :app_def do
-    Proc.new do
-      resource :docs, "/docs", param: :slug do
-        show
-
-        resource :guides, "/guides", param: :slug do
+  context "context is defined on an object associated with the presented object" do
+    let :app_def do
+      Proc.new do
+        resource :docs, "/docs", param: :slug do
           show
 
-          resource :sections, "/sections", param: :slug do
+          resource :guides, "/guides", param: :slug do
             show
+
+            resource :sections, "/sections", param: :slug do
+              show
+            end
           end
         end
-      end
-    end
-  end
 
-  context "context is defined on an object associated with the presented object" do
-    let :app_init do
-      Proc.new do
         presenter "/presentation/endpoints/context/top-level-many" do
           render :section do
             present(guide: { slug: "bar", doc: { slug: "foo" } }, slug: "baz")

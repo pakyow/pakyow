@@ -59,7 +59,7 @@ RSpec.describe "populating options for nested data" do
     context "nested data has an id" do
       include_context "app"
 
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/form/nested_data_id" do
             options_for :post, :tags do
@@ -122,7 +122,7 @@ RSpec.describe "populating options for nested data" do
 
       include_context "app"
 
-      let :app_init do
+      let :app_def do
         local = self
 
         Proc.new do
@@ -197,7 +197,7 @@ RSpec.describe "populating options for nested data" do
   describe "populating options for a single nested object" do
     include_context "app"
 
-      let :app_init do
+      let :app_def do
         local = self
 
         Proc.new do

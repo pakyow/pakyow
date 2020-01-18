@@ -3,7 +3,7 @@ RSpec.describe "attaching a transform that inserts a node after" do
 
   context "attached to binding" do
     describe "inserting after top level node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render :post do
@@ -45,7 +45,7 @@ RSpec.describe "attaching a transform that inserts a node after" do
     end
 
     describe "inserting after child node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render :post do
@@ -89,7 +89,7 @@ RSpec.describe "attaching a transform that inserts a node after" do
 
   context "attached to node" do
     describe "inserting after top level node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post) } do
@@ -131,7 +131,7 @@ RSpec.describe "attaching a transform that inserts a node after" do
     end
 
     describe "inserting after child node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post) } do

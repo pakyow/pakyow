@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view that defines an endpoints with an action" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         def common
@@ -70,7 +70,7 @@ RSpec.describe "presenting a view that defines an endpoints with an action" do
   end
 
   context "presenter presents generally to the view" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           def common

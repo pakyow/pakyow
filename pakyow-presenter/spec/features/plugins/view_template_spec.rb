@@ -217,8 +217,12 @@ RSpec.describe "rendering view templates" do
       end
 
       context "app view template defines a component" do
-        let :app_init do
+        let :app_def do
+          parent_app_def = super()
+
           Proc.new do
+            class_eval(&parent_app_def)
+
             component :test do
               def perform
                 expose :ancestors, app.class.ancestors
@@ -337,8 +341,12 @@ RSpec.describe "rendering view templates" do
       end
 
       context "app overrides the backend component object" do
-        let :app_init do
+        let :app_def do
+          parent_app_def = super()
+
           Proc.new do
+            class_eval(&parent_app_def)
+
             component :test do
               def perform
                 expose :ancestors, app.class.ancestors

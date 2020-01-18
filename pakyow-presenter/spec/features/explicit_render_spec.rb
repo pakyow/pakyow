@@ -2,7 +2,7 @@ RSpec.describe "explicit rendering" do
   include_context "app"
 
   context "view exists" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/" do
@@ -36,7 +36,7 @@ RSpec.describe "explicit rendering" do
       end
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/" do
@@ -60,7 +60,7 @@ RSpec.describe "explicit rendering" do
   end
 
   context "presenter exists" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/" do
@@ -86,7 +86,7 @@ RSpec.describe "explicit rendering" do
   end
 
   context "rendering as" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/" do
@@ -112,7 +112,7 @@ RSpec.describe "explicit rendering" do
   end
 
   context "passing a non-normalized path" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/" do

@@ -1,7 +1,7 @@
 RSpec.describe "500 error views in production" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         get "/fail" do
@@ -30,11 +30,7 @@ RSpec.describe "500 error views in production" do
         configure do
           config.presenter.path = File.expand_path("../../views", __FILE__)
         end
-      end
-    end
 
-    let :app_init do
-      Proc.new do
         controller do
           get "/fail" do
             fail
@@ -56,11 +52,7 @@ RSpec.describe "500 error views in production" do
           $handled = true
           connection.body = StringIO.new("foo")
         end
-      end
-    end
 
-    let :app_init do
-      Proc.new do
         controller do
           get "/fail" do
             fail
@@ -84,11 +76,7 @@ RSpec.describe "500 error views in production" do
           handle 500 do
             render "/500"
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           controller do
             get "/fail" do
               fail
@@ -113,11 +101,7 @@ RSpec.describe "500 error views in production" do
           handle 500 do
             render "/non_standard_500"
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           controller do
             get "/fail" do
               fail

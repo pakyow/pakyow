@@ -3,7 +3,7 @@ RSpec.describe "automatic form setup" do
 
   describe "auto rendering a form" do
     context "form has been setup" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             new do
@@ -43,7 +43,7 @@ RSpec.describe "automatic form setup" do
 
   describe "auto rendering a form for creating" do
     context "object is exposed for the form" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             new do
@@ -79,7 +79,7 @@ RSpec.describe "automatic form setup" do
     end
 
     context "no object is exposed for the form" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             new do
@@ -116,7 +116,7 @@ RSpec.describe "automatic form setup" do
 
   describe "auto rendering a form for updating" do
     context "object is provided" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             edit do
@@ -152,7 +152,7 @@ RSpec.describe "automatic form setup" do
     end
 
     context "no object is provided" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             edit do
@@ -188,7 +188,7 @@ RSpec.describe "automatic form setup" do
   end
 
   describe "auto rendering a form with options exposed in the presenter" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           edit do
@@ -245,7 +245,7 @@ RSpec.describe "automatic form setup" do
   end
 
   describe "auto rendering a form within a binding" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           show do

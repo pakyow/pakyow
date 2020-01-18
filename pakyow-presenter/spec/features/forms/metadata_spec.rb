@@ -57,7 +57,7 @@ RSpec.describe "form metadata" do
     end
 
     context "metadata set during presenter perform" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/form" do
             render node: -> { forms[0] } do
@@ -74,7 +74,7 @@ RSpec.describe "form metadata" do
   end
 
   context "form is setup explicitly" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         resource :posts, "/posts" do
           create do; end
@@ -93,7 +93,7 @@ RSpec.describe "form metadata" do
     end
 
     context "metadata set during presenter perform" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             create do; end

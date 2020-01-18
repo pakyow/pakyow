@@ -12,7 +12,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
   end
 
   context "binding is bound to" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           list do
@@ -51,7 +51,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
     end
 
     context "binder exists" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             list do
@@ -84,7 +84,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint that is a bind
       end
 
       context "binder sets the href" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             resource :posts, "/posts" do
               list do

@@ -216,13 +216,13 @@ module Pakyow
             }.join("_")
 
             object_name = Support::ObjectName.build(
-              app.class.object_name.namespace.parts[0], :components, compound_name, :presenter
+              app.object_name.namespace.parts[0], :components, compound_name, :presenter
             )
 
             if const_defined?(object_name.constant)
               const_get(object_name.constant)
             else
-              component_presenter = app.class.isolate(
+              component_presenter = app.isolate(
                 Class.new(app.isolated(:Presenter)), as: object_name, context: Object
               )
 
