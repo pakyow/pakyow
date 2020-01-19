@@ -2,7 +2,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a bindi
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       resource :posts, "/posts" do
         disable_protection :csrf

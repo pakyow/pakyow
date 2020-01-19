@@ -2,7 +2,7 @@ RSpec.describe "creating an object in a populated view" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf

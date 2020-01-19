@@ -70,7 +70,7 @@ module Pakyow
           isolate(ui_renderer, as: Support::ObjectName.build("UIRenderer"))
 
           after "initialize" do
-            config.data.subscriptions.version = config.version
+            config.data.subscriptions.version = top.config.version
           end
 
           # @api private

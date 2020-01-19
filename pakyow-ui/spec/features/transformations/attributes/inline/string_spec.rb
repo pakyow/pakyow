@@ -3,7 +3,7 @@ RSpec.xdescribe "modifying string attributes" do
   include_context "websocket intercept"
 
   context "setting" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           disable_protection :csrf

@@ -2,7 +2,7 @@ RSpec.describe "presenting an object with a value overridden in a binder" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
@@ -53,7 +53,7 @@ RSpec.describe "presenting an object with a value defined only in a binder" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf

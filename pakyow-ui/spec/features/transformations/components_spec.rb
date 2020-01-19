@@ -2,7 +2,7 @@ RSpec.describe "presenting an object in a component" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
@@ -42,7 +42,7 @@ RSpec.describe "presenting the same data in a renderable and outside of it" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
@@ -98,7 +98,7 @@ RSpec.describe "interacting with a non-renderable component" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
@@ -147,7 +147,7 @@ RSpec.describe "presenting two components on one node" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
