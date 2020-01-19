@@ -1,7 +1,7 @@
 RSpec.describe "defining a source for an unknown connection" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       source :posts, connection: :foo do; end
     end

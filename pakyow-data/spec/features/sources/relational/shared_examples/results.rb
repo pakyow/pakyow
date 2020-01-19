@@ -10,7 +10,7 @@ RSpec.shared_examples :source_results do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
           primary_id
@@ -161,7 +161,7 @@ RSpec.shared_examples :source_results do
       end
 
       context "has_many association is included" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             source :posts do
               has_many :comments
@@ -188,7 +188,7 @@ RSpec.shared_examples :source_results do
       end
 
       context "has_many :through association is included" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             source :posts do
               has_many :comments, through: :post_comments
@@ -295,7 +295,7 @@ RSpec.shared_examples :source_results do
       end
 
       context "associated data is included after the result has been returned" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             source :posts do
               primary_id

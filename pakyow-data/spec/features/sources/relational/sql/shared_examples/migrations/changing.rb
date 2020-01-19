@@ -125,7 +125,7 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
         type.to_s.start_with?("pk_")
       }.each do |to_type_name, to_type|
         context "changing from #{from_type_name} to #{to_type_name}" do
-          let :app_init do
+          let :app_def do
             context = self
 
             Proc.new do

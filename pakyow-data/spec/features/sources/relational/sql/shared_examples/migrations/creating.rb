@@ -1,6 +1,6 @@
 RSpec.shared_examples :source_migrations_creating do |types:|
   describe "creating a new relational source" do
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do
@@ -139,7 +139,7 @@ RSpec.shared_examples :source_migrations_creating do |types:|
   end
 
   describe "creating new dependent relational sources" do
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do

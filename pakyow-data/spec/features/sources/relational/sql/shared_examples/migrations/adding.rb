@@ -1,6 +1,6 @@
 RSpec.shared_examples :source_migrations_adding do |types:|
   describe "adding a new attribute to an existing relational source" do
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do
@@ -110,7 +110,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
   end
 
   describe "adding a new attribute with custom options to an existing relational source" do
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do
@@ -200,7 +200,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
   end
 
   describe "adding a primary key to an existing relational source" do
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do
@@ -287,7 +287,7 @@ RSpec.shared_examples :source_migrations_adding do |types:|
   end
 
   describe "adding a foreign key to an existing relational source" do
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do

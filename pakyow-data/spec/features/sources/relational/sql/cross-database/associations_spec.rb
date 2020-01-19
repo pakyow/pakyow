@@ -15,7 +15,7 @@ RSpec.describe "cross connection associations" do
     include_context "app"
 
     describe "belongs_to" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts, connection: :default do
             query do
@@ -49,7 +49,7 @@ RSpec.describe "cross connection associations" do
     end
 
     describe "has_one" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts, connection: :default do
             has_one :comment
@@ -87,7 +87,7 @@ RSpec.describe "cross connection associations" do
     end
 
     describe "has_one :through" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts, connection: :default do
             has_one :comment, through: :related
@@ -135,7 +135,7 @@ RSpec.describe "cross connection associations" do
     end
 
     describe "has_many" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts, connection: :default do
             has_many :comments
@@ -173,7 +173,7 @@ RSpec.describe "cross connection associations" do
     end
 
     describe "has_many :through" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts, connection: :default do
             has_many :comments, through: :relateds

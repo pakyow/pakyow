@@ -93,7 +93,7 @@ RSpec.describe "postgres source", postgres: true do
     include_context "app"
 
     context "type is json" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts, primary_id: false, timestamps: false do
             primary_id
@@ -129,7 +129,7 @@ RSpec.describe "postgres source", postgres: true do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts, primary_id: false, timestamps: false do
           primary_id
@@ -174,7 +174,7 @@ RSpec.describe "postgres source", postgres: true do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts, primary_id: false, timestamps: false do
           primary_id
@@ -228,7 +228,7 @@ RSpec.describe "postgres source", postgres: true do
       schema(:posts)[0][1]
     end
 
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do

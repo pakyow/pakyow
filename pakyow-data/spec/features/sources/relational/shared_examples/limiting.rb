@@ -10,7 +10,7 @@ RSpec.shared_examples :source_limiting do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
         end

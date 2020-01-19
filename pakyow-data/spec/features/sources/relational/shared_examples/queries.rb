@@ -10,7 +10,7 @@ RSpec.shared_examples :source_queries do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
           primary_id
@@ -40,7 +40,7 @@ RSpec.shared_examples :source_queries do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
           primary_id
@@ -69,7 +69,7 @@ RSpec.shared_examples :source_queries do
     end
 
     describe "queries that include associated data" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts do
             primary_id
@@ -105,7 +105,7 @@ RSpec.shared_examples :source_queries do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
           primary_id
@@ -131,7 +131,7 @@ RSpec.shared_examples :source_queries do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
           primary_id
