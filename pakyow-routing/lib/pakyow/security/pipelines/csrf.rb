@@ -6,7 +6,7 @@ module Pakyow
   module Security
     module Pipelines
       module CSRF
-        extend Support::Pipeline
+        extend Support::Pipeline::Extension
 
         action :verify_same_origin
         action :verify_authenticity_token
