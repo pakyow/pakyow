@@ -30,10 +30,6 @@ RSpec.shared_context "app" do
     Proc.new {}
   end
 
-  let :app_init do
-    Proc.new {}
-  end
-
   let :autorun do
     true
   end
@@ -59,7 +55,7 @@ RSpec.shared_context "app" do
 
   def setup(env: :test)
     super if defined?(super)
-    Pakyow.mount app, at: mount_path, &app_init
+    Pakyow.mount(app, at: mount_path)
     Pakyow.setup(env: env)
   end
 
