@@ -67,7 +67,7 @@ module Pakyow
       end
 
       private def build_deprecation_message_for_custom(string)
-        "`#{string}' is deprecated"
+        "#{string} is deprecated"
       end
 
       private def build_deprecation_message_for_object(object)

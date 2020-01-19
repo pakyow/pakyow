@@ -84,7 +84,7 @@ RSpec.describe Pakyow::Support::Deprecation do
       }
 
       it "returns the expected string" do
-        expect(instance.to_s).to eq("`foo.rb' is deprecated; solution: rename to `bar.rb'")
+        expect(instance.to_s).to eq("foo.rb is deprecated; solution: rename to `bar.rb'")
       end
     end
 
