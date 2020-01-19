@@ -6,7 +6,7 @@ RSpec.describe "sending mail" do
   end
 
   context "mailing with presenter" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller "/mail" do
           get "/send/many/:subject" do
@@ -74,7 +74,7 @@ RSpec.describe "sending mail" do
     end
 
     context "presenter is defined" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller "/mail" do
             get "/send/:email/:subject" do
@@ -116,7 +116,7 @@ RSpec.describe "sending mail" do
     end
 
     context "presenter is not defined" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller "/mail" do
             get "/send/:email/:subject" do
@@ -152,7 +152,7 @@ RSpec.describe "sending mail" do
     end
 
     context "mailing with a block" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller "/mail" do
             get "/send" do
@@ -197,7 +197,7 @@ RSpec.describe "sending mail" do
   end
 
   context "mailing without presenter" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller "/mail" do
           get "/send/:email/:subject" do
@@ -217,7 +217,7 @@ RSpec.describe "sending mail" do
     end
 
     context "content is html" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller "/mail" do
             get "/send/:email/:subject" do
@@ -262,7 +262,7 @@ RSpec.describe "sending mail" do
   end
 
   context "mailing through the app" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/mail/with_bindings" do
           render do

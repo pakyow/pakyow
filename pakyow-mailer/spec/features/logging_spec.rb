@@ -10,7 +10,7 @@ RSpec.describe "logging outgoing mail" do
       end
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller "/mail" do
           get "/send/:email/:subject" do
@@ -59,7 +59,7 @@ RSpec.describe "logging outgoing mail" do
       end
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller "/mail" do
           get "/send/:email/:subject" do
