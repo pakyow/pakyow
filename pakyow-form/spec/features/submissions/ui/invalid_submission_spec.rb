@@ -1,7 +1,7 @@
 RSpec.describe "submitting invalid form data via ui" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         skip :clear_form_errors
@@ -63,7 +63,7 @@ RSpec.describe "submitting invalid form data via ui" do
     end
 
     context "app handles the invalid submission" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :post, "/posts" do
             disable_protection :csrf
@@ -105,7 +105,7 @@ RSpec.describe "submitting invalid form data via ui" do
   end
 
   describe "clearing form errors" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :post, "/posts" do
           disable_protection :csrf

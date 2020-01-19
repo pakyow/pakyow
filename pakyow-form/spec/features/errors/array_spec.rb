@@ -1,7 +1,7 @@
 RSpec.describe "triggering errors with a result containing an array of messages" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     local_result_class = result_class
 
     Proc.new do
