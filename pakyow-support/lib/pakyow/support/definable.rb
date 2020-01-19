@@ -50,12 +50,6 @@ module Pakyow
     #   MyApplication.controllers.foo.class
     #   => MyApplication::Controllers::Foo
     #
-    #   # Additional state can be defined through the initializer.
-    #   #
-    #   MyApplication.new(...) do
-    #     controller :bar
-    #   end
-    #
     #   # Keyword arguments are automatically set as class-level instance variables.
     #   #
     #   MyApplication.new(...) do
@@ -250,11 +244,26 @@ module Pakyow
           isolated_object.instance_variable_set(:@__defined_state, state_registry)
           __definable_registries[state_name.to_sym] = state_registry
 
-          code = <<~CODE
+          definition_code = <<~CODE
             def #{state_name}(*args, **kwargs, &block)
-              __definable_registries[#{state_name.to_sym.inspect}].define(*args, **kwargs, &block)
-            end
+              registry = __definable_registries[#{state_name.to_sym.inspect}]
 
+              if block_given?
+                registry.define(*args, **kwargs, &block)
+              else
+                # Fall back to finding if we aren't defining with a block. This lets us gracefully
+                # handle cases where the definable type is pluralized.
+                #
+                if args.any?
+                  registry.find(*args)
+                else
+                  registry
+                end
+              end
+            end
+          CODE
+
+          lookup_code = <<~CODE
             def #{Support.inflector.pluralize(state_name)}(*args)
               registry = __definable_registries[#{state_name.to_sym.inspect}]
 
@@ -266,7 +275,9 @@ module Pakyow
             end
           CODE
 
-          class_eval(code); singleton_class.class_eval(code)
+          class_eval(lookup_code)
+          singleton_class.class_eval(lookup_code)
+          singleton_class.class_eval(definition_code)
         end
 
         # Define the object.
@@ -302,30 +313,12 @@ module Pakyow
       prepend_methods do
         # @api private
         def initialize(*, &block)
-          @__defined = false
           @__definable_registries = self.class.__definable_registries.deep_dup
           @__definable_registries.each_value do |registry|
             registry.reparent(self)
           end
 
-          # Call super first. Any state defined here will take precedence over state in `block`.
-          #
           super
-
-          define!(&block)
-        end
-      end
-
-      # Automatically called at the end of initializing the definable object. Call this method
-      # yourself to control when the definable block is called. It won't be called again.
-      #
-      def define!(&block)
-        unless @__defined
-          @__defined = true
-
-          if block_given?
-            instance_eval(&block)
-          end
         end
       end
 
