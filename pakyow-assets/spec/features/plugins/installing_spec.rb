@@ -19,16 +19,16 @@ RSpec.describe "installing assets into a view" do
   end
 
   it "includes the app's assets" do
-    expect(call("/")[2]).to include("/assets/packs/layouts/default.css")
+    expect(call("/test-plugin")[2]).to include("/assets/packs/layouts/default.css")
   end
 
   it "does not duplicate assets" do
-    expect(call("/")[2].scan("/assets/packs/foo.js").count).to eq(1)
+    expect(call("/test-plugin")[2].scan("/assets/packs/foo.js").count).to eq(1)
   end
 
   it "loads assets in the correct order" do
     expect(
-      call("/")[2].scan(/src=\"\/assets\/packs\/([^\"]*)/).to_a.flatten
+      call("/test-plugin")[2].scan(/src=\"\/assets\/packs\/([^\"]*)/).to_a.flatten
     ).to eq(["foo.js", "bar.js", "baz.js"])
   end
 end

@@ -2,7 +2,7 @@ RSpec.describe "processing an asset" do
   include_context "app"
 
   context "app is configured to process assets" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         config.assets.process = true
       end
@@ -38,7 +38,7 @@ RSpec.describe "processing an asset" do
   end
 
   context "app is not configured to process assets" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         config.assets.process = false
       end

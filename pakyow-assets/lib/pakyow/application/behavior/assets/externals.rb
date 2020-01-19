@@ -11,24 +11,26 @@ module Pakyow
         module Externals
           extend Support::Extension
 
-          def external_script(name, version = nil, package: nil, files: nil)
-            assets_config = if is_a?(Plugin)
-              parent.config.assets
-            else
-              config.assets
+          class_methods do
+            def external_script(name, version = nil, package: nil, files: nil)
+              assets_config = if ancestors.include?(Plugin)
+                parent.config.assets
+              else
+                config.assets
+              end
+
+              assets_config.externals.scripts << Pakyow::Assets::External.new(
+                name, version: version, package: package, files: files, config: assets_config
+              )
             end
 
-            assets_config.externals.scripts << Pakyow::Assets::External.new(
-              name, version: version, package: package, files: files, config: assets_config
-            )
-          end
-
-          private def pakyow_js_version
-            "^1.1.0"
+            private def pakyow_js_version
+              "^1.1.0"
+            end
           end
 
           apply_extension do
-            after "boot", "fetch.assets.externals" do
+            after "configure" do
               if config.assets.externals.pakyow
                 external_script :pakyow, pakyow_js_version, package: "@pakyow/js", files: [
                   "dist/pakyow.js",
@@ -41,8 +43,16 @@ module Pakyow
                   "dist/components/submittable.js"
                 ]
               end
+            end
 
-              if config.assets.externals.fetch
+            after "boot", "fetch.assets.externals" do
+              assets_config = if is_a?(Plugin)
+                parent.config.assets
+              else
+                config.assets
+              end
+
+              if assets_config.externals.fetch
                 fetched = false
 
                 config.assets.externals.scripts.each do |external_script|
@@ -53,7 +63,7 @@ module Pakyow
                 end
 
                 if fetched
-                  touch_restart
+                  self.class.touch_restart
                 end
               end
             end

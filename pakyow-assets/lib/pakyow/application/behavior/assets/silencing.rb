@@ -12,12 +12,12 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            on "load" do
+            after "setup" do
               if config.assets.silent
                 # silence asset requests
                 Pakyow.silence do |connection|
                   # TODO: do we need the second check?
-                  connection.path.start_with?(config.assets.prefix) || self.class.assets.each.any? { |asset|
+                  connection.path.start_with?(config.assets.prefix) || assets.each.any? { |asset|
                     asset.logical_path == connection.path
                   }
                 end

@@ -5,62 +5,56 @@ RSpec.describe Pakyow::Application::Behavior::Assets::Externals do
     Class.new(Pakyow::Application) do
       include Pakyow::Application::Behavior::Assets::Externals
 
-      attr_accessor :scripts
-
-      def initialize
-        @scripts = []
+      def self.scripts
+        @scripts ||= []
       end
 
-      def config
+      def self.config
         self
       end
 
-      def assets
+      def self.assets
         self
       end
 
-      def externals
+      def self.externals
         self
       end
     end
   end
 
-  let :instance do
-    extended_class.new
-  end
-
-  describe "#external_script" do
+  describe "::external_script" do
     it "registers the external" do
-      expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: nil, files: nil, config: instance)
+      expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: nil, files: nil, config: extended_class)
 
-      instance.external_script :test
-      expect(instance.scripts.count).to be(1)
+      extended_class.external_script :test
+      expect(extended_class.scripts.count).to be(1)
     end
 
     context "version is passed" do
       it "registers the external" do
-        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: nil, files: nil, config: instance)
+        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: nil, files: nil, config: extended_class)
 
-        instance.external_script :test, "1.0.0"
-        expect(instance.scripts.count).to be(1)
+        extended_class.external_script :test, "1.0.0"
+        expect(extended_class.scripts.count).to be(1)
       end
 
       context "package is passed" do
         it "registers the external" do
-          expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: :test2, files: nil, config: instance)
+          expect(Pakyow::Assets::External).to receive(:new).with(:test, version: "1.0.0", package: :test2, files: nil, config: extended_class)
 
-          instance.external_script :test, "1.0.0", package: :test2
-          expect(instance.scripts.count).to be(1)
+          extended_class.external_script :test, "1.0.0", package: :test2
+          expect(extended_class.scripts.count).to be(1)
         end
       end
     end
 
     context "package is passed" do
       it "registers the external" do
-        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: :test2, files: nil, config: instance)
+        expect(Pakyow::Assets::External).to receive(:new).with(:test, version: nil, package: :test2, files: nil, config: extended_class)
 
-        instance.external_script :test, package: :test2
-        expect(instance.scripts.count).to be(1)
+        extended_class.external_script :test, package: :test2
+        expect(extended_class.scripts.count).to be(1)
       end
     end
   end

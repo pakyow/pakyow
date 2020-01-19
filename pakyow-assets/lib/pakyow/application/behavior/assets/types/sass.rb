@@ -17,7 +17,7 @@ module Pakyow
               def initialize(local_path:, config:, **kwargs)
                 super
 
-                @options = @config.sass.to_h
+                @options = @config.sass.dup.to_h
                 @options[:load_paths] ||= []
                 @options[:load_paths].unshift(File.dirname(@local_path))
                 @options[:filename] = @local_path.to_s

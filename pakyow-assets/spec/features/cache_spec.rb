@@ -2,7 +2,7 @@ RSpec.describe "setting cache headers" do
   include_context "app"
 
   context "cache is enabled" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         config.assets.cache = true
       end
@@ -48,7 +48,7 @@ RSpec.describe "setting cache headers" do
   end
 
   context "cache is disabled" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         config.assets.cache = false
       end

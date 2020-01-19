@@ -1,7 +1,7 @@
 RSpec.describe "embedding source mapping url" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     local = self
 
     Proc.new do
@@ -102,7 +102,7 @@ end
 RSpec.describe "serving source maps from the processor" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     local = self
     Proc.new do
       config.assets.process = true
