@@ -74,8 +74,6 @@ module Pakyow
             namespace: namespace,
             context: set_const ? TOPLEVEL_BINDING.receiver.class : nil
           ) do
-            # TODO: Test that source location, ivars are available to before make hooks.
-
             if block_given?
               instance_variable_set(:@source_location, block.source_location)
             end
