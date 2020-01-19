@@ -11,10 +11,12 @@ module Pakyow
         module Reflecting
           extend Support::Extension
 
-          apply_extension do
+          class_methods do
             attr_reader :mirror
+          end
 
-            after "initialize", priority: :high do
+          apply_extension do
+            after "setup", priority: :high do
               @mirror = Pakyow::Reflection::Mirror.new(self)
 
               builders = Hash[
@@ -41,7 +43,7 @@ module Pakyow
             end
 
             after "boot" do
-              @mirror.endpoints.each do |endpoint|
+              self.class.mirror.endpoints.each do |endpoint|
                 endpoint.exposures.each do |exposure|
                   define_children_for_endpoint_context(exposure)
                 end
@@ -50,10 +52,14 @@ module Pakyow
               # Cleanup.
               #
               unless Pakyow.env?(:test)
-                @mirror.scopes.each(&:cleanup)
-                @mirror.endpoints.each(&:cleanup)
+                self.class.mirror.scopes.each(&:cleanup)
+                self.class.mirror.endpoints.each(&:cleanup)
               end
             end
+          end
+
+          def mirror
+            self.class.mirror
           end
 
           private
@@ -66,7 +72,7 @@ module Pakyow
                     data.send(exposure.scope.plural_name).source.class.associations.values.flatten.each do |association|
                       association_key_prefix = "#{association.name}_"
                       if param.to_s.start_with?(association_key_prefix)
-                        scope = @mirror.scopes.find { |scope|
+                        scope = self.class.mirror.scopes.find { |scope|
                           scope.plural_name == association.associated_source_name
                         } || Pakyow::Reflection::Scope.new(association.name)
 

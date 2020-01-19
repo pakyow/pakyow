@@ -12,6 +12,8 @@ module Pakyow
   module Reflection
     class Framework < Pakyow::Framework(:reflection)
       def boot
+        return if object.ancestors.include?(Plugin)
+
         object.include Application::Config::Reflection
         object.include Application::Behavior::Reflection::Reflecting
 

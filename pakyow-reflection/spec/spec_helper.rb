@@ -39,14 +39,16 @@ RSpec.shared_context "reflectable app" do
   let :app_def do |example|
     local_frontend_test_case = frontend_test_case
     local_reflected_app_def = reflected_app_def
+    local_existing_app_def = existing_app_def
     local_default_app_def = @default_app_def
 
     Proc.new do
       instance_exec(&local_default_app_def)
       instance_exec(&local_reflected_app_def)
+      instance_exec(&local_existing_app_def)
 
       if local_frontend_test_case
-        before "initialize.presenter" do
+        before "load.presenter" do
           @case_templates = Pakyow::Presenter::Templates.new(
             :case, File.join(
               File.expand_path("../", __FILE__),
@@ -57,7 +59,7 @@ RSpec.shared_context "reflectable app" do
           templates << @case_templates
         end
 
-        after "initialize.presenter", priority: :high do
+        after "load.presenter", priority: :high do
           if app_templates = templates.each.find { |templates| templates.name == :default }
             @case_templates.paths.each do |path|
               case_info = @case_templates.info(path)
@@ -85,6 +87,10 @@ RSpec.shared_context "reflectable app" do
   end
 
   let :reflected_app_def do
+    Proc.new {}
+  end
+
+  let :existing_app_def do
     Proc.new {}
   end
 

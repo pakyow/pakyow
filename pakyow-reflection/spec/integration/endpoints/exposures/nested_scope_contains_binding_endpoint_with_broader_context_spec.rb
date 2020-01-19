@@ -21,7 +21,7 @@ RSpec.describe "reflected graph: nested scope contains a binding endpoint with b
   end
 
   context "scope is related to the broader endpoint object" do
-    let :app_init do
+    let :existing_app_def do
       Proc.new do
         source :guides do
           has_many :sections
@@ -39,7 +39,7 @@ RSpec.describe "reflected graph: nested scope contains a binding endpoint with b
   end
 
   context "scope is unrelated to the broader endpoint object" do
-    let :app_init do
+    let :existing_app_def do
       Proc.new do
         source :guides do
           attribute :slug
