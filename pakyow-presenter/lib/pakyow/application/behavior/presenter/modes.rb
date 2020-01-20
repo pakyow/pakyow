@@ -61,15 +61,15 @@ module Pakyow
 
             isolate ModeCallContext
 
-            on "load" do
-              self.class.include_helpers :passive, isolated(:ModeCallContext)
+            after "load" do
+              include_helpers :passive, isolated(:ModeCallContext)
             end
 
-            if ancestors.include?(Plugin)
-              # Copy ui modes from other plugins to this plugin.
-              #
-              after "load" do
-                parent.plugs.each do |plug|
+            unless ancestors.include?(Plugin)
+              after "initialize.plugins" do
+                plugs.each do |plug|
+                  # Copy ui modes from plugins to the app.
+                  #
                   plug.__ui_modes.each do |mode, block|
                     unless @__ui_modes.key?(mode)
                       plug_namespace = plug.class.object_name.namespace.parts.last
@@ -83,24 +83,24 @@ module Pakyow
                       @__ui_modes[full_mode] = block
                     end
                   end
-                end
-              end
-            else
-              # Copy ui modes from plugins to the app.
-              #
-              after "load.plugins" do
-                plugs.each do |plug|
-                  plug.__ui_modes.each do |mode, block|
-                    unless @__ui_modes.key?(mode)
-                      plug_namespace = plug.class.object_name.namespace.parts.last
 
-                      full_mode = if plug_namespace == :default
-                        :"@#{plug.class.plugin_name}.#{mode}"
-                      else
-                        :"@#{plug.class.plugin_name}(#{plug_namespace}).#{mode}"
+                  # Copy ui modes from other plugins to this plugin.
+                  #
+                  plugs.each do |other_plug|
+                    next if other_plug.equal?(plug)
+
+                    other_plug.__ui_modes.each do |mode, block|
+                      unless plug.__ui_modes.key?(mode)
+                        plug_namespace = other_plug.class.object_name.namespace.parts.last
+
+                        full_mode = if plug_namespace == :default
+                          :"@#{other_plug.class.plugin_name}.#{mode}"
+                        else
+                          :"@#{other_plug.class.plugin_name}(#{plug_namespace}).#{mode}"
+                        end
+
+                        plug.__ui_modes[full_mode] = block
                       end
-
-                      @__ui_modes[full_mode] = block
                     end
                   end
                 end

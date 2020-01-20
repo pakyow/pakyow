@@ -2,7 +2,7 @@ RSpec.describe "api" do
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     $local_presenter = presenter
     local_view_path = view_path
 

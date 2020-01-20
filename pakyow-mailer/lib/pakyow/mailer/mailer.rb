@@ -73,7 +73,7 @@ module Pakyow
             )
 
             stylesheets = if @renderer
-              @renderer.app.packs_for_view(@renderer.presenter.view).select(&:stylesheets?).map(&:stylesheets)
+              @renderer.app.class.packs_for_view(@renderer.presenter.view).select(&:stylesheets?).map(&:stylesheets)
             else
               []
             end

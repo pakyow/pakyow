@@ -2,7 +2,7 @@ RSpec.describe "handling errors in operations" do
   include_context "app"
 
   describe "handler for any error" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         operation :test do
           attr_reader :handled
@@ -27,7 +27,7 @@ RSpec.describe "handling errors in operations" do
 
   describe "handler for a specific error" do
     context "specific error is raised" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           operation :test do
             attr_reader :handled
@@ -51,7 +51,7 @@ RSpec.describe "handling errors in operations" do
     end
 
     context "other error is raised" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           operation :test do
             attr_reader :handled
@@ -76,7 +76,7 @@ RSpec.describe "handling errors in operations" do
   end
 
   describe "unhandled errors" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         operation :test do
           attr_reader :handled

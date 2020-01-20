@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view that defines one or more ui mode" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       presenter "/presentation/ui_modes" do
         render :post do
@@ -82,7 +82,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   end
 
   context "call to render sets the mode" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           default do
@@ -145,7 +145,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
     end
 
     context "mode is specified" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             default do
@@ -234,7 +234,7 @@ RSpec.describe "presenting a view that defines one or more ui mode" do
   end
 
   context "mode is nested in a binding" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/ui_modes/nested" do
           render :post do

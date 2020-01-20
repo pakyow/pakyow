@@ -1,7 +1,7 @@
 RSpec.describe "responding to request format" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         get "foo.txt|html" do

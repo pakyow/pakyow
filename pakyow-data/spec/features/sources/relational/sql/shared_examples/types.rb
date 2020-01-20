@@ -15,7 +15,7 @@ RSpec.shared_examples :source_sql_types do
     include_context "app"
 
     context "type is text" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts do
             primary_id
@@ -31,7 +31,7 @@ RSpec.shared_examples :source_sql_types do
     end
 
     context "type is file" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           source :posts do
             primary_id

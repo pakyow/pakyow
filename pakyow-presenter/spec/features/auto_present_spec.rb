@@ -1,7 +1,7 @@
 RSpec.describe "automatically presenting exposures made from a controller" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller :default do
         get "/exposure" do
@@ -16,7 +16,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
   end
 
   context "exposure is plural" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/exposure" do
@@ -32,7 +32,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
   end
 
   context "exposure is channeled" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/exposure/channeled" do
@@ -48,7 +48,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
     end
 
     context "exposure matches part of the channel in the view" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :default do
             get "/exposure/channeled/partial" do
@@ -105,7 +105,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
   end
 
   context "exposure cannot be found" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/exposure" do
@@ -122,7 +122,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
   end
 
   context "app presents to the view" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/exposure" do
@@ -166,7 +166,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
 
   context "view contains an empty version" do
     context "data is empty" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :default do
             get "/exposure/empty" do
@@ -209,7 +209,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
     end
 
     context "data is not empty" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :default do
             get "/exposure/empty" do
@@ -262,7 +262,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
 
   context "view contains an empty version after the binding" do
     context "data is empty" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :default do
             get "/exposure/empty-last" do
@@ -305,7 +305,7 @@ RSpec.describe "automatically presenting exposures made from a controller" do
     end
 
     context "data is not empty" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :default do
             get "/exposure/empty-last" do

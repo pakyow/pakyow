@@ -1,7 +1,7 @@
 RSpec.describe "redirecting requests" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller :redirect do
         get "/redirect" do

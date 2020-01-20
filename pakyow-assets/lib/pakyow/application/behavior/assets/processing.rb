@@ -10,11 +10,17 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            on "load" do
-              if self.class.includes_framework?(:presenter)
+            on "setup" do
+              if includes_framework?(:presenter)
+                asset_host = if ancestors.include?(Plugin)
+                  parent.config.assets.host
+                else
+                  config.assets.host
+                end
+
                 processor :html do |content|
                   assets.each do |asset|
-                    content.gsub!(asset.logical_path, File.join(config.assets.host, asset.public_path))
+                    content.gsub!(asset.logical_path, File.join(asset_host, asset.public_path))
                   end
 
                   content

@@ -105,10 +105,10 @@ module Pakyow
             end
           end
 
-          on "load" do
-            self.class.include_helpers :global, isolated(:Binder)
-            self.class.include_helpers :global, isolated(:Presenter)
-            self.class.include_helpers :active, isolated(:Component)
+          after "load" do
+            include_helpers :global, isolated(:Binder)
+            include_helpers :global, isolated(:Presenter)
+            include_helpers :active, isolated(:Component)
 
             # Override the app helper so that config returns the component config.
             # FIXME: Find a clearer way to do this.
@@ -124,7 +124,7 @@ module Pakyow
 
           # Let each renderer action attach renders to the app's presenter.
           #
-          after "initialize", priority: :low do
+          after "setup", "setup.presenter.renders" do
             [isolated(:Presenter)].concat(
               presenters.each.to_a
             ).concat(
@@ -140,15 +140,17 @@ module Pakyow
             config.presenter.version = Support::PathVersion.build(config.presenter.path)
 
             app_version = Digest::SHA1.new
-            app_version.update(config.version)
+            app_version.update(top.config.version)
             app_version.update(config.presenter.version)
-            config.version = app_version.to_s
+            top.config.version = app_version.to_s
           end
 
           # Add auto render action to the pipeline.
           #
+          # Do this during initialization rather than setup so it's at the lowest possible priority.
+          #
           after "initialize", priority: :low do
-            action(Application::Actions::Presenter::AutoRender)
+            action Application::Actions::Presenter::AutoRender
           end
 
           include Application::Config::Presenter
@@ -159,12 +161,16 @@ module Pakyow
           include Application::Behavior::Presenter::Versions
           include Application::Behavior::Presenter::Watching
 
-          def view_info_for_path(path)
+          def self.view_info_for_path(path)
             path = String.collapse_path(path)
 
             templates.each.lazy.map { |store|
               store.info(path)
             }.find(&:itself)
+          end
+
+          def view_info_for_path(path)
+            self.class.view_info_for_path(path)
           end
 
           def view?(path)

@@ -8,7 +8,7 @@ RSpec.describe "using cookies" do
 
   describe "creating a cookie" do
     context "using the pakyow helper" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller do
             get "/set/:value" do
@@ -42,7 +42,7 @@ RSpec.describe "using cookies" do
     end
 
     context "using the pakyow helper" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller do
             get "/" do
@@ -58,7 +58,7 @@ RSpec.describe "using cookies" do
     end
 
     context "using request.cookies" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller do
             get "/" do
@@ -80,7 +80,7 @@ RSpec.describe "using cookies" do
     end
 
     context "using the pakyow helper" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller do
             get "/" do
@@ -97,7 +97,7 @@ RSpec.describe "using cookies" do
     end
 
     context "using response.delete_cookie" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller do
             get "/" do
@@ -119,7 +119,7 @@ RSpec.describe "using cookies" do
       "foo=bar"
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           get "/" do

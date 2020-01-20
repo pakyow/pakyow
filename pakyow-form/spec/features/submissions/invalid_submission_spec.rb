@@ -1,7 +1,7 @@
 RSpec.describe "submitting invalid form data" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
@@ -76,7 +76,7 @@ RSpec.describe "submitting invalid form data" do
     end
 
     context "app handles the invalid submission" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :post, "/posts" do
             disable_protection :csrf
@@ -108,7 +108,7 @@ RSpec.describe "submitting invalid form data" do
     end
 
     context "multiple forms are present with channeled bindings" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :post, "/posts" do
             disable_protection :csrf
@@ -151,7 +151,7 @@ RSpec.describe "submitting invalid form data" do
     end
 
     context "root data does not pass verification" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/posts" do
             disable_protection :csrf
@@ -177,7 +177,7 @@ RSpec.describe "submitting invalid form data" do
       end
 
       context "form errors component does not have a scope" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             resource :posts, "/posts" do
               disable_protection :csrf

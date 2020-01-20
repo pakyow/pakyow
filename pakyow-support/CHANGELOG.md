@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Remove the ability to define definable state on instances.**
+    - This caused namespace collisions when defining state with the same name on two instances.
+
   * `add` **Introduce config deprecations.**
 
     *Related links:*

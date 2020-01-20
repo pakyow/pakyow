@@ -1,7 +1,7 @@
 RSpec.describe "logging within a presenter" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     local = self
     Proc.new do
       presenter "/presentation/transforms" do

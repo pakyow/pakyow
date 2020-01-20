@@ -3,7 +3,7 @@ require "pakyow/plugin"
 RSpec.describe "accessing the parent app from a plugin" do
   before do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
-      def boot
+      after "boot" do
         @object = Class.new do
           def initialize(connection)
             @connection = connection

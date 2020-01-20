@@ -1,7 +1,7 @@
 RSpec.describe "setting a form method" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     local = self
     Proc.new do
       resource :posts, "/presentation/forms/method" do

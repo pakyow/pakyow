@@ -1,7 +1,7 @@
 RSpec.describe "using sessions" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         get "/get" do

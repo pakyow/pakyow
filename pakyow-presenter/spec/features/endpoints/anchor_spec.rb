@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view that defines an anchor endpoint" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         list do

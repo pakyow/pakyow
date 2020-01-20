@@ -1,7 +1,7 @@
 RSpec.describe "grouped routes" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         action :foo
@@ -45,7 +45,7 @@ RSpec.describe "grouped routes" do
   end
 
   describe "defining routes for the same group multiple times" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           group :g do

@@ -2,7 +2,7 @@ RSpec.describe "inherited controller state" do
   include_context "app"
 
   describe "routes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do

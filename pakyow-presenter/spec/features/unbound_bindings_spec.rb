@@ -2,7 +2,7 @@ RSpec.describe "unbound bindings" do
   include_context "app"
 
   context "value is bound to one binding but not the other" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/unbound" do
           render :post do
@@ -40,7 +40,7 @@ RSpec.describe "unbound bindings" do
   end
 
   context "nil is bound to a binding" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/unbound" do
           render :post do
@@ -74,7 +74,7 @@ RSpec.describe "unbound bindings" do
   end
 
   context "binding is replaced with a node that is not a binding" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/unbound" do
           render :post do

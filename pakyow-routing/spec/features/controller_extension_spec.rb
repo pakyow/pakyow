@@ -11,7 +11,7 @@ RSpec.describe "extending a controller with an extension" do
     end
   end
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller :haha do
         include RouteExtensions

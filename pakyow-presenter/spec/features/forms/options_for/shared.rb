@@ -9,7 +9,7 @@ RSpec.shared_context "options_for" do
     :tag
   end
 
-  let :app_init do
+  let :app_def do
     local = self
     Proc.new do
       presenter local.view_path do

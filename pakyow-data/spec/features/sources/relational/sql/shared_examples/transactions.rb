@@ -14,7 +14,7 @@ RSpec.shared_examples :source_sql_transactions do
       Pakyow.apps.first.data
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts do
           primary_id

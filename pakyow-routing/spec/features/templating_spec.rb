@@ -1,7 +1,7 @@
 RSpec.describe "route templating" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller do
         template :talkback do
@@ -47,7 +47,7 @@ RSpec.describe "route templating" do
   end
 
   context "when the template defines actions" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           template :hooktest do

@@ -1,8 +1,12 @@
 RSpec.shared_examples :subscription_persist do
   before do
     require "redis"
-    Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
-    Pakyow.config.data.subscriptions.adapter_settings = data_subscription_adapter_settings
+
+    local = self
+    Pakyow.configure do
+      config.data.subscriptions.adapter = local.data_subscription_adapter
+      config.data.subscriptions.adapter_settings = local.data_subscription_adapter_settings
+    end
   end
 
   include_context "app"

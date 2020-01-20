@@ -12,7 +12,7 @@ RSpec.shared_examples :subscription_unsubscribe do
 
   # include_context "app"
 
-  # let :app_init do
+  # let :app_def do
   #   Pakyow.config.data.connections.memory[:default] = "memory://test"
   #   Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
 

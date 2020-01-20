@@ -44,96 +44,6 @@ RSpec.describe "defining state via definable" do
     end
   end
 
-  describe "defining state on the instance" do
-    let(:instance_state) {
-      application_instance.controller :bar do
-        def bar
-          :bar
-        end
-      end
-    }
-
-    it "defines a subclass with the given name" do
-      expect(instance_state).to be(Test::Application::Controllers::Bar)
-      expect(instance_state.ancestors).to include(controller)
-      expect(instance_state.new.bar).to eq(:bar)
-    end
-  end
-
-  describe "defining class and instance state" do
-    let(:class_state) {
-      application.controller :foo do
-        def foo
-          :foo
-        end
-      end
-    }
-
-    let(:instance_state) {
-      application_instance.controller :bar do
-        def bar
-          :bar
-        end
-      end
-    }
-
-    it "defines the class state" do
-      expect(class_state).to be(Test::Application::Controllers::Foo)
-      expect(class_state.ancestors).to include(controller)
-      expect(class_state.new.foo).to eq(:foo)
-    end
-
-    it "defines the instance state" do
-      expect(instance_state).to be(Test::Application::Controllers::Bar)
-      expect(instance_state.ancestors).to include(controller)
-      expect(instance_state.new.bar).to eq(:bar)
-    end
-
-    it "does not define instance state on the class" do
-      class_state; instance_state
-
-      expect(application.controllers.each.map(&:name)).to eq([
-        "Test::Application::Controllers::Foo"
-      ])
-    end
-
-    it "does not define instance state on future instances" do
-      class_state; instance_state
-
-      expect(application.new.controllers.each.map(&:name)).to eq([
-        "Test::Application::Controllers::Foo"
-      ])
-    end
-
-    it "does not define future class state on existing instances" do
-      instance_state; class_state
-
-      expect(application_instance.controllers.each.map(&:name)).to eq([
-        "Test::Application::Controllers::Bar"
-      ])
-    end
-
-    context "class and instance state have the same name" do
-      before do
-        application.controller :foo do
-          def foo
-            :foo1
-          end
-        end
-
-        application_instance.controller :foo do
-          def foo
-            :foo2
-          end
-        end
-      end
-
-      it "gives precedence to instance state" do
-        expect(application_instance.controllers(:foo).new.foo).to eq(:foo2)
-      end
-    end
-  end
-
   describe "defining namespaced state" do
     before do
       application.controller :foo, :bar, :baz do; end
@@ -221,6 +131,12 @@ RSpec.describe "defining state via definable" do
       expect(application.controllers(:foo).new.foo).to eq(:foo)
       expect(application.controllers(:foo).new.bar).to eq(:bar)
     end
+
+    context "not passing a block the second time" do
+      it "returns the existing state" do
+        expect(application.controllers.define(:foo)).to be(Test::Application::Controllers::Foo)
+      end
+    end
   end
 
   describe "extending the definable with a block" do
@@ -289,42 +205,6 @@ RSpec.describe "defining state via definable" do
     end
   end
 
-  describe "definable object initialization" do
-    let(:application) {
-      application_class.definable :controller, controller
-
-      local = self
-      application_class.define_method :initialize do
-        local.instance_variable_set(:@initial_definitions, controllers.definitions.dup)
-        controller :bar do; end
-        local.instance_variable_set(:@final_definitions, controllers.definitions.dup)
-      end
-
-      application_class
-    }
-
-    before do
-      application.controller :foo do; end
-    end
-
-    it "makes defined class state available during initialization" do
-      application_instance
-
-      expect(@initial_definitions.map(&:name)).to eq([
-        "Test::Application::Controllers::Foo"
-      ])
-    end
-
-    it "makes defined instance state available immediately" do
-      application_instance
-
-      expect(@final_definitions.map(&:name)).to eq([
-        "Test::Application::Controllers::Foo",
-        "Test::Application::Controllers::Bar"
-      ])
-    end
-  end
-
   describe "subclassing the definable object" do
     before do
       application.controller :foo do; end
@@ -382,36 +262,6 @@ RSpec.describe "defining state via definable" do
     end
   end
 
-  describe "defining state in a definable initialization block" do
-    let(:application) {
-      application_class.definable :controller, controller
-
-      application_class.define_method :initialize do
-        controller :bar do; end
-      end
-
-      application_class
-    }
-
-    let(:application_instance) {
-      application.new do
-        controller :baz do; end
-      end
-    }
-
-    before do
-      application.controller :foo do; end
-    end
-
-    it "defines the state with the correct precedence" do
-      expect(application_instance.controllers.each.map(&:name)).to eq([
-        "Test::Application::Controllers::Foo",
-        "Test::Application::Controllers::Bar",
-        "Test::Application::Controllers::Baz"
-      ])
-    end
-  end
-
   describe "defining children" do
     before do
       application.controller :foo do
@@ -453,77 +303,95 @@ RSpec.describe "defining state via definable" do
   end
 
   describe "looking up state" do
-    before do
-      application.controller :foo do
-      end
-
-      application.controller :bar do
-      end
-
-      application.controller :baz do
-      end
-    end
-
-    let(:registry) {
-      application.controllers
-    }
-
-    it "looks up by type" do
-      expect(registry).to be_instance_of(Pakyow::Support::Definable::Registry)
-    end
-
-    describe "using the registry" do
-      it "exposes name" do
-        expect(registry.name).to eq(:controller)
-      end
-
-      it "exposes object" do
-        expect(registry.object).to be(Test::Application::Controller)
-      end
-
-      it "finds a definition by name" do
-        expect(registry.find(:bar)).to be(Test::Application::Controllers::Bar)
-      end
-
-      it "looks up dynamically by name" do
-        expect(registry.bar).to be(Test::Application::Controllers::Bar)
-      end
-
-      it "iterates over definitions" do
-        registered = []
-        registry.each do |definition|
-          registered << definition
+    shared_examples "lookup" do
+      before do
+        application.controller :foo do
         end
 
-        expect(registered).to eq([
-          Test::Application::Controllers::Foo,
-          Test::Application::Controllers::Bar,
-          Test::Application::Controllers::Baz
-        ])
+        application.controller :bar do
+        end
+
+        application.controller :baz do
+        end
       end
 
-      it "exposes an enumerator" do
-        expect(registry.each.count).to eq(3)
+      let(:registry) {
+        target.controllers
+      }
+
+      it "looks up by type" do
+        expect(registry).to be_instance_of(Pakyow::Support::Definable::Registry)
       end
 
-      context "registry defines a lookup function" do
-        let(:application) {
-          application_class.definable :controller, controller, lookup: -> (app, operation, **values, &block) {
-            [app, operation, values, block]
+      describe "using the registry" do
+        it "exposes name" do
+          expect(registry.name).to eq(:controller)
+        end
+
+        it "exposes object" do
+          expect(registry.object).to be(Test::Application::Controller)
+        end
+
+        it "finds a definition by name" do
+          expect(registry.find(:bar)).to be(Test::Application::Controllers::Bar)
+        end
+
+        it "looks up dynamically by name" do
+          expect(registry.bar).to be(Test::Application::Controllers::Bar)
+        end
+
+        it "iterates over definitions" do
+          registered = []
+          registry.each do |definition|
+            registered << definition
+          end
+
+          expect(registered).to eq([
+            Test::Application::Controllers::Foo,
+            Test::Application::Controllers::Bar,
+            Test::Application::Controllers::Baz
+          ])
+        end
+
+        it "exposes an enumerator" do
+          expect(registry.each.count).to eq(3)
+        end
+
+        context "registry defines a lookup function" do
+          let(:application) {
+            application_class.definable :controller, controller, lookup: -> (app, operation, **values, &block) {
+              [app, operation, values, block]
+            }
+
+            application_class
           }
 
-          application_class
-        }
-
-        it "uses the lookup function" do
-          block = Proc.new do; end
-          value = registry.bar(foo: :bar, &block)
-          expect(value[0]).to be(Test::Application)
-          expect(value[1]).to be(Test::Application::Controllers::Bar)
-          expect(value[2]).to eq(foo: :bar)
-          expect(value[3]).to be(block)
+          it "uses the lookup function" do
+            block = Proc.new do; end
+            value = registry.bar(foo: :bar, &block)
+            expect(value[0]).to be(target)
+            expect(value[1]).to be(Test::Application::Controllers::Bar)
+            expect(value[2]).to eq(foo: :bar)
+            expect(value[3]).to be(block)
+          end
         end
       end
+    end
+
+    context "through the class" do
+      include_examples "lookup"
+
+      let(:target) {
+        application
+      }
+    end
+
+    context "through the instance" do
+      include_examples "lookup"
+
+      let(:target) {
+        application.new
+      }
     end
   end
 
@@ -534,69 +402,6 @@ RSpec.describe "defining state via definable" do
 
     it "creates an anonymous object" do
       expect(unnamed_state.name).to be(nil)
-    end
-  end
-
-  describe "hijacking define!" do
-    context "define! called during initialization" do
-      let(:application_class) {
-        application_class = super()
-        application_class.class_eval do
-          def initialize(&block)
-            @initialized = false
-            define!(&block)
-            @initialized = true
-          end
-        end
-
-        application_class
-      }
-
-      it "calls define! at the right time" do
-        initialized = nil
-        application_class.new do
-          initialized = @initialized
-        end
-
-        expect(initialized).to be(false)
-      end
-
-      it "calls define! once" do
-        calls = []
-        application_class.new do
-          calls << Time.now
-        end
-
-        expect(calls.count).to eq(1)
-      end
-    end
-
-    context "initial call to define fails" do
-      let(:application_class) {
-        application_class = super()
-        application_class.class_eval do
-          def initialize(&block)
-            define!(&block)
-          rescue
-          end
-        end
-
-        application_class
-      }
-
-      it "is not called again" do
-        calls = []
-
-        begin
-          application_class.new do
-            calls << Time.now
-            fail
-          end
-        rescue
-        end
-
-        expect(calls.count).to eq(1)
-      end
     end
   end
 
@@ -637,6 +442,29 @@ RSpec.describe "defining state via definable" do
       it "is the defined state" do
         expect(defined_state.children[0].parent).to be(Test::Application::Controllers::Foo)
       end
+    end
+  end
+
+  describe "defining a plural definable" do
+    let(:application) {
+      application_class.definable :controllers, controller
+      application_class
+    }
+
+    it "defines state" do
+      expect(application.controllers(:foo) {}).to be(Test::Application::Controllers::Foo)
+    end
+
+    it "looks up defined state" do
+      application.controllers(:foo) {}
+
+      expect(application.controllers.find(:foo)).to be(Test::Application::Controllers::Foo)
+    end
+
+    it "looks up defined state by name" do
+      application.controllers(:foo) {}
+
+      expect(application.controllers(:foo)).to be(Test::Application::Controllers::Foo)
     end
   end
 end

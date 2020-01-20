@@ -3,7 +3,7 @@ require "pakyow/plugin"
 RSpec.describe "global view versioning from a plugin" do
   before do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
-      on "initialize" do
+      on "load" do
         isolated(:Presenter) do
           version :"for-current-user" do |object, plug|
             object[:user_id] == 2
@@ -269,7 +269,7 @@ end
 RSpec.describe "using global versions defined in a plugin from another plugin" do
   before do
     class TestPluginFoo < Pakyow::Plugin(:testable_foo, File.join(__dir__, "support/plugin"))
-      on "initialize" do
+      on "load" do
         isolated(:Presenter) do
           version :"for-current-user" do |object, plug|
             object[:user_id] == 2
@@ -279,7 +279,7 @@ RSpec.describe "using global versions defined in a plugin from another plugin" d
     end
 
     class TestPluginBar < Pakyow::Plugin(:testable_bar, File.join(__dir__, "support/plugin-bar"))
-      on "initialize" do
+      on "load" do
         presenter "/test-plugin/versioning" do
           render :post do
             present([

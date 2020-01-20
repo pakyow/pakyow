@@ -19,7 +19,7 @@ module Pakyow
           end
 
           def verifier
-            if app.config.session.enabled
+            if app.top.config.session.enabled
               unless instance_variable_defined?(:@verifier)
                 @verifier = Support::MessageVerifier.new(verifier_key)
               end
@@ -31,7 +31,7 @@ module Pakyow
           end
 
           def verifier_key
-            if app.config.session.enabled
+            if app.top.config.session.enabled
               session[:verifier_key]
             end
           end

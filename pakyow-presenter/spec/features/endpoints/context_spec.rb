@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view with an endpoint that requires context" do
   include_context "app"
 
-  let :app_def do
+  let :resources do
     Proc.new do
       resource :guides, "/guides", param: :slug do
         show
@@ -14,8 +14,12 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
   end
 
   context "context is defined on the presented object" do
-    let :app_init do
+    let :app_def do
+      local = self
+
       Proc.new do
+        class_eval(&local.resources)
+
         presenter "/presentation/endpoints/context/top-level" do
           render :section do
             present(guide_slug: "foo", slug: "bar")
@@ -35,8 +39,12 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
     end
 
     context "context is also defined on a parent scope" do
-      let :app_init do
+      let :app_def do
+        local = self
+
         Proc.new do
+          class_eval(&local.resources)
+
           presenter "/presentation/endpoints/context/nested" do
             render :guide do
               present(slug: "baz", section: { slug: "bar", guide_slug: "foo" })
@@ -69,11 +77,7 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
               show
             end
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           presenter "/presentation/endpoints/context/top-level" do
             render :section do
               present(slug: "bar", guide_slug: "foo")
@@ -95,8 +99,12 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
   end
 
   context "context is defined on an object associated with the presented object" do
-    let :app_init do
+    let :app_def do
+      local = self
+
       Proc.new do
+        class_eval(&local.resources)
+
         presenter "/presentation/endpoints/context/top-level" do
           render :section do
             present(guide: { slug: "foo" }, slug: "bar")
@@ -116,8 +124,12 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
     end
 
     context "context is also defined on a parent scope" do
-      let :app_init do
+      let :app_def do
+        local = self
+
         Proc.new do
+          class_eval(&local.resources)
+
           presenter "/presentation/endpoints/context/nested" do
             render :guide do
               present(slug: "baz", section: { slug: "bar", guide: { slug: "foo" } })
@@ -150,11 +162,7 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
               show
             end
           end
-        end
-      end
 
-      let :app_init do
-        Proc.new do
           presenter "/presentation/endpoints/context/top-level" do
             render :section do
               present(slug: "bar", guide: { slug: "foo" })
@@ -176,8 +184,12 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
   end
 
   context "context is defined on a parent scope" do
-    let :app_init do
+    let :app_def do
+      local = self
+
       Proc.new do
+        class_eval(&local.resources)
+
         presenter "/presentation/endpoints/context/nested" do
           render :guide do
             present(slug: "foo", section: { slug: "bar" })
@@ -210,11 +222,7 @@ RSpec.describe "presenting a view with an endpoint that requires context" do
             show
           end
         end
-      end
-    end
 
-    let :app_init do
-      Proc.new do
         presenter "/presentation/endpoints/context/top-level" do
           render :section do
             present(slug: "bar")

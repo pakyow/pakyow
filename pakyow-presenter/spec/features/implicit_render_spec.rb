@@ -1,7 +1,7 @@
 RSpec.describe "implicitly rendering when a controller is called but does not render" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller :default do
         get "/other" do; end
@@ -17,7 +17,7 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
     end
 
     context "presenter is defined" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller :default do
             get "/other" do; end
@@ -68,7 +68,7 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
   end
 
   context "view does not exist" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/nonexistent" do; end
@@ -90,7 +90,7 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
   end
 
   context "route halts without rendering" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           get "/other" do
@@ -108,7 +108,7 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
   end
 
   context "route reroutes" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :default do
           default do

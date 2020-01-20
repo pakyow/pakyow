@@ -1,7 +1,7 @@
 RSpec.describe "inline validation" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         verify :test do

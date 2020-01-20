@@ -1,7 +1,7 @@
 RSpec.describe "verifying operation values" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       operation :test do
         verify do

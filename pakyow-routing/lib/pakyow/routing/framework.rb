@@ -68,13 +68,13 @@ module Pakyow
 
           # Include helpers into the controller class.
           #
-          on "load" do
-            self.class.include_helpers :active, isolated(:Controller)
+          after "load" do
+            include_helpers :active, isolated(:Controller)
           end
 
           # Register controllers as pipeline actions.
           #
-          after "initialize" do
+          after "setup" do
             unless Pakyow.env?(:prototype)
               controllers.each do |controller|
                 action(controller, self)

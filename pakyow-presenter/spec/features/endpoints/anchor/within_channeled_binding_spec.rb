@@ -1,7 +1,7 @@
 RSpec.describe "presenting a view that defines an anchor endpoint within a channeled binding" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         list do
@@ -29,7 +29,7 @@ RSpec.describe "presenting a view that defines an anchor endpoint within a chann
   end
 
   context "endpoint is current" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         resource :posts, "/posts" do
           list do

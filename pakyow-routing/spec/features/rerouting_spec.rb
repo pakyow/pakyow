@@ -1,7 +1,7 @@
 RSpec.describe "rerouting requests" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new {
       controller :reroute do
         get "/reroute" do
@@ -67,7 +67,7 @@ RSpec.describe "rerouting requests" do
   end
 
   describe "rerouting to a different method" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller :reroute do
           disable_protection :csrf
@@ -92,7 +92,7 @@ RSpec.describe "rerouting requests" do
   end
 
   describe "rerouting with a status" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller :reroute do
           get "/reroute" do
@@ -114,7 +114,7 @@ RSpec.describe "rerouting requests" do
     end
 
     context "later route explicitly sets a status" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller :reroute do
             get "/reroute" do
@@ -139,7 +139,7 @@ RSpec.describe "rerouting requests" do
   end
 
   describe "sharing values across reroutes" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller :reroute do
           get "/reroute" do
@@ -163,7 +163,7 @@ RSpec.describe "rerouting requests" do
   end
 
   describe "connection endpoint after rerouting" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller :reroute do
           get "/reroute" do

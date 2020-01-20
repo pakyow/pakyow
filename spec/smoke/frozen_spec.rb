@@ -22,7 +22,7 @@ RSpec.describe "changing application state at runtime", smoke: true do
               end
 
               get "/aspect" do
-                connection.app.controller :foo do; end
+                connection.app.class.controller :foo do; end
               end
             end
           end

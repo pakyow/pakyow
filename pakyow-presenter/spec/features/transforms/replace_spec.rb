@@ -3,7 +3,7 @@ RSpec.describe "attaching a transform that replaces a node" do
 
   context "attached to binding" do
     describe "replacing top level node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render :post do
@@ -40,7 +40,7 @@ RSpec.describe "attaching a transform that replaces a node" do
     end
 
     describe "replacing child node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render :post do
@@ -80,7 +80,7 @@ RSpec.describe "attaching a transform that replaces a node" do
 
   context "attached to node" do
     describe "replacing top level node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post) } do
@@ -117,7 +117,7 @@ RSpec.describe "attaching a transform that replaces a node" do
     end
 
     describe "replacing child node" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/transforms" do
             render node: -> { find(:post) } do

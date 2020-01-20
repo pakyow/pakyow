@@ -2,7 +2,7 @@ RSpec.describe "accessing public files" do
   include_context "app"
 
   context "public handling is enabled" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         config.assets.public = true
       end
@@ -44,7 +44,7 @@ RSpec.describe "accessing public files" do
   end
 
   context "public handling is disabled" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         config.assets.public = false
       end

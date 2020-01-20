@@ -2,7 +2,7 @@ RSpec.describe "defining global options in the presenter" do
   include_context "app"
 
   context "options are defined as a block" do
-    let :app_init do
+    let :app_def do
       local = self
       Proc.new do
         presenter "/presentation/forms/options_for/global_options" do
@@ -55,7 +55,7 @@ RSpec.describe "defining global options in the presenter" do
       end
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/forms/options_for/global_options" do
           options_for :post, :tag, [

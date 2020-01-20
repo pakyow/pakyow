@@ -8,21 +8,19 @@ RSpec.shared_examples :subscription_subscribe_compound do
       def call(*); end
     end
 
-    include_context "app"
-
-    let :app_def do
-      Pakyow.config.data.default_adapter = :sql
-      Pakyow.config.data.subscriptions.adapter = data_subscription_adapter
-      Pakyow.config.data.subscriptions.adapter_settings = data_subscription_adapter_settings
-
-      Proc.new do
-        Pakyow.after "configure" do
-          config.data.connections.sql[:default] = "sqlite::memory"
-        end
+    before do
+      local = self
+      Pakyow.configure do
+        config.data.default_adapter = :sql
+        config.data.subscriptions.adapter = local.data_subscription_adapter
+        config.data.subscriptions.adapter_settings = local.data_subscription_adapter_settings
+        config.data.connections.sql[:default] = "sqlite::memory"
       end
     end
 
-    let :app_init do
+    include_context "app"
+
+    let :app_def do
       Proc.new do
         source :posts do
           attribute :title, :string

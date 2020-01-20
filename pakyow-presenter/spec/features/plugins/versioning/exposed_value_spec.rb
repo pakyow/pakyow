@@ -3,7 +3,7 @@ require "pakyow/plugin"
 RSpec.describe "global view versioning from a plugin based on exposed values" do
   before do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "../support/plugin"))
-      on "initialize" do
+      on "load" do
         isolated(:Presenter) do
           version :"for-current-user" do |object, plug|
             value = if plug

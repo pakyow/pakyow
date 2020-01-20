@@ -2,7 +2,7 @@ RSpec.describe "halting a request" do
   include_context "app"
 
   context "when halting from a route" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do
@@ -27,7 +27,7 @@ RSpec.describe "halting a request" do
   end
 
   context "when halting from a pipeline action" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           action :hook
@@ -57,7 +57,7 @@ RSpec.describe "halting a request" do
   end
 
   context "when halting with a body" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do
@@ -73,7 +73,7 @@ RSpec.describe "halting a request" do
   end
 
   context "halting with a status code" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do
@@ -89,7 +89,7 @@ RSpec.describe "halting a request" do
   end
 
   context "halting with a nice status code" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         controller do
           default do

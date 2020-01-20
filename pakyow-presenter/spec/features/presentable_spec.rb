@@ -5,7 +5,7 @@ RSpec.describe "presentable exposures" do
     call "/"
   end
 
-  let :app_init do
+  let :app_def do
     local = self
     Proc.new do
       controller :default do
@@ -28,7 +28,7 @@ RSpec.describe "presentable exposures" do
   end
 
   context "multiple exposures are made, but for different channels" do
-    let :app_init do
+    let :app_def do
       local = self
       Proc.new do
         controller :default do

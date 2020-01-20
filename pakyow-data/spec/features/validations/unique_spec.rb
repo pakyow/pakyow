@@ -7,7 +7,7 @@ RSpec.describe "email validation" do
 
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       controller do
         verify :test do
@@ -42,7 +42,7 @@ RSpec.describe "email validation" do
   end
 
   context "updating" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller do
           get :test, "/test/:id" do
@@ -85,7 +85,7 @@ RSpec.describe "email validation" do
     end
 
     context "value that is being updated is not a result" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           controller do
             get :test, "/test/:id" do

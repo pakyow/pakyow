@@ -44,7 +44,7 @@ RSpec.describe "auto migrating on boot" do
       end
 
       describe "auto migrating sources for the connection" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             source :posts do
               primary_id
@@ -68,11 +68,7 @@ RSpec.describe "auto migrating on boot" do
               before "initialize" do
                 @rescued = true
               end
-            end
-          end
 
-          let :app_init do
-            Proc.new do
               source :posts do
               end
             end

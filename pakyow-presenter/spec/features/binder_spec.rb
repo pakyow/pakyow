@@ -7,7 +7,7 @@ RSpec.describe "binding data via presenter, with a binder" do
     include Pakyow::Support::SafeStringHelpers
   end
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       binder :post do
         def title
@@ -45,7 +45,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binder defines parts" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         binder :post do
           def title
@@ -71,7 +71,7 @@ RSpec.describe "binding data via presenter, with a binder" do
         Pakyow::Presenter::View.new("<div binding=\"post\"><h1 binding=\"title\" style=\"background: blue; color: green\">title goes here</h1><p binding=\"body\">body goes here</p></div>")
       end
 
-      let :app_init do
+      let :app_def do
         Proc.new do
           binder :post do
             def title
@@ -94,7 +94,7 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "part modifies the current value of the content" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           binder :post do
             def title
@@ -113,7 +113,7 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "view includes parts" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           binder :post do
             def title
@@ -144,7 +144,7 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "view excludes parts" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           binder :post do
             def title
@@ -175,7 +175,7 @@ RSpec.describe "binding data via presenter, with a binder" do
     end
 
     context "binder defines parts, but not content" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           binder :post do
             def title
@@ -228,7 +228,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding tries to build a url" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         resource :posts, "/posts" do
           show do; end
@@ -267,7 +267,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding tries to make a string safe" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         resource :posts, "/posts" do
           show do; end
@@ -288,7 +288,7 @@ RSpec.describe "binding data via presenter, with a binder" do
   end
 
   context "binding wraps a falsey value" do
-    let :app_init do
+    let :app_def do
       Proc.new {
         resource :posts, "/posts" do
           show do; end

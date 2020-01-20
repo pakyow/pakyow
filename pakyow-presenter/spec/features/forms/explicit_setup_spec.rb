@@ -39,7 +39,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             create do; end
@@ -82,7 +82,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             create do; end
@@ -134,7 +134,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             update do; end
@@ -186,7 +186,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             replace do; end
@@ -238,7 +238,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             delete do; end
@@ -280,7 +280,7 @@ RSpec.describe "setting up a form explicitly via presenter" do
     end
 
     context "matching route is found" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             create do; end

@@ -62,7 +62,7 @@ RSpec.describe "sqlite source", sqlite: true do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts, primary_id: false, timestamps: false do
           primary_id
@@ -107,7 +107,7 @@ RSpec.describe "sqlite source", sqlite: true do
 
     include_context "app"
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         source :posts, primary_id: false, timestamps: false do
           primary_id
@@ -161,7 +161,7 @@ RSpec.describe "sqlite source", sqlite: true do
       schema(:posts)[0][1]
     end
 
-    let :app_init do
+    let :app_def do
       context = self
 
       Proc.new do

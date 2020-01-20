@@ -166,7 +166,7 @@ RSpec.describe "view versioning via presenter" do
       :test
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/versioning/multiple-without-default" do
           render :post do
@@ -208,7 +208,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "when the used version is missing" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/versioning/multiple-without-default" do
             render :post do
@@ -252,7 +252,7 @@ RSpec.describe "view versioning via presenter" do
       :test
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/versioning/versioned-props-unversioned-scope" do
           render :post do
@@ -295,7 +295,7 @@ RSpec.describe "view versioning via presenter" do
       :test
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/versioning/versioned-props-versioned-scope" do
           render :post do
@@ -344,7 +344,7 @@ RSpec.describe "view versioning via presenter" do
       :test
     end
 
-    let :app_init do
+    let :app_def do
       local = self
       Proc.new do
         presenter "/presentation/versioning/multiple-without-default" do
@@ -362,7 +362,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "match is not found" do
-      let :app_init do
+      let :app_def do
         local = self
         Proc.new do
           presenter "/presentation/versioning/multiple-without-default" do
@@ -385,7 +385,7 @@ RSpec.describe "view versioning via presenter" do
       :test
     end
 
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/versioning/multiple-with-default" do
           render :post do
@@ -435,7 +435,7 @@ RSpec.describe "view versioning via presenter" do
     end
 
     context "using versions during presentation" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           presenter "/presentation/versioning/presented" do
             render :post do
@@ -495,7 +495,7 @@ RSpec.describe "view versioning via presenter" do
 
     context "data is empty" do
       context "empty version exists" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             presenter "/presentation/versioning/empty" do
               render :post do
@@ -538,7 +538,7 @@ RSpec.describe "view versioning via presenter" do
       end
 
       context "empty version exists after the binding" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             presenter "/presentation/versioning/empty-last" do
               render :post do
@@ -581,7 +581,7 @@ RSpec.describe "view versioning via presenter" do
       end
 
       context "empty version does not exist" do
-        let :app_init do
+        let :app_def do
           Proc.new do
             presenter "/presentation/versioning/sans-empty" do
               render :post do

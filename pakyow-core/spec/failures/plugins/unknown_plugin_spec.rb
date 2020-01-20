@@ -7,25 +7,24 @@ RSpec.describe "failure caused by plugging an unknown plugin" do
 
   include_context "app"
 
-  let :autorun do
-    false
-  end
+  let(:app_def) {
+    Proc.new {
+      plug :foo, at: "/"
+    }
+  }
 
-  it "reports the failure" do
-    expect {
-      Pakyow.app :test_foo do
-        plug :foo, at: "/"
-      end
-    }.to raise_error(Pakyow::UnknownPlugin) do |error|
-      expect(error.message).to eq("`foo' is not a known plugin")
-      expect(error.contextual_message).to eq(
-        <<~MESSAGE
-          Try using one of these available plugins:
+  let(:allow_application_rescues) { true }
 
-            - :testable
+  it "reports the failure after boot" do
+    expect(Pakyow.app(:test).rescued?).to be(true)
+    expect(Pakyow.app(:test).rescued.message).to eq("`foo' is not a known plugin")
+    expect(Pakyow.app(:test).rescued.contextual_message).to eq(
+      <<~MESSAGE
+        Try using one of these available plugins:
 
-        MESSAGE
-      )
-    end
+          - :testable
+
+      MESSAGE
+    )
   end
 end

@@ -12,8 +12,12 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            unless ancestors.include?(Plugin)
-              after "initialize", "initialize.presenter", priority: :high do
+            if ancestors.include?(Plugin)
+              after "load" do
+                load_frontend
+              end
+            else
+              after "load", "load.presenter" do
                 templates << Pakyow::Presenter::Templates.new(
                   :default,
                   config.presenter.path,
@@ -26,17 +30,11 @@ module Pakyow
 
                 templates << Pakyow::Presenter::Templates.new(:errors, File.join(File.expand_path("../../../../", __FILE__), "views", "errors"))
               end
-
-              after "load.plugins" do
-                # Load plugin frontend after the app so that app has priority.
-                #
-                @plugs.each(&:load_frontend)
-              end
             end
 
             # Build presenter classes for compound components.
             #
-            after "initialize", priority: :high do
+            after "load" do
               templates.each do |template_definitions|
                 template_definitions.each do |template|
                   template.object.each_significant_node(:component, descend: true) do |node|

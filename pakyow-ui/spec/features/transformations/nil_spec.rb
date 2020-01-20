@@ -2,7 +2,7 @@ RSpec.describe "presenting data in a view that previously presented a nil value"
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf
@@ -47,7 +47,7 @@ RSpec.describe "presenting a nil value in a view that previously presented data"
   include_context "app"
   include_context "websocket intercept"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         disable_protection :csrf

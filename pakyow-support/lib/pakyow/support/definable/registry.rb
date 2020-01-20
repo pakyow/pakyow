@@ -55,7 +55,11 @@ module Pakyow
           name, *args = build_final_args(name, *args, **opts)
 
           if found = find(name)
-            found.class_eval(&block); found
+            if block_given?
+              found.class_eval(&block)
+            end
+
+            found
           else
             defined = @object.make(*object_type_namespace, name, *args, &block)
             register(name, defined, priority: priority)

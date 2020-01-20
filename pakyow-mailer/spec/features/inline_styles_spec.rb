@@ -6,7 +6,7 @@ RSpec.describe "inlining styles" do
   end
 
   context "mailing with presenter" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         controller "/mail" do
           get "/send" do

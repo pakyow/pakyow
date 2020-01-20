@@ -36,11 +36,11 @@ RSpec.configure do |spec_config|
   end
 
   spec_config.before do
-    @default_app_def = Proc.new do
-      Pakyow.after "configure" do
-        config.data.connections.sql[:default] = "sqlite::memory"
-      end
+    Pakyow.configure do
+      config.data.connections.sql[:default] = "sqlite::memory"
+    end
 
+    @default_app_def = Proc.new do
       configure do
         config.presenter.path = File.join(File.expand_path("../", __FILE__), "features/support/views")
       end

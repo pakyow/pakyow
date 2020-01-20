@@ -6,7 +6,7 @@ module Pakyow
   class Plugin
     # @api private
     class State
-      def initialize(plugin, path: plugin.class.plugin_path)
+      def initialize(plugin, path: plugin.plugin_path)
         @plugin, @path = plugin, path
       end
 

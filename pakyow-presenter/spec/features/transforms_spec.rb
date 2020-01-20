@@ -2,7 +2,7 @@ RSpec.describe "attaching transforms to a presenter" do
   include_context "app"
 
   context "render is attached to the view as a whole" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/transforms" do
           render do
@@ -22,7 +22,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render is attached to node block that returns a versioned view" do
-    let :app_init do
+    let :app_def do
       local = self
       Proc.new do
         presenter "/presentation/transforms" do
@@ -53,7 +53,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render is attached to a node block that returns a view" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/transforms" do
           render node: -> { find(:post) } do
@@ -73,7 +73,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render is attached to a node block that returns another object" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/transforms" do
           render node: -> { :foo } do
@@ -108,7 +108,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render is attached to a binding" do
-    let :app_init do
+    let :app_def do
       local = self
       Proc.new do
         presenter "/presentation/transforms" do
@@ -131,7 +131,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render is attached to a channeled binding" do
-    let :app_init do
+    let :app_def do
       local = self
       Proc.new do
         presenter "/presentation/transforms/channeled" do
@@ -232,7 +232,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "multiple renders attached to the same node" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/transforms" do
           render node: -> { find(:post) } do
@@ -270,7 +270,7 @@ RSpec.describe "attaching transforms to a presenter" do
   end
 
   context "render attached to a node within a channeled binding" do
-    let :app_init do
+    let :app_def do
       Proc.new do
         presenter "/presentation/transforms/nested-within-channeled" do
           render "post:foo" do

@@ -13,13 +13,7 @@ module Pakyow
             apply_extension do
               build do |view, app:|
                 if head = view.head
-                  packs = app.packs_for_view(view)
-
-                  if app.is_a?(Plugin)
-                    packs = app.parent.packs_for_view(view).concat(packs)
-                  end
-
-                  packs.uniq { |pack|
+                  (app.top.class.packs_for_view(view) + app.class.packs_for_view(view)).uniq { |pack|
                     pack.public_path
                   }.each do |pack|
                     if pack.javascripts?

@@ -29,8 +29,8 @@ module Pakyow
 
           # Create a dynamic helper that allows plugin helpers to be called in context of a specific plug.
           #
-          on "initialize" do
-            self.class.register_helper :passive, Module.new {
+          on "setup" do
+            register_helper :passive, Module.new {
               Pakyow.plugins.keys.map.each do |plugin_name|
                 define_method plugin_name do |plug = :default|
                   app.plugs.send(plugin_name, plug).helper_caller(
@@ -43,14 +43,9 @@ module Pakyow
             }
           end
 
-          # Setting priority to low gives the app a chance to do any pre-loading
-          # that might affect how plugins are setup.
-          #
-          after "initialize", "load.plugins", priority: :low do
-            @plugs = Plugin::Lookup.new([])
-
-            self.class.__plugs.each do |plug|
-              if self.class.includes_framework?(:presenter)
+          after "setup" do
+            __plugs.each do |plug|
+              if includes_framework?(:presenter)
                 require "pakyow/plugin/helpers/presenter/rendering"
                 plug.register_helper :passive, Plugin::Helpers::Presenter::Rendering
               end
@@ -58,42 +53,15 @@ module Pakyow
               # Include frameworks from app.
               #
               plug.include_frameworks(
-                *self.class.config.loaded_frameworks
+                *config.loaded_frameworks
               )
-
-              # Copy settings from the app config.
-              #
-              plug.config.instance_variable_set(
-                :@__settings, config.__settings.deep_dup.merge(plug.config.__settings)
-              )
-
-              # Copy defaults from the app config.
-              #
-              plug.config.instance_variable_set(
-                :@__defaults, config.__defaults.deep_dup.merge(plug.config.__defaults)
-              )
-
-              # Copy groups from the app config.
-              #
-              plug.config.instance_variable_set(
-                :@__groups, config.__groups.deep_dup.merge(plug.config.__groups)
-              )
-
-              # Override config values that require a specific value.
-              #
-              full_name = [plug.plugin_name]
-              unless plug.object_name.namespace.parts.last == :default
-                full_name << plug.object_name.namespace.parts.last
-              end
-
-              plug.config.name = full_name.join("_").to_sym
 
               # Create a dynamic helper that allows plugin helpers to be called in context of a specific plug.
               #
               plug.register_helper :passive, Module.new {
                 Pakyow.plugins.keys.map.each do |plugin_name|
                   define_method plugin_name do |instance_name = :default|
-                    app.parent.plugs.send(plugin_name, instance_name).helper_caller(
+                    app.top.plugs.send(plugin_name, instance_name).helper_caller(
                       app.class.included_helper_context(self),
                       @connection,
                       self
@@ -102,6 +70,14 @@ module Pakyow
                 end
               }
 
+              plug.setup
+            end
+          end
+
+          after "initialize", "initialize.plugins" do
+            @plugs = Plugin::Lookup.new([])
+
+            self.class.__plugs.each do |plug|
               plug_instance = plug.new(self)
 
               # Register the plug as an action in the app's pipeline.
@@ -122,8 +98,6 @@ module Pakyow
         end
 
         class_methods do
-          attr_reader :__plugs
-
           def plug(plugin_name, at: "/", as: :default, &block)
             plugin_name = plugin_name.to_sym
 
@@ -133,7 +107,7 @@ module Pakyow
               )
             end
 
-            plug = plugin.make(*object_name.namespace.parts, plugin_name, as, "plug", mount_path: at)
+            plug = plugin.make(*object_name.namespace.parts, plugin_name, as, "plug", mount_path: at, parent: self)
             plug.isolate(isolated(:Connection))
             plug.class_eval(&block) if block
 

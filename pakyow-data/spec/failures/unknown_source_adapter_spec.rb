@@ -1,7 +1,7 @@
 RSpec.describe "defining a source for an unknown adapter" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       source :posts, adapter: :foo do; end
     end

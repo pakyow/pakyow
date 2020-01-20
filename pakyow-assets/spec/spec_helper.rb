@@ -23,7 +23,7 @@ RSpec.configure do |spec_config|
         config.root = File.expand_path("../support/app", __FILE__)
       end
 
-      define_method :pakyow_js_version do
+      define_singleton_method :pakyow_js_version do
         $latest_pakyow_js
       end
 

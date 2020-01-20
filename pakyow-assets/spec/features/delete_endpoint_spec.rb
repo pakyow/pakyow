@@ -1,7 +1,7 @@
 RSpec.describe "including components defined on a delete endpoint" do
   include_context "app"
 
-  let :app_init do
+  let :app_def do
     Proc.new do
       resource :posts, "/posts" do
         show do

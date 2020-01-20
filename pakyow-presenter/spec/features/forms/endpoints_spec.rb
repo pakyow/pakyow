@@ -3,7 +3,7 @@ RSpec.describe "form endpoints" do
 
   context "form is rendered from resource new" do
     context "resource create endpoint exists" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/presentation/forms/endpoints/posts" do
             new do
@@ -23,7 +23,7 @@ RSpec.describe "form endpoints" do
     end
 
     context "resource create endpoint does not exist" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/presentation/forms/endpoints/posts" do
             new do
@@ -40,7 +40,7 @@ RSpec.describe "form endpoints" do
     end
 
     context "form explicitly defines an endpoint" do
-      let :app_init do
+      let :app_def do
         Proc.new do
           resource :posts, "/presentation/forms/endpoints/explicit/posts" do
             new do
@@ -67,7 +67,7 @@ RSpec.describe "form endpoints" do
 
   context "form is rendered from resource edit" do
     context "resource update endpoint exists" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/presentation/forms/endpoints/posts" do
             edit do
@@ -88,7 +88,7 @@ RSpec.describe "form endpoints" do
     end
 
     context "resource update endpoint does not exist" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/presentation/forms/endpoints/posts" do
             edit do
@@ -105,7 +105,7 @@ RSpec.describe "form endpoints" do
     end
 
     context "form explicitly defines an endpoint" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/presentation/forms/endpoints/explicit/posts" do
             edit do
@@ -139,7 +139,7 @@ RSpec.describe "form endpoints" do
     end
 
     context "create endpoint is defined for the binding" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           resource :posts, "/posts" do
             create do
@@ -158,7 +158,7 @@ RSpec.describe "form endpoints" do
     context "object is exposed for the form" do
       context "object has an id" do
         context "resource update route exists" do
-          let :app_init do
+          let :app_def do
             Proc.new {
               resource :posts, "/posts" do
                 update do
@@ -181,7 +181,7 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_init do
+            let :app_def do
               Proc.new {
                 resource :posts, "/posts" do
                   update do
@@ -209,7 +209,7 @@ RSpec.describe "form endpoints" do
         end
 
         context "resource update route does not exist" do
-          let :app_init do
+          let :app_def do
             Proc.new {
               controller do
                 get "/presentation/forms/endpoints" do
@@ -226,7 +226,7 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_init do
+            let :app_def do
               Proc.new {
                 controller do
                   get "/presentation/forms/endpoints" do
@@ -251,7 +251,7 @@ RSpec.describe "form endpoints" do
 
       context "object does not have an id" do
         context "resource create route exists" do
-          let :app_init do
+          let :app_def do
             Proc.new {
               resource :posts, "/posts" do
                 create do
@@ -273,7 +273,7 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_init do
+            let :app_def do
               Proc.new {
                 resource :posts, "/posts" do
                   create do
@@ -301,7 +301,7 @@ RSpec.describe "form endpoints" do
         end
 
         context "resource create route does not exist" do
-          let :app_init do
+          let :app_def do
             Proc.new {
               controller do
                 get "/presentation/forms/endpoints" do
@@ -318,7 +318,7 @@ RSpec.describe "form endpoints" do
           end
 
           context "form explicitly defines an endpoint" do
-            let :app_init do
+            let :app_def do
               Proc.new {
                 controller do
                   get "/presentation/forms/endpoints" do
@@ -343,7 +343,7 @@ RSpec.describe "form endpoints" do
     end
 
     context "form explicitly defines an endpoint" do
-      let :app_init do
+      let :app_def do
         Proc.new {
           controller :explicit do
             post :endpoint, "/explicit"
@@ -358,7 +358,7 @@ RSpec.describe "form endpoints" do
       end
 
       context "endpoint is contextual" do
-        let :app_init do
+        let :app_def do
           Proc.new {
             resource :posts, "/posts" do
               resource :comments, "/comments" do
@@ -393,7 +393,7 @@ RSpec.describe "form endpoints" do
       end
 
       context "endpoint is a delete endpoint" do
-        let :app_init do
+        let :app_def do
           Proc.new {
             controller :explicit do
               delete :endpoint, "/explicit"
@@ -410,7 +410,7 @@ RSpec.describe "form endpoints" do
       end
 
       context "endpoint cannot be found" do
-        let :app_init do
+        let :app_def do
           Proc.new {
           }
         end

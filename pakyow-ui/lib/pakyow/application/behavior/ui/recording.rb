@@ -16,14 +16,18 @@ module Pakyow
             if is_a?(Plugin)
               # Look for the presenter in the plugin first, falling back to the app.
               #
-              ui_presenter_class = parent.ui_presenters.find { |klass|
+              ui_presenter_class = parent.class.ui_presenters.find { |klass|
                 klass.ancestors.include?(presenter_class)
               }
             end
 
-            ui_presenter_class ||= @ui_presenters.find { |klass|
+            ui_presenter_class ||= self.class.ui_presenters.find { |klass|
               klass.ancestors.include?(presenter_class)
             }
+          end
+
+          class_methods do
+            attr_reader :ui_presenters
           end
 
           apply_extension do
@@ -31,7 +35,7 @@ module Pakyow
             # These subclasses will be used when performing a ui presentation instead
             # of the original presenter, but they'll behave identically!
             #
-            after "initialize" do
+            before "setup.presenter.renders" do
               @ui_presenters = [isolated(:Presenter)].concat(
                 presenters.each.to_a
               ).concat(
@@ -41,10 +45,6 @@ module Pakyow
                   include Pakyow::UI::Recordable
                 end
               }
-            end
-
-            class_eval do
-              attr_reader :ui_presenters
             end
           end
         end

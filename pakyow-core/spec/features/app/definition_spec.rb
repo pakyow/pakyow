@@ -64,41 +64,4 @@ RSpec.describe "defining an app" do
       end
     end
   end
-
-  context "when app is extended at runtime" do
-    let :app_init do
-      Proc.new do
-        config.name = "runtime-test"
-      end
-    end
-
-    it "is extended with the new state" do
-      res = call
-      expect(res[0]).to eq(200)
-      expect(res[2]).to eq("runtime-test")
-    end
-
-    it "does not modify the class-level state" do
-      expect(app.config.name).to eq("define-test")
-    end
-  end
-
-  context "app block defines a method" do
-    let :app_def do
-      Proc.new do; end
-    end
-
-    let :app_init do
-      Proc.new do
-        def call(connection)
-          connection.body = StringIO.new("called")
-          connection.halt
-        end
-      end
-    end
-
-    it "defines the method" do
-      expect(call("/")[2]).to eq("called")
-    end
-  end
 end
