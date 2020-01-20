@@ -36,9 +36,9 @@ module Pakyow
 
           module MySQL
             TYPES = {
-              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint(20)"),
+              bignum: Sql::TYPES[:bignum].meta(native_type: "bigint"),
               decimal: Sql::TYPES[:decimal].meta(column_type: :decimal, native_type: ->(meta) { "decimal(#{meta[:size][0]},#{meta[:size][1]})" }),
-              integer: Sql::TYPES[:integer].meta(native_type: "int(11)"),
+              integer: Sql::TYPES[:integer].meta(native_type: "int"),
               string: Sql::TYPES[:string].meta(native_type: "varchar(255)"),
               text: Sql::TYPES[:text].meta(column_type: :string)
             }.freeze

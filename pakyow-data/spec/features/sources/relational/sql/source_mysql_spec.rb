@@ -91,7 +91,7 @@ RSpec.describe "mysql source", mysql: true do
     end
 
     it "is a bignum integer" do
-      expect(column[:db_type]).to eq("bigint(20)")
+      expect(column[:db_type]).to eq("bigint")
       expect(column[:type]).to eq(:integer)
     end
 
@@ -145,7 +145,7 @@ RSpec.describe "mysql source", mysql: true do
     end
 
     it "is a bignum integer" do
-      expect(column[:db_type]).to eq("bigint(20)")
+      expect(column[:db_type]).to eq("bigint")
       expect(column[:type]).to eq(:integer)
     end
 
@@ -239,7 +239,7 @@ RSpec.describe "mysql source", mysql: true do
       end
 
       it "is the correct db type" do
-        expect(column[:db_type]).to eq("int(11)")
+        expect(column[:db_type]).to eq("int")
       end
     end
 
@@ -289,7 +289,7 @@ RSpec.describe "mysql source", mysql: true do
       end
 
       it "is the correct db type" do
-        expect(column[:db_type]).to eq("bigint(20)")
+        expect(column[:db_type]).to eq("bigint")
       end
     end
   end
