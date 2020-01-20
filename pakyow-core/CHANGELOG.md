@@ -2,6 +2,10 @@
 
   * `chg` **Setup applications on the class rather than the instance.**
 
+    *Related links:*
+    - [Pull Request #380][pr-380]
+    - [Commit 92f795e][92f795e]
+
   * `chg` **Build endpoints explicitly, relative to app mount path.**
 
     *Related links:*
@@ -131,6 +135,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-380]: https://github.com/pakyow/pakyow/pull/380
 [pr-374]: https://github.com/pakyow/pakyow/pull/374
 [pr-348]: https://github.com/pakyow/pakyow/pull/348
 [pr-347]: https://github.com/pakyow/pakyow/pull/347
@@ -146,6 +151,7 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[92f795e]: https://github.com/pakyow/pakyow/commit/92f795e88e1ca3106394d0581d51f17cf1a883ad
 [649cb97]: https://github.com/pakyow/pakyow/commit/649cb97cf747c3ab6bbe197ba63c554f4d05a76e
 [d7ef764]: https://github.com/pakyow/pakyow/commit/d7ef76437f4c8948ac09d9b5be77bc02a44caa06
 [641fd12]: https://github.com/pakyow/pakyow/commit/641fd12b5abee8558621caf857cec47d38814c8a

@@ -3,6 +3,10 @@
   * `chg` **Remove the ability to define definable state on instances.**
     - This caused namespace collisions when defining state with the same name on two instances.
 
+    *Related links:*
+    - [Pull Request #380][pr-380]
+    - [Commit 9ef221b][9ef221b]
+
   * `add` **Introduce config deprecations.**
 
     *Related links:*
@@ -182,6 +186,7 @@
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
+[9ef221b]: https://github.com/pakyow/pakyow/commit/9ef221bcd671f37700d123fe852d0b316216f0d8
 [59d983b]: https://github.com/pakyow/pakyow/commit/59d983b3cc31fd92d4ed8616f25c9a20d15da27b
 [d410904]: https://github.com/pakyow/pakyow/commit/d4109047797e8e5d7f4233fe61a42ed472c96cd7
 [3edf137]: https://github.com/pakyow/pakyow/commit/3edf1372869b4a49c4ad83cebc8eb55023f91278
