@@ -79,8 +79,10 @@ module Pakyow
               end
 
               def drop!
-                if File.exist?(@connection.opts[:path])
-                  FileUtils.rm(@connection.opts[:path])
+                opts = Sql.build_opts(@connection.opts)
+
+                if File.exist?(opts[:path])
+                  FileUtils.rm(opts[:path])
                 end
               end
 

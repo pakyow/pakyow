@@ -1,3 +1,12 @@
+# v1.1.0
+
+  * `fix` **Fix an issue finalizing sqlite databases.**
+
+    *Related links:*
+    - [Pull Request #381][pr-381]
+
+[pr-381]: https://github.com/pakyow/pakyow/pull/381
+
 # v1.0.2
 
   * `fix` **Data types are now compatible with `dry-types` v1.2.0.**
