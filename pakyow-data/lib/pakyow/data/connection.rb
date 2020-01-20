@@ -17,12 +17,8 @@ module Pakyow
 
       def initialize(type:, name:, string: nil, opts: nil, logger: nil)
         @type, @name, @logger, @failure = type, name, logger, nil
-
-        @opts = self.class.adapter(type).build_opts(
-          opts.is_a?(Hash) ? opts : self.class.parse_connection_string(string)
-        )
-
-        @adapter = self.class.adapter(@type).new(@opts, logger: @logger)
+        @opts = opts.is_a?(Hash) ? opts : self.class.parse_connection_string(string)
+        @adapter = self.class.adapter(@type).new(self.class.adapter(type).build_opts(@opts.dup), logger: @logger)
       rescue ConnectionError, MissingAdapter => error
         error.context = self
         @failure = error
