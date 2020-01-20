@@ -23,6 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "oga", "~> 2.15"
+  spec.add_dependency "oga", "~> 3.2"
   spec.add_dependency "redcarpet", "~> 3.5"
 end
