@@ -13,6 +13,45 @@ module Pakyow
           class_state :session_object, inheritable: true
           class_state :session_options, inheritable: true
 
+          configurable :session do
+            setting :enabled, true
+            setting :object, :cookie
+
+            configurable :cookie do
+              setting :name do
+                "#{config.name}.session"
+              end
+
+              setting :domain do
+                Pakyow.config.cookies.domain
+              end
+
+              setting :path do
+                Pakyow.config.cookies.path
+              end
+
+              setting :max_age do
+                Pakyow.config.cookies.max_age
+              end
+
+              setting :expires do
+                Pakyow.config.cookies.expires
+              end
+
+              setting :secure do
+                Pakyow.config.cookies.secure
+              end
+
+              setting :http_only do
+                true
+              end
+
+              setting :same_site do
+                Pakyow.config.cookies.same_site
+              end
+            end
+          end
+
           after "configure" do
             if config.session.enabled
               require "pakyow/application/connection/session/#{config.session.object}"

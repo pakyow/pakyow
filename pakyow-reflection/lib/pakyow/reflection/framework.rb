@@ -3,10 +3,13 @@
 require "pakyow/framework"
 require "pakyow/support/inflector"
 
-require "pakyow/application/config/reflection"
 require "pakyow/application/behavior/reflection/reflecting"
 require "pakyow/presenter/renderer/behavior/reflection/install_form_metadata"
+
 require "pakyow/reflection/mirror"
+require "pakyow/reflection/builders/source"
+require "pakyow/reflection/builders/endpoints"
+require "pakyow/reflection/builders/actions"
 
 module Pakyow
   module Reflection
@@ -14,7 +17,20 @@ module Pakyow
       def boot
         return if object.ancestors.include?(Plugin)
 
-        object.include Application::Config::Reflection
+        object.configurable :reflection do
+          setting :builders, {
+            source: Pakyow::Reflection::Builders::Source,
+            endpoints: Pakyow::Reflection::Builders::Endpoints,
+            actions: Pakyow::Reflection::Builders::Actions
+          }
+
+          setting :ignored_template_stores, [:errors]
+
+          configurable :data do
+            setting :connection, :default
+          end
+        end
+
         object.include Application::Behavior::Reflection::Reflecting
 
         object.isolated :Renderer do

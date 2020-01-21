@@ -5,13 +5,12 @@ RSpec.describe Pakyow::Application::Behavior::Assets::Types::Sass do
 
   let :config do
     app_class = Class.new(Pakyow::Application) do
-      include Pakyow::Application::Config::Assets
-
       configurable :presenter do
         setting :path, ""
       end
     end
 
+    app_class.include_framework :assets
     app_class.config.assets
   end
 
