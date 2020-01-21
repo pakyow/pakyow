@@ -336,5 +336,61 @@ RSpec.shared_examples :source_results do
         expect(data.posts.by_id(1).as_special.one.__getobj__).to be_instance_of(Test::Objects::Special)
       end
     end
+
+    describe "partial results" do
+      let :app_def do
+        super_def = super()
+
+        Proc.new do
+          class_eval(&super_def)
+
+          source :other_posts do
+            table :posts
+
+            primary_id
+          end
+        end
+      end
+
+      before do
+        data.posts.create(title: "foo")
+      end
+
+      let(:values) {
+        data.other_posts.first.to_h
+      }
+
+      it "does not include columns not defined as attributes" do
+        expect(values.keys).to eq(%w(id created_at updated_at))
+      end
+
+      context "including partial results" do
+        let :app_def do
+          super_def = super()
+
+          Proc.new do
+            class_eval(&super_def)
+
+            source :comments do
+              primary_id
+              belongs_to :post
+              belongs_to :other_post
+            end
+          end
+        end
+
+        before do
+          data.comments.create(other_post_id: data.posts.first.id)
+        end
+
+        let(:values) {
+          data.comments.including(:other_post).first[:other_post].to_h
+        }
+
+        it "does not include columns not defined as attributes" do
+          expect(values.keys).to eq(%w(id created_at updated_at))
+        end
+      end
+    end
   end
 end

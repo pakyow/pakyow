@@ -261,7 +261,13 @@ module Pakyow
         private
 
         def finalize(result)
-          wrap(typecast(result))
+          wrap(typecast(filter_to_attributes(result)))
+        end
+
+        def filter_to_attributes(result)
+          result.keep_if { |key, _|
+            self.class.attributes.include?(key) || self.class.association_with_name?(key) || key[0..1] == "__"
+          }
         end
 
         def typecast(result)
@@ -308,7 +314,7 @@ module Pakyow
                   )
                 )
               else
-                aliased = SecureRandom.hex(4).to_sym
+                aliased = "__#{SecureRandom.hex(4)}".to_sym
 
                 if joining_source.class.container.connection == combined_source.class.container.connection
                   # Optimize with joins.

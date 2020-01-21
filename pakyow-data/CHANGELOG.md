@@ -1,10 +1,16 @@
-# v1.1.0
+# v1.1.0 (unreleased)
+
+  * `fix` **Only include values for attributes in relational results.**
+
+    *Related links:*
+    - [Pull Request #382][pr-382]
 
   * `fix` **Fix an issue finalizing sqlite databases.**
 
     *Related links:*
     - [Pull Request #381][pr-381]
 
+[pr-382]: https://github.com/pakyow/pakyow/pull/382
 [pr-381]: https://github.com/pakyow/pakyow/pull/381
 
 # v1.0.2
