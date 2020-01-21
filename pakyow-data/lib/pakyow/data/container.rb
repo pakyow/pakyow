@@ -145,7 +145,7 @@ module Pakyow
               source.attribute(
                 association.foreign_key_field,
                 association.foreign_key_type,
-                foreign_key: association.associated_source_name
+                foreign_key: association.associated_source.dataset_table
               )
             end
           end
