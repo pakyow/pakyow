@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Build config classes for configurable objects.**
+
   * `chg` **Support passing the isolable context through makeable.**
 
     *Related links:*

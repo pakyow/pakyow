@@ -88,6 +88,10 @@ RSpec.configure do |config|
     allow(Process).to receive(:exit!)
     allow(Pakyow).to receive(:trap)
 
+    cache_config(Pakyow)
+    cache_config(Pakyow::Application) if defined?(Pakyow::Application)
+    cache_config(Pakyow::Plugin) if defined?(Pakyow::Plugin)
+
     if defined?(Pakyow::Processes::Environment)
       allow(Pakyow::Processes::Environment).to receive(:trap)
     end
@@ -122,7 +126,11 @@ RSpec.configure do |config|
       end
     end
 
-    [:@port, :@host, :@logger, :@app, :@output, :@deprecator].each do |ivar|
+    reset_config(Pakyow::Plugin) if defined?(Pakyow::Plugin)
+    reset_config(Pakyow::Application) if defined?(Pakyow::Application)
+    reset_config(Pakyow)
+
+    [:@port, :@host, :@logger, :@app, :@output, :@deprecator, :@config].each do |ivar|
       if Pakyow.instance_variable_defined?(ivar)
         Pakyow.remove_instance_variable(ivar)
       end
@@ -150,14 +158,63 @@ RSpec.configure do |config|
     end
   end
 
+  def cache_config(object)
+    config = if object.respond_to?(:__settings)
+      object
+    elsif object.respond_to?(:__config)
+      object.__config
+    end
+
+    if config
+      @config_defaults_cache ||= {}
+      @config_blocks_cache ||= {}
+      @config_blocks_cache[config.name] ||= {}
+      @config_defaults_cache[config.name] ||= {}
+
+      config.__settings.each_value do |setting|
+        @config_defaults_cache[config.name][setting.name] = setting.instance_variable_get(:@default).deep_dup
+        @config_blocks_cache[config.name][setting.name] = setting.instance_variable_get(:@block).deep_dup
+      end
+
+      config.__groups.each_value do |group|
+        cache_config(group)
+      end
+    end
+  end
+
+  def reset_config(object)
+    config = if object.respond_to?(:__settings)
+      object
+    elsif object.respond_to?(:__config)
+      object.__config
+    end
+
+    if config
+      config.__settings.each_value do |setting|
+        setting.instance_variable_set(:@default, @config_defaults_cache.dig(config.name, setting.name))
+        setting.instance_variable_set(:@block, @config_blocks_cache.dig(config.name, setting.name))
+
+        if setting.instance_variable_defined?(:@value)
+          setting.remove_instance_variable(:@value)
+        end
+      end
+
+      config.__groups.each_value do |group|
+        reset_config(group)
+      end
+    end
+  end
+
   def remove_constants(constant_names, within = Object)
     constant_names.each do |constant_name|
       if within.const_defined?(constant_name, false)
         constant = within.const_get(constant_name, false)
+
         if constant.respond_to?(:constants)
           remove_constants(constant.constants(false), constant.respond_to?(:remove_const, true) ? constant : within)
-          within.__send__(:remove_const, constant_name)
         end
+
+        within.__send__(:remove_const, constant_name)
       end
     end
   end
