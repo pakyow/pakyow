@@ -5,7 +5,7 @@ RSpec.describe "configuring an instance of a configurable class" do
     Class.new do
       include Pakyow::Support::Configurable
 
-      def name
+      def self.name
         :configurable
       end
     end
@@ -21,11 +21,11 @@ RSpec.describe "configuring an instance of a configurable class" do
       object.configure do
         config.foo = :foo_global
         config.name = self.name
-        config.setting :extended, true
       end
 
+      object.configure!
+
       @instance = object.new
-      @instance.configure!
     end
 
     it "inherits default values when unspecified" do
@@ -38,10 +38,6 @@ RSpec.describe "configuring an instance of a configurable class" do
 
     it "provides access to the object being configured" do
       expect(@instance.config.name).to eq(:configurable)
-    end
-
-    it "allows new settings to be defined during configuration" do
-      expect(@instance.config.extended).to eq(true)
     end
 
     it "does not modify the original default value" do
@@ -69,8 +65,9 @@ RSpec.describe "configuring an instance of a configurable class" do
         config.baz = :baz_production
       end
 
+      object.configure! :development
+
       @instance = object.new
-      @instance.configure! :development
     end
 
     it "applies the global configuration" do
@@ -105,8 +102,9 @@ RSpec.describe "configuring an instance of a configurable class" do
         config.bar = :bar_development
       end
 
+      object.configure! :development
+
       @instance = object.new
-      @instance.configure! :development
     end
 
     it "uses the default values for the environment" do
@@ -126,13 +124,14 @@ RSpec.describe "configuring an instance of a configurable class" do
     before do
       object.setting :foo, :foo_parent
       object.setting :bar, :bar_parent
+      object.configure!
 
       subclass = Class.new(object)
       subclass.setting :bar, :bar_subclass
       subclass.setting :baz, :baz_subclass
+      subclass.configure!
 
       @instance = subclass.new
-      @instance.configure!
     end
 
     it "inherits settings from the parent class" do
@@ -150,6 +149,74 @@ RSpec.describe "configuring an instance of a configurable class" do
     it "does not modify values in the parent class" do
       expect(object.config.foo).to eq(:foo_parent)
       expect(object.config.bar).to eq(:bar_parent)
+    end
+  end
+
+  describe "changing a setting on the class" do
+    before do
+      object.setting :foo, :foo
+      object.configure!
+
+      existing_instance
+      existing_instance_with_access.config.foo
+
+      object.config.foo = :bar
+    end
+
+    let(:existing_instance_with_access) {
+      object.new
+    }
+
+    let(:existing_instance) {
+      object.new
+    }
+
+    let(:new_instance) {
+      object.new
+    }
+
+    it "is inherited by new instances" do
+      expect(new_instance.config.foo).to eq(:bar)
+    end
+
+    it "reflects the change on existing instances that have not accessed the setting" do
+      expect(existing_instance.config.foo).to eq(:bar)
+    end
+
+    it "does not reflect the change on existing instances that have accessed the setting" do
+      expect(existing_instance_with_access.config.foo).to eq(:foo)
+    end
+  end
+
+  describe "adding a group to the class" do
+    before do
+      object.configurable :foo do
+        setting :bar, :bar
+      end
+
+      object.configure!
+
+      existing_instance
+
+      object.configurable :bar do
+        setting :baz, :baz
+      end
+    end
+
+    let(:existing_instance) {
+      object.new
+    }
+
+    let(:new_instance) {
+      object.new
+    }
+
+    it "is inherited by new instances" do
+      expect(new_instance.config.bar.baz).to eq(:baz)
+    end
+
+    it "is available to existing instances" do
+      expect(new_instance.config.bar.baz).to eq(:baz)
     end
   end
 end

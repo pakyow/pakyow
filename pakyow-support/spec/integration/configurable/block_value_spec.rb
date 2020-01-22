@@ -20,8 +20,9 @@ RSpec.describe "setting a block as a value" do
       end
     end
 
+    object.configure!
+
     @instance = object.new
-    @instance.configure!
   end
 
   it "sets the value" do

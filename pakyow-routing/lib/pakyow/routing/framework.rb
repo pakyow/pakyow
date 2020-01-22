@@ -9,7 +9,6 @@ require "pakyow/routing/helpers/exposures"
 require "pakyow/application/actions/routing/respond_missing"
 require "pakyow/application/behavior/routing/definition"
 
-require "pakyow/security/config"
 require "pakyow/security/behavior/disabling"
 require "pakyow/security/behavior/helpers"
 require "pakyow/security/behavior/insecure"
@@ -117,11 +116,29 @@ module Pakyow
           require "pakyow/support/message_verifier"
           handle Support::MessageVerifier::TamperedMessage, as: :forbidden
 
-          include Security::Config
           include Security::Behavior::Disabling
           include Security::Behavior::Helpers
           include Security::Behavior::Insecure
           include Security::Behavior::Pipeline
+
+          configurable :security do
+            configurable :csrf do
+              setting :protection, {}
+              setting :origin_whitelist, []
+              setting :param, :"pw-authenticity-token"
+            end
+          end
+
+          require "pakyow/security/csrf/verify_same_origin"
+          require "pakyow/security/csrf/verify_authenticity_token"
+
+          config.security.csrf.protection = {
+            origin: Security::CSRF::VerifySameOrigin.new(
+              origin_whitelist: config.security.csrf.origin_whitelist
+            ),
+
+            authenticity: Security::CSRF::VerifyAuthenticityToken.new({}),
+          }
         end
       end
     end

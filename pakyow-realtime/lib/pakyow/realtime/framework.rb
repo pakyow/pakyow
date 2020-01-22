@@ -6,7 +6,6 @@ require "pakyow/application/helpers/realtime/broadcasting"
 require "pakyow/application/helpers/realtime/subscriptions"
 require "pakyow/application/helpers/realtime/socket"
 
-require "pakyow/application/config/realtime"
 require "pakyow/application/behavior/realtime/handling"
 require "pakyow/application/behavior/realtime/serialization"
 require "pakyow/application/behavior/realtime/server"
@@ -29,7 +28,33 @@ module Pakyow
           #
           events :join, :leave
 
-          include Application::Config::Realtime
+          configurable :realtime do
+            setting :adapter_settings, {}
+            setting :path, "pw-socket"
+            setting :endpoint
+            setting :log_initial_request, false
+
+            defaults :production do
+              setting :adapter_settings do
+                { key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/") }
+              end
+
+              setting :log_initial_request, true
+            end
+
+            configurable :timeouts do
+              # Give sockets 60 seconds to connect before cleaning up their state.
+              #
+              setting :initial, 60
+
+              # When a socket disconnects, keep state around for 24 hours before
+              # cleaning up. This improves the user experience in cases such as
+              # when a browser window is left open on a sleeping computer.
+              #
+              setting :disconnect, 24 * 60 * 60
+            end
+          end
+
           include Application::Behavior::Realtime::Server
           include Application::Behavior::Realtime::Handling
           include Application::Behavior::Realtime::Silencing

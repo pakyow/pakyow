@@ -5,7 +5,6 @@ require "pakyow/framework"
 require "pakyow/support/indifferentize"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/application/config/presenter"
 require "pakyow/application/behavior/presenter/error_rendering"
 require "pakyow/application/behavior/presenter/exposures"
 require "pakyow/application/behavior/presenter/implicit_rendering"
@@ -153,7 +152,19 @@ module Pakyow
             action Application::Actions::Presenter::AutoRender
           end
 
-          include Application::Config::Presenter
+          configurable :presenter do
+            setting :path do
+              File.join(config.root, "frontend")
+            end
+
+            setting :embed_authenticity_token, true
+            setting :version
+
+            configurable :features do
+              setting :streaming, false
+            end
+          end
+
           include Application::Behavior::Presenter::ErrorRendering
           include Application::Behavior::Presenter::Exposures
           include Application::Behavior::Presenter::Initializing

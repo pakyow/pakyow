@@ -7,9 +7,9 @@ require "pakyow/support/definable"
 require "pakyow/support/hookable"
 require "pakyow/support/inspectable"
 require "pakyow/support/makeable"
+require "pakyow/support/path_version"
 require "pakyow/support/pipeline"
 
-require "pakyow/application/config"
 require "pakyow/application/connection"
 require "pakyow/application/behavior/sessions"
 require "pakyow/application/behavior/endpoints"
@@ -116,11 +116,30 @@ module Pakyow
     events :setup, :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
 
     include Support::Configurable
+
+    setting :name, :pakyow
+    setting :version
+
+    setting :root do
+      Pakyow.config.root
+    end
+
+    setting :src do
+      File.join(config.root, "backend")
+    end
+
+    setting :lib do
+      File.join(config.src, "lib")
+    end
+
+    configurable :tasks do
+      setting :prelaunch, []
+    end
+
     include Support::Definable
     include Support::Makeable
     include Support::Pipeline
 
-    include Config
     include Behavior::Sessions
     include Behavior::Endpoints
     include Behavior::Frameworks

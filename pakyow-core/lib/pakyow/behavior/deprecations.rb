@@ -91,6 +91,18 @@ module Pakyow
       end
 
       apply_extension do
+        configurable :deprecator do
+          setting :reporter, :log
+
+          defaults :test do
+            setting :reporter, :warn
+          end
+
+          defaults :production do
+            setting :reporter, :null
+          end
+        end
+
         after "setup" do
           @deprecator = setup_deprecator(config.deprecator.reporter)
 
