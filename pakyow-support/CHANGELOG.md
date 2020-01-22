@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support ignores in the global deprecator.**
+
+    *Related links:*
+    - [Pull Request #385][pr-385]
+
   * `chg` **Support passing the isolable context through makeable.**
 
     *Related links:*
@@ -166,6 +171,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-385]: https://github.com/pakyow/pakyow/pull/385
 [pr-384]: https://github.com/pakyow/pakyow/pull/384
 [pr-379]: https://github.com/pakyow/pakyow/pull/379
 [pr-378]: https://github.com/pakyow/pakyow/pull/378
