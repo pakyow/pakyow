@@ -176,6 +176,22 @@ RSpec.describe Pakyow::Support::Makeable do
           end
         end
       end
+
+      describe "passing the context explicitly" do
+        let(:result) {
+          object.make(*namespaces, name, context: context, **kwargs, &block)
+        }
+
+        let(:context) {
+          Class.new
+        }
+
+        it "uses isolable correctly" do
+          expect(object).to receive(:isolate).with(object, as: :foo, context: context, namespace: []).and_call_original
+
+          result
+        end
+      end
     end
   end
 

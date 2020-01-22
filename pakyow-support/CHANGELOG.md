@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support passing the isolable context through makeable.**
+
+    *Related links:*
+    - [Pull Request #384][pr-384]
+
   * `chg` **Remove the ability to define definable state on instances.**
     - This caused namespace collisions when defining state with the same name on two instances.
 
@@ -161,6 +166,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-384]: https://github.com/pakyow/pakyow/pull/384
 [pr-379]: https://github.com/pakyow/pakyow/pull/379
 [pr-378]: https://github.com/pakyow/pakyow/pull/378
 [pr-377]: https://github.com/pakyow/pakyow/pull/377

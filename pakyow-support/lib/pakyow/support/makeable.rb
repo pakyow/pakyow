@@ -67,12 +67,12 @@ module Pakyow
         # @param set_const [Boolean] If true, a constant will be defined for the new object.
         # @param kwargs [Hash] Additional keys/values to set as instance variables on the new object.
         #
-        def make(*namespace, object_name, set_const: true, **kwargs, &block)
+        def make(*namespace, object_name, set_const: true, context: nil, **kwargs, &block)
           object = isolate(
             self,
             as: object_name,
             namespace: namespace,
-            context: set_const ? TOPLEVEL_BINDING.receiver.class : nil
+            context: context || (set_const ? TOPLEVEL_BINDING.receiver.class : nil)
           ) do
             if block_given?
               instance_variable_set(:@source_location, block.source_location)
