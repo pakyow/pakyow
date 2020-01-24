@@ -1,5 +1,4 @@
 require "pakyow/cli"
-require "pakyow/task"
 
 RSpec.describe Pakyow::CLI do
   let(:feedback) {
@@ -42,8 +41,8 @@ RSpec.describe Pakyow::CLI do
       end
     end
 
-    let :tasks do
-      Pakyow::CLI.new(feedback: feedback).tasks
+    let :commands do
+      Pakyow::CLI.new(feedback: feedback).commands
     end
 
     context "within the project folder" do
@@ -52,8 +51,8 @@ RSpec.describe Pakyow::CLI do
       end
 
       it "only includes project commands" do
-        expect(tasks.length).to be(1)
-        expect(tasks[0].description).to eq("local")
+        expect(commands.length).to be(1)
+        expect(commands[0].description).to eq("local")
       end
     end
 
@@ -63,13 +62,13 @@ RSpec.describe Pakyow::CLI do
       end
 
       it "only includes global commands" do
-        expect(tasks.length).to be(1)
-        expect(tasks[0].description).to eq("global")
+        expect(commands.length).to be(1)
+        expect(commands[0].description).to eq("global")
       end
     end
   end
 
-  describe "failing tasks" do
+  describe "failing commands" do
     context "stdout is a tty" do
       before do
         allow($stdout).to receive(:tty?).and_return(true)
@@ -151,8 +150,8 @@ RSpec.describe Pakyow::CLI do
       end
     end
 
-    let :tasks do
-      Pakyow::CLI.new(feedback: feedback).send(:tasks)
+    let :commands do
+      Pakyow::CLI.new(feedback: feedback).send(:commands)
     end
 
     it "retains the argument order" do

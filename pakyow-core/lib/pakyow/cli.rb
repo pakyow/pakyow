@@ -49,34 +49,34 @@ module Pakyow
       load_commands
 
       if command
-        task = find_task(command)
+        callable_command = find_callable_command(command)
 
-        if task.cli?
+        if callable_command.cli?
           options[:cli] = self
         end
 
-        if task.app?
-          setup_app_task(options)
+        if callable_command.app?
+          setup_options_for_app_command(options)
         elsif options.key?(:app)
           @feedback.warn("app was ignored by command #{Support::CLI.style.blue(command)}")
         end
 
         if options[:help]
-          @feedback.usage(task)
+          @feedback.usage(callable_command)
         else
-          call_task(task, argv, options)
+          call_command(callable_command, argv, options)
         end
       else
-        @feedback.help(tasks)
+        @feedback.help(commands)
       end
     rescue StandardError => error
       if @feedback.tty?
         @feedback.error(error)
 
-        if task
-          @feedback.usage(task, describe: false)
+        if callable_command
+          @feedback.usage(callable_command, describe: false)
         else
-          @feedback.help(tasks, header: false)
+          @feedback.help(commands, header: false)
         end
 
         ::Process.exit(0)
@@ -85,14 +85,14 @@ module Pakyow
       end
     end
 
-    def tasks
-      @tasks ||= Pakyow.tasks.select { |task|
+    def commands
+      @commands ||= Pakyow.tasks.select { |task|
         (task.global? && !project_context?) || (!task.global? && project_context?)
       }
     end
 
-    def find_task(command)
-      tasks.find { |task| task.name == command } || handle_unknown_command(command)
+    def find_callable_command(command)
+      commands.find { |callable_command| callable_command.name == command } || handle_unknown_command(command)
     end
 
     private def project_context?
@@ -125,7 +125,7 @@ module Pakyow
       end
     end
 
-    private def setup_app_task(options)
+    private def setup_options_for_app_command(options)
       Pakyow.boot
 
       options[:app] = if options.key?(:app)
@@ -139,15 +139,15 @@ module Pakyow
       end
     end
 
-    private def call_task(task, argv, options)
-      task.call(
+    private def call_command(callable_command, argv, options)
+      callable_command.call(
         options.select { |key, _|
-          (key == :app && task.app?) || key != :app
+          (key == :app && callable_command.app?) || key != :app
         }, argv.dup
       )
     rescue InvalidInput => error
       @feedback.error(error)
-      @feedback.usage(task, describe: false)
+      @feedback.usage(callable_command, describe: false)
     end
   end
 
