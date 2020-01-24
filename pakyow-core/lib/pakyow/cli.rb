@@ -102,17 +102,7 @@ module Pakyow
     private def load_commands
       require "rake"
 
-      load_tasks
-    end
-
-    private def load_tasks
-      require "pakyow/task"
-      Pakyow.tasks.clear
-      Pakyow.config.tasks.paths.uniq.each_with_object(Pakyow.tasks) do |tasks_path, tasks|
-        Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
-          tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
-        end
-      end
+      Pakyow.load_tasks
     end
 
     private def handle_unknown_command(command)
