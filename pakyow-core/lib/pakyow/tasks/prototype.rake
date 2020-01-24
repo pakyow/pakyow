@@ -3,7 +3,7 @@
 desc "Boot the prototype"
 option :host, "The host the server runs on (default: #{Pakyow.config.server.host})"
 option :port, "The port the server runs on (default: #{Pakyow.config.server.port})"
-task :prototype, [:host, :port] do |_, args|
+task :prototype, [:host, :port, :env] do |_, args|
   if host = args[:host]
     Pakyow.config.server.host = host
   end
