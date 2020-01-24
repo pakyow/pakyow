@@ -11,7 +11,8 @@ module Pakyow
   # @api private
   class CLI
     require "pakyow/cli/feedback"
-    require "pakyow/cli/parser"
+    require "pakyow/cli/parsers/command"
+    require "pakyow/cli/parsers/global"
 
     class InvalidInput < Error; end
 
@@ -33,7 +34,7 @@ module Pakyow
 
       @feedback = feedback
 
-      parser = Parser.new(argv)
+      parser = Parsers::Global.new(argv)
       command = parser.command
       options = parser.options
 
@@ -58,6 +59,7 @@ module Pakyow
         if callable_command.app?
           setup_options_for_app_command(options)
         elsif options.key?(:app)
+          options.delete(:app)
           @feedback.warn("app was ignored by command #{Support::CLI.style.blue(command)}")
         end
 
@@ -139,15 +141,13 @@ module Pakyow
       end
     end
 
-    private def call_command(callable_command, argv, options)
-      callable_command.call(
-        options.select { |key, _|
-          (key == :app && callable_command.app?) || key != :app
-        }, argv.dup
-      )
+    private def call_command(command, argv, options)
+      parser = Parsers::Command.new(command, argv.dup)
+      options = options.merge(parser.options)
+      command.call({}, [], **options)
     rescue InvalidInput => error
       @feedback.error(error)
-      @feedback.usage(callable_command, describe: false)
+      @feedback.usage(command, describe: false)
     end
   end
 

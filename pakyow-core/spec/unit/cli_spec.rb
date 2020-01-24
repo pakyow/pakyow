@@ -75,7 +75,7 @@ RSpec.describe Pakyow::CLI do
       end
 
       it "does not raise the error" do
-        expect(Pakyow::CLI::Parser).to receive(:new).and_raise(RuntimeError)
+        expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
 
         expect {
           Pakyow::CLI.new([], feedback: feedback)
@@ -89,7 +89,7 @@ RSpec.describe Pakyow::CLI do
       end
 
       it "raises the error" do
-        expect(Pakyow::CLI::Parser).to receive(:new).and_raise(RuntimeError)
+        expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
 
         expect {
           Pakyow::CLI.new([], feedback: feedback)
@@ -108,7 +108,7 @@ RSpec.describe Pakyow::CLI do
 
     context "command fails" do
       before do
-        expect(Pakyow::CLI::Parser).to receive(:new).and_raise(RuntimeError)
+        expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
       end
 
       it "indicates failure" do
@@ -147,6 +147,31 @@ RSpec.describe Pakyow::CLI do
 
         def call(*args)
         end
+
+        def flags
+          {}
+        end
+
+        def options
+          {
+            bar: {},
+            qux: {}
+          }
+        end
+
+        def arguments
+          [:foo]
+        end
+
+        def short_names
+          {
+            bar: "b"
+          }
+        end
+
+        def args
+          [:foo, :bar, :qux]
+        end
       end
     end
 
@@ -155,8 +180,8 @@ RSpec.describe Pakyow::CLI do
     end
 
     it "retains the argument order" do
-      expect_any_instance_of(task).to receive(:call) do |_, _, args|
-        expect(args).to eq(["foo_value", "-b", "bar_value", "--qux", "qux_value"])
+      expect_any_instance_of(task).to receive(:call) do |_, _, **args|
+        expect(**args).to eq({:env=>"development", :foo=>"foo_value", :bar=>"bar_value", :qux=>"qux_value"})
       end
 
       Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value"], feedback: feedback)
