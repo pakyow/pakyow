@@ -27,7 +27,7 @@ module Pakyow
         @output.puts "  #{Support::CLI.style.yellow("›")} #{warning}"
       end
 
-      def help(tasks, header: true)
+      def help(commands, header: true)
         if header
           @output.puts Support::CLI.style.blue.bold("Pakyow Command Line Interface")
         end
@@ -38,14 +38,14 @@ module Pakyow
 
         @output.puts
         @output.puts Support::CLI.style.bold("COMMANDS")
-        longest_name_length = tasks.map(&:name).max_by(&:length).length
-        tasks.sort { |a, b| a.name <=> b.name }.each do |task|
-          @output.puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
+        longest_name_length = commands.map(&:name).max_by(&:length).length
+        commands.sort { |a, b| a.name <=> b.name }.each do |command|
+          @output.puts "  #{command.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(command.description) + "\n"
         end
       end
 
-      def usage(task, describe: true)
-        @output.puts task.help(describe: describe)
+      def usage(command, describe: true)
+        @output.puts command.help(describe: describe)
       end
     end
   end

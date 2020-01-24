@@ -8,9 +8,9 @@ task :help, [:command, :cli] do |_, args|
     when "help"
       args[:cli].feedback.usage(self)
     else
-      args[:cli].feedback.usage(args[:cli].find_task(args[:command]))
+      args[:cli].feedback.usage(args[:cli].find_callable_command(args[:command]))
     end
   else
-    args[:cli].feedback.help(args[:cli].tasks)
+    args[:cli].feedback.help(args[:cli].commands)
   end
 end

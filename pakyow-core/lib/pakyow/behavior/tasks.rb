@@ -2,6 +2,8 @@
 
 require "pakyow/support/extension"
 
+require "pakyow/task"
+
 module Pakyow
   module Behavior
     module Tasks
