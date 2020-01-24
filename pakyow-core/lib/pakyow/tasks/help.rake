@@ -2,16 +2,15 @@
 
 desc "Get help for the command line interface"
 argument :command, "The command to get help for"
-task :help, [:command] do |_, args|
-  # FIXME: Without this condition the command runs infinitely. The reason isn't
-  # obvious and needs to be revisited at some point in the future.
-  #
-  unless defined?($helping) && $helping
-    $helping = true
-    if args.key?(:command)
-      Pakyow::CLI.new([args[:command], "-h"])
+task :help, [:command, :cli] do |_, args|
+  if args.key?(:command)
+    case args[:command]
+    when "help"
+      args[:cli].feedback.usage(self)
     else
-      Pakyow::CLI.new(["-h"])
+      args[:cli].feedback.usage(args[:cli].find_task(args[:command]))
     end
+  else
+    args[:cli].feedback.help(args[:cli].tasks)
   end
 end

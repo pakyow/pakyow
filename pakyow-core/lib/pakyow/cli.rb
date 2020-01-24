@@ -52,6 +52,10 @@ module Pakyow
       if command
         task = find_task(command)
 
+        if task.cli?
+          options[:cli] = self
+        end
+
         if task.app?
           setup_app_task(options)
         elsif options.key?(:app)
@@ -86,6 +90,10 @@ module Pakyow
       @tasks ||= Pakyow.legacy_tasks.select { |task|
         (task.global? && !project_context?) || (!task.global? && project_context?)
       }
+    end
+
+    def find_task(command)
+      tasks.find { |task| task.name == command } || handle_unknown_command(command)
     end
 
     private def project_context?
@@ -152,10 +160,6 @@ module Pakyow
           tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
         end
       end
-    end
-
-    private def find_task(command)
-      tasks.find { |task| task.name == command } || handle_unknown_command(command)
     end
 
     private def handle_unknown_command(command)

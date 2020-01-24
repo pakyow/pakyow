@@ -119,6 +119,10 @@ module Pakyow
       args.include?(:app)
     end
 
+    def cli?
+      args.include?(:cli)
+    end
+
     def global?
       @global == true
     end
