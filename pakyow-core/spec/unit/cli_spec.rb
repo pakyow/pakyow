@@ -5,8 +5,8 @@ RSpec.describe Pakyow::CLI do
   describe "requiring config/environment.rb" do
     before do
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
     end
 
     context "within the project folder" do
@@ -36,8 +36,8 @@ RSpec.describe Pakyow::CLI do
 
   describe "presenting commands based on context" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
 
       allow(Pakyow).to receive(:tasks) do
@@ -78,8 +78,8 @@ RSpec.describe Pakyow::CLI do
   describe "failing tasks" do
     before do
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
     end
 
     context "stdout is a tty" do
@@ -114,8 +114,8 @@ RSpec.describe Pakyow::CLI do
   describe "exit codes" do
     before do
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
     end
 
     context "command succeeds" do
@@ -139,8 +139,8 @@ RSpec.describe Pakyow::CLI do
 
   describe "calling the task" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:puts_error)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
+      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
       allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
 
       allow(Pakyow).to receive(:tasks) do

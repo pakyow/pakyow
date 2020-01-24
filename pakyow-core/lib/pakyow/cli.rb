@@ -26,11 +26,12 @@ module Pakyow
       }.freeze
     }.freeze
 
-    def initialize(argv = ARGV.dup)
+    def initialize(argv = ARGV.dup, output = $stdout)
       @argv = argv
       @options = {}
       @task = nil
       @command = nil
+      @output = output
 
       parse_global_options
 
@@ -45,16 +46,16 @@ module Pakyow
         set_app_for_command
         call_task
       else
-        puts_help
+        output_help
       end
     rescue StandardError => error
-      if $stdout.isatty
-        puts_error(error)
+      if @output.isatty
+        output_error(error)
 
         if @task
-          puts @task.help(describe: false)
+          @output.puts @task.help(describe: false)
         else
-          puts_help(banner: false)
+          output_help(banner: false)
         end
 
         ::Process.exit(0)
@@ -184,56 +185,56 @@ module Pakyow
           raise "couldn't find an app to run this command for"
         end
       elsif @options.key?(:app)
-        puts_warning "app was ignored by command #{Support::CLI.style.blue(@command)}"
+        output_warning "app was ignored by command #{Support::CLI.style.blue(@command)}"
       end
     end
 
     def call_task
       if @options[:help]
-        puts @task.help
+        @output.puts @task.help
       else
         @task.call(@options.select { |key, _|
           (key == :app && @task.app?) || key != :app
         }, @argv.dup)
       end
     rescue InvalidInput => error
-      puts_error(error)
-      puts @task.help(describe: false)
+      output_error(error)
+      @output.puts @task.help(describe: false)
     end
 
-    def puts_error(error)
-      puts "  #{Support::CLI.style.red("›")} #{Error::CLIFormatter.format(error.to_s)}"
+    def output_error(error)
+      @output.puts "  #{Support::CLI.style.red("›")} #{Error::CLIFormatter.format(error.to_s)}"
     end
 
-    def puts_warning(warning)
-      puts "  #{Support::CLI.style.yellow("›")} #{warning}"
+    def output_warning(warning)
+      @output.puts "  #{Support::CLI.style.yellow("›")} #{warning}"
     end
 
-    def puts_help(banner: true)
+    def output_help(banner: true)
       if banner
-        puts_banner
+        output_banner
       end
 
-      puts_usage
-      puts_commands
+      output_usage
+      output_commands
     end
 
-    def puts_banner
-      puts Support::CLI.style.blue.bold("Pakyow Command Line Interface")
+    def output_banner
+      @output.puts Support::CLI.style.blue.bold("Pakyow Command Line Interface")
     end
 
-    def puts_usage
-      puts
-      puts Support::CLI.style.bold("USAGE")
-      puts "  $ pakyow [COMMAND]"
+    def output_usage
+      @output.puts
+      @output.puts Support::CLI.style.bold("USAGE")
+      @output.puts "  $ pakyow [COMMAND]"
     end
 
-    def puts_commands
-      puts
-      puts Support::CLI.style.bold("COMMANDS")
+    def output_commands
+      @output.puts
+      @output.puts Support::CLI.style.bold("COMMANDS")
       longest_name_length = tasks.map(&:name).max_by(&:length).length
       tasks.sort { |a, b| a.name <=> b.name }.each do |task|
-        puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
+        @output.puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
       end
     end
   end
