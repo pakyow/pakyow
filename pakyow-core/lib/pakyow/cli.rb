@@ -28,25 +28,41 @@ module Pakyow
       }.freeze
     }.freeze
 
-    def initialize(argv = ARGV.dup, feedback: Feedback.new($stdout))
-      @argv = argv
-      @options = {}
-      @task = nil
-      @command = nil
+    attr_reader :feedback
+
+    def initialize(argv = ARGV, feedback: Feedback.new($stdout))
+      argv = argv.dup
+
       @feedback = feedback
 
-      parse_global_options
+      command = parse_command(argv)
+      options = parse_global_options!(argv)
+
+      case command
+      when "prototype"
+        options[:env] = :prototype
+      end
 
       if project_context?
-        setup_environment
+        Pakyow.setup(env: options[:env])
       end
 
       load_tasks
 
-      if @command
-        find_task_for_command
-        set_app_for_command
-        call_task
+      if command
+        task = find_task(command)
+
+        if task.app?
+          setup_app_task(options)
+        elsif options.key?(:app)
+          @feedback.warn("app was ignored by command #{Support::CLI.style.blue(command)}")
+        end
+
+        if options[:help]
+          @feedback.usage(task)
+        else
+          call_task(task, argv, options)
+        end
       else
         @feedback.help(tasks)
       end
@@ -54,8 +70,8 @@ module Pakyow
       if @feedback.tty?
         @feedback.error(error)
 
-        if @task
-          @feedback.usage(@task, describe: false)
+        if task
+          @feedback.usage(task, describe: false)
         else
           @feedback.help(tasks, header: false)
         end
@@ -66,83 +82,69 @@ module Pakyow
       end
     end
 
-    private
-
-    def tasks(filter_by_context = true)
-      Pakyow.legacy_tasks.select { |task|
-        !filter_by_context || (task.global? && !project_context?) || (!task.global? && project_context?)
+    def tasks
+      @tasks ||= Pakyow.legacy_tasks.select { |task|
+        (task.global? && !project_context?) || (!task.global? && project_context?)
       }
     end
 
-    def project_context?
-      File.exist?(Pakyow.config.environment_path + ".rb")
+    private def project_context?
+      @project_context ||= File.exist?(Pakyow.config.environment_path + ".rb")
     end
 
-    def parse_global_options
-      parse_with_unknown_args do
+    private def parse_command(argv)
+      if argv.any? && !argv[0].start_with?("-")
+        argv.shift
+      else
+        nil
+      end
+    end
+
+    private def parse_global_options!(argv)
+      options = {}
+
+      parse_with_unknown_args!(argv) do
         OptionParser.new do |opts|
           opts.on("-eENV", "--env=ENV") do |e|
-            @options[:env] = e
+            options[:env] = e
           end
 
           opts.on("-aAPP", "--app=APP") do |a|
-            @options[:app] = a
+            options[:app] = a
           end
 
           opts.on("-h", "--help") do
-            @options[:help] = true
+            options[:help] = true
           end
         end
       end
 
-      case @command
-      when "prototype"
-        @options.delete(:env)
-      else
-        @options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
-      end
-
-      ENV["APP_ENV"] = ENV["RACK_ENV"] = @options[:env]
+      options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
+      ENV["APP_ENV"] = ENV["RACK_ENV"] = options[:env]
+      options
     end
 
-    def parse_with_unknown_args
-      parser, original, unparsed = yield, @argv.dup, Array.new
+    private def parse_with_unknown_args!(argv)
+      parser, original, unparsed = yield, argv.dup, Array.new
 
       begin
-        parser.order!(@argv) do |arg|
-          if @command
-            unparsed << arg
-          else
-            @command = arg
-          end
+        parser.order!(argv) do |arg|
+          unparsed << arg
         end
       rescue OptionParser::InvalidOption => error
         unparsed.concat(error.args); retry
       end
 
-      @argv = (original & @argv) + unparsed
+      argv.replace((original & argv) + unparsed)
     end
 
-    def setup_environment
-      Pakyow.setup(env: environment_to_setup)
-    end
-
-    def environment_to_setup
-      case @command
-      when "prototype"
-        :prototype
-      else
-        @options[:env]
-      end
-    end
-
-    def load_tasks
+    private def load_tasks
       require "rake"
 
       load_legacy_tasks
     end
 
-    def load_legacy_tasks
+    private def load_legacy_tasks
       require "pakyow/task"
       Pakyow.legacy_tasks.clear
       Pakyow.config.tasks.paths.uniq.each_with_object(Pakyow.legacy_tasks) do |tasks_path, tasks|
@@ -152,56 +154,53 @@ module Pakyow
       end
     end
 
-    def find_task_for_command
-      unless @task = tasks.find { |task| task.name == @command }
-        if task = tasks(false).find { |task| task.name == @command }
-          if task.global?
-            raise UnknownCommand.new_with_message(
-              :not_in_global_context,
-              command: @command
-            )
-          else
-            raise UnknownCommand.new_with_message(
-              :not_in_project_context,
-              command: @command
-            )
-          end
+    private def find_task(command)
+      tasks.find { |task| task.name == command } || handle_unknown_command(command)
+    end
+
+    private def handle_unknown_command(command)
+      if task = Pakyow.legacy_tasks.find { |task| task.name == command }
+        if task.global?
+          raise UnknownCommand.new_with_message(
+            :not_in_global_context,
+            command: command
+          )
         else
           raise UnknownCommand.new_with_message(
-            command: @command
+            :not_in_project_context,
+            command: command
           )
         end
-      end
-    end
-
-    def set_app_for_command
-      if @task.app?
-        Pakyow.boot
-        @options[:app] = if @options.key?(:app)
-          Pakyow.app(@options[:app]) || raise("`#{@options[:app]}' is not a known app")
-        elsif Pakyow.apps.count == 1
-          Pakyow.apps.first
-        elsif Pakyow.apps.count > 0
-          raise "multiple apps were found; please specify one with the --app option"
-        else
-          raise "couldn't find an app to run this command for"
-        end
-      elsif @options.key?(:app)
-        @feedback.warn("app was ignored by command #{Support::CLI.style.blue(@command)}")
-      end
-    end
-
-    def call_task
-      if @options[:help]
-        @feedback.usage(@task)
       else
-        @task.call(@options.select { |key, _|
-          (key == :app && @task.app?) || key != :app
-        }, @argv.dup)
+        raise UnknownCommand.new_with_message(
+          command: command
+        )
       end
+    end
+
+    private def setup_app_task(options)
+      Pakyow.boot
+
+      options[:app] = if options.key?(:app)
+        Pakyow.app(options[:app]) || raise("`#{options[:app]}' is not a known app")
+      elsif Pakyow.apps.count == 1
+        Pakyow.apps.first
+      elsif Pakyow.apps.count > 0
+        raise "multiple apps were found; please specify one with the --app option"
+      else
+        raise "couldn't find an app to run this command for"
+      end
+    end
+
+    private def call_task(task, argv, options)
+      task.call(
+        options.select { |key, _|
+          (key == :app && task.app?) || key != :app
+        }, argv.dup
+      )
     rescue InvalidInput => error
       @feedback.error(error)
-      @feedback.usage(@task, describe: false)
+      @feedback.usage(task, describe: false)
     end
   end
 
