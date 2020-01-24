@@ -33,14 +33,15 @@ module Pakyow
       end
     end
 
-    def call(options = {}, argv = [])
-      parse_options(argv, options)
-      parse_arguments(argv, options)
-      check_options(options)
+    def call(legacy_options = {}, legacy_argv = [], **options)
+      legacy_options = legacy_options.merge(options)
+      parse_options(legacy_argv, legacy_options)
+      parse_arguments(legacy_argv, legacy_options)
 
-      @rake.invoke(*args.map { |arg|
-        options[arg]
-      })
+      final_options = legacy_options
+
+      check_options(final_options)
+      @rake.invoke(*args.map { |arg| final_options[arg] })
     end
 
     def app?
@@ -119,7 +120,7 @@ module Pakyow
       sorted_arguments.each do |key, argument|
         if argv.any?
           options[key] = argv.shift
-        elsif argument[:required]
+        elsif argument[:required] && !options.include?(key)
           raise CLI::InvalidInput, "`#{key}' is a required argument"
         end
       end
