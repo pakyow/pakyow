@@ -13,6 +13,8 @@ module Pakyow
   #
   # @api private
   class CLI
+    require "pakyow/cli/feedback"
+
     class InvalidInput < Error; end
 
     GLOBAL_OPTIONS = {
@@ -26,12 +28,12 @@ module Pakyow
       }.freeze
     }.freeze
 
-    def initialize(argv = ARGV.dup, output = $stdout)
+    def initialize(argv = ARGV.dup, feedback: Feedback.new($stdout))
       @argv = argv
       @options = {}
       @task = nil
       @command = nil
-      @output = output
+      @feedback = feedback
 
       parse_global_options
 
@@ -46,16 +48,16 @@ module Pakyow
         set_app_for_command
         call_task
       else
-        output_help
+        @feedback.help(tasks)
       end
     rescue StandardError => error
-      if @output.isatty
-        output_error(error)
+      if @feedback.tty?
+        @feedback.error(error)
 
         if @task
-          @output.puts @task.help(describe: false)
+          @feedback.usage(@task, describe: false)
         else
-          output_help(banner: false)
+          @feedback.help(tasks, header: false)
         end
 
         ::Process.exit(0)
@@ -185,57 +187,21 @@ module Pakyow
           raise "couldn't find an app to run this command for"
         end
       elsif @options.key?(:app)
-        output_warning "app was ignored by command #{Support::CLI.style.blue(@command)}"
+        @feedback.warn("app was ignored by command #{Support::CLI.style.blue(@command)}")
       end
     end
 
     def call_task
       if @options[:help]
-        @output.puts @task.help
+        @feedback.usage(@task)
       else
         @task.call(@options.select { |key, _|
           (key == :app && @task.app?) || key != :app
         }, @argv.dup)
       end
     rescue InvalidInput => error
-      output_error(error)
-      @output.puts @task.help(describe: false)
-    end
-
-    def output_error(error)
-      @output.puts "  #{Support::CLI.style.red("›")} #{Error::CLIFormatter.format(error.to_s)}"
-    end
-
-    def output_warning(warning)
-      @output.puts "  #{Support::CLI.style.yellow("›")} #{warning}"
-    end
-
-    def output_help(banner: true)
-      if banner
-        output_banner
-      end
-
-      output_usage
-      output_commands
-    end
-
-    def output_banner
-      @output.puts Support::CLI.style.blue.bold("Pakyow Command Line Interface")
-    end
-
-    def output_usage
-      @output.puts
-      @output.puts Support::CLI.style.bold("USAGE")
-      @output.puts "  $ pakyow [COMMAND]"
-    end
-
-    def output_commands
-      @output.puts
-      @output.puts Support::CLI.style.bold("COMMANDS")
-      longest_name_length = tasks.map(&:name).max_by(&:length).length
-      tasks.sort { |a, b| a.name <=> b.name }.each do |task|
-        @output.puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
-      end
+      @feedback.error(error)
+      @feedback.usage(@task, describe: false)
     end
   end
 

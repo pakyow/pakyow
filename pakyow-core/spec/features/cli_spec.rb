@@ -216,7 +216,7 @@ RSpec.describe "command line interface" do
     # Run the command, capturing output.
     #
     @output = capture_stdout do
-      allow($stdout).to receive(:isatty).and_return(true)
+      allow($stdout).to receive(:tty?).and_return(true)
       original_argv = ARGV.dup
       ARGV.clear
       ARGV.concat([command].concat(argv).compact)
