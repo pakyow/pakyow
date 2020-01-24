@@ -146,6 +146,10 @@ RSpec.describe Pakyow::CLI do
           false
         end
 
+        def cli?
+          false
+        end
+
         def call(*args)
         end
       end
