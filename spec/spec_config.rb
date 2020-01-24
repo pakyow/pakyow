@@ -78,7 +78,7 @@ RSpec.configure do |config|
   end
 
   config.before do
-    allow($stdout).to receive(:isatty).and_return(true)
+    allow($stdout).to receive(:tty?).and_return(true)
 
     $original_constants = Object.constants
 

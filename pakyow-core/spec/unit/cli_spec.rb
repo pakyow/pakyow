@@ -2,13 +2,11 @@ require "pakyow/cli"
 require "pakyow/task"
 
 RSpec.describe Pakyow::CLI do
-  describe "requiring config/environment.rb" do
-    before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
-    end
+  let(:feedback) {
+    double(:feedback).as_null_object
+  }
 
+  describe "requiring config/environment.rb" do
     context "within the project folder" do
       before do
         allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
@@ -17,7 +15,7 @@ RSpec.describe Pakyow::CLI do
       it "loads the environment" do
         expect(Pakyow).to receive(:load)
 
-        Pakyow::CLI.new
+        Pakyow::CLI.new(feedback: feedback)
       end
     end
 
@@ -29,18 +27,16 @@ RSpec.describe Pakyow::CLI do
       it "does not load the environment" do
         expect(Pakyow).not_to receive(:load)
 
-        Pakyow::CLI.new
+        Pakyow::CLI.new(feedback: feedback)
       end
     end
   end
 
   describe "presenting commands based on context" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
-      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-
-      allow(Pakyow).to receive(:tasks) do
+      # TODO: Refactor to use new tasks.
+      #
+      allow(Pakyow).to receive(:legacy_tasks) do
         [].tap do |tasks|
           tasks << Pakyow::Task.new(description: "global", global: true)
           tasks << Pakyow::Task.new(description: "local", global: false)
@@ -49,7 +45,7 @@ RSpec.describe Pakyow::CLI do
     end
 
     let :tasks do
-      Pakyow::CLI.new.send(:tasks)
+      Pakyow::CLI.new(feedback: feedback).send(:tasks)
     end
 
     context "within the project folder" do
@@ -76,52 +72,40 @@ RSpec.describe Pakyow::CLI do
   end
 
   describe "failing tasks" do
-    before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
-    end
-
     context "stdout is a tty" do
       before do
-        allow($stdout).to receive(:isatty).and_return(true)
+        allow($stdout).to receive(:tty?).and_return(true)
       end
 
       it "does not raise the error" do
         expect_any_instance_of(Pakyow::CLI).to receive(:parse_global_options).and_raise(RuntimeError)
 
         expect {
-          Pakyow::CLI.new([])
+          Pakyow::CLI.new([], feedback: feedback)
         }.to_not raise_error
       end
     end
 
     context "stdout is not a tty" do
       before do
-        allow($stdout).to receive(:isatty).and_return(false)
+        allow(feedback).to receive(:tty?).and_return(false)
       end
 
       it "raises the error" do
         expect_any_instance_of(Pakyow::CLI).to receive(:parse_global_options).and_raise(RuntimeError)
 
         expect {
-          Pakyow::CLI.new([])
+          Pakyow::CLI.new([], feedback: feedback)
         }.to raise_error(RuntimeError)
       end
     end
   end
 
   describe "exit codes" do
-    before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
-    end
-
     context "command succeeds" do
       it "indicates success" do
         expect(::Process).not_to receive(:exit)
-        Pakyow::CLI.new([])
+        Pakyow::CLI.new([], feedback: feedback)
       end
     end
 
@@ -132,18 +116,16 @@ RSpec.describe Pakyow::CLI do
 
       it "indicates failure" do
         expect(::Process).to receive(:exit).with(0)
-        Pakyow::CLI.new([])
+        Pakyow::CLI.new([], feedback: feedback)
       end
     end
   end
 
   describe "calling the task" do
     before do
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_help)
-      allow_any_instance_of(Pakyow::CLI).to receive(:output_error)
-      allow_any_instance_of(Pakyow::CLI).to receive(:load_tasks)
-
-      allow(Pakyow).to receive(:tasks) do
+      # TODO: Refactor to use new tasks.
+      #
+      allow(Pakyow).to receive(:legacy_tasks) do
         [].tap do |tasks|
           tasks << task.new
         end
@@ -170,7 +152,7 @@ RSpec.describe Pakyow::CLI do
     end
 
     let :tasks do
-      Pakyow::CLI.new.send(:tasks)
+      Pakyow::CLI.new(feedback: feedback).send(:tasks)
     end
 
     it "retains the argument order" do
@@ -178,7 +160,7 @@ RSpec.describe Pakyow::CLI do
         expect(args).to eq(["foo_value", "-b", "bar_value", "--qux", "qux_value"])
       end
 
-      Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value"])
+      Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value"], feedback: feedback)
     end
   end
 end
