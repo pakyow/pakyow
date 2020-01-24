@@ -8,9 +8,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        # Legacy task implementation follows, which is deprecated and will be removed in v2.0.
-        #
-        class_state :legacy_tasks, default: []
+        class_state :tasks, default: []
       end
     end
   end
