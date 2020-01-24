@@ -296,7 +296,6 @@ module Pakyow
 
   extend Support::ClassState
   class_state :apps,        default: []
-  class_state :tasks,       default: []
   class_state :mounts,      default: []
   class_state :setups,      default: {}
   class_state :frameworks,  default: {}
@@ -432,6 +431,7 @@ module Pakyow
 
       performing :boot do
         # Tasks should only be available before boot.
+        # TODO: Move this into CLI-specific behavior once `unsafe` is removed.
         #
         @tasks = [] unless unsafe
 
@@ -516,18 +516,6 @@ module Pakyow
           StringIO.new("500 Low-Level Server Error")
         )
       )
-    end
-
-    # @api private
-    def load_tasks
-      require "rake"
-      require "pakyow/task"
-
-      @tasks = config.tasks.paths.uniq.each_with_object([]) do |tasks_path, tasks|
-        Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
-          tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
-        end
-      end
     end
 
     # @api private
