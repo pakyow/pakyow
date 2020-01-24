@@ -18,7 +18,7 @@ module Pakyow
     extend Forwardable
     def_delegators :@rake, :name
 
-    attr_reader :description
+    attr_reader :description, :arguments, :options, :flags, :short_names
 
     def initialize(namespace: [], description: nil, arguments: {}, options: {}, flags: {}, task_args: [], global: false, &block)
       @description, @arguments, @options, @flags, @global = description, arguments, options, flags, global
@@ -43,78 +43,6 @@ module Pakyow
       })
     end
 
-    def help(describe: true)
-      required_arguments = sorted_arguments.select { |_, argument|
-        argument[:required]
-      }.map { |key, _|
-        "[#{key.to_s.upcase}]"
-      }.join(" ")
-
-      required_options = sorted_options.select { |_, option|
-        option[:required]
-      }.map { |key, _|
-        "--#{key}=#{key}"
-      }.join(" ")
-
-      text = String.new
-
-      if describe
-        text << Support::CLI.style.blue.bold(@description) + "\n"
-      end
-
-      text += <<~HELP
-
-        #{Support::CLI.style.bold("USAGE")}
-          $ pakyow #{[name, required_arguments, required_options].reject(&:empty?).join(" ")}
-      HELP
-
-      if @arguments.any?
-        text += <<~HELP
-
-          #{Support::CLI.style.bold("ARGUMENTS")}
-        HELP
-
-        longest_length = @arguments.keys.map(&:to_s).max_by(&:length).length
-        sorted_arguments.each do |key, argument|
-          description = Support::CLI.style.yellow(argument[:description])
-          if argument[:required]
-            description += Support::CLI.style.red(" (required)")
-          end
-          text += "  #{key.upcase}".ljust(longest_length + 4) + description + "\n"
-        end
-      end
-
-      if @options.any?
-        text += <<~HELP
-
-          #{Support::CLI.style.bold("OPTIONS")}
-        HELP
-
-        longest_length = (@options.keys + @flags.keys).map(&:to_s).max_by(&:length).length
-        sorted_options_and_flags.each do |key, option|
-          description = Support::CLI.style.yellow(option[:description])
-
-          if option[:required]
-            description += Support::CLI.style.red(" (required)")
-          end
-
-          prefix = if @flags.key?(key)
-            "      --#{key}"
-          else
-            if @short_names.key?(key)
-              "  -#{key.to_s[0]}, --#{key}=#{key}"
-            else
-              "      --#{key}=#{key}"
-            end
-          end
-
-          text += prefix.ljust(longest_length * 2 + 11) + description + "\n"
-        end
-      end
-
-      text
-    end
-
     def app?
       args.include?(:app)
     end
@@ -125,6 +53,14 @@ module Pakyow
 
     def global?
       @global == true
+    end
+
+    def help(describe: true)
+      string = StringIO.new
+      feedback = CLI::Feedback.new(string)
+      feedback.usage(self, describe: describe)
+      string.rewind
+      string.read
     end
 
     private
