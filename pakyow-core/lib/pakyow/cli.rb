@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "fileutils"
-require "optparse"
-
 require "pakyow/support/cli/style"
 
 require "pakyow/error"
@@ -14,6 +11,7 @@ module Pakyow
   # @api private
   class CLI
     require "pakyow/cli/feedback"
+    require "pakyow/cli/parser"
 
     class InvalidInput < Error; end
 
@@ -35,8 +33,9 @@ module Pakyow
 
       @feedback = feedback
 
-      command = parse_command(argv)
-      options = parse_global_options!(argv)
+      parser = Parser.new(argv)
+      command = parser.command
+      options = parser.options
 
       case command
       when "prototype"
@@ -98,52 +97,6 @@ module Pakyow
 
     private def project_context?
       @project_context ||= File.exist?(Pakyow.config.environment_path + ".rb")
-    end
-
-    private def parse_command(argv)
-      if argv.any? && !argv[0].start_with?("-")
-        argv.shift
-      else
-        nil
-      end
-    end
-
-    private def parse_global_options!(argv)
-      options = {}
-
-      parse_with_unknown_args!(argv) do
-        OptionParser.new do |opts|
-          opts.on("-eENV", "--env=ENV") do |e|
-            options[:env] = e
-          end
-
-          opts.on("-aAPP", "--app=APP") do |a|
-            options[:app] = a
-          end
-
-          opts.on("-h", "--help") do
-            options[:help] = true
-          end
-        end
-      end
-
-      options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
-      ENV["APP_ENV"] = ENV["RACK_ENV"] = options[:env]
-      options
-    end
-
-    private def parse_with_unknown_args!(argv)
-      parser, original, unparsed = yield, argv.dup, Array.new
-
-      begin
-        parser.order!(argv) do |arg|
-          unparsed << arg
-        end
-      rescue OptionParser::InvalidOption => error
-        unparsed.concat(error.args); retry
-      end
-
-      argv.replace((original & argv) + unparsed)
     end
 
     private def load_commands
