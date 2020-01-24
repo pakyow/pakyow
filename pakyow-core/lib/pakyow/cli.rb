@@ -66,7 +66,7 @@ module Pakyow
     private
 
     def tasks(filter_by_context = true)
-      Pakyow.tasks.select { |task|
+      Pakyow.legacy_tasks.select { |task|
         !filter_by_context || (task.global? && !project_context?) || (!task.global? && project_context?)
       }
     end
@@ -134,7 +134,19 @@ module Pakyow
     end
 
     def load_tasks
-      Pakyow.load_tasks
+      require "rake"
+
+      load_legacy_tasks
+    end
+
+    def load_legacy_tasks
+      require "pakyow/task"
+      Pakyow.legacy_tasks.clear
+      Pakyow.config.tasks.paths.uniq.each_with_object(Pakyow.legacy_tasks) do |tasks_path, tasks|
+        Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
+          tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
+        end
+      end
     end
 
     def find_task_for_command
@@ -225,4 +237,7 @@ module Pakyow
       end
     end
   end
+
+  require "pakyow/behavior/tasks"
+  include Behavior::Tasks
 end
