@@ -34,9 +34,7 @@ RSpec.describe Pakyow::CLI do
 
   describe "presenting commands based on context" do
     before do
-      # TODO: Refactor to use new tasks.
-      #
-      allow(Pakyow).to receive(:legacy_tasks) do
+      allow(Pakyow).to receive(:tasks) do
         [].tap do |tasks|
           tasks << Pakyow::Task.new(description: "global", global: true)
           tasks << Pakyow::Task.new(description: "local", global: false)
@@ -123,9 +121,7 @@ RSpec.describe Pakyow::CLI do
 
   describe "calling the task" do
     before do
-      # TODO: Refactor to use new tasks.
-      #
-      allow(Pakyow).to receive(:legacy_tasks) do
+      allow(Pakyow).to receive(:tasks) do
         [].tap do |tasks|
           tasks << task.new
         end

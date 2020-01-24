@@ -47,7 +47,7 @@ module Pakyow
         Pakyow.setup(env: options[:env])
       end
 
-      load_tasks
+      load_commands
 
       if command
         task = find_task(command)
@@ -87,7 +87,7 @@ module Pakyow
     end
 
     def tasks
-      @tasks ||= Pakyow.legacy_tasks.select { |task|
+      @tasks ||= Pakyow.tasks.select { |task|
         (task.global? && !project_context?) || (!task.global? && project_context?)
       }
     end
@@ -146,16 +146,16 @@ module Pakyow
       argv.replace((original & argv) + unparsed)
     end
 
-    private def load_tasks
+    private def load_commands
       require "rake"
 
-      load_legacy_tasks
+      load_tasks
     end
 
-    private def load_legacy_tasks
+    private def load_tasks
       require "pakyow/task"
-      Pakyow.legacy_tasks.clear
-      Pakyow.config.tasks.paths.uniq.each_with_object(Pakyow.legacy_tasks) do |tasks_path, tasks|
+      Pakyow.tasks.clear
+      Pakyow.config.tasks.paths.uniq.each_with_object(Pakyow.tasks) do |tasks_path, tasks|
         Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
           tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
         end
@@ -163,7 +163,7 @@ module Pakyow
     end
 
     private def handle_unknown_command(command)
-      if task = Pakyow.legacy_tasks.find { |task| task.name == command }
+      if task = Pakyow.tasks.find { |task| task.name == command }
         if task.global?
           raise UnknownCommand.new_with_message(
             :not_in_global_context,
