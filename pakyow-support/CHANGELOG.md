@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Inspectable::uninspectable` for opting out of inspecting specific object state.**
+
   * `chg` **`Inspectable` objects now inspect all instance state by default.**
 
   * `chg` **Build config classes for configurable objects.**

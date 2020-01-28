@@ -90,4 +90,23 @@ RSpec.describe Pakyow::Support::Inspectable do
       expect(instance.inspect).to include("...")
     end
   end
+
+  describe "opting out of inspection" do
+    let(:inspectable) {
+      Class.new {
+        include Pakyow::Support::Inspectable
+        uninspectable :@ivar_one
+
+        def initialize
+          @ivar_one = :one
+          @ivar_two = :two
+        end
+      }
+    }
+
+    it "inspects" do
+      expect(instance.inspect).to include("@ivar_two=:two")
+      expect(instance.inspect).not_to include("@ivar_one=:one")
+    end
+  end
 end
