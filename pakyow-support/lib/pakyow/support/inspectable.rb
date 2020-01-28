@@ -53,8 +53,8 @@ module Pakyow
         if recursive_inspect?
           "#{inspection} ...>"
         else
-          prevent_inspect_recursion do
-            if self.class.__inspectables.any?
+          if self.class.__inspectables.any?
+            prevent_inspect_recursion do
               inspection << " " + self.class.__inspectables.map { |inspectable|
                 value = if inspectable.to_s.start_with?("@")
                   instance_variable_get(inspectable)
@@ -64,9 +64,11 @@ module Pakyow
 
                 "#{inspectable}=#{value.inspect}"
               }.join(", ")
-            end
 
-            inspection.strip << ">"
+              inspection.strip << ">"
+            end
+          else
+            super
           end
         end
       end

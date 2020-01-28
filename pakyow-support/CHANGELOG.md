@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **`Inspectable` objects now inspect all instance state by default.**
+
   * `chg` **Build config classes for configurable objects.**
 
     *Related links:*
