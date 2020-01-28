@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/class_state"
+require "pakyow/support/deprecatable"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/pipeline/object"
@@ -17,13 +18,15 @@ module Pakyow
     include Support::Pipeline
     include Support::Pipeline::Object
 
-    attr_reader :app, :values
-
     include Behavior::Verification
-    verifies :values
+    verifies :__values
 
-    def initialize(app:, **values)
-      @app, @values = app, values
+    extend Support::Deprecatable
+
+    attr_reader :__values
+
+    def initialize(**values)
+      @__values = values
     end
 
     def perform
@@ -38,16 +41,21 @@ module Pakyow
 
     def method_missing(name, *args, &block)
       name = name.to_sym
-      if @values.key?(name)
-        @values[name.to_sym]
+      if @__values.key?(name)
+        @__values[name.to_sym]
       else
         super
       end
     end
 
     def respond_to_missing?(name, include_private = false)
-      @values.key?(name.to_sym) || super
+      @__values.key?(name.to_sym) || super
     end
+
+    def values
+      @__values
+    end
+    deprecate :values, solution: "prefer value methods"
 
     class << self
       # Perform input verification before performing the operation
