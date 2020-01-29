@@ -79,6 +79,93 @@ RSpec.describe Pakyow::Support::Deprecator do
         expect(global.forwarding?).to be(true)
       end
     end
+
+    describe "ignoring deprecations" do
+      before do
+        global >> deprecator_1
+        global >> deprecator_2
+        global >> deprecator_3
+      end
+
+      let(:deprecator_1) {
+        described_class.new(reporter: reporter_1)
+      }
+
+      let(:deprecator_2) {
+        described_class.new(reporter: reporter_2)
+      }
+
+      let(:deprecator_3) {
+        described_class.new(reporter: reporter_3)
+      }
+
+      let(:reporter_1) {
+        double("reporter_1", report: nil)
+      }
+
+      let(:reporter_2) {
+        double("reporter_2", report: nil)
+      }
+
+      let(:reporter_3) {
+        double("reporter_3", report: nil)
+      }
+
+      let(:reporters) {
+        [
+          reporter_1,
+          reporter_2,
+          reporter_3,
+        ]
+      }
+
+      let(:deprecators) {
+        [
+          deprecator_1,
+          deprecator_2,
+          deprecator_3,
+        ]
+      }
+
+      it "ignores deprecations reported within the block" do
+        deprecators.each_with_index do |deprecator, index|
+          expect(reporters[index]).not_to receive(:report)
+        end
+
+        global.ignore do
+          global.deprecated :foo, solution: "use `bar'"
+        end
+      end
+
+      it "does not ignore deprecations reported after the block" do
+        deprecators.each_with_index do |deprecator, index|
+          expect(reporters[index]).to receive(:report).once
+        end
+
+        global.ignore do
+          global.deprecated :foo, solution: "use `bar'"
+        end
+
+        global.deprecated :foo, solution: "use `bar'"
+      end
+
+      context "block fails" do
+        it "does not ignore deprecations reported after the block" do
+          deprecators.each_with_index do |deprecator, index|
+            expect(reporters[index]).to receive(:report).once
+          end
+
+          begin
+            global.ignore do
+              fail
+            end
+          rescue
+          end
+
+          global.deprecated :foo, solution: "use `bar'"
+        end
+      end
+    end
   end
 
   describe "#deprecated" do

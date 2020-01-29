@@ -12,6 +12,11 @@
     - [Pull Request #387][pr-387]
     - [Commit 244d4f6][244d4f6]
 
+  * `chg` **Support ignores in the global deprecator.**
+
+    *Related links:*
+    - [Pull Request #385][pr-385]
+
   * `chg` **Build config classes for configurable objects.**
 
     *Related links:*
@@ -184,6 +189,7 @@
     - [Pull Request #364][pr-364]
 
 [pr-387]: https://github.com/pakyow/pakyow/pull/387
+[pr-385]: https://github.com/pakyow/pakyow/pull/385
 [pr-384]: https://github.com/pakyow/pakyow/pull/384
 [pr-383]: https://github.com/pakyow/pakyow/pull/383
 [pr-379]: https://github.com/pakyow/pakyow/pull/379
