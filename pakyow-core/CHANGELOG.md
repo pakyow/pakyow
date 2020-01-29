@@ -1,5 +1,16 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Operation state can be accessed/changed via getters/setters or instance variables.**
+
+    *Related links:*
+    - [Pull Request #388][pr-388]
+    - [Commit 3268e57][3268e57]
+
+  * `fix` **Avoid deep duping during verification.**
+
+    *Related links:*
+    - [Pull Request #386][pr-386]
+
   * `chg` **Setup applications on the class rather than the instance.**
 
     *Related links:*
@@ -106,6 +117,12 @@
 
 ## Deprecations
 
+  * `Pakyow::Operation#values` is deprecated in favor of value methods.
+
+    *Related links:*
+    - [Pull Request #388][pr-388]
+    - [Commit 7f0df61][7f0df61]
+
   * `Pakyow::Endpoints#load` is deprecated in favor of registering endpoints explicitly with `Pakyow::Endpoints#build`.
 
     *Related links:*
@@ -135,6 +152,8 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-388]: https://github.com/pakyow/pakyow/pull/388
+[pr-386]: https://github.com/pakyow/pakyow/pull/386
 [pr-380]: https://github.com/pakyow/pakyow/pull/380
 [pr-374]: https://github.com/pakyow/pakyow/pull/374
 [pr-348]: https://github.com/pakyow/pakyow/pull/348
@@ -151,6 +170,8 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[7f0df61]: https://github.com/pakyow/pakyow/commit/7f0df61a917b948030b0c44243bdb434e76c999c
+[3268e57]: https://github.com/pakyow/pakyow/commit/3268e57203e13c3c448f67585d29e3e2f67fe462
 [92f795e]: https://github.com/pakyow/pakyow/commit/92f795e88e1ca3106394d0581d51f17cf1a883ad
 [649cb97]: https://github.com/pakyow/pakyow/commit/649cb97cf747c3ab6bbe197ba63c554f4d05a76e
 [d7ef764]: https://github.com/pakyow/pakyow/commit/d7ef76437f4c8948ac09d9b5be77bc02a44caa06

@@ -25,11 +25,11 @@ RSpec.describe "operation" do
         attr_reader :foo_result, :bar_result, :baz_result
 
         action :foo do
-          @foo_result = @values[:foo].reverse
+          @foo_result = foo.reverse
         end
 
         action :bar do
-          @bar_result = @values[:bar].reverse
+          @bar_result = bar.reverse
         end
       end
 
@@ -50,7 +50,8 @@ RSpec.describe "operation" do
 
   it "has access to values" do
     expect(call("/")[0]).to eq(200)
-    expect(@result.values).to eq(foo: "foo", bar: "bar")
+    expect(@result.foo).to eq("foo")
+    expect(@result.bar).to eq("bar")
   end
 
   it "responds to value names" do
@@ -70,7 +71,7 @@ RSpec.describe "operation" do
           result = if connection.params[:modified]
             operations.test(foo: "foo", bar: "bar", baz: "baz") do
               action :baz do
-                @baz_result = @values[:baz].reverse
+                @baz_result = baz.reverse
               end
             end
           else

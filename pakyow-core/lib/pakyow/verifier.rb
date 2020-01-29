@@ -4,6 +4,7 @@ require "forwardable"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
+require "pakyow/errors"
 require "pakyow/types"
 require "pakyow/validator"
 require "pakyow/validations"
@@ -129,13 +130,15 @@ module Pakyow
     def call(values, context: nil)
       values ||= {}
 
-      if should_sanitize?(values)
-        values = sanitize(values)
+      values_are_mutable = mutable?(values)
+
+      if values_are_mutable
+        typecast!(values)
       end
 
       result = Result.new
 
-      if should_validate?(values)
+      if validatable?(values)
         result.validation(@validator.call(values, context: context))
       end
 
@@ -155,16 +158,34 @@ module Pakyow
         end
       end
 
+      if values_are_mutable && result.verified?
+        sanitize!(values)
+      end
+
       result
     end
 
-    private
+    def call!(values, context: nil)
+      result = call(values, context: context)
 
-    def sanitize(values)
+      unless result.verified?
+        error = InvalidData.new_with_message(:verification)
+        error.context = { object: values, result: result }
+        raise error
+      end
+
+      result
+    end
+
+    private def sanitize!(values)
       values.select! do |key, _|
         @allowable_keys.include?(key.to_sym)
       end
 
+      values
+    end
+
+    private def typecast!(values)
       @allowable_keys.each do |key|
         key = key.to_sym
 
@@ -182,11 +203,18 @@ module Pakyow
       values
     end
 
-    def should_sanitize?(values)
-      values.is_a?(Pakyow::Support::IndifferentHash) || values.is_a?(Hash) || values.is_a?(Connection::Params)
+    # @api private
+    MUTATABLE_TYPES = %w(
+      Hash
+      Pakyow::Support::IndifferentHash
+      Pakyow::Connection::Params
+    ).freeze
+
+    private def mutable?(values)
+      MUTATABLE_TYPES.include?(values.class.name)
     end
 
-    def should_validate?(values)
+    private def validatable?(values)
       @validator.any? && !values.nil?
     end
   end

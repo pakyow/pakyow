@@ -5,6 +5,23 @@
     *Related links:*
     - [Pull Request #389][pr-389]
 
+  * `add` **Introduce `Inspectable::uninspectable` for opting out of inspecting specific object state.**
+
+    *Related links:*
+    - [Pull Request #387][pr-387]
+    - [Commit 8eefc4a][8eefc4a]
+
+  * `chg` **`Inspectable` objects now inspect all instance state by default.**
+
+    *Related links:*
+    - [Pull Request #387][pr-387]
+    - [Commit 244d4f6][244d4f6]
+
+  * `chg` **Support ignores in the global deprecator.**
+
+    *Related links:*
+    - [Pull Request #385][pr-385]
+
   * `chg` **Build config classes for configurable objects.**
 
     *Related links:*
@@ -177,6 +194,8 @@
     - [Pull Request #364][pr-364]
 
 [pr-389]: https://github.com/pakyow/pakyow/pull/389
+[pr-387]: https://github.com/pakyow/pakyow/pull/387
+[pr-385]: https://github.com/pakyow/pakyow/pull/385
 [pr-384]: https://github.com/pakyow/pakyow/pull/384
 [pr-383]: https://github.com/pakyow/pakyow/pull/383
 [pr-379]: https://github.com/pakyow/pakyow/pull/379
@@ -204,6 +223,8 @@
 [pr-343]: https://github.com/pakyow/pakyow/pull/343
 [pr-340]: https://github.com/pakyow/pakyow/pull/340
 [pr-330]: https://github.com/pakyow/pakyow/pull/330
+[9ef221b]: https://github.com/pakyow/pakyow/commit/8eefc4ac6b6c04c0899471a12bc68e4edbc30f46
+[244d4f6]: https://github.com/pakyow/pakyow/commit/244d4f6d2e5f18a38bf20cd4a4fcf8e3913137b3
 [9ef221b]: https://github.com/pakyow/pakyow/commit/9ef221bcd671f37700d123fe852d0b316216f0d8
 [59d983b]: https://github.com/pakyow/pakyow/commit/59d983b3cc31fd92d4ed8616f25c9a20d15da27b
 [d410904]: https://github.com/pakyow/pakyow/commit/d4109047797e8e5d7f4233fe61a42ed472c96cd7

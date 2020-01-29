@@ -5,25 +5,43 @@ require "pakyow/support/extension"
 
 module Pakyow
   module Support
-    # Customize the inspector for an object.
+    # Customized inspection for any object.
     #
-    # @example
-    #   class FooBar
-    #     include Pakyow::Support::Inspectable
-    #     inspectable :@foo, :baz
+    # There are two modes:
     #
-    #     def initialize
-    #       @foo = :foo
-    #       @bar = :bar
-    #     end
+    #   1) Inspecting specific instance variables and methods.
     #
-    #     def baz
-    #       :baz
-    #     end
-    #   end
+    #      class FooBar
+    #        include Pakyow::Support::Inspectable
+    #        inspectable :@foo, :baz
     #
-    #   FooBar.instance.inspect
-    #   => #<FooBar:0x007fd3330248c0 @foo=:foo baz=:baz>
+    #        def initialize
+    #          @foo = :foo
+    #          @bar = :bar
+    #        end
+    #
+    #        def baz
+    #         :baz
+    #        end
+    #      end
+    #
+    #      FooBar.instance.inspect
+    #      => #<FooBar:0x007fd3330248c0 @foo=:foo baz=:baz>
+    #
+    #   2) Inspecting everything *except* one or more instance variables.
+    #
+    #      class FooBar
+    #        include Pakyow::Support::Inspectable
+    #        uninspectable :@foo
+    #
+    #        def initialize
+    #          @foo = :foo
+    #          @bar = :bar
+    #        end
+    #      end
+    #
+    #      FooBar.instance.inspect
+    #      => #<FooBar:0x007fd3330248c0 @bar=:bar>
     #
     module Inspectable
       extend Extension
@@ -32,6 +50,7 @@ module Pakyow
 
       apply_extension do
         class_state :__inspectables, inheritable: true, default: []
+        class_state :__uninspectables, inheritable: true, default: []
       end
 
       class_methods do
@@ -42,28 +61,34 @@ module Pakyow
         def inspectable(*inspectables)
           @__inspectables = inspectables.map(&:to_sym)
         end
+
+        # Sets the instance vars and public methods that should *not* be part of the inspection.
+        #
+        # @param uninspectables [Array<Symbol>] The list of instance variables and public methods.
+        #
+        def uninspectable(*uninspectables)
+          @__uninspectables = uninspectables.map(&:to_sym)
+        end
       end
 
       # Recursion protection based on:
       #   https://stackoverflow.com/a/5772445
       #
       def inspect
-        inspection = String.new("#<#{self.class}:#{self.object_id}")
+        inspection = String.new("#<#{self.class}:#{object_id}")
 
         if recursive_inspect?
           "#{inspection} ...>"
         else
           prevent_inspect_recursion do
-            if self.class.__inspectables.any?
-              inspection << " " + self.class.__inspectables.map { |inspectable|
-                value = if inspectable.to_s.start_with?("@")
-                  instance_variable_get(inspectable)
-                else
-                  send(inspectable)
-                end
+            each_inspectable do |inspectable|
+              value = if inspectable.to_s.start_with?("@")
+                instance_variable_get(inspectable)
+              else
+                send(inspectable)
+              end
 
-                "#{inspectable}=#{value.inspect}"
-              }.join(", ")
+              inspection << ", #{inspectable}=#{value.inspect}"
             end
 
             inspection.strip << ">"
@@ -72,6 +97,20 @@ module Pakyow
       end
 
       private
+
+      def each_inspectable
+        inspectables = if self.class.__inspectables.any?
+          self.class.__inspectables
+        else
+          instance_variables
+        end
+
+        inspectables.each do |inspectable|
+          unless self.class.__uninspectables.include?(inspectable)
+            yield inspectable
+          end
+        end
+      end
 
       def inspected_objects
         Thread.current[:inspected_objects] ||= {}
