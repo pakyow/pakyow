@@ -10,12 +10,18 @@ module Pakyow
       class Setting
         using DeepDup
 
-        def initialize(default:, configurable:, &block)
-          @default, @block, @configurable = default, block, configurable
+        attr_reader :name
+
+        def initialize(name:, default:, configurable:, &block)
+          @name, @default, @block, @configurable = name, default, block, configurable
         end
 
         def initialize_copy(_)
           @default = @default.deep_dup
+
+          if defined?(@value)
+            @value = @value.deep_dup
+          end
 
           super
         end
@@ -51,6 +57,8 @@ module Pakyow
         # @api private
         def update_configurable(configurable)
           @configurable = configurable
+
+          self
         end
       end
     end

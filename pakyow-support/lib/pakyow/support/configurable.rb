@@ -39,8 +39,9 @@ module Pakyow
     #     end
     #   end
     #
+    #   ConfigurableSubclass.configure!(:development)
+    #
     #   instance = ConfigurableSubclass.new
-    #   instance.configure!(:development)
     #
     #   instance.config.foo
     #   # => "development"
@@ -57,48 +58,42 @@ module Pakyow
       extend_dependency ClassState
 
       apply_extension do
-        class_state :__config, default: Config.new(self), inheritable: true
+        class_state :__config, default: Config.make(:config, context: self, configurable: self), inheritable: true
         class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
       end
 
       class_methods do
-        # Define configuration to be applied when configuring for `environment`.
-        #
-        def configure(environment = :__global, &block)
-          __config_environments[environment] = block
-        end
-
-        def inherited(subclass)
-          super
-
-          subclass.config.update_configurable(subclass)
-        end
-      end
-
-      common_methods do
         extend Forwardable
 
         # @!method setting
-        #   Delegates to {config}.
-        #
         #   @see Config#setting
         #
         # @!method defaults
-        #   Delegates to {config}.
-        #
         #   @see Config#defaults
         #
         # @!method configurable
-        #   Delegates to {config}.
-        #
         #   @see Config#configurable
         #
-        def_delegators :config, :setting, :defaults, :configurable
+        def_delegators :__config, :setting, :defaults, :configurable
+
+        def freeze
+          # Make sure the config is constructed before freezing.
+          #
+          config
+
+          super
+        end
 
         # Returns the configuration.
         #
         def config
-          __config
+          @config ||= __config.new(self)
+        end
+
+        # Define configuration to be applied when configuring for `environment`.
+        #
+        def configure(environment = :__global, &block)
+          __config_environments[environment] = block
         end
 
         # Configures for `environment`.
@@ -122,19 +117,18 @@ module Pakyow
             yield specific_environment
           end
         end
-      end
 
-      private def __config
-        unless defined?(@__config)
-          @__config = self.class.__config.dup
-          @__config.update_configurable(self)
+        def inherited(subclass)
+          super
+
+          subclass.instance_variable_set(:@__config, __config.make(:config, context: subclass, configurable: subclass))
         end
-
-        @__config
       end
 
-      private def __config_environments
-        self.class.__config_environments
+      # Returns the configuration.
+      #
+      def config
+        @config ||= self.class.config.dup.update_configurable(self)
       end
     end
   end

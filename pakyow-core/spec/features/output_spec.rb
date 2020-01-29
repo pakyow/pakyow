@@ -13,6 +13,7 @@ RSpec.describe "the environment output" do
 
   context "after setup" do
     before do
+      require "pakyow/logger/formatters/logfmt"
       Pakyow.config.logger.formatter = Pakyow::Logger::Formatters::Logfmt
       Pakyow.config.logger.destinations = { io1: io1, io2: io2, io3: io3 }
 

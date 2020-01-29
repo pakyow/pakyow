@@ -3,6 +3,7 @@
 require "json"
 
 require "pakyow/logger"
+require "pakyow/logger/formatter"
 require "pakyow/logger/timekeeper"
 
 module Pakyow

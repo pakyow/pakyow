@@ -41,14 +41,16 @@ RSpec.describe "deprecating a setting" do
       object.configure!
     end
 
-    let!(:value) {
+    let(:value) {
       object.config.name
     }
 
     it "reports the deprecation" do
-      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
         "Configurable.config.name", solution: "do not use"
       )
+
+      value
     end
 
     it "returns the value" do
@@ -68,13 +70,18 @@ RSpec.describe "deprecating a setting" do
 
     before do
       object.configure!
-      object.config.name
     end
 
+    let(:value) {
+      object.config.name
+    }
+
     it "reports the deprecation" do
-      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
         "config.name", solution: "do not use"
       )
+
+      value
     end
   end
 
@@ -96,14 +103,14 @@ RSpec.describe "deprecating a setting" do
       object.configure do
         config.group.name = :changed
       end
-
-      object.configure!
     end
 
     it "reports the correct name" do
-      expect(Pakyow::Support::Deprecator.global).to have_received(:deprecated).with(
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
         "Configurable.config.group.name", solution: "do not use"
       )
+
+      object.configure!
     end
   end
 

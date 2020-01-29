@@ -1,9 +1,7 @@
 RSpec.describe "fingerprinted asset" do
   let :config do
-    app_class = Class.new(Pakyow::Application) do
-      include Pakyow::Application::Config::Assets
-    end
-
+    app_class = Class.new(Pakyow::Application)
+    app_class.include_framework :assets
     app_class.config.assets
   end
 
@@ -45,10 +43,8 @@ end
 
 RSpec.describe "fingerprinted pack" do
   let :config do
-    app_class = Class.new(Pakyow::Application) do
-      include Pakyow::Application::Config::Assets
-    end
-
+    app_class = Class.new(Pakyow::Application)
+    app_class.include_framework :assets
     app_class.config.assets
   end
 

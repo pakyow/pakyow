@@ -20,7 +20,6 @@ RSpec.describe "configuring a configurable class" do
       object.configure do
         config.foo = :foo_global
         config.name = self.name
-        config.setting :extended, true
       end
 
       object.configure!
@@ -36,10 +35,6 @@ RSpec.describe "configuring a configurable class" do
 
     it "provides access to the object being configured" do
       expect(object.config.name).to eq(:configurable)
-    end
-
-    it "allows new settings to be defined during configuration" do
-      expect(object.config.extended).to eq(true)
     end
   end
 
@@ -124,13 +119,17 @@ RSpec.describe "configuring a configurable class" do
 
   describe "configuring a subclass of a configurable class" do
     before do
+      setup
+    end
+
+    def setup
       object.setting :foo, :foo_parent
       object.setting :bar, :bar_parent
+      object.configure!
 
       @subclass = Class.new(object)
       @subclass.setting :bar, :bar_subclass
       @subclass.setting :baz, :baz_subclass
-
       @subclass.configure!
     end
 
@@ -149,6 +148,22 @@ RSpec.describe "configuring a configurable class" do
     it "does not modify values in the parent class" do
       expect(object.config.foo).to eq(:foo_parent)
       expect(object.config.bar).to eq(:bar_parent)
+    end
+
+    context "values are dependent" do
+      def setup
+        object.setting :foo, "foo_parent"
+        object.setting :bar do
+          config.foo + "_bar"
+        end
+
+        @subclass = Class.new(object)
+        @subclass.setting :foo, "foo_subclass"
+      end
+
+      it "sets up the context correctly" do
+        expect(@subclass.config.bar).to eq("foo_subclass_bar")
+      end
     end
   end
 end

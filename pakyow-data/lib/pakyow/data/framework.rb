@@ -2,7 +2,6 @@
 
 require "pakyow/framework"
 
-require "pakyow/application/config/data"
 require "pakyow/application/behavior/data/lookup"
 require "pakyow/application/behavior/data/serialization"
 require "pakyow/application/helpers/data"
@@ -48,7 +47,19 @@ module Pakyow
 
           register_helper :active, Pakyow::Application::Helpers::Data
 
-          include Application::Config::Data
+          configurable :data do
+            configurable :subscriptions do
+              setting :adapter_settings, {}
+              setting :version
+
+              defaults :production do
+                setting :adapter_settings do
+                  { key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/") }
+                end
+              end
+            end
+          end
+
           include Application::Behavior::Data::Lookup
           include Application::Behavior::Data::Serialization
         end

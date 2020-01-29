@@ -5,6 +5,11 @@
     *Related links:*
     - [Pull Request #385][pr-385]
 
+  * `chg` **Build config classes for configurable objects.**
+
+    *Related links:*
+    - [Pull Request #383][pr-383]
+
   * `chg` **Support passing the isolable context through makeable.**
 
     *Related links:*
@@ -173,6 +178,7 @@
 
 [pr-385]: https://github.com/pakyow/pakyow/pull/385
 [pr-384]: https://github.com/pakyow/pakyow/pull/384
+[pr-383]: https://github.com/pakyow/pakyow/pull/383
 [pr-379]: https://github.com/pakyow/pakyow/pull/379
 [pr-378]: https://github.com/pakyow/pakyow/pull/378
 [pr-377]: https://github.com/pakyow/pakyow/pull/377

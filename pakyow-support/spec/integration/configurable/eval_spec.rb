@@ -11,21 +11,24 @@ RSpec.describe "evaling the value of a setting in a context" do
     end
   end
 
-  before do
-    object.setting :foo, "foo"
+  context "setting value is a block" do
+    before do
+      object.setting :foo, "foo"
 
-    object.configure do
-      config.foo do
-        self.class
+      object.configure do
+        config.foo do
+          self.class
+        end
       end
+
+      object.configure!
+
+      @instance = object.new
     end
 
-    @instance = object.new
-    @instance.configure!
-  end
-
-  it "evals the value in the expected context" do
-    expect(@instance.config.eval(:foo, self)).to be(self.class)
+    it "evals the value in the expected context" do
+      expect(@instance.config.eval(:foo, self)).to be(self.class)
+    end
   end
 
   context "setting value is not a block" do
@@ -36,8 +39,9 @@ RSpec.describe "evaling the value of a setting in a context" do
         config.foo = :foo
       end
 
+      object.configure!
+
       @instance = object.new
-      @instance.configure!
     end
 
     it "returns the value" do
