@@ -86,6 +86,7 @@ module Pakyow
     def initialize(key = nil, &block)
       @key = key
       @types = {}
+      @defaults = {}
       @messages = {}
       @required_keys = []
       @optional_keys = []
@@ -113,10 +114,14 @@ module Pakyow
       end
     end
 
-    def optional(key, type = nil, &block)
+    def optional(key, type = nil, default: default_omitted = true, &block)
       key = key.to_sym
       @optional_keys.push(key).uniq!
       @allowable_keys.push(key).uniq!
+
+      unless default_omitted
+        @defaults[key] = default
+      end
 
       if type
         @types[key] = Types.type_for(type)
@@ -144,6 +149,10 @@ module Pakyow
 
       @allowable_keys.each do |allowable_key|
         if values[allowable_key].nil?
+          if @defaults.include?(allowable_key)
+            values[allowable_key] = @defaults[allowable_key]
+          end
+
           if @required_keys.include?(allowable_key)
             result.error(allowable_key, @messages[allowable_key])
           else
