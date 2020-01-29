@@ -6,6 +6,11 @@
     - [Pull Request #388][pr-388]
     - [Commit 3268e57][3268e57]
 
+  * `fix` **Avoid deep duping during verification.**
+
+    *Related links:*
+    - [Pull Request #386][pr-386]
+
   * `chg` **Setup applications on the class rather than the instance.**
 
     *Related links:*
@@ -148,6 +153,7 @@
     - [Pull Request #338][pr-338]
 
 [pr-388]: https://github.com/pakyow/pakyow/pull/388
+[pr-386]: https://github.com/pakyow/pakyow/pull/386
 [pr-380]: https://github.com/pakyow/pakyow/pull/380
 [pr-374]: https://github.com/pakyow/pakyow/pull/374
 [pr-348]: https://github.com/pakyow/pakyow/pull/348

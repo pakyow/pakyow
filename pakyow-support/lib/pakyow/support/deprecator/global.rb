@@ -30,6 +30,24 @@ module Pakyow
             super
           end
         end
+
+        def ignore
+          if forwarding?
+            begin
+              @forwards.each do |forward|
+                forward.send(:replace, Reporters::Null)
+              end
+
+              yield
+            ensure
+              @forwards.each do |forward|
+                forward.send(:replace, nil)
+              end
+            end
+          else
+            super
+          end
+        end
       end
     end
   end
