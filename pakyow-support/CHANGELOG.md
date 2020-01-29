@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Deprecated instance methods are no longer available on the class.**
+
+    *Related links:*
+    - [Pull Request #389][pr-389]
+
   * `add` **Introduce `Inspectable::uninspectable` for opting out of inspecting specific object state.**
 
     *Related links:*
@@ -188,6 +193,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-389]: https://github.com/pakyow/pakyow/pull/389
 [pr-387]: https://github.com/pakyow/pakyow/pull/387
 [pr-385]: https://github.com/pakyow/pakyow/pull/385
 [pr-384]: https://github.com/pakyow/pakyow/pull/384

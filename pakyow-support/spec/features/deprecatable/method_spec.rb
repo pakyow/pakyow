@@ -26,6 +26,10 @@ RSpec.describe "deprecating a method" do
       expect(Pakyow::Support::Deprecator.global).not_to have_received(:deprecated)
     end
 
+    it "does not add the deprecated method to the class" do
+      expect(deprecatable).not_to respond_to(:foo)
+    end
+
     context "class is initialized" do
       let!(:instance) {
         deprecatable.new
