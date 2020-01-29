@@ -51,11 +51,12 @@ module Pakyow
 
       private def apply_deprecation_module(object, deprecation_module)
         case object
+        when Class
+          object.prepend(deprecation_module)
         when Module
+          object.prepend(deprecation_module)
           object.singleton_class.prepend(deprecation_module)
         end
-
-        object.prepend(deprecation_module)
       end
 
       private def build_deprecated_initializer(target, solution:)

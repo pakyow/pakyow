@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Deprecated instance methods are no longer available on the class.**
+
+    *Related links:*
+    - [Pull Request #389][pr-389]
+
   * `chg` **Build config classes for configurable objects.**
 
     *Related links:*
@@ -171,6 +176,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-389]: https://github.com/pakyow/pakyow/pull/389
 [pr-384]: https://github.com/pakyow/pakyow/pull/384
 [pr-383]: https://github.com/pakyow/pakyow/pull/383
 [pr-379]: https://github.com/pakyow/pakyow/pull/379
