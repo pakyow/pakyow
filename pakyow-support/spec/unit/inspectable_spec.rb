@@ -41,6 +41,22 @@ RSpec.describe Pakyow::Support::Inspectable do
     expect(instance.inspect).to_not include("@ivar_two=:two")
   end
 
+  context "nothing is set as inspectable" do
+    let(:inspectable) {
+      Class.new {
+        include Pakyow::Support::Inspectable
+
+        def initialize
+          @ivar_one = :one
+        end
+      }
+    }
+
+    it "does a normal inspection" do
+      expect(instance.inspect).to include("@ivar_one=:one")
+    end
+  end
+
   context "inspecting a private method" do
     let :inspectable do
       Class.new do
@@ -72,6 +88,25 @@ RSpec.describe Pakyow::Support::Inspectable do
 
     it "protects against recursion" do
       expect(instance.inspect).to include("...")
+    end
+  end
+
+  describe "opting out of inspection" do
+    let(:inspectable) {
+      Class.new {
+        include Pakyow::Support::Inspectable
+        uninspectable :@ivar_one
+
+        def initialize
+          @ivar_one = :one
+          @ivar_two = :two
+        end
+      }
+    }
+
+    it "inspects" do
+      expect(instance.inspect).to include("@ivar_two=:two")
+      expect(instance.inspect).not_to include("@ivar_one=:one")
     end
   end
 end
