@@ -7,12 +7,12 @@ RSpec.describe "halting an operation" do
         attr_reader :foo_result, :bar_result
 
         action :foo do
-          @foo_result = @values[:foo].reverse
+          @foo_result = foo.reverse
           halt
         end
 
         action :bar do
-          @bar_result = @values[:bar].reverse
+          @bar_result = bar.reverse
         end
       end
     end
