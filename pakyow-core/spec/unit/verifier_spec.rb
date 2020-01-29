@@ -333,4 +333,44 @@ RSpec.describe Pakyow::Verifier do
       expect(result.messages(type: :presentable)[:bar]).to eq(["Bar is required"])
     end
   end
+
+  describe "default values" do
+    let :verifier do
+      described_class.new do
+        optional :foo, default: "foo"
+      end
+    end
+
+    context "optional value is missing" do
+      let(:values) { {} }
+
+      it "uses the default value" do
+        expect(values).to eq(foo: "foo")
+      end
+    end
+
+    context "optional value is nil" do
+      let(:values) { { foo: nil } }
+
+      it "uses the default value" do
+        expect(values).to eq(foo: "foo")
+      end
+    end
+
+    context "optional value is provided" do
+      let(:values) { { foo: "bar" } }
+
+      it "uses the provided value" do
+        expect(values).to eq(foo: "bar")
+      end
+
+      context "provided value is false" do
+        let(:values) { { foo: false } }
+
+        it "uses the provided value" do
+          expect(values).to eq(foo: false)
+        end
+      end
+    end
+  end
 end

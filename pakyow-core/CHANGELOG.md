@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Specify default values from optional verified values.**
+
+    *Related links:*
+    - [Pull Request #390][pr-390]
+
   * `chg` **Operation state can be accessed/changed via getters/setters or instance variables.**
 
     *Related links:*
@@ -152,6 +157,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-390]: https://github.com/pakyow/pakyow/pull/390
 [pr-388]: https://github.com/pakyow/pakyow/pull/388
 [pr-386]: https://github.com/pakyow/pakyow/pull/386
 [pr-380]: https://github.com/pakyow/pakyow/pull/380
