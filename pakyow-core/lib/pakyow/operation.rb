@@ -28,7 +28,7 @@ module Pakyow
       verify(values)
       @__values = values
       values.each_pair do |key, value|
-        instance_variable_set(:"@#{key}", value)
+        send(:"#{key}=", value)
       end
     end
 
@@ -79,6 +79,46 @@ module Pakyow
     class << self
       def handle(error = nil, &block)
         @__handlers[error || :global] = block
+      end
+
+      # @api private
+      def verify(name = :default, &block)
+        super.tap do |verifier|
+          define_attributes_for_verifier(verifier)
+        end
+      end
+
+      # @api private
+      def required(*)
+        super.tap do
+          define_attributes_for_verifier(__verifiers[:default])
+        end
+      end
+
+      # @api private
+      def optional(*)
+        super.tap do
+          define_attributes_for_verifier(__verifiers[:default])
+        end
+      end
+
+      private def define_attributes_for_verifier(verifier)
+        verifier.allowable_keys.each do |key|
+          unless method_defined?(key) || private_method_defined?(key)
+            class_eval <<~CODE, __FILE__, __LINE__
+              attr_reader :#{key}
+            CODE
+          end
+
+          setter = :"#{key}="
+          unless method_defined?(setter) || private_method_defined?(setter)
+            class_eval <<~CODE, __FILE__, __LINE__
+              private
+
+              attr_writer :#{key}
+            CODE
+          end
+        end
       end
     end
   end
