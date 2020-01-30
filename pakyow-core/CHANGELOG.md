@@ -2,6 +2,9 @@
 
   * `add` **Introduce class-level verifiers, with the ability to call them from the verifiable instance.**
 
+    *Related links:*
+    - [Pull Request #391][pr-391]
+
   * `add` **Specify default values from optional verified values.**
 
     *Related links:*
@@ -159,6 +162,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-391]: https://github.com/pakyow/pakyow/pull/391
 [pr-390]: https://github.com/pakyow/pakyow/pull/390
 [pr-388]: https://github.com/pakyow/pakyow/pull/388
 [pr-386]: https://github.com/pakyow/pakyow/pull/386
