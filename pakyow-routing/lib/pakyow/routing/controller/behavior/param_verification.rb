@@ -12,10 +12,10 @@ module Pakyow
       module ParamVerification
         extend Support::Extension
 
+        include_dependency Pakyow::Behavior::Verification
+
         apply_extension do
           class_state :__allowed_params, default: [], inheritable: true
-
-          include Pakyow::Behavior::Verification
 
           # Define the data we wish to verify.
           #
@@ -35,16 +35,17 @@ module Pakyow
           def verify(*names, &block)
             verification_method_name = :"verify_#{names.join("_")}"
 
-            define_method verification_method_name do
-              local_allowed_params = self.class.__allowed_params
-
-              verify do
-                local_allowed_params.each do |allowed_param|
-                  optional allowed_param
-                end
-
-                instance_exec(&block)
+            local_allowed_params = __allowed_params
+            super(verification_method_name) do
+              local_allowed_params.each do |allowed_param|
+                optional allowed_param
               end
+
+              instance_exec(&block)
+            end
+
+            define_method verification_method_name do
+              verify verification_method_name
             end
 
             action verification_method_name, only: names
@@ -58,15 +59,19 @@ module Pakyow
         end
 
         prepend_methods do
-          def verify(values = nil, &block)
-            local_allowed_params = self.class.__allowed_params
+          def verify(*, &block)
+            if block_given?
+              local_allowed_params = self.class.__allowed_params
 
-            super do
-              local_allowed_params.each do |allowed_param|
-                optional allowed_param
+              super do
+                local_allowed_params.each do |allowed_param|
+                  optional allowed_param
+                end
+
+                instance_eval(&block)
               end
-
-              instance_exec(&block)
+            else
+              super
             end
           end
         end

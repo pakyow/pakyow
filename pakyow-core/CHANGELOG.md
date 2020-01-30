@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce class-level verifiers, with the ability to call them from the verifiable instance.**
+
   * `add` **Specify default values from optional verified values.**
 
     *Related links:*

@@ -19,15 +19,14 @@ module Pakyow
     include Support::Pipeline::Object
 
     include Behavior::Verification
-    verifies :__values
 
     extend Support::Deprecatable
 
     attr_reader :__values
 
     def initialize(**values)
+      verify(values)
       @__values = values
-
       values.each_pair do |key, value|
         instance_variable_set(:"@#{key}", value)
       end
@@ -78,18 +77,6 @@ module Pakyow
     deprecate :values, solution: "prefer value methods"
 
     class << self
-      # Perform input verification before performing the operation
-      #
-      # @see Pakyow::Verifier
-      #
-      def verify(&block)
-        define_method :__verify do
-          verify(&block)
-        end
-
-        action :__verify
-      end
-
       def handle(error = nil, &block)
         @__handlers[error || :global] = block
       end

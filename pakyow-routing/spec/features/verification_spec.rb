@@ -7,23 +7,13 @@ end
 RSpec.shared_examples "verification" do
   include_context "verification helpers"
 
-  before do
-    $verification_route = Proc.new do
-      connection.body = StringIO.new(Marshal.dump(params))
-    end
-  end
-
-  after do
-    $verification = $verification_route = nil
-  end
-
   describe "sanitization" do
-    before do
-      $verification = Proc.new do
+    let(:verify_def) {
+      Proc.new {
         required :value1
         optional :value2
-      end
-    end
+      }
+    }
 
     it "allows required and optional values" do
       expect(Marshal.load(response(value1: "foo", value2: "bar")[2])).to eq(value1: "foo", value2: "bar")
@@ -39,13 +29,13 @@ RSpec.shared_examples "verification" do
   end
 
   describe "required values" do
-    before do
-      $verification = Proc.new do
+    let(:verify_def) {
+      Proc.new {
         required :value1
         required :value2
         optional :value3
-      end
-    end
+      }
+    }
 
     context "a single required value is missing" do
       it "responds bad request" do
@@ -67,8 +57,8 @@ RSpec.shared_examples "verification" do
   end
 
   describe "validation" do
-    before do
-      $verification = Proc.new do
+    let(:verify_def) {
+      Proc.new {
         required :value1 do
           validate :presence
         end
@@ -76,8 +66,8 @@ RSpec.shared_examples "verification" do
         optional :value2 do
           validate :presence
         end
-      end
-    end
+      }
+    }
 
     context "required value passes validation" do
       it "responds ok" do
@@ -110,25 +100,15 @@ end
 RSpec.shared_examples "nested verification" do
   include_context "verification helpers"
 
-  before do
-    $verification_route = Proc.new do
-      connection.body = StringIO.new(Marshal.dump(params))
-    end
-  end
-
-  after do
-    $verification = $verification_route = nil
-  end
-
   describe "sanitization" do
-    before do
-      $verification = Proc.new do
+    let(:verify_def) {
+      Proc.new {
         required :value1 do
           required :value2
           optional :value3
         end
-      end
-    end
+      }
+    }
 
     it "allows required and optional values" do
       expect(Marshal.load(response(value1: { value2: "bar", value3: "baz" })[2])).to eq(value1: { value2: "bar", value3: "baz" })
@@ -150,14 +130,14 @@ RSpec.shared_examples "nested verification" do
   end
 
   describe "required values" do
-    before do
-      $verification = Proc.new do
+    let(:verify_def) {
+      Proc.new {
         required :value1 do
           required :value2
           optional :value3
         end
-      end
-    end
+      }
+    }
 
     context "a single required value is missing" do
       it "responds bad request" do
@@ -197,8 +177,8 @@ RSpec.shared_examples "nested verification" do
   end
 
   describe "validation" do
-    before do
-      $verification = Proc.new do
+    let(:verify_def) {
+      Proc.new {
         required :value1 do
           required :value2 do
             validate :presence
@@ -208,8 +188,8 @@ RSpec.shared_examples "nested verification" do
             validate :presence
           end
         end
-      end
-    end
+      }
+    }
 
     context "required value passes validation" do
       it "responds ok" do
@@ -266,19 +246,20 @@ end
 RSpec.describe "verifying all routes in a controller" do
   include_context "app"
 
-  let :app_def do
-    Proc.new do
+  let(:app_def) {
+    local = self
+    Proc.new {
       controller do
         verify do
-          instance_exec(&$verification)
+          instance_eval(&local.verify_def)
         end
 
         get :test, "/test" do
-          instance_exec(&$verification_route)
+          connection.body = StringIO.new(Marshal.dump(params))
         end
       end
-    end
-  end
+    }
+  }
 
   include_examples "verification"
   include_examples "nested verification"
@@ -287,19 +268,20 @@ end
 RSpec.describe "verifying a specific route in a controller" do
   include_context "app"
 
-  let :app_def do
-    Proc.new do
+  let(:app_def) {
+    local = self
+    Proc.new {
       controller do
         verify :test do
-          instance_exec(&$verification)
+          instance_eval(&local.verify_def)
         end
 
         get :test, "/test" do
-          instance_exec(&$verification_route)
+          connection.body = StringIO.new(Marshal.dump(params))
         end
       end
-    end
-  end
+    }
+  }
 
   include_examples "verification"
   include_examples "nested verification"
@@ -308,19 +290,20 @@ end
 RSpec.describe "verifying inside of a route" do
   include_context "app"
 
-  let :app_def do
-    Proc.new do
+  let(:app_def) {
+    local = self
+    Proc.new {
       controller do
         get :test, "/test" do
           verify do
-            instance_exec(&$verification)
+            instance_eval(&local.verify_def)
           end
 
-          instance_exec(&$verification_route)
+          connection.body = StringIO.new(Marshal.dump(params))
         end
       end
-    end
-  end
+    }
+  }
 
   include_examples "verification"
   include_examples "nested verification"
@@ -330,8 +313,8 @@ RSpec.describe "handling failed verification" do
   context "without a custom handler" do
     include_context "app"
 
-    let :app_def do
-      Proc.new do
+    let(:app_def) {
+      Proc.new {
         controller do
           verify :test do
             required :value
@@ -339,8 +322,8 @@ RSpec.describe "handling failed verification" do
 
           get :test, "/test"
         end
-      end
-    end
+      }
+    }
 
     it "automatically responds as a bad request" do
       expect(call("/test")[0]).to eq(400)
@@ -350,8 +333,8 @@ RSpec.describe "handling failed verification" do
   context "with a custom handler" do
     include_context "app"
 
-    let :app_def do
-      Proc.new do
+    let(:app_def) {
+      Proc.new {
         controller do
           handle Pakyow::InvalidData, as: :not_found
 
@@ -361,8 +344,8 @@ RSpec.describe "handling failed verification" do
 
           get :test, "/test"
         end
-      end
-    end
+      }
+    }
 
     it "is possible to use a custom handler instead" do
       expect(call("/test")[0]).to eq(404)
@@ -375,8 +358,8 @@ RSpec.describe "setting allowed params" do
   include_context "verification helpers"
 
   context "verified in the controller" do
-    let :app_def do
-      Proc.new do
+    let(:app_def) {
+      Proc.new {
         controller do
           allow_params :value1
 
@@ -388,8 +371,8 @@ RSpec.describe "setting allowed params" do
             send params.to_json
           end
         end
-      end
-    end
+      }
+    }
 
     it "allows allowed params" do
       response(value1: "one", value2: "two").tap do |result|
@@ -400,8 +383,8 @@ RSpec.describe "setting allowed params" do
   end
 
   context "verified in the route" do
-    let :app_def do
-      Proc.new do
+    let(:app_def) {
+      Proc.new {
         controller do
           allow_params :value1
 
@@ -413,8 +396,8 @@ RSpec.describe "setting allowed params" do
             send params.to_json
           end
         end
-      end
-    end
+      }
+    }
 
     it "allows allowed params" do
       response(value1: "one", value2: "two").tap do |result|
@@ -425,8 +408,8 @@ RSpec.describe "setting allowed params" do
   end
 
   context "allow params is called twice" do
-    let :app_def do
-      Proc.new do
+    let(:app_def) {
+      Proc.new {
         controller do
           allow_params :value1
           allow_params :value2
@@ -438,8 +421,8 @@ RSpec.describe "setting allowed params" do
             send params.to_json
           end
         end
-      end
-    end
+      }
+    }
 
     it "allows all allowed params" do
       response(value1: "one", value2: "two").tap do |result|
@@ -450,8 +433,8 @@ RSpec.describe "setting allowed params" do
   end
 
   describe "inheriting allowed params" do
-    let :app_def do
-      Proc.new do
+    let(:app_def) {
+      Proc.new {
         isolated :Controller do
           allow_params :value2
         end
@@ -465,8 +448,8 @@ RSpec.describe "setting allowed params" do
             send params.to_json
           end
         end
-      end
-    end
+      }
+    }
 
     it "inherits allowed params from a parent controller" do
       response(value1: "one", value2: "two").tap do |result|
@@ -481,7 +464,7 @@ RSpec.describe "allowing resource ids" do
   include_context "app"
   include_context "verification helpers"
 
-  let :app_def do
+  let(:app_def) {
     Proc.new do
       resource :posts, "/posts" do
         show do
@@ -510,7 +493,7 @@ RSpec.describe "allowing resource ids" do
         end
       end
     end
-  end
+  }
 
   it "allows top level resource ids" do
     call("/posts/1").tap do |result|
