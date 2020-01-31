@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Define public readers and private writers for verified operation values.**
+    - This is a bit of an optimization and will allow aspects of an operation's api to be deprecated.
+
+    *Related links:*
+    - [Pull Request #392][pr-392]
+
   * `add` **Introduce class-level verifiers, with the ability to call them from the verifiable instance.**
 
     *Related links:*
@@ -162,6 +168,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-392]: https://github.com/pakyow/pakyow/pull/392
 [pr-391]: https://github.com/pakyow/pakyow/pull/391
 [pr-390]: https://github.com/pakyow/pakyow/pull/390
 [pr-388]: https://github.com/pakyow/pakyow/pull/388

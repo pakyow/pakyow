@@ -83,6 +83,9 @@ module Pakyow
     extend Forwardable
     def_delegators :@validator, :validate
 
+    # @api private
+    attr_reader :allowable_keys
+
     def initialize(key = nil, &block)
       @key = key
       @types = {}
