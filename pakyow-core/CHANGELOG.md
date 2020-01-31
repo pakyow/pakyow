@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support verified value deprecations for operations.**
+
+    *Related links:*
+    - [Pull Request #394][pr-394]
+
   * `add` **Define public readers and private writers for verified operation values.**
     - This is a bit of an optimization and will allow aspects of an operation's api to be deprecated.
 
@@ -168,6 +173,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-394]: https://github.com/pakyow/pakyow/pull/394
 [pr-392]: https://github.com/pakyow/pakyow/pull/392
 [pr-391]: https://github.com/pakyow/pakyow/pull/391
 [pr-390]: https://github.com/pakyow/pakyow/pull/390
