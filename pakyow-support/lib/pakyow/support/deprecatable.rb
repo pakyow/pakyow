@@ -109,7 +109,7 @@ module Pakyow
           self.class
         end
 
-        context.instance_methods(false)
+        context.instance_methods(false) + context.private_instance_methods(false)
       end
 
       # @api private

@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Allow private instance methods to be deprecated.**
+
+    *Related links:*
+    - [Pull Request #393][pr-393]
+
   * `fix` **Deprecated instance methods are no longer available on the class.**
 
     *Related links:*
@@ -193,6 +198,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-393]: https://github.com/pakyow/pakyow/pull/393
 [pr-389]: https://github.com/pakyow/pakyow/pull/389
 [pr-387]: https://github.com/pakyow/pakyow/pull/387
 [pr-385]: https://github.com/pakyow/pakyow/pull/385
