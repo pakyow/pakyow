@@ -76,9 +76,32 @@ module Pakyow
     end
     deprecate :values, solution: "prefer value methods"
 
+    private def deprecated_method_reference(target)
+      target = if target.is_a?(Symbol) && target.to_s[-1] == "="
+        target[0..-2].to_sym
+      else
+        target
+      end
+
+      if self.class.__verifiers[:default]&.allowable_keys&.include?(target)
+        return self, "verified value `#{target}'"
+      else
+        super
+      end
+    end
+
     class << self
       def handle(error = nil, &block)
         @__handlers[error || :global] = block
+      end
+
+      # @api private
+      def deprecate(target = self, solution: "do not use")
+        if __verifiers[:default]&.allowable_keys&.include?(target)
+          super(:"#{target}=", solution: solution)
+        end
+
+        super(target, solution: solution)
       end
 
       # @api private
