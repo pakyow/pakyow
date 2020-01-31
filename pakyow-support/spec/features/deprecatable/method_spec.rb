@@ -5,23 +5,7 @@ RSpec.describe "deprecating a method" do
     allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
   end
 
-  context "method is an instance method" do
-    let!(:deprecatable) {
-      Class.new {
-        extend Pakyow::Support::Deprecatable
-
-        attr_reader :args, :kwargs, :block
-
-        def foo(*args, **kwargs, &block)
-          @args, @kwargs, @block = args, kwargs, block
-        end
-
-        deprecate :foo
-      }.tap do |deprecatable|
-        stub_const "DeprecatableClass", deprecatable
-      end
-    }
-
+  shared_examples "deprecated instance method" do
     it "does not report the deprecation immediately" do
       expect(Pakyow::Support::Deprecator.global).not_to have_received(:deprecated)
     end
@@ -57,6 +41,47 @@ RSpec.describe "deprecating a method" do
         end
       end
     end
+  end
+
+  context "method is an instance method" do
+    let!(:deprecatable) {
+      Class.new {
+        extend Pakyow::Support::Deprecatable
+
+        attr_reader :args, :kwargs, :block
+
+        def foo(*args, **kwargs, &block)
+          @args, @kwargs, @block = args, kwargs, block
+        end
+
+        deprecate :foo
+      }.tap do |deprecatable|
+        stub_const "DeprecatableClass", deprecatable
+      end
+    }
+
+
+    it_behaves_like "deprecated instance method"
+  end
+
+  context "method is a private instance method" do
+    let!(:deprecatable) {
+      Class.new {
+        extend Pakyow::Support::Deprecatable
+
+        attr_reader :args, :kwargs, :block
+
+        private def foo(*args, **kwargs, &block)
+          @args, @kwargs, @block = args, kwargs, block
+        end
+
+        deprecate :foo
+      }.tap do |deprecatable|
+        stub_const "DeprecatableClass", deprecatable
+      end
+    }
+
+    it_behaves_like "deprecated instance method"
   end
 
   context "method is defined on a single instance" do

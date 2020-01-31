@@ -19,7 +19,7 @@ module Pakyow
       #   Deprecation.new(Foo.new, :bar, solution: "use `baz'").to_s
       #   => `Foo#bar' is deprecated; solution: use `baz'
       #
-      #   Deprecation.new("`foo.rb' is deprecated", solution: "rename to `bar.rb'").to_s
+      #   Deprecation.new("`foo.rb'", solution: "rename to `bar.rb'").to_s
       #   => `foo.rb' is deprecated; solution: rename to `baz.rb'
       #
       def to_s
