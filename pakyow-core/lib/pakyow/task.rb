@@ -17,6 +17,7 @@ module Pakyow
 
     extend Forwardable
     def_delegators :@rake, :name
+    alias cli_name name
 
     attr_reader :description, :arguments, :options, :flags, :short_names
 
@@ -62,6 +63,10 @@ module Pakyow
       feedback.usage(self, describe: describe)
       string.rewind
       string.read
+    end
+
+    def flag?(key)
+      @flags.include?(key.to_sym)
     end
 
     private
@@ -209,7 +214,7 @@ module Pakyow
         }
       end
 
-      def option(name, description, required: false, short: :default)
+      def option(name, description, required: false, short: name[0])
         @__options[name.to_sym] = {
           description: description,
           required: required,

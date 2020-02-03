@@ -33,13 +33,23 @@ RSpec.describe Pakyow::CLI do
 
   describe "presenting commands based on context" do
     before do
-      allow(Pakyow).to receive(:tasks) do
-        [].tap do |tasks|
-          tasks << Pakyow::Task.new(description: "global", global: true)
-          tasks << Pakyow::Task.new(description: "local", global: false)
+      allow(Pakyow).to receive(:commands) do
+        instance_double(Pakyow::Support::Definable::Registry).tap do |registry|
+          allow(registry).to receive(:definitions).and_return(definitions)
         end
       end
+
+      allow(Pakyow).to receive(:tasks) do
+        []
+      end
     end
+
+    let(:definitions) {
+      [].tap do |commands|
+        commands << Pakyow::Command.make(:test_1, description: "global", global: true)
+        commands << Pakyow::Command.make(:test_2, description: "local", global: false)
+      end
+    }
 
     let :commands do
       Pakyow::CLI.new(feedback: feedback).commands
@@ -129,7 +139,7 @@ RSpec.describe Pakyow::CLI do
 
     let :task do
       Class.new do
-        def name
+        def cli_name
           "test"
         end
 
@@ -160,7 +170,9 @@ RSpec.describe Pakyow::CLI do
         end
 
         def arguments
-          [:foo]
+          {
+            foo: {}
+          }
         end
 
         def short_names
@@ -172,6 +184,14 @@ RSpec.describe Pakyow::CLI do
         def args
           [:foo, :bar, :qux]
         end
+
+        def short?(key)
+          short_names.include?(key)
+        end
+
+        def short(key)
+          short_names[key]
+        end
       end
     end
 
@@ -180,11 +200,11 @@ RSpec.describe Pakyow::CLI do
     end
 
     it "retains the argument order" do
-      expect_any_instance_of(task).to receive(:call) do |_, _, **args|
+      expect_any_instance_of(task).to receive(:call) do |**args|
         expect(**args).to eq({:env=>"development", :foo=>"foo_value", :bar=>"bar_value", :qux=>"qux_value"})
       end
 
-      Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value"], feedback: feedback)
+      Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value", "-e", "development"], feedback: feedback)
     end
   end
 end

@@ -248,6 +248,18 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "commands.paths" do
+      it "has a default value" do
+        expect(Pakyow.config.commands.paths).to eq(["./commands", File.expand_path("../../../../lib/pakyow/commands", __FILE__)])
+      end
+    end
+
+    describe "commands.prelaunch" do
+      it "has a default value" do
+        expect(Pakyow.config.commands.prelaunch).to eq([])
+      end
+    end
+
     describe "redis.connection.url" do
       before do
         @original_redis_url = ENV["REDIS_URL"]

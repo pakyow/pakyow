@@ -19,11 +19,13 @@ module Pakyow
     GLOBAL_OPTIONS = {
       app: {
         description: "The app to run the command on",
-        global: true
+        global: true,
+        short: "a"
       }.freeze,
       env: {
         description: "What environment to use",
-        global: true
+        global: true,
+        short: "e"
       }.freeze
     }.freeze
 
@@ -50,8 +52,12 @@ module Pakyow
       load_commands
 
       if command
-        callable_command = find_callable_command(command)
+        unless callable_command = find_callable_command(command)
+          handle_unknown_command(command)
+        end
 
+        # TODO: Once `Pakyow::Task` is removed, always pass `cli` as an option.
+        #
         if callable_command.cli?
           options[:cli] = self
         end
@@ -88,13 +94,15 @@ module Pakyow
     end
 
     def commands
-      @commands ||= Pakyow.tasks.select { |task|
-        (task.global? && !project_context?) || (!task.global? && project_context?)
+      @commands ||= (Pakyow.commands.definitions + Pakyow.tasks).select { |command|
+        (command.global? && !project_context?) || (!command.global? && project_context?)
       }
     end
 
     def find_callable_command(command)
-      commands.find { |callable_command| callable_command.name == command } || handle_unknown_command(command)
+      commands.find { |callable_command|
+        callable_command.cli_name == command
+      }
     end
 
     private def project_context?
@@ -102,27 +110,26 @@ module Pakyow
     end
 
     private def load_commands
-      require "rake"
-
       Pakyow.load_tasks
+      Pakyow.load_commands
     end
 
-    private def handle_unknown_command(command)
-      if task = Pakyow.tasks.find { |task| task.name == command }
+    private def handle_unknown_command(command_name)
+      if task = (Pakyow.commands.definitions + Pakyow.tasks).find { |command| command.cli_name == command_name }
         if task.global?
           raise UnknownCommand.new_with_message(
             :not_in_global_context,
-            command: command
+            command: command_name
           )
         else
           raise UnknownCommand.new_with_message(
             :not_in_project_context,
-            command: command
+            command: command_name
           )
         end
       else
         raise UnknownCommand.new_with_message(
-          command: command
+          command: command_name
         )
       end
     end
@@ -144,13 +151,24 @@ module Pakyow
     private def call_command(command, argv, options)
       parser = Parsers::Command.new(command, argv.dup)
       options = options.merge(parser.options)
-      command.call({}, [], **options)
+
+      if command.is_a?(Pakyow::Task)
+        command.call({}, [], **options)
+      else
+        command.call(**options)
+      end
     rescue InvalidInput => error
       @feedback.error(error)
       @feedback.usage(command, describe: false)
     end
-  end
 
-  require "pakyow/behavior/tasks"
-  include Behavior::Tasks
+    class << self
+      UNAVAILABLE_SHORT_NAMES = %i(a e h).freeze
+
+      # @api private
+      def shortable?(short_name)
+        !UNAVAILABLE_SHORT_NAMES.include?(short_name.to_sym)
+      end
+    end
+  end
 end

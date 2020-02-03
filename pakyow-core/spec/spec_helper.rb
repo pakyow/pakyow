@@ -20,5 +20,6 @@ RSpec.configure do |config|
 end
 
 require_relative "../../spec/context/app_context"
+require_relative "../../spec/context/cli_context"
 require_relative "../../spec/context/command_context"
 require_relative "../../spec/context/suppressed_output_context"

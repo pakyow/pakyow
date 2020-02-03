@@ -12,6 +12,11 @@ module Pakyow
       apply_extension do
         class_state :tasks, default: []
 
+        configurable :tasks do
+          setting :paths, ["./tasks", File.expand_path("../../tasks", __FILE__)]
+          setting :prelaunch, []
+        end
+
         # @api private
         def load_tasks
           require "pakyow/task"

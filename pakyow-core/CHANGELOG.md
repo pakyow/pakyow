@@ -1,5 +1,8 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Command`, definable on the environment.**
+    - Will replace `Pakyow::Task` moving forward, as it's much simpler conceptually.
+
   * `chg` **Ensure that every potential operation value has an instance variable.**
 
     *Related links:*

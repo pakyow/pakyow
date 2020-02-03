@@ -12,18 +12,13 @@ module CommandHelpers
     FileUtils.mkdir_p(command_dir)
     Dir.chdir(command_dir)
 
-    original_argv = ARGV.dup
-    ARGV.clear
-    ARGV.concat(command)
-
-    output = capture_stdout do
-      eval(File.read(File.expand_path("../../../pakyow-core/commands/pakyow", __FILE__)))
-      yield if block_given?
-    end
-
-    ARGV.clear
-    ARGV.concat(original_argv)
-
+    output = StringIO.new
+    allow(output).to receive(:tty?).and_return(true)
+    Pakyow::CLI.new(command, feedback: Pakyow::CLI::Feedback.new(output))
+    yield if block_given?
+    output.rewind
+    output.read
+  ensure
     # Set the working directory back to the original value.
     #
     Dir.chdir(original_pwd)
@@ -31,8 +26,6 @@ module CommandHelpers
     if cleanup
       cleanup_after_command
     end
-
-    output
   end
 
   def cleanup_after_command

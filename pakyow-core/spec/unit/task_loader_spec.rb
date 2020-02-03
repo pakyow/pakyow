@@ -139,7 +139,7 @@ RSpec.describe Pakyow::Task::Loader do
       expect(instance.__options[:foo]).to eq({
         description: "foo description",
         required: false,
-        short: :default
+        short: "f"
       })
     end
 
@@ -149,7 +149,7 @@ RSpec.describe Pakyow::Task::Loader do
         expect(instance.__options[:foo]).to eq({
           description: "foo description",
           required: true,
-          short: :default
+          short: "f"
         })
       end
     end
@@ -171,16 +171,18 @@ RSpec.describe Pakyow::Task::Loader do
         options: {
           app: {
             description: "The app to run the command on",
-            global: true
+            global: true,
+            short: "a"
           },
           env: {
             description: "What environment to use",
-            global: true
+            global: true,
+            short: "e"
           },
           bar: {
             description: "bar option",
             required: false,
-            short: :default
+            short: "b"
           }
         },
         flags: {

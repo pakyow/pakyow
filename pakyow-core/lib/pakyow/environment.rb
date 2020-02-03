@@ -12,15 +12,18 @@ require "pakyow/support/configurable"
 require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/definable"
 require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
 require "pakyow/support/deprecatable"
 
+require "pakyow/behavior/commands"
 require "pakyow/behavior/deprecations"
 require "pakyow/behavior/initializers"
 require "pakyow/behavior/input_parsing"
 require "pakyow/behavior/plugins"
 require "pakyow/behavior/silencing"
+require "pakyow/behavior/tasks"
 require "pakyow/behavior/timezone"
 require "pakyow/behavior/running"
 require "pakyow/behavior/watching"
@@ -235,11 +238,6 @@ module Pakyow
     end
   end
 
-  configurable :tasks do
-    setting :paths, ["./tasks", File.expand_path("../tasks", __FILE__)]
-    setting :prelaunch, []
-  end
-
   configurable :redis do
     configurable :connection do
       setting :url do
@@ -272,10 +270,14 @@ module Pakyow
     setting :same_site
   end
 
+  include Support::Definable
+
+  include Behavior::Commands
   include Behavior::Initializers
   include Behavior::InputParsing
   include Behavior::Plugins
   include Behavior::Silencing
+  include Behavior::Tasks
   include Behavior::Timezone
   include Behavior::Running
   include Behavior::Watching
