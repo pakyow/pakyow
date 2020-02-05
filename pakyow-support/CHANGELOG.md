@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Correctly define and find namespaced definable state.**
+
+    *Related links:*
+    - [Pull Request #396][pr-396]
+
   * `fix` **Allow private instance methods to be deprecated.**
 
     *Related links:*
@@ -198,6 +203,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-396]: https://github.com/pakyow/pakyow/pull/396
 [pr-393]: https://github.com/pakyow/pakyow/pull/393
 [pr-389]: https://github.com/pakyow/pakyow/pull/389
 [pr-387]: https://github.com/pakyow/pakyow/pull/387

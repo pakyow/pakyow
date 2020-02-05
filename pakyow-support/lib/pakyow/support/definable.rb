@@ -209,6 +209,18 @@ module Pakyow
 
         # Register a type of state that can be defined by `name`.
         #
+        # = Argument Building
+        #
+        # Definables can use their own argument builder for finalizing the argument list. Argument
+        # builders should respond to `call` and return an argument list consisting of a namespace,
+        # object name, and any options.
+        #
+        #   definable :controller, Controller, builder: -> (*namespace, object_name, **options) {
+        #     ...
+        #
+        #     return namespace, object_name, options
+        #   }
+        #
         # @param state_name [Symbol] the name of the definable state
         # @param definable_object [Object] the object to be defined
         # @param builder [Proc] an optional argument builder
@@ -245,17 +257,17 @@ module Pakyow
           __definable_registries[state_name.to_sym] = state_registry
 
           definition_code = <<~CODE
-            def #{state_name}(*args, **kwargs, &block)
+            def #{state_name}(*namespace, **kwargs, &block)
               registry = __definable_registries[#{state_name.to_sym.inspect}]
 
               if block_given?
-                registry.define(*args, **kwargs, &block)
+                registry.define(*namespace, **kwargs, &block)
               else
                 # Fall back to finding if we aren't defining with a block. This lets us gracefully
                 # handle cases where the definable type is pluralized.
                 #
-                if args.any?
-                  registry.find(*args)
+                if namespace.any?
+                  registry.find(*namespace)
                 else
                   registry
                 end
@@ -264,11 +276,11 @@ module Pakyow
           CODE
 
           lookup_code = <<~CODE
-            def #{Support.inflector.pluralize(state_name)}(*args)
+            def #{Support.inflector.pluralize(state_name)}(*namespace)
               registry = __definable_registries[#{state_name.to_sym.inspect}]
 
-              if args.any?
-                registry.find(*args)
+              if namespace.any?
+                registry.find(*namespace)
               else
                 registry
               end

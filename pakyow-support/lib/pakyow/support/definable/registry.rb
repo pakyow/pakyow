@@ -47,22 +47,24 @@ module Pakyow
 
         # Define an object.
         #
-        def define(name = nil, *args, priority: :default, **opts, &block)
+        def define(*namespace, priority: :default, **opts, &block)
           if @object.name.nil?
             opts[:set_const] = false
           end
 
-          name, *args = build_final_args(name, *args, **opts)
+          object_name = namespace.pop
 
-          if found = find(name)
+          namespace, object_name, opts = build_final_args(*namespace, object_name, **opts)
+
+          if found = find(*namespace, object_name)
             if block_given?
               found.class_eval(&block)
             end
 
             found
           else
-            defined = @object.make(*object_type_namespace, name, *args, &block)
-            register(name, defined, priority: priority)
+            defined = @object.make(*object_type_namespace, *namespace, object_name, **opts, &block)
+            register(object_name, defined, priority: priority)
           end
         end
 
@@ -165,11 +167,11 @@ module Pakyow
           }
         end
 
-        private def build_final_args(object_name, *args, **opts)
+        private def build_final_args(*namespace, object_name, **opts)
           if @builder
-            @builder.call(object_name, *args, **opts)
+            @builder.call(*namespace, object_name, **opts)
           else
-            return object_name, *args, **opts
+            return namespace, object_name, opts
           end
         end
 

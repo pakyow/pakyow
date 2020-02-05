@@ -63,9 +63,10 @@ module Pakyow
           end
 
           definable :binder, Binder
-          definable :presenter, Presenter, builder: -> (path, *args, **kwargs) {
+          definable :presenter, Presenter, builder: -> (path, **opts) {
             path = String.normalize_path(path)
-            return path, *args, path: path, **kwargs
+            opts[:path] = path
+            return [], path, opts
           }
           definable :processor, Processor
           definable :templates, Templates
