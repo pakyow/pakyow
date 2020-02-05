@@ -163,9 +163,10 @@ RSpec.describe "defining state via definable" do
 
   describe "building definable arguments" do
     let(:application) {
-      application_class.definable :controller, controller, builder: -> (*args, **kwargs) {
-        kwargs[:foo] = :bar
-        return *args, **kwargs
+      application_class.definable :controller, controller, builder: -> (*namespace, object_name, **opts) {
+        opts[:foo] = :bar
+
+        return namespace, object_name, opts
       }
 
       application_class

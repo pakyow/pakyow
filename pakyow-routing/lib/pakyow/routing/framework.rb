@@ -25,8 +25,8 @@ module Pakyow
 
           # Make controllers definable on the app.
           #
-          definable :controller, Controller, builder: -> (*args, **kwargs) {
-            controller_name, matcher = Controller.parse_name_and_matcher_from_args(*args)
+          definable :controller, Controller, builder: -> (*namespace, object_name, **opts) {
+            controller_name, matcher = Controller.parse_name_and_matcher_from_args(*namespace, object_name)
 
             path = if matcher.is_a?(String)
               matcher
@@ -50,7 +50,10 @@ module Pakyow
               matcher
             end
 
-            return controller_name, path: path, matcher: matcher, **kwargs
+            opts[:path] = path
+            opts[:matcher] = matcher
+
+            return [], controller_name, opts
           } do
             include Extension::Resource
           end

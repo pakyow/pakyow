@@ -15,24 +15,24 @@ module Pakyow
     class Framework < Pakyow::Framework(:data)
       def boot
         object.class_eval do
-          definable :source, Sources::Relational, builder: -> (*args, **kwargs) {
-            unless kwargs.key?(:adapter)
-              kwargs[:adapter] = Pakyow.config.data.default_adapter
+          definable :source, Sources::Relational, builder: -> (*namespace, object_name, **opts) {
+            unless opts.key?(:adapter)
+              opts[:adapter] = Pakyow.config.data.default_adapter
             end
 
-            unless kwargs.key?(:connection)
-              kwargs[:connection] = Pakyow.config.data.default_connection
+            unless opts.key?(:connection)
+              opts[:connection] = Pakyow.config.data.default_connection
             end
 
-            unless kwargs.key?(:primary_id)
-              kwargs[:primary_id] = true
+            unless opts.key?(:primary_id)
+              opts[:primary_id] = true
             end
 
-            unless kwargs.key?(:timestamps)
-              kwargs[:timestamps] = true
+            unless opts.key?(:timestamps)
+              opts[:timestamps] = true
             end
 
-            return *args, **kwargs
+            return namespace, object_name, opts
           }
 
           definable :object, Object
