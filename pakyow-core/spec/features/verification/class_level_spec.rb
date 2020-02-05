@@ -227,4 +227,32 @@ RSpec.describe "defining and using class-level verifiers" do
       expect(values).to eq(foo: "foo", bar: "bar")
     end
   end
+
+  describe "defining across many verify calls" do
+    let(:verifiable) {
+      Class.new do
+        include Pakyow::Behavior::Verification
+
+        verify do
+          required :foo
+        end
+
+        verify do
+          optional :bar, default: "bar"
+        end
+      end
+    }
+
+    let(:values) {
+      { foo: "foo", baz: "baz" }
+    }
+
+    before do
+      target.verify values
+    end
+
+    it "defines successfully" do
+      expect(values).to eq(foo: "foo", bar: "bar")
+    end
+  end
 end
