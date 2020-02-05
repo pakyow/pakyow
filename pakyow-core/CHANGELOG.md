@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Eval blocks passed to `verify` after the verifier is already defined.**
+
+    *Related links:*
+    - [Pull Request #395][pr-395]
+
   * `add` **Support verified value deprecations for operations.**
 
     *Related links:*
@@ -173,6 +178,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-395]: https://github.com/pakyow/pakyow/pull/395
 [pr-394]: https://github.com/pakyow/pakyow/pull/394
 [pr-392]: https://github.com/pakyow/pakyow/pull/392
 [pr-391]: https://github.com/pakyow/pakyow/pull/391
