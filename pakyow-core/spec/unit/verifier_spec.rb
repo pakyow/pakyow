@@ -372,5 +372,49 @@ RSpec.describe Pakyow::Verifier do
         end
       end
     end
+
+    context "default value is a block" do
+      let :verifier do
+        described_class.new do
+          optional :foo, default: -> { "foo" }
+        end
+      end
+
+      let(:values) { {} }
+
+      it "resolves the default value" do
+        expect(values[:foo]).to eq("foo")
+      end
+    end
+
+    describe "introspecting default values" do
+      let(:values) { {} }
+
+      it "indicates there is a default value" do
+        expect(verifier.default?(:foo)).to be(true)
+      end
+
+      it "fetches the default value" do
+        expect(verifier.default(:foo)).to eq("foo")
+      end
+    end
+
+    describe "understanding default values in the result" do
+      context "default value is used" do
+        let(:values) { {} }
+
+        it "indicates the value is default" do
+          expect(result.default?(:foo)).to be(true)
+        end
+      end
+
+      context "default value is not used" do
+        let(:values) { { foo: "bar" } }
+
+        it "indicates the value is not a default" do
+          expect(result.default?(:foo)).to be(false)
+        end
+      end
+    end
   end
 end

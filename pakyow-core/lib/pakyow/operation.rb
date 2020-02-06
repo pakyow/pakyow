@@ -25,10 +25,14 @@ module Pakyow
     attr_reader :__values
 
     def initialize(**values)
-      verify(values)
       @__values = values
+      result = verify(values)
       values.each_pair do |key, value|
-        send(:"#{key}=", value)
+        if result&.default?(key)
+          instance_variable_set(:"@#{key}", value)
+        else
+          send(:"#{key}=", value)
+        end
       end
     end
 

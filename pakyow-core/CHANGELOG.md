@@ -1,5 +1,15 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Avoid using the setter for default values in operations.**
+
+    *Related links:*
+    - [Pull Request #398][pr-398]
+
+  * `add` **Resolve default values that are blocks, introspect default values.**
+
+    *Related links:*
+    - [Pull Request #397][pr-397]
+
   * `fix` **Eval blocks passed to `verify` after the verifier is already defined.**
 
     *Related links:*
@@ -178,6 +188,8 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-398]: https://github.com/pakyow/pakyow/pull/398
+[pr-397]: https://github.com/pakyow/pakyow/pull/397
 [pr-395]: https://github.com/pakyow/pakyow/pull/395
 [pr-394]: https://github.com/pakyow/pakyow/pull/394
 [pr-392]: https://github.com/pakyow/pakyow/pull/392

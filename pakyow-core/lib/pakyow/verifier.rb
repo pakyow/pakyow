@@ -16,6 +16,7 @@ module Pakyow
         @errors = {}
         @nested = {}
         @validation = nil
+        @defaults = []
       end
 
       def error(key, message)
@@ -62,6 +63,14 @@ module Pakyow
         end
 
         messages
+      end
+
+      def default(key)
+        @defaults << key.to_sym
+      end
+
+      def default?(key)
+        @defaults.include?(key.to_sym)
       end
     end
 
@@ -152,8 +161,9 @@ module Pakyow
 
       @allowable_keys.each do |allowable_key|
         if values[allowable_key].nil?
-          if @defaults.include?(allowable_key)
-            values[allowable_key] = @defaults[allowable_key]
+          if default?(allowable_key)
+            result.default(allowable_key)
+            values[allowable_key] = default(allowable_key)
           end
 
           if @required_keys.include?(allowable_key)
@@ -187,6 +197,28 @@ module Pakyow
       end
 
       result
+    end
+
+    def default?(key)
+      @defaults.include?(key.to_sym)
+    end
+
+    def default(key)
+      key = key.to_sym
+      if value = @defaults.include?(key)
+        resolve_default_value(@defaults[key])
+      else
+        nil
+      end
+    end
+
+    private def resolve_default_value(value)
+      case value
+      when Proc
+        value.call
+      else
+        value
+      end
     end
 
     private def sanitize!(values)
