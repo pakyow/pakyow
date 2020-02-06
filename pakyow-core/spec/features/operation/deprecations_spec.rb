@@ -70,5 +70,26 @@ RSpec.describe "deprecating operations" do
         instance, :bar, solution: "do not use"
       )
     end
+
+    context "value is a default" do
+      let(:app_def) {
+        Proc.new {
+          operation :test do
+            optional :foo, default: "foo"
+            deprecate :foo
+          end
+        }
+      }
+
+      let(:values) {
+        {}
+      }
+
+      it "does not invoke the setter" do
+        instance
+
+        expect(Pakyow::Support::Deprecator.global).not_to have_received(:deprecated)
+      end
+    end
   end
 end
