@@ -34,6 +34,16 @@ module Pakyow
           send(:"#{key}=", value)
         end
       end
+
+      # Ensure that every potential value has an instance variable.
+      #
+      self.class.__verifiers.each_value do |verifier|
+        verifier.allowable_keys.each do |key|
+          unless values.include?(key)
+            instance_variable_set(:"@#{key}", nil)
+          end
+        end
+      end
     end
 
     def perform
