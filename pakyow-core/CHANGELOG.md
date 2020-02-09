@@ -1,3 +1,13 @@
+# v1.0.4 (unreleased)
+
+  * `fix` **Typecast header values to strings.**
+    - Resolves an incompatibility with `protocol-http`.
+
+    *Related links:*
+    - [Pull Request #400][pr-400]
+
+[pr-400]: https://github.com/pakyow/pakyow/pull/400
+
 # v1.0.3
 
   * `fix` **Resolve several issues with respawns, restarts.**

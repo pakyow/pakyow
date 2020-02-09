@@ -82,7 +82,7 @@ module Pakyow
     end
 
     def set_header(key, value)
-      @headers[normalize_header(key)] = value
+      @headers[normalize_header(key)] = normalize_header_value(value)
     end
 
     def set_headers(headers)
@@ -368,6 +368,15 @@ module Pakyow
 
     def normalize_header(key)
       key.to_s.downcase.gsub("_", "-")
+    end
+
+    def normalize_header_value(value)
+      case value
+      when Array
+        value.map(&:to_s)
+      else
+        value.to_s
+      end
     end
 
     DELETE_COOKIE = {
