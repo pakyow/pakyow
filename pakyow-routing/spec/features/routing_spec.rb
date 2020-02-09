@@ -79,7 +79,7 @@ RSpec.describe "routing requests" do
     end
 
     it "responds with a valid content length header" do
-      expect(call("/", method: :head)[1]).to include("content-length" => 5)
+      expect(call("/", method: :head)[1]).to include("content-length" => "5")
     end
   end
 

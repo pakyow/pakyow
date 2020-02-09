@@ -21,7 +21,7 @@ module Pakyow
       end
 
       def request_header(key)
-        normalize_header_value(key, @request.get_header(normalize_header(key)))
+        normalize_header_key_value(key, @request.get_header(normalize_header(key)))
       end
 
       def request_header?(key)
@@ -56,7 +56,7 @@ module Pakyow
         key.to_s.upcase.gsub("-", "_")
       end
 
-      def normalize_header_value(key, value)
+      def normalize_header_key_value(key, value)
         if value && policy = Protocol::HTTP::Headers::MERGE_POLICY[key.to_s.downcase.gsub("_", "-")]
           policy.new(value.to_s)
         else
