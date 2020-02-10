@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Ensure that every potential operation value has an instance variable.**
+
+    *Related links:*
+    - [Pull Request #399][pr-399]
+
   * `chg` **Avoid using the setter for default values in operations.**
 
     *Related links:*
@@ -188,6 +193,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-399]: https://github.com/pakyow/pakyow/pull/399
 [pr-398]: https://github.com/pakyow/pakyow/pull/398
 [pr-397]: https://github.com/pakyow/pakyow/pull/397
 [pr-395]: https://github.com/pakyow/pakyow/pull/395
