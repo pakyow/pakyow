@@ -107,6 +107,20 @@ RSpec.shared_examples :connection_headers do
         expect(connection.header("foo-bar")).to eq("baz")
       end
     end
+
+    context "passed a non-string value" do
+      it "typecasts to a string" do
+        connection.set_header("content-length", 5)
+        expect(connection.header("content-length")).to eq("5")
+      end
+    end
+
+    context "passed an array of non-string values" do
+      it "typecasts each value to a string" do
+        connection.set_header("content-length", [1, 2, 3])
+        expect(connection.header("content-length")).to eq(["1", "2", "3"])
+      end
+    end
   end
 
   describe "#set_headers" do
