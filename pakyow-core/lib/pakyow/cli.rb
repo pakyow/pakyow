@@ -49,7 +49,6 @@ module Pakyow
 
           if project_context?
             Pakyow.setup(env: options[:env])
-            Pakyow.boot
           end
 
           Pakyow.load_tasks
@@ -62,6 +61,7 @@ module Pakyow
                 options = options.merge(parser.options)
               end
 
+              Pakyow.boot if callable_command.boot?
               cli.call(command, **options)
             end
           else

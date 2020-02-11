@@ -57,6 +57,10 @@ module Pakyow
       @global == true
     end
 
+    def boot?
+      false
+    end
+
     def help(describe: true)
       string = StringIO.new
       feedback = CLI::Feedback.new(string)

@@ -18,6 +18,10 @@ module Pakyow
         definable :command, Command, builder: -> (*namespace, object_name, **opts) {
           opts[:cli_name] = (namespace + [object_name]).join(":")
 
+          unless opts.include?(:boot)
+            opts[:boot] = true
+          end
+
           return namespace, object_name, opts
         }, lookup: -> (_app, command, **values) {
           command.call(**values)

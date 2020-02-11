@@ -192,6 +192,11 @@ module Pakyow
       end
 
       # @api private
+      def boot?
+        defined?(@boot) && @boot == true
+      end
+
+      # @api private
       def cli_name
         @cli_name ||= object_name.parts.join(":")
       end
