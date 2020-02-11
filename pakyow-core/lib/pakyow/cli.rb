@@ -177,7 +177,12 @@ module Pakyow
 
     private def setup_options_for_app_command(options)
       options[:app] = if options.key?(:app)
-        Pakyow.app(options[:app]) || raise("`#{options[:app]}' is not a known app")
+        case options[:app]
+        when Application
+          options[:app]
+        else
+          Pakyow.app(options[:app]) || raise("`#{options[:app]}' is not a known app")
+        end
       elsif Pakyow.apps.count == 1
         Pakyow.apps.first
       elsif Pakyow.apps.count > 0
