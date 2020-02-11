@@ -5,28 +5,32 @@ RSpec.describe Pakyow::CLI do
     double(:feedback).as_null_object
   }
 
+  let(:output) {
+    StringIO.new
+  }
+
   describe "requiring config/environment.rb" do
     context "within the project folder" do
       before do
-        allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
+        allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
       end
 
       it "loads the environment" do
         expect(Pakyow).to receive(:load)
 
-        Pakyow::CLI.new(feedback: feedback)
+        Pakyow::CLI.run([], output: output)
       end
     end
 
     context "outside of a project folder" do
       before do
-        allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
+        allow(Pakyow::CLI).to receive(:project_context?).and_return(false)
       end
 
       it "does not load the environment" do
         expect(Pakyow).not_to receive(:load)
 
-        Pakyow::CLI.new(feedback: feedback)
+        Pakyow::CLI.run([], output: output)
       end
     end
   end
@@ -52,12 +56,12 @@ RSpec.describe Pakyow::CLI do
     }
 
     let :commands do
-      Pakyow::CLI.new(feedback: feedback).commands
+      Pakyow::CLI.new(feedback: feedback).send(:commands)
     end
 
     context "within the project folder" do
       before do
-        allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(true)
+        allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
       end
 
       it "only includes project commands" do
@@ -68,7 +72,7 @@ RSpec.describe Pakyow::CLI do
 
     context "outside of a project folder" do
       before do
-        allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
+        allow(Pakyow::CLI).to receive(:project_context?).and_return(false)
       end
 
       it "only includes global commands" do
@@ -81,49 +85,55 @@ RSpec.describe Pakyow::CLI do
   describe "failing commands" do
     context "stdout is a tty" do
       before do
-        allow($stdout).to receive(:tty?).and_return(true)
+        allow(output).to receive(:tty?).and_return(true)
       end
 
       it "does not raise the error" do
         expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
 
         expect {
-          Pakyow::CLI.new([], feedback: feedback)
+          Pakyow::CLI.run([], output: output)
         }.to_not raise_error
       end
     end
 
     context "stdout is not a tty" do
       before do
-        allow(feedback).to receive(:tty?).and_return(false)
+        allow(output).to receive(:tty?).and_return(false)
       end
 
       it "raises the error" do
         expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
 
         expect {
-          Pakyow::CLI.new([], feedback: feedback)
+          Pakyow::CLI.run([], output: output)
         }.to raise_error(RuntimeError)
       end
     end
   end
 
   describe "exit codes" do
-    context "command succeeds" do
-      it "indicates success" do
-        expect(::Process).not_to receive(:exit)
-        Pakyow::CLI.new([], feedback: feedback)
-      end
-    end
-
-    context "command fails" do
+    context "stdout is a tty" do
       before do
-        expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
+        allow(output).to receive(:tty?).and_return(true)
       end
 
-      it "indicates failure" do
-        expect(::Process).to receive(:exit).with(0)
-        Pakyow::CLI.new([], feedback: feedback)
+      context "command succeeds" do
+        it "indicates success" do
+          expect(::Process).not_to receive(:exit)
+          Pakyow::CLI.run([], output: output)
+        end
+      end
+
+      context "command fails" do
+        before do
+          expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
+        end
+
+        it "indicates failure" do
+          expect(::Process).to receive(:exit).with(0)
+          Pakyow::CLI.run([], output: output)
+        end
       end
     end
   end
@@ -204,7 +214,7 @@ RSpec.describe Pakyow::CLI do
         expect(**args).to eq({:env=>"development", :foo=>"foo_value", :bar=>"bar_value", :qux=>"qux_value"})
       end
 
-      Pakyow::CLI.new(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value", "-e", "development"], feedback: feedback)
+      Pakyow::CLI.run(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value", "-e", "development"], output: output)
     end
   end
 end

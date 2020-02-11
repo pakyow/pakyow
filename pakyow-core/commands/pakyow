@@ -14,4 +14,4 @@ if !defined?(Bundler) && Pakyow::Support::System.gemfile?
 end
 
 require "pakyow/cli"
-Pakyow::CLI.new
+Pakyow::CLI.run

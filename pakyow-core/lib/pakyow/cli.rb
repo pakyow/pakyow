@@ -31,31 +31,81 @@ module Pakyow
 
     attr_reader :feedback
 
-    def initialize(argv = ARGV, feedback: Feedback.new($stdout))
-      argv = argv.dup
+    class << self
+      def run(argv = ARGV, output: $stdout)
+        argv = argv.dup
 
+        cli = new(feedback: Feedback.new(output))
+
+        cli.handle do
+          parser = Parsers::Global.new(argv)
+          command = parser.command
+          options = parser.options
+
+          case command
+          when "prototype"
+            options[:env] = :prototype
+          end
+
+          if project_context?
+            Pakyow.setup(env: options[:env])
+            Pakyow.boot
+          end
+
+          Pakyow.load_tasks
+          Pakyow.load_commands
+
+          if command
+            cli.with(command) do |callable_command|
+              unless options[:help]
+                parser = Parsers::Command.new(callable_command, argv)
+                options = options.merge(parser.options)
+              end
+
+              cli.call(command, **options)
+            end
+          else
+            cli.help
+          end
+        end
+      end
+
+      # @api private
+      def project_context?
+        File.exist?(Pakyow.config.environment_path + ".rb")
+      end
+    end
+
+    def initialize(feedback: Feedback.new($stdout))
       @feedback = feedback
+    end
 
-      parser = Parsers::Global.new(argv)
-      command = parser.command
-      options = parser.options
-
-      case command
-      when "prototype"
-        options[:env] = :prototype
+    def with(command)
+      handle(find_callable_command(command)) do |callable_command|
+        yield callable_command
       end
+    end
 
-      if project_context?
-        Pakyow.setup(env: options[:env])
-      end
+    def handle(command = nil)
+      yield command
+    rescue StandardError => error
+      if @feedback.tty?
+        @feedback.error(error)
 
-      load_commands
-
-      if command
-        unless callable_command = find_callable_command(command)
-          handle_unknown_command(command)
+        if command
+          @feedback.usage(command, describe: false)
+        else
+          @feedback.help(commands, header: false)
         end
 
+        ::Process.exit(0)
+      else
+        raise error
+      end
+    end
+
+    def call(command, **options)
+      with(command) do |callable_command|
         # TODO: Once `Pakyow::Task` is removed, always pass `cli` as an option.
         #
         if callable_command.cli?
@@ -72,46 +122,36 @@ module Pakyow
         if options[:help]
           @feedback.usage(callable_command)
         else
-          call_command(callable_command, argv, options)
+          call_command(callable_command, options)
         end
-      else
-        @feedback.help(commands)
-      end
-    rescue StandardError => error
-      if @feedback.tty?
-        @feedback.error(error)
-
-        if callable_command
-          @feedback.usage(callable_command, describe: false)
-        else
-          @feedback.help(commands, header: false)
-        end
-
-        ::Process.exit(0)
-      else
-        raise error
       end
     end
 
-    def commands
-      @commands ||= (Pakyow.commands.definitions + Pakyow.tasks).select { |command|
-        (command.global? && !project_context?) || (!command.global? && project_context?)
+    def help
+      @feedback.help(commands)
+    end
+
+    def usage(command)
+      case command
+      when String, Symbol
+        with(command) do |callable_command|
+          @feedback.usage(callable_command)
+        end
+      else
+        @feedback.usage(command)
+      end
+    end
+
+    private def commands
+      (Pakyow.commands.definitions + Pakyow.tasks).select { |command|
+        (command.global? && !self.class.project_context?) || (!command.global? && self.class.project_context?)
       }
     end
 
-    def find_callable_command(command)
+    private def find_callable_command(command)
       commands.find { |callable_command|
         callable_command.cli_name == command
-      }
-    end
-
-    private def project_context?
-      @project_context ||= File.exist?(Pakyow.config.environment_path + ".rb")
-    end
-
-    private def load_commands
-      Pakyow.load_tasks
-      Pakyow.load_commands
+      } || handle_unknown_command(command)
     end
 
     private def handle_unknown_command(command_name)
@@ -135,8 +175,6 @@ module Pakyow
     end
 
     private def setup_options_for_app_command(options)
-      Pakyow.boot
-
       options[:app] = if options.key?(:app)
         Pakyow.app(options[:app]) || raise("`#{options[:app]}' is not a known app")
       elsif Pakyow.apps.count == 1
@@ -148,18 +186,12 @@ module Pakyow
       end
     end
 
-    private def call_command(command, argv, options)
-      parser = Parsers::Command.new(command, argv.dup)
-      options = options.merge(parser.options)
-
+    private def call_command(command, options)
       if command.is_a?(Pakyow::Task)
         command.call({}, [], **options)
       else
         command.call(**options)
       end
-    rescue InvalidInput => error
-      @feedback.error(error)
-      @feedback.usage(command, describe: false)
     end
 
     class << self

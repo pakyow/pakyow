@@ -16,7 +16,7 @@ RSpec.describe "pakyow command" do
     end
 
     it "starts the cli" do
-      expect(Pakyow::CLI).to receive(:new)
+      expect(Pakyow::CLI).to receive(:run)
       run_command
     end
   end
@@ -24,7 +24,7 @@ RSpec.describe "pakyow command" do
   context "without bundler" do
     before do
       hide_const("Bundler")
-      allow(Pakyow::CLI).to receive(:new)
+      allow(Pakyow::CLI).to receive(:run)
     end
 
     context "gemfile exists" do
@@ -42,7 +42,7 @@ RSpec.describe "pakyow command" do
       end
 
       it "starts the cli" do
-        expect(Pakyow::CLI).to receive(:new)
+        expect(Pakyow::CLI).to receive(:run)
         run_command
       end
 
@@ -59,7 +59,7 @@ RSpec.describe "pakyow command" do
         end
 
         it "starts the cli" do
-          expect(Pakyow::CLI).to receive(:new)
+          expect(Pakyow::CLI).to receive(:run)
           run_command
         end
       end
@@ -76,7 +76,7 @@ RSpec.describe "pakyow command" do
       end
 
       it "starts the cli" do
-        expect(Pakyow::CLI).to receive(:new)
+        expect(Pakyow::CLI).to receive(:run)
         run_command
       end
     end

@@ -91,6 +91,22 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "server.proxy" do
+      it "has a default value" do
+        expect(Pakyow.config.server.proxy).to eq(true)
+      end
+
+      context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
+        it "defaults to false" do
+          expect(Pakyow.config.server.proxy).to eq(false)
+        end
+      end
+    end
+
     describe "cli.repl" do
       it "has a default value" do
         expect(Pakyow.config.cli.repl).to eq(IRB)

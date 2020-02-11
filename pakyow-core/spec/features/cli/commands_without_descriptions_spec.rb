@@ -10,7 +10,7 @@ RSpec.describe "commands without descriptions" do
       end
     end
 
-    Pakyow::CLI.new(command, feedback: Pakyow::CLI::Feedback.new(output))
+    Pakyow::CLI.run(command, output: output)
     output.rewind
   end
 

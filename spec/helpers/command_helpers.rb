@@ -5,7 +5,7 @@ module CommandHelpers
     File.expand_path("../../tmp", __FILE__)
   end
 
-  def run_command(*command, cleanup: true)
+  def run_command(command, cleanup: true, project: false, **options)
     # Set the working directory to the supporting app.
     #
     original_pwd = Dir.pwd
@@ -14,7 +14,12 @@ module CommandHelpers
 
     output = StringIO.new
     allow(output).to receive(:tty?).and_return(true)
-    Pakyow::CLI.new(command, feedback: Pakyow::CLI::Feedback.new(output))
+    allow(Pakyow::CLI).to receive(:project_context?).and_return(project)
+    allow(Process).to receive(:exit)
+
+    Pakyow.load_tasks
+    Pakyow.load_commands
+    Pakyow::CLI.new(feedback: Pakyow::CLI::Feedback.new(output)).call(command, **options)
     yield if block_given?
     output.rewind
     output.read

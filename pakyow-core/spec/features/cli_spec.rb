@@ -23,7 +23,7 @@ RSpec.describe "command line interface" do
       expect(output).to include("\e[1mCOMMANDS\e[0m\n")
       expect(output).to include("  boot                   \e[33mBoot the project\e[0m\n")
       expect(output).to include("  help                   \e[33mGet help for the command line interface\e[0m\n")
-      expect(output).to include("  prelaunch              \e[33mRun the prelaunch tasks\e[0m\n")
+      expect(output).to include("  prelaunch              \e[33mRun the prelaunch commands\e[0m\n")
       expect(output).to include("  info                   \e[33mShow details about the current project\e[0m\n")
       expect(output).to include("  irb                    \e[33mStart an interactive session\e[0m\n")
       expect(output).to include("  test:pass_app          \e[33mTest passing the application\e[0m\n")
@@ -206,7 +206,7 @@ RSpec.describe "command line interface" do
   before do
     define_apps
 
-    allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(project_context)
+    allow(Pakyow::CLI).to receive(:project_context?).and_return(project_context)
 
     # Set the working directory to the supporting app.
     #
@@ -217,7 +217,7 @@ RSpec.describe "command line interface" do
     #
     output = StringIO.new
     allow(output).to receive(:tty?).and_return(true)
-    Pakyow::CLI.new([command].concat(argv).compact, feedback: Pakyow::CLI::Feedback.new(output))
+    Pakyow::CLI.run([command].concat(argv).compact, output: output)
     output.rewind
     @output = output.read
 

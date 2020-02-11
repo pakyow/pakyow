@@ -38,11 +38,13 @@ module Pakyow
         puts Support::CLI.style.bold("USAGE")
         puts "  $ pakyow [COMMAND]"
 
-        puts
-        puts Support::CLI.style.bold("COMMANDS")
-        longest_name_length = commands.map(&:cli_name).max_by(&:length).length
-        commands.sort { |a, b| a.cli_name <=> b.cli_name }.each do |command|
-          puts "  #{command.cli_name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(command.description) + "\n"
+        if commands.any?
+          puts
+          puts Support::CLI.style.bold("COMMANDS")
+          longest_name_length = commands.map(&:cli_name).max_by(&:length).length
+          commands.sort { |a, b| a.cli_name <=> b.cli_name }.each do |command|
+            puts "  #{command.cli_name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(command.description) + "\n"
+          end
         end
       end
 
