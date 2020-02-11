@@ -149,6 +149,7 @@ module Pakyow
     end
 
     private def find_callable_command(command)
+      command = command.to_s
       commands.find { |callable_command|
         callable_command.cli_name == command
       } || handle_unknown_command(command)
