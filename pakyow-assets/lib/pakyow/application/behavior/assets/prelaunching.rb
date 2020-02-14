@@ -11,7 +11,7 @@ module Pakyow
 
           apply_extension do
             on "configure" do
-              config.tasks.prelaunch << "assets:precompile"
+              config.commands.prelaunch << "assets:precompile"
             end
           end
         end
