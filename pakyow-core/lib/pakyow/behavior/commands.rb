@@ -31,9 +31,7 @@ module Pakyow
         # @api private
         def load_commands
           config.commands.paths.uniq.each_with_object(commands) do |commands_path, commands|
-            Dir.glob(File.join(File.expand_path(commands_path), "**/*.rb")).each do |command_path|
-              Loader.new(command_path).call(Pakyow)
-            end
+            Loader.load_path(File.expand_path(commands_path), target: Pakyow)
           end
         end
       end
