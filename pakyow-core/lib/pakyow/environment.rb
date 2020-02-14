@@ -428,15 +428,10 @@ module Pakyow
 
     # Boots the environment without running it.
     #
-    def boot(unsafe: false)
+    def boot
       ensure_setup_succeeded
 
       performing :boot do
-        # Tasks should only be available before boot.
-        # TODO: Move this into CLI-specific behavior once `unsafe` is removed.
-        #
-        @tasks = [] unless unsafe
-
         # Setup each app.
         #
         mounts.map { |mount| mount[:app] }.uniq.each do |app|
