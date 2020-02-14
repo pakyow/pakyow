@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :db, :finalize, boot: false do
+command :db, :finalize, boot: false do
   describe "Finalize a database"
 
   option :adapter, "The database adapter", default: -> { Pakyow.config.data.default_adapter }

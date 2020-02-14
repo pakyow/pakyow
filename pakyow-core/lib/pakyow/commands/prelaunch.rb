@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :prelaunch do
+command :prelaunch do
   describe "Run the prelaunch commands"
   required :cli
 

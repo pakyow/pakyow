@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :boot, boot: false do
+command :boot, boot: false do
   describe "Boot the project"
 
   option :host, "The host the server runs on", default: -> { Pakyow.config.server.host }

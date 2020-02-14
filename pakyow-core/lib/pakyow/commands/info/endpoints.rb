@@ -3,7 +3,7 @@
 require "pakyow/support/cli/style"
 require "pakyow/support/dependencies"
 
-Pakyow.command :info, :endpoints do
+command :info, :endpoints do
   describe "Show defined endpoints for an app"
   required :app
   required :cli

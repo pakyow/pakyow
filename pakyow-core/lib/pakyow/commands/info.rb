@@ -5,7 +5,7 @@ require "pakyow/info"
 require "pakyow/support/inflector"
 require "pakyow/support/cli/style"
 
-Pakyow.command :info do
+command :info do
   describe "Show details about the current project"
   required :cli
 

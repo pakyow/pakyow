@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :assets, :update do
+command :assets, :update do
   describe "Update external assets"
   required :app
 

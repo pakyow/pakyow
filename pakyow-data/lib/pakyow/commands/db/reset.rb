@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :db, :reset, boot: false do
+command :db, :reset, boot: false do
   describe "Reset a database"
 
   option :adapter, "The database adapter", default: -> { Pakyow.config.data.default_adapter }

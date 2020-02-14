@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :irb do
+command :irb do
   describe "Start an interactive session"
 
   action do

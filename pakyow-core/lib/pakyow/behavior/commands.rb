@@ -3,6 +3,7 @@
 require "pakyow/support/extension"
 
 require "pakyow/command"
+require "pakyow/loader"
 
 module Pakyow
   module Behavior
@@ -31,7 +32,7 @@ module Pakyow
         def load_commands
           config.commands.paths.uniq.each_with_object(commands) do |commands_path, commands|
             Dir.glob(File.join(File.expand_path(commands_path), "**/*.rb")).each do |command_path|
-              Kernel.load command_path
+              Loader.new(command_path).call(Pakyow)
             end
           end
         end

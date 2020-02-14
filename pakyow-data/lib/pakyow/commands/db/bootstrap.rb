@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :db, :bootstrap, boot: false do
+command :db, :bootstrap, boot: false do
   describe "Bootstrap a database"
 
   option :adapter, "The database adapter", default: -> { Pakyow.config.data.default_adapter }

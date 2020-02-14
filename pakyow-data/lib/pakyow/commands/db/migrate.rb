@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :db, :migrate, boot: false do
+command :db, :migrate, boot: false do
   describe "Migrate a database"
 
   option :adapter, "The database adapter", default: -> { Pakyow.config.data.default_adapter }

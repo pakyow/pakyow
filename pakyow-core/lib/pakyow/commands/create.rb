@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :create, global: true do
+command :create, global: true do
   describe "Create a new project"
   required :cli
 

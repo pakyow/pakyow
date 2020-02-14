@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :help do
+command :help do
   describe "Get help for the command line interface"
   required :cli
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :prototype do
+command :prototype do
   describe "Boot the prototype"
 
   option :host, "The host the server runs on", default: -> { Pakyow.config.server.host }

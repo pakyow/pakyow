@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :assets, :precompile do
+command :assets, :precompile do
   describe "Precompile assets"
   required :app
 

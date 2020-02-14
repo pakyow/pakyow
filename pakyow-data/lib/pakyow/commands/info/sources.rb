@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-Pakyow.command :info, :sources do
+command :info, :sources do
   describe "Show defined sources for an app"
   required :app
   required :cli
