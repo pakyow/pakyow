@@ -175,7 +175,7 @@ RSpec.describe Pakyow::Task::Loader do
             short: "a"
           },
           env: {
-            description: "What environment to use",
+            description: "The environment to run this command under",
             global: true,
             short: "e"
           },

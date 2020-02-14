@@ -13,7 +13,7 @@ RSpec.describe "cli: help" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mGet help for the command line interface\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow help\n\n\e[1mARGUMENTS\e[0m\n  COMMAND  \e[33mThe command to get help for\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mGet help for the command line interface\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow help\n\n\e[1mARGUMENTS\e[0m\n  COMMAND  \e[33mThe command to get help for\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
     end
   end
 
@@ -23,11 +23,11 @@ RSpec.describe "cli: help" do
     end
 
     it "displays help for a command" do
-      expect(run_command(command, command: "boot", project: true)).to eq("\e[34;1mBoot the project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow boot\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env                \e[33mWhat environment to use\e[0m\n      --host=host              \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port              \e[33mThe port the server runs on (default: 3000)\e[0m\n      --standalone             \e[33mDisable automatic reloading of changes\e[0m\n")
+      expect(run_command(command, command: "boot", project: true)).to eq("\e[34;1mBoot the project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow boot\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env                \e[33mThe environment to run this command under\e[0m\n      --host=host              \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port              \e[33mThe port the server runs on (default: 3000)\e[0m\n      --standalone             \e[33mDisable automatic reloading of changes\e[0m\n")
     end
 
     it "displays help for the help command" do
-      expect(run_command(command, command: "help", project: true)).to eq("\e[34;1mGet help for the command line interface\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow help\n\n\e[1mARGUMENTS\e[0m\n  COMMAND  \e[33mThe command to get help for\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, command: "help", project: true)).to eq("\e[34;1mGet help for the command line interface\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow help\n\n\e[1mARGUMENTS\e[0m\n  COMMAND  \e[33mThe command to get help for\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
     end
   end
 end

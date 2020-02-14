@@ -23,7 +23,7 @@ module Pakyow
         short: "a"
       }.freeze,
       env: {
-        description: "What environment to use",
+        description: "The environment to run this command under",
         global: true,
         short: "e"
       }.freeze

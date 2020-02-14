@@ -15,7 +15,7 @@ RSpec.describe "cli: prototype" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mBoot the prototype\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow prototype\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env    \e[33mWhat environment to use\e[0m\n      --host=host  \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port  \e[33mThe port the server runs on (default: 3000)\e[0m\n")
+      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mBoot the prototype\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow prototype\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env    \e[33mThe environment to run this command under\e[0m\n      --host=host  \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port  \e[33mThe port the server runs on (default: 3000)\e[0m\n")
     end
   end
 

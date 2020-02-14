@@ -10,7 +10,7 @@ RSpec.describe "cli: prelaunch" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true, tty: false)).to eq("\e[34;1mRun the prelaunch commands\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow prelaunch\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mWhat environment to use\e[0m\n")
+      expect(run_command(command, help: true, project: true, tty: false)).to eq("\e[34;1mRun the prelaunch commands\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow prelaunch\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
     end
   end
 
