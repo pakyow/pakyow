@@ -17,7 +17,7 @@ require "pakyow/behavior/data/memory_db"
 require "pakyow/validations/data/unique"
 
 module Pakyow
-  config.tasks.paths << File.expand_path("../tasks", __FILE__)
+  config.commands.paths << File.expand_path("../commands", __FILE__)
 
   include Behavior::Data::AutoMigrate
   include Behavior::Data::Connections

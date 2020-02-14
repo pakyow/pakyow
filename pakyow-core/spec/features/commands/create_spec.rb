@@ -8,7 +8,6 @@ RSpec.describe "cli: create" do
   include_context "command"
 
   before do
-    allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
     allow(Bundler).to receive(:with_original_env)
   end
 
@@ -18,13 +17,7 @@ RSpec.describe "cli: create" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, "-h")).to eq("\e[34;1mCreate a new project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env            \e[33mWhat environment to use\e[0m\n  -t, --template=template  \e[33mThe template to create the project from\e[0m\n")
-    end
-  end
-
-  describe "failure" do
-    it "is helpful" do
-      expect(run_command(command)).to eq("  \e[31m›\e[0m \e[3;34mpath\e[0m is a required argument\n\n\e[1mUSAGE\e[0m\n  $ pakyow create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env            \e[33mWhat environment to use\e[0m\n  -t, --template=template  \e[33mThe template to create the project from\e[0m\n")
+      expect(run_command(command, help: true)).to eq("\e[34;1mCreate a new project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env            \e[33mWhat environment to use\e[0m\n  -t, --template=template  \e[33mThe template to create the project from (default: default)\e[0m\n")
     end
   end
 
@@ -41,7 +34,7 @@ RSpec.describe "cli: create" do
     it "creates a project at the given path" do
       expect(File.exist?(File.join(command_dir, path))).to be(false)
 
-      run_command(command, path) do
+      run_command(command, path: path) do
         expect(File.exist?(File.join(command_dir, path))).to be(true)
       end
     end
@@ -56,7 +49,7 @@ RSpec.describe "cli: create" do
         block.call
       end
 
-      run_command(command, path)
+      run_command(command, path: path)
     end
 
     it "updates external assets" do
@@ -69,11 +62,11 @@ RSpec.describe "cli: create" do
         block.call
       end
 
-      run_command(command, path)
+      run_command(command, path: path)
     end
 
     it "tells the user what to do next" do
-      expect(run_command(command, path)).to eq("\n\e[1mYou're all set! Go to your new project:\e[0m\n  $ cd test/app\n\n\e[1mThen boot it up:\e[0m\n  $ pakyow boot\n\n")
+      expect(run_command(command, path: path)).to eq("\n\e[1mYou're all set! Go to your new project:\e[0m\n  $ cd test/app\n\n\e[1mThen boot it up:\e[0m\n  $ pakyow boot\n\n")
     end
   end
 
@@ -88,7 +81,7 @@ RSpec.describe "cli: create" do
 
     before do
       unless File.exist?(generated_path)
-        run_command(command, path, cleanup: false)
+        run_command(command, path: path, cleanup: false)
       end
     end
 

@@ -165,6 +165,10 @@ RSpec.describe Pakyow::CLI do
           false
         end
 
+        def boot?
+          true
+        end
+
         def call(*args)
         end
 

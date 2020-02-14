@@ -89,6 +89,13 @@ RSpec.configure do |config|
     end
   end
 
+  def cli_run(*command, envars: self.envars)
+    Bundler.with_original_env do
+      Process.waitpid(Process.spawn(envars, "pakyow #{command.join(" ")}"))
+      $?
+    end
+  end
+
   def wait_for_boot(start = Time.now, timeout = 60)
     HTTP.get("http://localhost:#{port}")
     @boot_time = Time.now - start
@@ -109,6 +116,22 @@ RSpec.configure do |config|
       Process.kill("TERM", @server)
       Process.waitpid(@server)
       remove_instance_variable(:@server)
+    end
+  end
+
+  def ensure_bundled(gem_name)
+    gemfile_path = project_path.join("Gemfile")
+
+    unless gemfile_path.read.include?(gem_name)
+      gemfile_path.open("a") do |file|
+        file.write <<~SOURCE
+          gem "#{gem_name}"
+        SOURCE
+      end
+
+      Bundler.with_original_env do
+        system "bundle install"
+      end
     end
   end
 end

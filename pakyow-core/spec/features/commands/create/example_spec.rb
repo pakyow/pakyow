@@ -4,10 +4,10 @@ require "pakyow/generator"
 require_relative "./shared/default_structure"
 
 RSpec.describe "cli: creating the example project" do
+  include_context "app"
   include_context "command"
 
   before do
-    allow_any_instance_of(Pakyow::CLI).to receive(:project_context?).and_return(false)
     allow(Bundler).to receive(:with_original_env)
   end
 
@@ -26,7 +26,7 @@ RSpec.describe "cli: creating the example project" do
 
     before do
       unless File.exist?(generated_path)
-        run_command(command, path, "-t example", cleanup: false)
+        run_command(command, path: path, template: "example", cleanup: false)
       end
     end
 
