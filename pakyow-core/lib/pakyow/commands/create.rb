@@ -43,11 +43,16 @@ command :create, global: true do
     @cli.feedback.puts <<~OUTPUT
 
       #{Pakyow::Support::CLI.style.bold "You're all set! Go to your new project:"}
-        $ cd #{@path}
-
-      #{Pakyow::Support::CLI.style.bold "Then boot it up:"}
-        $ pakyow boot
-
     OUTPUT
+
+    @cli.feedback.puts "  $ cd #{@path}"
+    @cli.feedback.puts
+
+    @cli.feedback.puts <<~OUTPUT
+      #{Pakyow::Support::CLI.style.bold "Then boot it up:"}
+    OUTPUT
+
+    @cli.feedback.puts "  $ pakyow boot"
+    @cli.feedback.puts
   end
 end
