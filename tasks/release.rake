@@ -12,12 +12,8 @@ namespace :release do
   desc "Remove the gems"
   task :clean do
     Bundler.with_original_env do
-      GEMS.each do |gem|
-        run_with_log "rm -f *.gem && gem uninstall -I -x pakyow-#{gem} -v #{Pakyow::VERSION}"
-      end
-
-      run_with_log "gem uninstall -I -x pakyow -v #{Pakyow::VERSION}"
-      run_with_log "rm -f *.gem"
+      gems = GEMS.map { |name| "pakyow-#{name}:#{Pakyow::VERSION}" }.join(" ")
+      run_with_log "rm -f *.gem && gem uninstall -I -x #{gems} pakyow:#{Pakyow::VERSION}"
     end
   end
 
@@ -26,8 +22,8 @@ namespace :release do
     Bundler.with_original_env do
       run_with_log "gem build pakyow.gemspec"
 
-      GEMS.each do |gem|
-        run_with_log "cd pakyow-#{gem} && gem build pakyow-#{gem}.gemspec && mv pakyow-#{gem}-#{Pakyow::VERSION}.gem .. && cd .."
+      GEMS.each do |name|
+        run_with_log "cd pakyow-#{name} && gem build pakyow-#{name}.gemspec && mv pakyow-#{name}-#{Pakyow::VERSION}.gem .. && cd .."
       end
     end
   end
@@ -35,11 +31,8 @@ namespace :release do
   desc "Create and install the gems"
   task install: [:build] do
     Bundler.with_original_env do
-      GEMS.each do |gem|
-        run_with_log "gem install pakyow-#{gem}-#{Pakyow::VERSION}.gem"
-      end
-
-      run_with_log "gem install pakyow-#{Pakyow::VERSION}.gem"
+      gems = GEMS.map { |name| "pakyow-#{name}-#{Pakyow::VERSION}.gem" }.join(" ")
+      run_with_log "gem install #{gems} pakyow-#{Pakyow::VERSION}.gem"
     end
   end
 
