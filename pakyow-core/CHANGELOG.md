@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Failing commands now exit with an error status.**
+
   * `add` **Introduce `Pakyow::Command`, definable on the environment.**
     - Will replace `Pakyow::Task` moving forward, as it's much simpler conceptually.
 

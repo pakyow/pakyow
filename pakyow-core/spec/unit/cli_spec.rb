@@ -131,7 +131,7 @@ RSpec.describe Pakyow::CLI do
         end
 
         it "indicates failure" do
-          expect(::Process).to receive(:exit).with(0)
+          expect(::Process).to receive(:exit).with(1)
           Pakyow::CLI.run([], output: output)
         end
       end

@@ -98,7 +98,7 @@ module Pakyow
           @feedback.help(commands, header: false)
         end
 
-        ::Process.exit(0)
+        ::Process.exit(1)
       else
         raise error
       end
