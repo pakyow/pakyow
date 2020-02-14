@@ -4,8 +4,9 @@ require "rake"
 require "forwardable"
 require "optparse"
 
-require "pakyow/support/deep_freeze"
 require "pakyow/support/cli/style"
+require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
 
 require "pakyow/cli"
 
@@ -13,6 +14,9 @@ module Pakyow
   # Base task class that extends rake with additional functionality.
   #
   class Task
+    extend Support::Deprecatable
+    deprecate solution: "use `Pakyow::Command'"
+
     include Rake::DSL
 
     extend Forwardable

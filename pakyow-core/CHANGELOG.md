@@ -163,6 +163,8 @@
 
 ## Deprecations
 
+  * `Pakyow::Task` is deprecated in favor of `Pakyow::Command`.
+
   * `Pakyow::Operation#values` is deprecated in favor of value methods.
 
     *Related links:*

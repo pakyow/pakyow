@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deprecator"
 require "pakyow/support/extension"
 
 require "pakyow/task"
@@ -17,14 +18,18 @@ module Pakyow
           setting :prelaunch, []
         end
 
+        config.deprecate :tasks, solution: "use `config.commands'"
+
         # @api private
         def load_tasks
           require "pakyow/task"
           tasks.clear
 
-          config.tasks.paths.uniq.each_with_object(tasks) do |tasks_path, tasks|
-            Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
-              tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
+          Support::Deprecator.global.ignore do
+            config.tasks.paths.uniq.each_with_object(tasks) do |tasks_path, tasks|
+              Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
+                tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
+              end
             end
           end
         end
