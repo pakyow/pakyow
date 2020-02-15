@@ -1,5 +1,11 @@
 RSpec.shared_examples :source_operations_creating do
   describe "creating a database" do
+    include_context "command"
+
+    before do
+      setup
+    end
+
     after do
       # Make sure the database is set back up.
       #
@@ -13,17 +19,13 @@ RSpec.shared_examples :source_operations_creating do
       end
 
       it "creates" do
-        Pakyow::CLI.new(
-          %w(db:create --adapter=sql --connection=default)
-        )
+        run_command("db:create", adapter: :sql, connection: :default, project: true)
 
         expect(sql_database_exists?(connection_string)).to be(true)
       end
 
       it "clears the setup error" do
-        Pakyow::CLI.new(
-          %w(db:create --adapter=sql --connection=default)
-        )
+        run_command("db:create", adapter: :sql, connection: :default, project: true)
 
         expect(Pakyow.setup_error).to be(nil)
       end
@@ -36,9 +38,7 @@ RSpec.shared_examples :source_operations_creating do
       end
 
       it "silently completes" do
-        Pakyow::CLI.new(
-          %w(db:create --adapter=sql --connection=default)
-        )
+        run_command("db:create", adapter: :sql, connection: :default, project: true)
 
         expect(sql_database_exists?(connection_string)).to be(true)
       end
