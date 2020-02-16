@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "fileutils"
-require "optparse"
-
 require "pakyow/support/cli/style"
 
 require "pakyow/error"
@@ -13,215 +10,202 @@ module Pakyow
   #
   # @api private
   class CLI
+    require "pakyow/cli/feedback"
+    require "pakyow/cli/parsers/command"
+    require "pakyow/cli/parsers/global"
+
     class InvalidInput < Error; end
 
     GLOBAL_OPTIONS = {
       app: {
         description: "The app to run the command on",
-        global: true
+        global: true,
+        short: "a"
       }.freeze,
       env: {
-        description: "What environment to use",
-        global: true
+        description: "The environment to run this command under",
+        global: true,
+        short: "e"
       }.freeze
     }.freeze
 
-    def initialize(argv = ARGV.dup)
-      @argv = argv
-      @options = {}
-      @task = nil
-      @command = nil
+    attr_reader :feedback
 
-      parse_global_options
+    class << self
+      def run(argv = ARGV, output: $stdout)
+        argv = argv.dup
 
-      if project_context?
-        setup_environment
+        cli = new(feedback: Feedback.new(output))
+
+        cli.handle do
+          parser = Parsers::Global.new(argv)
+          command = parser.command
+          options = parser.options
+
+          case command
+          when "prototype"
+            options[:env] = :prototype
+          end
+
+          if project_context?
+            Pakyow.setup(env: options[:env])
+          end
+
+          Pakyow.load_tasks
+          Pakyow.load_commands
+
+          if command
+            cli.with(command) do |callable_command|
+              unless options[:help]
+                parser = Parsers::Command.new(callable_command, argv)
+                options = options.merge(parser.options)
+              end
+
+              Pakyow.boot if callable_command.boot?
+              cli.call(command, **options)
+            end
+          else
+            cli.help
+          end
+        end
       end
 
-      load_tasks
-
-      if @command
-        find_task_for_command
-        set_app_for_command
-        call_task
-      else
-        puts_help
+      # @api private
+      def project_context?
+        File.exist?(Pakyow.config.environment_path + ".rb")
       end
+    end
+
+    def initialize(feedback: Feedback.new($stdout))
+      @feedback = feedback
+    end
+
+    def with(command)
+      handle(find_callable_command(command)) do |callable_command|
+        yield callable_command
+      end
+    end
+
+    def handle(command = nil)
+      yield command
     rescue StandardError => error
-      if $stdout.isatty
-        puts_error(error)
+      if @feedback.tty?
+        @feedback.error(error)
 
-        if @task
-          puts @task.help(describe: false)
+        if command
+          @feedback.usage(command, describe: false)
         else
-          puts_help(banner: false)
+          @feedback.help(commands, header: false)
         end
 
-        ::Process.exit(0)
+        ::Process.exit(1)
       else
         raise error
       end
     end
 
-    private
+    def call(command, **options)
+      with(command) do |callable_command|
+        # TODO: Once `Pakyow::Task` is removed, always pass `cli` as an option.
+        #
+        if callable_command.cli?
+          options[:cli] = self
+        end
 
-    def tasks(filter_by_context = true)
-      Pakyow.tasks.select { |task|
-        !filter_by_context || (task.global? && !project_context?) || (!task.global? && project_context?)
+        if callable_command.app?
+          setup_options_for_app_command(options)
+        elsif options.key?(:app)
+          options.delete(:app)
+          @feedback.warn("app was ignored by command #{Support::CLI.style.blue(command)}")
+        end
+
+        if options[:help]
+          @feedback.usage(callable_command)
+        else
+          call_command(callable_command, options)
+        end
+      end
+    end
+
+    def help
+      @feedback.help(commands)
+    end
+
+    def usage(command)
+      case command
+      when String, Symbol
+        with(command) do |callable_command|
+          @feedback.usage(callable_command)
+        end
+      else
+        @feedback.usage(command)
+      end
+    end
+
+    private def commands
+      (Pakyow.commands.definitions + Pakyow.tasks).select { |command|
+        (command.global? && !self.class.project_context?) || (!command.global? && self.class.project_context?)
       }
     end
 
-    def project_context?
-      File.exist?(Pakyow.config.environment_path + ".rb")
+    private def find_callable_command(command)
+      command = command.to_s
+      commands.find { |callable_command|
+        callable_command.cli_name == command
+      } || handle_unknown_command(command)
     end
 
-    def parse_global_options
-      parse_with_unknown_args do
-        OptionParser.new do |opts|
-          opts.on("-eENV", "--env=ENV") do |e|
-            @options[:env] = e
-          end
-
-          opts.on("-aAPP", "--app=APP") do |a|
-            @options[:app] = a
-          end
-
-          opts.on("-h", "--help") do
-            @options[:help] = true
-          end
-        end
-      end
-
-      case @command
-      when "prototype"
-        @options.delete(:env)
-      else
-        @options[:env] ||= ENV["APP_ENV"] || ENV["RACK_ENV"] || "development"
-      end
-
-      ENV["APP_ENV"] = ENV["RACK_ENV"] = @options[:env]
-    end
-
-    def parse_with_unknown_args
-      parser, original, unparsed = yield, @argv.dup, Array.new
-
-      begin
-        parser.order!(@argv) do |arg|
-          if @command
-            unparsed << arg
-          else
-            @command = arg
-          end
-        end
-      rescue OptionParser::InvalidOption => error
-        unparsed.concat(error.args); retry
-      end
-
-      @argv = (original & @argv) + unparsed
-    end
-
-    def setup_environment
-      Pakyow.setup(env: environment_to_setup)
-    end
-
-    def environment_to_setup
-      case @command
-      when "prototype"
-        :prototype
-      else
-        @options[:env]
-      end
-    end
-
-    def load_tasks
-      Pakyow.load_tasks
-    end
-
-    def find_task_for_command
-      unless @task = tasks.find { |task| task.name == @command }
-        if task = tasks(false).find { |task| task.name == @command }
-          if task.global?
-            raise UnknownCommand.new_with_message(
-              :not_in_global_context,
-              command: @command
-            )
-          else
-            raise UnknownCommand.new_with_message(
-              :not_in_project_context,
-              command: @command
-            )
-          end
+    private def handle_unknown_command(command_name)
+      if task = (Pakyow.commands.definitions + Pakyow.tasks).find { |command| command.cli_name == command_name }
+        if task.global?
+          raise UnknownCommand.new_with_message(
+            :not_in_global_context,
+            command: command_name
+          )
         else
           raise UnknownCommand.new_with_message(
-            command: @command
+            :not_in_project_context,
+            command: command_name
           )
         end
-      end
-    end
-
-    def set_app_for_command
-      if @task.app?
-        Pakyow.boot
-        @options[:app] = if @options.key?(:app)
-          Pakyow.app(@options[:app]) || raise("`#{@options[:app]}' is not a known app")
-        elsif Pakyow.apps.count == 1
-          Pakyow.apps.first
-        elsif Pakyow.apps.count > 0
-          raise "multiple apps were found; please specify one with the --app option"
-        else
-          raise "couldn't find an app to run this command for"
-        end
-      elsif @options.key?(:app)
-        puts_warning "app was ignored by command #{Support::CLI.style.blue(@command)}"
-      end
-    end
-
-    def call_task
-      if @options[:help]
-        puts @task.help
       else
-        @task.call(@options.select { |key, _|
-          (key == :app && @task.app?) || key != :app
-        }, @argv.dup)
+        raise UnknownCommand.new_with_message(
+          command: command_name
+        )
       end
-    rescue InvalidInput => error
-      puts_error(error)
-      puts @task.help(describe: false)
     end
 
-    def puts_error(error)
-      puts "  #{Support::CLI.style.red("›")} #{Error::CLIFormatter.format(error.to_s)}"
-    end
-
-    def puts_warning(warning)
-      puts "  #{Support::CLI.style.yellow("›")} #{warning}"
-    end
-
-    def puts_help(banner: true)
-      if banner
-        puts_banner
+    private def setup_options_for_app_command(options)
+      options[:app] = if options.key?(:app)
+        case options[:app]
+        when Application
+          options[:app]
+        else
+          Pakyow.app(options[:app]) || raise("`#{options[:app]}' is not a known app")
+        end
+      elsif Pakyow.apps.count == 1
+        Pakyow.apps.first
+      elsif Pakyow.apps.count > 0
+        raise "multiple apps were found; please specify one with the --app option"
+      else
+        raise "couldn't find an app to run this command for"
       end
-
-      puts_usage
-      puts_commands
     end
 
-    def puts_banner
-      puts Support::CLI.style.blue.bold("Pakyow Command Line Interface")
+    private def call_command(command, options)
+      if command.is_a?(Pakyow::Task)
+        command.call({}, [], **options)
+      else
+        command.call(**options)
+      end
     end
 
-    def puts_usage
-      puts
-      puts Support::CLI.style.bold("USAGE")
-      puts "  $ pakyow [COMMAND]"
-    end
+    class << self
+      UNAVAILABLE_SHORT_NAMES = %i(a e h).freeze
 
-    def puts_commands
-      puts
-      puts Support::CLI.style.bold("COMMANDS")
-      longest_name_length = tasks.map(&:name).max_by(&:length).length
-      tasks.sort { |a, b| a.name <=> b.name }.each do |task|
-        puts "  #{task.name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(task.description) + "\n"
+      # @api private
+      def shortable?(short_name)
+        !UNAVAILABLE_SHORT_NAMES.include?(short_name.to_sym)
       end
     end
   end

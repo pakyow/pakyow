@@ -10,5 +10,5 @@ require "pakyow/application/actions/assets/process"
 require "pakyow/application/actions/assets/public"
 
 module Pakyow
-  config.tasks.paths << File.expand_path("../tasks", __FILE__)
+  config.commands.paths << File.expand_path("../commands", __FILE__)
 end

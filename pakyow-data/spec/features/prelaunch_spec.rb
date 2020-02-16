@@ -9,12 +9,12 @@ RSpec.describe "data prelaunch tasks" do
 
   include_context "app"
 
-  it "registers a prelaunch task for each migratable connection" do
-    expect(Pakyow.config.tasks.prelaunch).to include(["db:migrate", { adapter: :sql, connection: :default }])
-    expect(Pakyow.config.tasks.prelaunch).to include(["db:migrate", { adapter: :sql, connection: :another }])
+  it "registers a prelaunch command for each migratable connection" do
+    expect(Pakyow.config.commands.prelaunch).to include(["db:migrate", { adapter: :sql, connection: :default }])
+    expect(Pakyow.config.commands.prelaunch).to include(["db:migrate", { adapter: :sql, connection: :another }])
   end
 
   it "does not register in-memory connections" do
-    expect(Pakyow.config.tasks.prelaunch).not_to include(["db:migrate", { adapter: :sql, connection: :memory }])
+    expect(Pakyow.config.commands.prelaunch).not_to include(["db:migrate", { adapter: :sql, connection: :memory }])
   end
 end

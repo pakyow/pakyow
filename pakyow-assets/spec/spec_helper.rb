@@ -11,6 +11,7 @@ end
 require "pakyow/assets"
 require "pakyow/assets/babel"
 
+require_relative "../../spec/helpers/command_helpers"
 require_relative "../../spec/helpers/mock_handler"
 
 $latest_pakyow_js = "1.1.0-alpha.2"
@@ -42,7 +43,10 @@ RSpec.configure do |spec_config|
   spec_config.after do
     Pakyow::Assets::Babel.instance_variable_set(:@context, nil)
   end
+
+  spec_config.include CommandHelpers
 end
 
 require_relative "../../spec/context/app_context"
+require_relative "../../spec/context/command_context"
 require_relative "../../spec/context/suppressed_output_context"

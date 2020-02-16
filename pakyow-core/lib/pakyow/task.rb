@@ -4,8 +4,9 @@ require "rake"
 require "forwardable"
 require "optparse"
 
-require "pakyow/support/deep_freeze"
 require "pakyow/support/cli/style"
+require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
 
 require "pakyow/cli"
 
@@ -13,12 +14,16 @@ module Pakyow
   # Base task class that extends rake with additional functionality.
   #
   class Task
+    extend Support::Deprecatable
+    deprecate solution: "use `Pakyow::Command'"
+
     include Rake::DSL
 
     extend Forwardable
     def_delegators :@rake, :name
+    alias cli_name name
 
-    attr_reader :description
+    attr_reader :description, :arguments, :options, :flags, :short_names
 
     def initialize(namespace: [], description: nil, arguments: {}, options: {}, flags: {}, task_args: [], global: false, &block)
       @description, @arguments, @options, @flags, @global = description, arguments, options, flags, global
@@ -33,94 +38,43 @@ module Pakyow
       end
     end
 
-    def call(options = {}, argv = [])
-      parse_options(argv, options)
-      parse_arguments(argv, options)
-      check_options(options)
+    def call(legacy_options = {}, legacy_argv = [], **options)
+      legacy_options = legacy_options.merge(options)
+      parse_options(legacy_argv, legacy_options)
+      parse_arguments(legacy_argv, legacy_options)
 
-      @rake.invoke(*args.map { |arg|
-        options[arg]
-      })
-    end
+      final_options = legacy_options
 
-    def help(describe: true)
-      required_arguments = sorted_arguments.select { |_, argument|
-        argument[:required]
-      }.map { |key, _|
-        "[#{key.to_s.upcase}]"
-      }.join(" ")
-
-      required_options = sorted_options.select { |_, option|
-        option[:required]
-      }.map { |key, _|
-        "--#{key}=#{key}"
-      }.join(" ")
-
-      text = String.new
-
-      if describe
-        text << Support::CLI.style.blue.bold(@description) + "\n"
-      end
-
-      text += <<~HELP
-
-        #{Support::CLI.style.bold("USAGE")}
-          $ pakyow #{[name, required_arguments, required_options].reject(&:empty?).join(" ")}
-      HELP
-
-      if @arguments.any?
-        text += <<~HELP
-
-          #{Support::CLI.style.bold("ARGUMENTS")}
-        HELP
-
-        longest_length = @arguments.keys.map(&:to_s).max_by(&:length).length
-        sorted_arguments.each do |key, argument|
-          description = Support::CLI.style.yellow(argument[:description])
-          if argument[:required]
-            description += Support::CLI.style.red(" (required)")
-          end
-          text += "  #{key.upcase}".ljust(longest_length + 4) + description + "\n"
-        end
-      end
-
-      if @options.any?
-        text += <<~HELP
-
-          #{Support::CLI.style.bold("OPTIONS")}
-        HELP
-
-        longest_length = (@options.keys + @flags.keys).map(&:to_s).max_by(&:length).length
-        sorted_options_and_flags.each do |key, option|
-          description = Support::CLI.style.yellow(option[:description])
-
-          if option[:required]
-            description += Support::CLI.style.red(" (required)")
-          end
-
-          prefix = if @flags.key?(key)
-            "      --#{key}"
-          else
-            if @short_names.key?(key)
-              "  -#{key.to_s[0]}, --#{key}=#{key}"
-            else
-              "      --#{key}=#{key}"
-            end
-          end
-
-          text += prefix.ljust(longest_length * 2 + 11) + description + "\n"
-        end
-      end
-
-      text
+      check_options(final_options)
+      @rake.invoke(*args.map { |arg| final_options[arg] })
     end
 
     def app?
       args.include?(:app)
     end
 
+    def cli?
+      args.include?(:cli)
+    end
+
     def global?
       @global == true
+    end
+
+    def boot?
+      false
+    end
+
+    def help(describe: true)
+      string = StringIO.new
+      feedback = CLI::Feedback.new(string)
+      feedback.usage(self, describe: describe)
+      string.rewind
+      string.read
+    end
+
+    def flag?(key)
+      @flags.include?(key.to_sym)
     end
 
     private
@@ -179,7 +133,7 @@ module Pakyow
       sorted_arguments.each do |key, argument|
         if argv.any?
           options[key] = argv.shift
-        elsif argument[:required]
+        elsif argument[:required] && !options.include?(key)
           raise CLI::InvalidInput, "`#{key}' is a required argument"
         end
       end
@@ -268,7 +222,7 @@ module Pakyow
         }
       end
 
-      def option(name, description, required: false, short: :default)
+      def option(name, description, required: false, short: name[0])
         @__options[name.to_sym] = {
           description: description,
           required: required,

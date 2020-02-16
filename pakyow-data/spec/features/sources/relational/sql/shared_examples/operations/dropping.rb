@@ -1,5 +1,11 @@
 RSpec.shared_examples :source_operations_dropping do
   describe "dropping a database" do
+    include_context "command"
+
+    before do
+      setup
+    end
+
     after do
       # Make sure the database is set back up.
       #
@@ -13,9 +19,7 @@ RSpec.shared_examples :source_operations_dropping do
       end
 
       it "drops the database" do
-        Pakyow::CLI.new(
-          %w(db:drop --adapter=sql --connection=default)
-        )
+        run_command("db:drop", adapter: :sql, connection: :default, project: true)
 
         expect(sql_database_exists?(connection_string)).to be(false)
       end
@@ -28,9 +32,7 @@ RSpec.shared_examples :source_operations_dropping do
       end
 
       it "silently completes" do
-        Pakyow::CLI.new(
-          %w(db:drop --adapter=sql --connection=default)
-        )
+        run_command("db:drop", adapter: :sql, connection: :default, project: true)
 
         expect(sql_database_exists?(connection_string)).to be(false)
       end

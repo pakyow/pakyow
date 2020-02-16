@@ -8,6 +8,7 @@ require "pakyow/support/extension"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/data/adapters/base"
+require "pakyow/data/types"
 
 module Pakyow
   module Data

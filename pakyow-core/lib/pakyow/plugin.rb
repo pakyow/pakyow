@@ -64,6 +64,10 @@ module Pakyow
       setting :prelaunch, []
     end
 
+    configurable :commands do
+      setting :prelaunch, []
+    end
+
     include Support::Definable
     include Support::Hookable
     include Support::Makeable

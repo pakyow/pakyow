@@ -1,6 +1,8 @@
 require "rake"
 
 RSpec.shared_context "migration" do
+  include_context "command"
+
   before do
     Pakyow.config.data.migration_path = migration_path
 
@@ -14,11 +16,7 @@ RSpec.shared_context "migration" do
       end
     end
 
-    # FIXME: rewrite this to use Pakyow::CLI directly; there are some issues that
-    # I don't have time to debug right now related to leaking connections due to
-    # the fact that we have to setup in the tests then again in Pakyow::CLI
-    #
-    Pakyow.load_tasks
+    setup
   end
 
   after do
@@ -38,25 +36,12 @@ RSpec.shared_context "migration" do
   end
 
   def run_migrations
-    # Pakyow::CLI.new(
-    #   %w(db:migrate --adapter=sql --connection=default)
-    # )
-
-    setup
-    Rake::Task["db:migrate"].reenable
-    Rake::Task["db:migrate"].invoke("sql", "default")
+    run_command("db:migrate", adapter: :sql, connection: :default, project: true)
   end
 
   def finalize_migrations(count_before, count_after)
     verify_migration_count(count_before) do
-      # Pakyow::CLI.new(
-      #   %w(db:finalize --adapter=sql --connection=default)
-      # )
-
-      setup
-      Rake::Task["db:finalize"].reenable
-      Rake::Task["db:finalize"].invoke("sql", "default")
-      verify_migration_count(count_after)
+      run_command("db:finalize", adapter: :sql, connection: :default, project: true)
     end
   end
 

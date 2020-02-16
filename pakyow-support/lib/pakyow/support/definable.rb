@@ -301,7 +301,7 @@ module Pakyow
         def state(type)
           __definable_registries[type.to_sym]
         end
-        deprecate :state, solution: "all the cooresponding method for `type'"
+        deprecate :state, solution: "call the corresponding method for `type'"
 
         # @api private
         DEFINABLE_OBJECT_EXTENSIONS = [

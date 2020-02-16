@@ -46,7 +46,9 @@ RSpec.configure do |config|
 
     if Pakyow.instance_variable_defined?(:@__class_state)
       $original_class_state = Pakyow.instance_variable_get(:@__class_state).keys.each_with_object({}) do |class_level_ivar, state|
-        state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar)
+        unless class_level_ivar == :@__definable_registries
+          state[class_level_ivar] = Pakyow.instance_variable_get(class_level_ivar)
+        end
       end
     end
 
@@ -78,7 +80,7 @@ RSpec.configure do |config|
   end
 
   config.before do
-    allow($stdout).to receive(:isatty).and_return(true)
+    allow($stdout).to receive(:tty?).and_return(true)
 
     $original_constants = Object.constants
 
@@ -144,11 +146,23 @@ RSpec.configure do |config|
       Pakyow::Support::Deprecator.remove_instance_variable(:@global)
     end
 
+    if Pakyow.respond_to?(:__definable_registries)
+      Pakyow.__definable_registries.values.each do |registry|
+        registry.instance_variable_set(:@definitions, [])
+        registry.instance_variable_set(:@priorities, {})
+        registry.instance_variable_set(:@state, {})
+      end
+    end
+
     remove_constants(
       (Object.constants - $original_constants).select { |constant_name|
         constant_name.to_s.start_with?("Test")
       }.map(&:to_sym)
     )
+
+    if defined?(Pakyow::Commands)
+      remove_constants(["Commands"], Pakyow, false)
+    end
 
     Thread.current[:pakyow_logger] = nil
 
@@ -205,16 +219,18 @@ RSpec.configure do |config|
     end
   end
 
-  def remove_constants(constant_names, within = Object)
+  def remove_constants(constant_names, within = Object, remove_root = true)
     constant_names.each do |constant_name|
       if within.const_defined?(constant_name, false)
         constant = within.const_get(constant_name, false)
 
         if constant.respond_to?(:constants)
           remove_constants(constant.constants(false), constant.respond_to?(:remove_const, true) ? constant : within)
-        end
 
-        within.__send__(:remove_const, constant_name)
+          if remove_root
+            within.__send__(:remove_const, constant_name)
+          end
+        end
       end
     end
   end

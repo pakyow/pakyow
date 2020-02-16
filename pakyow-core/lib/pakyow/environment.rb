@@ -12,15 +12,18 @@ require "pakyow/support/configurable"
 require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
+require "pakyow/support/definable"
 require "pakyow/support/pipeline"
 require "pakyow/support/inflector"
 require "pakyow/support/deprecatable"
 
+require "pakyow/behavior/commands"
 require "pakyow/behavior/deprecations"
 require "pakyow/behavior/initializers"
 require "pakyow/behavior/input_parsing"
 require "pakyow/behavior/plugins"
 require "pakyow/behavior/silencing"
+require "pakyow/behavior/tasks"
 require "pakyow/behavior/timezone"
 require "pakyow/behavior/running"
 require "pakyow/behavior/watching"
@@ -235,11 +238,6 @@ module Pakyow
     end
   end
 
-  configurable :tasks do
-    setting :paths, ["./tasks", File.expand_path("../tasks", __FILE__)]
-    setting :prelaunch, []
-  end
-
   configurable :redis do
     configurable :connection do
       setting :url do
@@ -272,10 +270,14 @@ module Pakyow
     setting :same_site
   end
 
+  include Support::Definable
+
+  include Behavior::Commands
   include Behavior::Initializers
   include Behavior::InputParsing
   include Behavior::Plugins
   include Behavior::Silencing
+  include Behavior::Tasks
   include Behavior::Timezone
   include Behavior::Running
   include Behavior::Watching
@@ -296,7 +298,6 @@ module Pakyow
 
   extend Support::ClassState
   class_state :apps,        default: []
-  class_state :tasks,       default: []
   class_state :mounts,      default: []
   class_state :setups,      default: {}
   class_state :frameworks,  default: {}
@@ -427,14 +428,10 @@ module Pakyow
 
     # Boots the environment without running it.
     #
-    def boot(unsafe: false)
+    def boot
       ensure_setup_succeeded
 
       performing :boot do
-        # Tasks should only be available before boot.
-        #
-        @tasks = [] unless unsafe
-
         # Setup each app.
         #
         mounts.map { |mount| mount[:app] }.uniq.each do |app|
@@ -516,18 +513,6 @@ module Pakyow
           StringIO.new("500 Low-Level Server Error")
         )
       )
-    end
-
-    # @api private
-    def load_tasks
-      require "rake"
-      require "pakyow/task"
-
-      @tasks = config.tasks.paths.uniq.each_with_object([]) do |tasks_path, tasks|
-        Dir.glob(File.join(File.expand_path(tasks_path), "**/*.rake")).each do |task_path|
-          tasks.concat(Pakyow::Task::Loader.new(task_path).__tasks)
-        end
-      end
     end
 
     # @api private

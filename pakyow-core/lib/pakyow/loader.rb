@@ -6,6 +6,20 @@ module Pakyow
   class Loader
     attr_reader :path
 
+    class << self
+      def load_path(path, target:, pattern: "*.rb")
+        Dir.glob(File.join(path, pattern)).each do |file_path|
+          Loader.new(file_path).call(target)
+        end
+
+        Dir.glob(File.join(path, "*")).select { |each_path|
+          File.directory?(each_path)
+        }.each do |directory_path|
+          load_path(directory_path, target: target, pattern: pattern)
+        end
+      end
+    end
+
     def initialize(path)
       @path = path
     end

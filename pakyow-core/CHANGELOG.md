@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Failing commands now exit with an error status.**
+
+  * `add` **Introduce `Pakyow::Command`, definable on the environment.**
+    - Will replace `Pakyow::Task` moving forward, as it's much simpler conceptually.
+
   * `chg` **Ensure that every potential operation value has an instance variable.**
 
     *Related links:*
@@ -157,6 +162,8 @@
     - [Commit 26f586d][26f586d]
 
 ## Deprecations
+
+  * `Pakyow::Task` is deprecated in favor of `Pakyow::Command`.
 
   * `Pakyow::Operation#values` is deprecated in favor of value methods.
 

@@ -68,13 +68,13 @@ module Pakyow
       private
 
       def migrator
-        @migrator = self.class.migrator_for_adapter(Support.inflector.classify(@connection.type), :Migrator).new(
+        @migrator = self.class.migrator_for_adapter(@connection.type, :Migrator).new(
           @connection, sources: sources
         )
       end
 
       def runner
-        @runner = self.class.migrator_for_adapter(Support.inflector.classify(@connection.type), :Runner).new(
+        @runner = self.class.migrator_for_adapter(@connection.type, :Runner).new(
           @connection, migration_path
         )
       end
@@ -111,7 +111,7 @@ module Pakyow
 
       class << self
         def migrator_for_adapter(adapter, type = :Migrator)
-          Adapters.const_get(Support.inflector.camelize(adapter)).const_get(type)
+          Connection.adapter(adapter).const_get(type)
         end
 
         def connect(adapter:, connection:, connection_overrides: {})
