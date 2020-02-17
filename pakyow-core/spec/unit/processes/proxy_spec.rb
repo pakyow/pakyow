@@ -1,12 +1,9 @@
 RSpec.describe Pakyow::Processes::Proxy do
-  it "initializes with a host, port, and proxy port"
+  it "is deprecated" do
+    expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+      described_class, { solution: "do not use" }
+    )
 
-  describe "#run" do
-    it "runs the server in an async reactor"
-    it "prints the running text"
-
-    context "respawned" do
-      it "does not print the running text"
-    end
+    described_class.new(port: 3000, host: "localhost", proxy_port: 3001)
   end
 end

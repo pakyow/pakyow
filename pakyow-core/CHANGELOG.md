@@ -166,6 +166,10 @@
 
 ## Deprecations
 
+  * The environment's `server.proxy` config option is deprecated with no replacement.
+
+  * `Pakyow::Processes::Proxy` and `Pakyow::Processes::Proxy::Server` are deprecated with no replacement.
+
   * `Pakyow::Task` is deprecated in favor of `Pakyow::Command`.
 
     *Related links:*

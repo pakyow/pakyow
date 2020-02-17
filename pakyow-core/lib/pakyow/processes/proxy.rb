@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
+require "pakyow/support/system"
 
 module Pakyow
   module Processes
+    # @deprecated No longer used (will be removed in v2.0).
+    #
     class Proxy
+      extend Support::Deprecatable
+      deprecate
+
       using Support::DeepFreeze
 
       class << self
@@ -46,7 +53,12 @@ module Pakyow
         end
       end
 
+      # @deprecated No longer used (will be removed in v2.0).
+      #
       class Server
+        extend Support::Deprecatable
+        deprecate
+
         def initialize(port:, host:, forwarded:)
           @port, @host, @forwarded = port, host, forwarded
           @destination = "#{@host}:#{@port}"

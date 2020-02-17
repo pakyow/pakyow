@@ -96,6 +96,14 @@ RSpec.describe Pakyow do
         expect(Pakyow.config.server.proxy).to eq(true)
       end
 
+      it "is deprecated" do
+        expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+          "Pakyow.config.server.proxy", { solution: "do not use" }
+        )
+
+        Pakyow.config.server.proxy
+      end
+
       context "in production" do
         before do
           Pakyow.configure!(:production)
