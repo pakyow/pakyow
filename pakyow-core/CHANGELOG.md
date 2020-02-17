@@ -166,6 +166,8 @@
 
 ## Deprecations
 
+  * `Pakyow::Processes::Proxy::find_local_port` is deprecated, replaced with `Pakyow::Support::System::available_port`.
+
   * The environment's `server.proxy` config option is deprecated with no replacement.
 
   * `Pakyow::Processes::Proxy` and `Pakyow::Processes::Proxy::Server` are deprecated with no replacement.

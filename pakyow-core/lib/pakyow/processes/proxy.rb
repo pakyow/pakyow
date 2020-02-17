@@ -15,12 +15,13 @@ module Pakyow
       using Support::DeepFreeze
 
       class << self
+        extend Support::Deprecatable
+
         def find_local_port
-          server = TCPServer.new("127.0.0.1", 0)
-          port = server.addr[1]
-          server.close
-          port
+          Support::System.available_port
         end
+
+        deprecate :find_local_port, solution: "use `Pakyow::Support::System::available_port'"
       end
 
       def initialize(host:, port:, proxy_port:)
