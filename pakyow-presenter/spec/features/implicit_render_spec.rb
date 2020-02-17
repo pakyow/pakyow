@@ -40,18 +40,6 @@ RSpec.describe "implicitly rendering when a controller is called but does not re
       end
     end
 
-    context "request method is head" do
-      it "responds with an empty body" do
-        response = call("/other", method: :head)
-        expect(response[0]).to eq(200)
-        expect(response[2].length).to eq(0)
-      end
-
-      it "sets the content length and content type headers to the expected value" do
-        expect(call("/other", method: :head)[1]).to include("content-type" => "text/html")
-      end
-    end
-
     context "request format is not html" do
       it "returns a 404" do
         expect(call("/other.json")[0]).to eq(404)
