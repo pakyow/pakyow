@@ -56,10 +56,6 @@ RSpec.describe "calling the environment with a request" do
       expect(call("/" + SecureRandom.hex(8), method: :head)[0]).to eq(200)
     end
 
-    it "responds with an empty body" do
-      expect(call("/" + SecureRandom.hex(8), method: :head)[2].length).to eq(0)
-    end
-
     it "responds with the connection headers" do
       expect(call("/" + SecureRandom.hex(8), method: :head)[1]).to include("foo" => ["bar"])
     end

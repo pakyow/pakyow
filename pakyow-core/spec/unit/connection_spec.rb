@@ -204,9 +204,6 @@ RSpec.shared_examples :connection do
         expect(connection).to receive(:request_method).and_return("HEAD")
       end
 
-      it "closes the body"
-      it "replaces the body with an empty body"
-
       context "streaming" do
         it "stops the streaming tasks before closing" do
           Async::Reactor.run {
@@ -218,13 +215,12 @@ RSpec.shared_examples :connection do
               expect(stream).to receive(:stop)
             end
 
-            expect(connection.body).to receive(:close) do
-              expect(connection.streaming?).to be(false)
-            end
-
             expect(connection.streaming?).to be(true)
+
             connection.finalize
           }.wait
+
+          expect(connection.streaming?).to be(false)
         end
       end
     end

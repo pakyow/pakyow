@@ -43,6 +43,8 @@ module Pakyow
 
     attr_reader :id, :timestamp, :logger, :status, :headers, :body
 
+    attr_writer :body
+
     # Contains the error object when the connection is in a failed state.
     #
     attr_reader :error
@@ -274,14 +276,6 @@ module Pakyow
       @status = Statuses.code(status)
     end
 
-    def body=(body)
-      @body = if body.is_a?(Async::HTTP::Body)
-        body
-      else
-        Async::HTTP::Body::Buffered.wrap(body)
-      end
-    end
-
     def write(content)
       @body.write(content)
     end
@@ -350,8 +344,6 @@ module Pakyow
           if streaming?
             @streams.each(&:stop); @streams = []
           end
-
-          close; @body = Async::HTTP::Body::Buffered.wrap(StringIO.new)
         end
 
         set_cookies
@@ -369,7 +361,7 @@ module Pakyow
         if instance_variable_defined?(:@response)
           @response
         else
-          Async::HTTP::Protocol::Response.new(nil, @status, finalize_headers, @body)
+          Async::HTTP::Protocol::Response[@status, finalize_headers, @body]
         end
       end
     end

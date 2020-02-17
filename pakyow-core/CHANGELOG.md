@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Resolve several bugs related to the response body, `content-length` header, and `HEAD` requests.**
+
   * `fix` **Failing commands now exit with an error status.**
 
     *Related links:*
