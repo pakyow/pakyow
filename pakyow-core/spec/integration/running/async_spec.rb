@@ -1,6 +1,10 @@
+require "pakyow/support/system"
+
 RSpec.describe "running an async task within the environment" do
   before do
+    Pakyow.setup(env: :test)
     Pakyow.config.server.host = "0.0.0.0"
+    Pakyow.config.server.port = Pakyow::Support::System.available_port
     allow(Pakyow).to receive(:start_processes).and_return(thread)
 
     local = self
