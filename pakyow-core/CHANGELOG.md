@@ -2,6 +2,9 @@
 
   * `fix` **Failing commands now exit with an error status.**
 
+    *Related links:*
+    - [Pull Request #401][pr-401]
+
   * `add` **Introduce `Pakyow::Command`, definable on the environment.**
     - Will replace `Pakyow::Task` moving forward, as it's much simpler conceptually.
 
@@ -165,6 +168,9 @@
 
   * `Pakyow::Task` is deprecated in favor of `Pakyow::Command`.
 
+    *Related links:*
+    - [Pull Request #401][pr-401]
+
   * `Pakyow::Operation#values` is deprecated in favor of value methods.
 
     *Related links:*
@@ -200,6 +206,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-401]: https://github.com/pakyow/pakyow/pull/401
 [pr-399]: https://github.com/pakyow/pakyow/pull/399
 [pr-398]: https://github.com/pakyow/pakyow/pull/398
 [pr-397]: https://github.com/pakyow/pakyow/pull/397
