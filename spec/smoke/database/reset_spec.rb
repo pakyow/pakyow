@@ -18,6 +18,10 @@ RSpec.describe "resetting a database", smoke: true do
     project_path.join("config/application.rb").open("w+") do |file|
       file.write <<~SOURCE
         Pakyow.app :smoke_test do
+          configure do
+            config.assets.externals.fetch = false
+          end
+
           source :posts do
             attribute :title
           end
