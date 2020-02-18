@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Don't present spinner when running commands outside a tty.**
+
+    *Related links:*
+    - [Pull Request #403][pr-403]
+
   * `fix` **Correctly define and find namespaced definable state.**
 
     *Related links:*
@@ -203,6 +208,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-403]: https://github.com/pakyow/pakyow/pull/403
 [pr-396]: https://github.com/pakyow/pakyow/pull/396
 [pr-393]: https://github.com/pakyow/pakyow/pull/393
 [pr-389]: https://github.com/pakyow/pakyow/pull/389

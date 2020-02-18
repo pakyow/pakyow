@@ -18,12 +18,16 @@ module Pakyow
         SUCCESS_MESSAGE = ""
 
         def initialize(message:)
-          @spinner = TTY::Spinner.new(
-            Support::CLI.style.bold(":spinner #{message}"),
-            format: SPINNER,
-            success_mark: SUCCESS_MARK,
-            error_mark: FAILURE_MARK
-          )
+          @spinner = if $stdout.tty?
+            TTY::Spinner.new(
+              Support::CLI.style.bold(":spinner #{message}"),
+              format: SPINNER,
+              success_mark: SUCCESS_MARK,
+              error_mark: FAILURE_MARK
+            )
+          else
+            nil
+          end
 
           @succeeded = @failed = false
         end
@@ -32,13 +36,13 @@ module Pakyow
         # the block, the result will be yielded to the block on success.
         #
         def run(*command)
-          @spinner.auto_spin
+          @spinner&.auto_spin
 
           if command.empty? && block_given?
             yield self
             succeeded
           else
-            result = TTY::Command.new(printer: :null, pty: true).run!(*command)
+            result = TTY::Command.new(printer: :null, pty: $stdout.tty?).run!(*command)
 
             if result.failure?
               failed(result.err)
@@ -57,7 +61,7 @@ module Pakyow
         def succeeded(output = "")
           unless completed?
             @succeeded = true
-            @spinner.success(Support::CLI.style.green(SUCCESS_MESSAGE))
+            @spinner&.success(Support::CLI.style.green(SUCCESS_MESSAGE))
             puts indent_output(output) unless output.empty?
           end
         end
@@ -67,7 +71,7 @@ module Pakyow
         def failed(output = "")
           unless completed?
             @failed = true
-            @spinner.error(Support::CLI.style.red(FAILURE_MESSAGE))
+            @spinner&.error(Support::CLI.style.red(FAILURE_MESSAGE))
             puts indent_output(output) unless output.empty?
           end
         end

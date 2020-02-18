@@ -14,6 +14,13 @@ RSpec.describe Pakyow::Support::CLI::Runner do
     described_class.new(message: message)
   end
 
+  def capture_output
+    super do
+      allow($stdout).to receive(:tty?).and_return(true)
+      yield
+    end
+  end
+
   describe "#initialize" do
     it "initializes with a message" do
       expect(instance).to be_instance_of(described_class)
@@ -40,6 +47,18 @@ RSpec.describe Pakyow::Support::CLI::Runner do
 
     it "has not failed" do
       expect(instance.failed?).to be(false)
+    end
+
+    context "stdout is not a tty" do
+      before do
+        allow($stdout).to receive(:tty?).and_return(false)
+      end
+
+      it "does not initialize the spinner" do
+        expect(TTY::Spinner).not_to receive(:new)
+
+        instance
+      end
     end
   end
 
@@ -81,6 +100,20 @@ RSpec.describe Pakyow::Support::CLI::Runner do
           end
 
           expect(output).to eq("called\n")
+        end
+      end
+
+      context "stdout is not a tty" do
+        before do
+          allow($stdout).to receive(:tty?).and_return(false)
+        end
+
+        it "succeeds" do
+          capture_output do
+            instance.run do; end
+          end
+
+          expect(instance.succeeded?).to be(true)
         end
       end
     end
@@ -310,7 +343,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
           instance.failed("failed")
         end
 
-        expect(output).to eq("   failed\n")
+        expect(output).to eq("\e[0m\e[2K\e[1G\e[1m✕ testing\e[0m \e[31mfailed\e[0m\n   failed\n")
       end
     end
 
