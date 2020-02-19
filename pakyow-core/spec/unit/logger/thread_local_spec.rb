@@ -1,3 +1,5 @@
+require "pakyow/logger/thread_local"
+
 RSpec.describe Pakyow::Logger::ThreadLocal do
   before do
     allow(Pakyow).to receive(:deprecated)

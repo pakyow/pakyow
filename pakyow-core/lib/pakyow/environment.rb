@@ -2,9 +2,6 @@
 
 require "async"
 
-require "console"
-require "console/split"
-
 require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/support/hookable"
@@ -37,11 +34,6 @@ require "pakyow/actions/normalizer"
 require "pakyow/actions/restart"
 
 require "pakyow/application"
-
-require "pakyow/logger"
-require "pakyow/logger/destination"
-require "pakyow/logger/multiplexed"
-require "pakyow/logger/thread_local"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
 # mounted in the environment, each one handling requests at some path.
@@ -416,6 +408,14 @@ module Pakyow
       unless setup?
         performing :setup do
           load(env: env)
+
+          require "console"
+          require "console/split"
+
+          require "pakyow/logger"
+          require "pakyow/logger/destination"
+          require "pakyow/logger/multiplexed"
+          require "pakyow/logger/thread_local"
 
           destinations = Logger::Multiplexed.new(
             *config.logger.destinations.map { |destination, io|
