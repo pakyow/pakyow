@@ -11,7 +11,7 @@ end
 namespace :release do
   desc "Remove the gems"
   task :clean do
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       GEMS.each do |gem|
         run_with_log "rm -f *.gem && gem uninstall -I -x pakyow-#{gem} -v #{Pakyow::VERSION}"
       end
@@ -23,7 +23,7 @@ namespace :release do
 
   desc "Create the gems"
   task build: [:clean] do
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       run_with_log "gem build pakyow.gemspec"
 
       GEMS.each do |gem|
@@ -34,7 +34,7 @@ namespace :release do
 
   desc "Create and install the gems"
   task install: [:build] do
-    Bundler.with_clean_env do
+    Bundler.with_original_env do
       GEMS.each do |gem|
         run_with_log "gem install pakyow-#{gem}-#{Pakyow::VERSION}.gem"
       end

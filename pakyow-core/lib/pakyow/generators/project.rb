@@ -11,7 +11,7 @@ module Pakyow
   module Generators
     class Project < Generator
       after "generate" do
-        Bundler.with_clean_env do
+        Bundler.with_original_env do
           run "bundle install --binstubs", message: "Bundling dependencies"
         end
       end
