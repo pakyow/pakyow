@@ -6,7 +6,13 @@
     *Related links:*
     - [Pull Request #400][pr-400]
 
+  * `fix` **Bundler deprecation warnings (prefer `with_original_env`).**
+
+    *Related links:*
+    - [Commit a4bf384][a4bf384]
+
 [pr-400]: https://github.com/pakyow/pakyow/pull/400
+[a4bf384]: https://github.com/pakyow/pakyow/commit/a4bf384a4e8ee648a5b8780043b743f024331c64
 
 # v1.0.3
 
