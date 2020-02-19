@@ -20,6 +20,15 @@
 [ec13cdd]: https://github.com/pakyow/pakyow/commit/ec13cdde0b7926d35e0a340fc93889d4166882dd
 [802295c]: https://github.com/pakyow/pakyow/commit/802295c0396383b96fadafd121192d41bb63457e
 
+# v1.0.4 (unreleased)
+
+  * `fix` **Escape external asset uris so they do not fail on fetch.**
+
+    *Related links:*
+    - [Commit e2d7e2e][e2d7e2e]
+
+[e2d7e2e]: https://github.com/pakyow/pakyow/commit/e2d7e2ea2f36cb0a4c7073c17a692423b5cd1efe
+
 # v1.0.3
 
   * `fix` **Make `pakyow/assets` compatible with Ruby 2.7.0.**
