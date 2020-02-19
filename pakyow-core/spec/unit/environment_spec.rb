@@ -55,10 +55,18 @@ RSpec.describe Pakyow do
     before do
       allow(Pakyow).to receive(:load).and_call_original
       allow(Pakyow).to receive(:require)
+      allow(Pakyow).to receive(:performing).and_call_original
     end
 
     it "performs the load event" do
       expect(Pakyow).to receive(:performing).with(:load)
+
+      Pakyow.load
+    end
+
+    it "performs the configure event" do
+      expect(Pakyow).to receive(:performing).with(:configure)
+
       Pakyow.load
     end
 
@@ -100,6 +108,8 @@ RSpec.describe Pakyow do
 
       describe "bootsnap setup" do
         before do
+          allow(Pakyow).to receive(:performing).with(:configure)
+
           allow(Pakyow).to receive(:require).with("pakyow/integrations/bootsnap") do
             load "pakyow/integrations/bootsnap.rb"
           end
@@ -182,7 +192,7 @@ RSpec.describe Pakyow do
           end
 
           it "requires the bundle" do
-            expect(Bundler).to receive(:require).with(:default, Pakyow.env)
+            expect(Bundler).to receive(:require).with(:default, :development)
             Pakyow.load
           end
         end
@@ -205,14 +215,9 @@ RSpec.describe Pakyow do
         end
 
         context "in prototype mode" do
-          before do
-            allow(Pakyow).to receive(:env?).with(:prototype).and_return(true)
-            allow(Pakyow).to receive(:env).and_return(:prototype)
-          end
-
           it "requires the default and development bundles" do
             expect(Bundler).to receive(:require).with(:default, :development)
-            Pakyow.load
+            Pakyow.load(env: :prototype)
           end
         end
       end
@@ -238,8 +243,6 @@ RSpec.describe Pakyow do
 
           context "environment-specific dotfile is available" do
             before do
-              Pakyow.instance_variable_set(:@env, :test)
-
               allow(Dotenv).to receive(:load)
               allow(File).to receive(:exist?)
               allow(File).to receive(:exist?).with(".env.test").and_return(true)
@@ -247,12 +250,12 @@ RSpec.describe Pakyow do
 
             it "loads the environment-specific dotfile" do
               expect(Dotenv).to receive(:load).with(".env.test")
-              Pakyow.load
+              Pakyow.load(env: :test)
             end
 
             it "loads dotenv" do
               expect(Dotenv).to receive(:load).with(no_args)
-              Pakyow.load
+              Pakyow.load(env: :test)
             end
           end
         end
@@ -275,9 +278,16 @@ RSpec.describe Pakyow do
         end
       end
 
-      it "requires the environment" do
-        expect(Pakyow).to receive(:require).with(Pakyow.config.environment_path)
-        Pakyow.load
+      context "environment config exists" do
+        before do
+          allow(File).to receive(:exist?).and_call_original
+          allow(File).to receive(:exist?).with(Pakyow.config.environment_path + ".rb").and_return(true)
+        end
+
+        it "requires the environment" do
+          expect(Pakyow).to receive(:require).with(Pakyow.config.environment_path)
+          Pakyow.load
+        end
       end
 
       it "calls load_apps" do
@@ -333,8 +343,15 @@ RSpec.describe Pakyow do
       Pakyow.load_apps
     end
 
-    it "requires the application" do
-      expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application"))
+    context "application config exists" do
+      before do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(File.join(Pakyow.config.root, "config/application.rb")).and_return(true)
+      end
+
+      it "requires the application" do
+        expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application")) do; end
+      end
     end
   end
 
@@ -364,6 +381,7 @@ RSpec.describe Pakyow do
     end
 
     it "calls hooks" do
+      expect(Pakyow).to receive(:performing).with(:load)
       expect(Pakyow).to receive(:performing).with(:configure)
       expect(Pakyow).to receive(:performing).with(:setup)
       Pakyow.setup
