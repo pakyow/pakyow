@@ -363,26 +363,27 @@ module Pakyow
     def load(env: nil)
       @env = (env ||= config.default_env).to_sym
 
-      performing :load do
-        if File.exist?(config.loader_path + ".rb")
-          require config.loader_path
-        else
-          require "pakyow/integrations/bundler/setup"
-          require "pakyow/integrations/bootsnap"
+      if File.exist?(config.loader_path + ".rb")
+        require config.loader_path
+      else
+        require "pakyow/integrations/bundler/setup"
+        require "pakyow/integrations/bootsnap"
 
-          require "pakyow/integrations/bundler/require"
-          require "pakyow/integrations/dotenv"
+        require "pakyow/integrations/bundler/require"
+        require "pakyow/integrations/dotenv"
 
-          if File.exist?(config.environment_path + ".rb")
-            require config.environment_path
-          end
-
-          load_apps
+        if File.exist?(config.environment_path + ".rb")
+          require config.environment_path
         end
+
+        load_apps
       end
 
       performing :configure do
         configure!(env)
+      end
+
+      performing :load do
         $LOAD_PATH.unshift(config.lib)
       end
     end
@@ -400,9 +401,9 @@ module Pakyow
     # @param env [Symbol] the environment to prepare for
     #
     def setup(env: nil)
-      load(env: env)
-
       performing :setup do
+        load(env: env)
+
         destinations = Logger::Multiplexed.new(
           *config.logger.destinations.map { |destination, io|
             io.sync = config.logger.sync
