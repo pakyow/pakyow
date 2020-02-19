@@ -11,7 +11,6 @@ require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/definable"
 require "pakyow/support/pipeline"
-require "pakyow/support/inflector"
 require "pakyow/support/deprecatable"
 
 require "pakyow/behavior/commands"
