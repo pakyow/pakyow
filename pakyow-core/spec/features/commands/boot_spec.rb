@@ -41,10 +41,7 @@ RSpec.describe "cli: boot" do
     end
 
     context "running in standalone mode" do
-      it "boots in standalone mode" do
-        run_command(command, standalone: true, project: true)
-        expect(Pakyow.config.server.proxy).to eq(false)
-      end
+      it "needs tests once restartability is added back"
     end
   end
 end

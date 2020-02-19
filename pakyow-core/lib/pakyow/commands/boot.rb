@@ -11,11 +11,6 @@ command :boot, boot: false do
   action do
     Pakyow.config.server.host = @host
     Pakyow.config.server.port = @port
-
-    if @standalone
-      Pakyow.config.server.proxy = false
-    end
-
     Pakyow.run
   end
 end

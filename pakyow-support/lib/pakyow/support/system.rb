@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pathname"
+require "socket"
 
 module Pakyow
   module Support
@@ -52,6 +53,13 @@ module Pakyow
 
       def ruby_gem_path_string
         @__ruby_gem_path_string ||= ruby_gem_path.to_s
+      end
+
+      def available_port
+        server = TCPServer.new("127.0.0.1", 0)
+        server.addr[1]
+      ensure
+        server.close
       end
     end
   end

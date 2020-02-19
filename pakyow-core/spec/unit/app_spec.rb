@@ -54,11 +54,7 @@ RSpec.describe Pakyow::Application do
 
         expect(connection.status).to eq(500)
 
-        response_body = String.new
-        while content = connection.body.read
-          response_body << content
-        end
-
+        response_body = connection.body.read
         expect(response_body).to include("failed to initialize")
         expect(response_body).to include("testing rescue mode")
         expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
@@ -83,11 +79,7 @@ RSpec.describe Pakyow::Application do
 
         expect(connection.status).to eq(500)
 
-        response_body = String.new
-        while content = connection.body.read
-          response_body << content
-        end
-
+        response_body = connection.body.read
         expect(response_body).to include("failed to initialize")
         expect(response_body).to include("syntax error, unexpected end-of-input")
         expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
@@ -155,11 +147,7 @@ RSpec.describe Pakyow::Application do
 
         expect(connection.status).to eq(500)
 
-        response_body = String.new
-        while content = connection.body.read
-          response_body << content
-        end
-
+        response_body = connection.body.read
         expect(response_body).to include("failed to initialize")
         expect(response_body).to include("testing rescue mode")
         expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
@@ -184,11 +172,7 @@ RSpec.describe Pakyow::Application do
 
         expect(connection.status).to eq(500)
 
-        response_body = String.new
-        while content = connection.body.read
-          response_body << content
-        end
-
+        response_body = connection.body.read
         expect(response_body).to include("failed to initialize")
         expect(response_body).to include("syntax error, unexpected end-of-input")
         expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")

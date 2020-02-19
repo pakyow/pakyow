@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Resolve several bugs related to the response body, `content-length` header, and `HEAD` requests.**
+
+    *Related links:*
+    - [Pull Request #402][pr-402]
+    - [Commit 45c89dd][45c89dd]
+
   * `fix` **Failing commands now exit with an error status.**
 
     *Related links:*
@@ -166,6 +172,24 @@
 
 ## Deprecations
 
+  * `Pakyow::Processes::Proxy::find_local_port` is deprecated, replaced with `Pakyow::Support::System::available_port`.
+
+    *Related links:*
+    - [Pull Request #402][pr-402]
+    - [Commit be0e450][be0e450]
+
+  * The environment's `server.proxy` config option is deprecated with no replacement.
+
+    *Related links:*
+    - [Pull Request #402][pr-402]
+    - [Commit 7c9850c][7c9850c]
+
+  * `Pakyow::Processes::Proxy` and `Pakyow::Processes::Proxy::Server` are deprecated with no replacement.
+
+    *Related links:*
+    - [Pull Request #402][pr-402]
+    - [Commit 7c9850c][7c9850c]
+
   * `Pakyow::Task` is deprecated in favor of `Pakyow::Command`.
 
     *Related links:*
@@ -206,6 +230,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-402]: https://github.com/pakyow/pakyow/pull/402
 [pr-401]: https://github.com/pakyow/pakyow/pull/401
 [pr-399]: https://github.com/pakyow/pakyow/pull/399
 [pr-398]: https://github.com/pakyow/pakyow/pull/398
@@ -233,6 +258,9 @@
 [pr-301]: https://github.com/pakyow/pakyow/pull/301
 [is-298]: https://github.com/pakyow/pakyow/issues/298
 [pr-297]: https://github.com/pakyow/pakyow/pull/297
+[45c89dd]: https://github.com/pakyow/pakyow/commit/45c89ddb3f3ecdef61524eedfa08c3bc8e16696d
+[be0e450]: https://github.com/pakyow/pakyow/commit/be0e45092f31f038c10dc287cc96a887e092d146
+[7c9850c]: https://github.com/pakyow/pakyow/commit/7c9850ce123a5bf714ad91b485e180ee60a014c2
 [7f0df61]: https://github.com/pakyow/pakyow/commit/7f0df61a917b948030b0c44243bdb434e76c999c
 [3268e57]: https://github.com/pakyow/pakyow/commit/3268e57203e13c3c448f67585d29e3e2f67fe462
 [92f795e]: https://github.com/pakyow/pakyow/commit/92f795e88e1ca3106394d0581d51f17cf1a883ad

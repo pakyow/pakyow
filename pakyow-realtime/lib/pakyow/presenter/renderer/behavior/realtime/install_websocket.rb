@@ -29,17 +29,10 @@ module Pakyow
                     Pakyow::Presenter::View.from_object(node)
                   end
                 } do
-                  endpoint = app.config.realtime.endpoint
-
-                  unless endpoint
-                    endpoint = if Pakyow.config.server.proxy
-                      # Connect directly to the app in development, since the proxy does not support websocket connections.
-                      #
-                      File.join("ws://#{Pakyow.config.server.host}:#{Pakyow.config.server.port}", app.config.realtime.path)
-                    else
-                      File.join("#{presentables[:__ws_protocol]}://#{presentables[:__ws_authority]}", app.config.realtime.path)
-                    end
-                  end
+                  endpoint = app.config.realtime.endpoint || File.join(
+                    "#{presentables[:__ws_protocol]}://#{presentables[:__ws_authority]}",
+                    app.config.realtime.path
+                  )
 
                   attributes["data-ui"] = "socket(global: true, endpoint: #{endpoint}?id=#{presentables[:__verifier].sign(presentables[:__socket_client_id])})"
                 end

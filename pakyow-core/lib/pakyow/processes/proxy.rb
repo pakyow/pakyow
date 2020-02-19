@@ -1,19 +1,27 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
+require "pakyow/support/system"
 
 module Pakyow
   module Processes
+    # @deprecated No longer used (will be removed in v2.0).
+    #
     class Proxy
+      extend Support::Deprecatable
+      deprecate
+
       using Support::DeepFreeze
 
       class << self
+        extend Support::Deprecatable
+
         def find_local_port
-          server = TCPServer.new("127.0.0.1", 0)
-          port = server.addr[1]
-          server.close
-          port
+          Support::System.available_port
         end
+
+        deprecate :find_local_port, solution: "use `Pakyow::Support::System::available_port'"
       end
 
       def initialize(host:, port:, proxy_port:)
@@ -46,7 +54,12 @@ module Pakyow
         end
       end
 
+      # @deprecated No longer used (will be removed in v2.0).
+      #
       class Server
+        extend Support::Deprecatable
+        deprecate
+
         def initialize(port:, host:, forwarded:)
           @port, @host, @forwarded = port, host, forwarded
           @destination = "#{@host}:#{@port}"

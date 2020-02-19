@@ -27,13 +27,13 @@ module Pakyow
 
       def run
         Async::Reactor.run do
-          Async::HTTP::Server.new(Pakyow, @endpoint, @protocol, @scheme).run
-
           Pakyow.deprecator.ignore do
             if Pakyow.config.freeze_on_boot
               Pakyow.deep_freeze
             end
           end
+
+          Async::HTTP::Server.new(Pakyow, @endpoint, @protocol, @scheme).run
         end
       end
     end

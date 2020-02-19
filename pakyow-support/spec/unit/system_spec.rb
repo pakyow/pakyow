@@ -162,6 +162,50 @@ RSpec.describe Pakyow::Support::System do
     it_behaves_like :memoized_string
   end
 
+  describe "#available_port" do
+    before do
+      allow(TCPServer).to receive(:new).with("127.0.0.1", 0).and_return(server)
+    end
+
+    let(:server) {
+      instance_double(TCPServer, close: nil, addr: addr)
+    }
+
+    let(:addr) {
+      ["127.0.0.1", 4242]
+    }
+
+    it "initializes a tcp server" do
+      described_class.available_port
+
+      expect(TCPServer).to have_received(:new).with("127.0.0.1", 0)
+    end
+
+    it "returns the address port from the server" do
+      expect(described_class.available_port).to eq(4242)
+    end
+
+    it "closes the server" do
+      described_class.available_port
+
+      expect(server).to have_received(:close)
+    end
+
+    context "getting the address fails" do
+      before do
+        allow(server).to receive(:addr).and_raise(RuntimeError)
+      end
+
+      it "closes the server" do
+        expect {
+          described_class.available_port
+        }.to raise_error(RuntimeError)
+
+        expect(server).to have_received(:close)
+      end
+    end
+  end
+
   context "included into a class" do
     subject { Class.new.tap { |c| c.include described_class }.new }
 
@@ -227,6 +271,11 @@ RSpec.describe Pakyow::Support::System do
     end
 
     describe "#ruby_gem_path_string" do
+      let(:method) { :ruby_gem_path_string }
+      it_behaves_like :private_behavior
+    end
+
+    describe "#available_port" do
       let(:method) { :ruby_gem_path_string }
       it_behaves_like :private_behavior
     end

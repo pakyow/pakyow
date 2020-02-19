@@ -147,7 +147,9 @@ module Pakyow
     setting :host, "localhost"
     setting :port, 3000
     setting :count, 1
+
     setting :proxy, true
+    deprecate :proxy
 
     defaults :production do
       setting :proxy, false

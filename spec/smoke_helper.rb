@@ -2,7 +2,7 @@ require "bundler"
 require "http"
 require "fileutils"
 
-require "pakyow/processes/proxy"
+require "pakyow/support/system"
 
 module SmokeContext
   extend RSpec::SharedContext
@@ -16,7 +16,7 @@ module SmokeContext
   }
 
   let(:port) {
-    Pakyow::Processes::Proxy.find_local_port
+    Pakyow::Support::System.available_port
   }
 
   let(:environment) {

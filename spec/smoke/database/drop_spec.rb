@@ -15,6 +15,16 @@ RSpec.describe "dropping a database", smoke: true do
       SOURCE
     end
 
+    project_path.join("config/application.rb").open("w+") do |file|
+      file.write <<~SOURCE
+        Pakyow.app :smoke_test do
+          configure do
+            config.assets.externals.fetch = false
+          end
+        end
+      SOURCE
+    end
+
     ensure_bundled "pg"
   end
 

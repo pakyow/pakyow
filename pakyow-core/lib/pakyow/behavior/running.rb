@@ -20,30 +20,8 @@ module Pakyow
         class_state :processes, default: []
 
         on "run" do
-          if config.server.proxy
-            # Find a port to run the environment on, start the proxy on the configured port.
-            #
-            @proxy_port = port = if ENV.key?("PW_PROXY_PORT")
-              ENV["PW_PROXY_PORT"].to_i
-            else
-              Processes::Proxy.find_local_port
-            end
-
-            process :proxy, restartable: false do
-              Processes::Proxy.new(
-                host: config.server.host,
-                port: config.server.port,
-                proxy_port: port
-              ).run
-            end
-          else
-            # Run the environment on the configured port.
-            #
-            port = config.server.port
-          end
-
           endpoint = Async::HTTP::Endpoint.parse(
-            "http://#{config.server.host}:#{port}"
+            "http://#{config.server.host}:#{config.server.port}"
           )
 
           @bound_endpoint = Async::Reactor.run {
@@ -51,8 +29,6 @@ module Pakyow
           }.wait
 
           process :server, count: config.server.count do
-            Pakyow.config.server.port = port
-
             Processes::Server.new(
               protocol: endpoint.protocol,
               scheme: endpoint.scheme,
@@ -60,9 +36,9 @@ module Pakyow
             ).run
           end
 
-          unless config.server.proxy || ENV.key?("PW_RESPAWN")
+          unless ENV.key?("PW_RESPAWN")
             Pakyow.logger << Processes::Server.running_text(
-              scheme: "http", host: config.server.host, port: port
+              scheme: "http", host: config.server.host, port: config.server.port
             )
           end
         end

@@ -21,8 +21,8 @@ RSpec.shared_examples :connection_body do
       connection.body = StringIO.new("foo")
     end
 
-    it "wraps the body" do
-      expect(connection.body).to be_instance_of(Async::HTTP::Body::Buffered)
+    it "sets the body" do
+      expect(connection.body).to be_instance_of(StringIO)
       expect(connection.body.read).to eq("foo")
     end
 
