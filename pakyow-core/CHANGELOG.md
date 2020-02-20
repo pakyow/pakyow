@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Setup the default environment deprecator to be forwarded to from global.**
+
+    *Related links:*
+    - [Pull Request #409][pr-409]
+
   * `chg` **Make each phase of the startup sequence idempotent.**
     - Includes `Pakyow::load`, `Pakyow::setup`, `Pakyow::boot`, `Pakyow::run`, and `Pakyow::Application::setup`.
 
@@ -247,6 +252,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-409]: https://github.com/pakyow/pakyow/pull/409
 [pr-406]: https://github.com/pakyow/pakyow/pull/406
 [pr-405]: https://github.com/pakyow/pakyow/pull/405
 [pr-404]: https://github.com/pakyow/pakyow/pull/404
