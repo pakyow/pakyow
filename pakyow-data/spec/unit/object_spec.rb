@@ -1,3 +1,5 @@
+require "pakyow/data/object"
+
 RSpec.describe Pakyow::Data::Object do
   let :instance do
     described_class.new(foo: "bar")

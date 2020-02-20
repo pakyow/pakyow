@@ -1,3 +1,5 @@
+require "pakyow/data/proxy"
+
 RSpec.describe Pakyow::Data::Proxy do
   describe "#inspect" do
     it "includes source" do
