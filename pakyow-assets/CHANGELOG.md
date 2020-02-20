@@ -1,4 +1,4 @@
-# v1.0.4 (unreleased)
+# v1.0.4
 
   * `fix` **Escape external asset uris so they do not fail on fetch.**
 

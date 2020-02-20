@@ -1,4 +1,4 @@
-# v1.0.4 (unreleased)
+# v1.0.4
 
   * `fix` **Typecast header values to strings.**
     - Resolves an incompatibility with `protocol-http`.
