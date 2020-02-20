@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Make the environment setup phase consistent with the app setup phase.**
+    - Configure first, then load. Load the environment / application config files prior to configure and load.
+
+    *Related links:*
+    - [Pull Request #405][pr-405]
+
   * `chg` **Configure the environment as part of the load phase.**
 
     *Related links:*
@@ -235,6 +241,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-505]: https://github.com/pakyow/pakyow/pull/505
 [pr-404]: https://github.com/pakyow/pakyow/pull/404
 [pr-402]: https://github.com/pakyow/pakyow/pull/402
 [pr-401]: https://github.com/pakyow/pakyow/pull/401
