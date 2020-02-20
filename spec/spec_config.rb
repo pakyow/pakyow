@@ -98,9 +98,11 @@ RSpec.configure do |config|
       allow(Pakyow::Processes::Environment).to receive(:trap)
     end
 
-    if Pakyow.respond_to?(:load)
-      allow(Pakyow).to receive(:load)
-    end
+    allow(Pakyow).to receive(:require).and_call_original
+    allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/setup")
+    allow(Pakyow).to receive(:require).with("pakyow/integrations/bootsnap")
+    allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/require")
+    allow(Pakyow).to receive(:require).with("pakyow/integrations/dotenv")
 
     if Pakyow.instance_variable_defined?(:@__class_state)
       $original_class_state.each do |ivar, original_value|

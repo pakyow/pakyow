@@ -360,7 +360,9 @@ module Pakyow
 
     # Loads the Pakyow environment for the current project.
     #
-    def load
+    def load(env: nil)
+      @env = (env ||= config.default_env).to_sym
+
       performing :load do
         if File.exist?(config.loader_path + ".rb")
           require config.loader_path
@@ -371,17 +373,26 @@ module Pakyow
           require "pakyow/integrations/bundler/require"
           require "pakyow/integrations/dotenv"
 
-          require config.environment_path
+          if File.exist?(config.environment_path + ".rb")
+            require config.environment_path
+          end
 
           load_apps
         end
+      end
+
+      performing :configure do
+        configure!(env)
+        $LOAD_PATH.unshift(config.lib)
       end
     end
 
     # Loads apps located in the current project.
     #
     def load_apps
-      require File.join(config.root, "config/application")
+      if File.exist?(File.join(config.root, "config/application.rb"))
+        require File.join(config.root, "config/application")
+      end
     end
 
     # Prepares the environment for booting.
@@ -389,14 +400,7 @@ module Pakyow
     # @param env [Symbol] the environment to prepare for
     #
     def setup(env: nil)
-      @env = (env ||= config.default_env).to_sym
-
-      load
-
-      performing :configure do
-        configure!(env)
-        $LOAD_PATH.unshift(config.lib)
-      end
+      load(env: env)
 
       performing :setup do
         destinations = Logger::Multiplexed.new(

@@ -14,8 +14,6 @@ RSpec.describe "environment initializers" do
   end
 
   it "loads each initializer" do
-    allow(Pakyow).to receive(:require).and_call_original
-
     expect(Pakyow).to receive(:require).with(File.join(
       Pakyow.config.root, "config/initializers/environment/bar.rb"
     ))
