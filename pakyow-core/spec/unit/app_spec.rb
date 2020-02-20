@@ -17,6 +17,40 @@ RSpec.describe Pakyow::Application do
     )
   end
 
+  describe "::setup" do
+    describe "idempotence" do
+      before do
+        allow(app_class).to receive(:performing).and_call_original
+      end
+
+      it "is idempotent" do
+        app_class.setup
+        app_class.setup
+        app_class.setup
+
+        expect(app_class).to have_received(:performing).with(:setup).exactly(:once)
+      end
+    end
+  end
+
+  describe "::setup?" do
+    context "application is setup" do
+      before do
+        app_class.setup
+      end
+
+      it "returns true" do
+        expect(app_class.setup?).to be(true)
+      end
+    end
+
+    context "application is not setup" do
+      it "returns false" do
+        expect(app_class.setup?).to be(false)
+      end
+    end
+  end
+
   describe "#initialize" do
     let :app do
       app_class.new(:test)

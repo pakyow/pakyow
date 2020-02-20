@@ -115,6 +115,9 @@ module Pakyow
     include Support::Hookable
     events :setup, :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
 
+    extend Support::ClassState
+    class_state :__setup, default: false, reader: false
+
     include Support::Configurable
 
     setting :name, :pakyow
@@ -169,19 +172,31 @@ module Pakyow
           class_eval(&block)
         end
 
-        performing :setup do
-          performing :configure do
-            configure!(environment)
+        unless setup?
+          performing :setup do
+            performing :configure do
+              configure!(environment)
+            end
+
+            performing :load do
+              $LOAD_PATH.unshift(config.lib)
+            end
+
+            config.version = Support::PathVersion.build(config.src)
           end
 
-          performing :load do
-            $LOAD_PATH.unshift(config.lib)
-          end
-
-          config.version = Support::PathVersion.build(config.src)
+          @__setup = true
         end
+
+        self
       rescue ScriptError, StandardError => error
         rescue!(error)
+      end
+
+      # Returns true if the application has been setup.
+      #
+      def setup?
+        @__setup == true
       end
     end
 

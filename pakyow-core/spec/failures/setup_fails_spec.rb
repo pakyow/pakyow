@@ -5,6 +5,7 @@ RSpec.describe "Handling failures in pakyow environment setup" do
     allow(Pakyow).to receive(:exit)
     allow(Pakyow).to receive(:load).and_raise(error)
     allow(Pakyow).to receive(:logger).and_return(double(:logger, houston: nil))
+    allow(Pakyow).to receive(:setup?).and_return(false)
     Pakyow.config.logger.enabled = true
   end
 
