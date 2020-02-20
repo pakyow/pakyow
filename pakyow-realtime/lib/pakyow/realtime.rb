@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
-require "pakyow/support"
 require "pakyow/routing"
 require "pakyow/presenter"
 
 require "pakyow/realtime/framework"
-
-require "pakyow/application/actions/realtime/upgrader"
 
 module Pakyow
   configurable :realtime do

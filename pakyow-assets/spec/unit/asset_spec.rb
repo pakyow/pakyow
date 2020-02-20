@@ -1,3 +1,5 @@
+require "pakyow/assets/asset"
+
 RSpec.describe Pakyow::Assets::Asset do
   let :config do
     app_class = Class.new(Pakyow::Application) do

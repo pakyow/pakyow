@@ -1,3 +1,5 @@
+require "pakyow/routing/controller"
+
 RSpec.describe Pakyow::Routing::Controller do
   let :env do
     {}

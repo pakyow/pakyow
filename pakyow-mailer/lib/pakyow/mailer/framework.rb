@@ -2,12 +2,14 @@
 
 require "pakyow/framework"
 
-require "pakyow/application/helpers/mailer"
-
 module Pakyow
   module Mailer
     class Framework < Pakyow::Framework(:mailer)
       def boot
+        require "pakyow/application/helpers/mailer"
+
+        require "pakyow/mailer/mailer"
+
         object.class_eval do
           configurable :mailer do
             setting :default_sender, "Pakyow"

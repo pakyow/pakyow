@@ -1,3 +1,5 @@
+require "string_doc/node"
+
 RSpec.describe StringDoc::Node do
   let :html do
     "<div binding=\"post\"><h1 binding=\"title\">hello</h1></div>"

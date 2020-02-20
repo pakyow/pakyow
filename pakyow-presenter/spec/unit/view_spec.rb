@@ -1,3 +1,5 @@
+require "pakyow/presenter/view"
+
 RSpec.describe Pakyow::Presenter::View do
   describe "#attributes" do
     let :html do

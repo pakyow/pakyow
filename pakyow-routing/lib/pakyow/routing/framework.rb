@@ -2,24 +2,26 @@
 
 require "pakyow/framework"
 
-require "pakyow/routing/controller"
-require "pakyow/routing/extensions"
-require "pakyow/routing/helpers/exposures"
-
-require "pakyow/application/actions/routing/respond_missing"
-require "pakyow/application/behavior/routing/definition"
-
-require "pakyow/security/behavior/disabling"
-require "pakyow/security/behavior/helpers"
-require "pakyow/security/behavior/insecure"
-require "pakyow/security/behavior/pipeline"
-
 module Pakyow
   module Routing
     class Framework < Pakyow::Framework(:routing)
       using Support::Refinements::String::Normalization
 
       def boot
+        require "pakyow/validations"
+
+        require "pakyow/routing/controller"
+        require "pakyow/routing/extensions"
+        require "pakyow/routing/helpers/exposures"
+
+        require "pakyow/application/actions/routing/respond_missing"
+        require "pakyow/application/behavior/routing/definition"
+
+        require "pakyow/security/behavior/disabling"
+        require "pakyow/security/behavior/helpers"
+        require "pakyow/security/behavior/insecure"
+        require "pakyow/security/behavior/pipeline"
+
         object.class_eval do
           include Pakyow::Application::Behavior::Routing::Definition
 

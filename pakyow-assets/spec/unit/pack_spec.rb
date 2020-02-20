@@ -1,3 +1,5 @@
+require "pakyow/assets/pack"
+
 RSpec.describe Pakyow::Assets::Pack do
   let :instance do
     Pakyow::Assets::Pack.new(:test, config)

@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require "json"
-
 require "pakyow/framework"
-
-require "pakyow/support/extension"
-require "pakyow/support/inflector"
-
-require "pakyow/application/connection/helpers/form"
 
 module Pakyow
   module Form
     class Framework < Pakyow::Framework(:form)
       def boot
+        require "json"
+
+        require "pakyow/support/extension"
+        require "pakyow/support/inflector"
+
+        require "pakyow/application/connection/helpers/form"
+
         object.class_eval do
           isolated :Controller do
             # Clear form errors after a successful submission.

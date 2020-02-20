@@ -1,19 +1,6 @@
 # frozen_string_literal: true
 
-require "concurrent/executor/single_thread_executor"
-
 require "pakyow/framework"
-
-require "pakyow/application/helpers/ui"
-
-require "pakyow/application/behavior/ui/logging"
-require "pakyow/application/behavior/ui/recording"
-require "pakyow/application/behavior/ui/rendering"
-require "pakyow/application/behavior/ui/timeouts"
-
-require "pakyow/presenter/renderer/behavior/ui/install_transforms"
-
-require "pakyow/support/deep_freeze"
 
 module Pakyow
   module UI
@@ -35,6 +22,19 @@ module Pakyow
       end
 
       def boot
+        require "concurrent/executor/single_thread_executor"
+
+        require "pakyow/application/helpers/ui"
+
+        require "pakyow/application/behavior/ui/logging"
+        require "pakyow/application/behavior/ui/recording"
+        require "pakyow/application/behavior/ui/rendering"
+        require "pakyow/application/behavior/ui/timeouts"
+
+        require "pakyow/presenter/renderer/behavior/ui/install_transforms"
+
+        require "pakyow/support/deep_freeze"
+
         object.class_eval do
           register_helper :passive, Application::Helpers::UI
 

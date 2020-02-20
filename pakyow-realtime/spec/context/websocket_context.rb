@@ -1,3 +1,5 @@
+require "pakyow/realtime/websocket"
+
 RSpec.shared_context "websocket" do
   class MockConnection
     attr_reader :app

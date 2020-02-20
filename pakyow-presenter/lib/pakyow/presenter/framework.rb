@@ -2,34 +2,6 @@
 
 require "pakyow/framework"
 
-require "pakyow/support/indifferentize"
-require "pakyow/support/core_refinements/string/normalization"
-
-require "pakyow/application/behavior/presenter/error_rendering"
-require "pakyow/application/behavior/presenter/exposures"
-require "pakyow/application/behavior/presenter/implicit_rendering"
-require "pakyow/application/behavior/presenter/initializing"
-require "pakyow/application/behavior/presenter/modes"
-require "pakyow/application/behavior/presenter/versions"
-require "pakyow/application/behavior/presenter/watching"
-
-require "pakyow/application/actions/presenter/auto_render"
-require "pakyow/application/helpers/presenter/rendering"
-
-require "pakyow/presenter/renderable"
-
-require "pakyow/presenter/renderer"
-require "pakyow/presenter/renderer/behavior/cleanup_prototype_nodes"
-require "pakyow/presenter/renderer/behavior/cleanup_unbound_bindings"
-require "pakyow/presenter/renderer/behavior/create_template_nodes"
-require "pakyow/presenter/renderer/behavior/install_development_tools"
-require "pakyow/presenter/renderer/behavior/install_authenticity"
-require "pakyow/presenter/renderer/behavior/place_in_mode"
-require "pakyow/presenter/renderer/behavior/render_components"
-require "pakyow/presenter/renderer/behavior/set_page_title"
-require "pakyow/presenter/renderer/behavior/setup_endpoints"
-require "pakyow/presenter/renderer/behavior/setup_forms"
-
 module Pakyow
   module Presenter
     class Framework < Pakyow::Framework(:presenter)
@@ -37,6 +9,65 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       def boot
+        require "pakyow/support/silenceable"
+        Pakyow::Support::Silenceable.silence_warnings do
+          require "oga"
+        end
+
+        require "pakyow/presenter/presenter"
+
+        require "pakyow/presenter/significant_nodes"
+
+        require "pakyow/presenter/view"
+        require "pakyow/presenter/attributes"
+        require "pakyow/presenter/versioned_view"
+
+        require "pakyow/presenter/templates"
+        require "pakyow/presenter/front_matter_parser"
+        require "pakyow/presenter/processor"
+        require "pakyow/presenter/binder"
+        require "pakyow/presenter/binding_parts"
+        require "pakyow/presenter/component"
+
+        require "pakyow/presenter/views/form"
+        require "pakyow/presenter/views/layout"
+        require "pakyow/presenter/views/page"
+        require "pakyow/presenter/views/partial"
+
+        require "pakyow/presenter/presenters/form"
+
+        require "pakyow/presenter/errors"
+
+        require "pakyow/application/actions/presenter/auto_render"
+
+        require "pakyow/support/indifferentize"
+        require "pakyow/support/core_refinements/string/normalization"
+
+        require "pakyow/application/behavior/presenter/error_rendering"
+        require "pakyow/application/behavior/presenter/exposures"
+        require "pakyow/application/behavior/presenter/implicit_rendering"
+        require "pakyow/application/behavior/presenter/initializing"
+        require "pakyow/application/behavior/presenter/modes"
+        require "pakyow/application/behavior/presenter/versions"
+        require "pakyow/application/behavior/presenter/watching"
+
+        require "pakyow/application/actions/presenter/auto_render"
+        require "pakyow/application/helpers/presenter/rendering"
+
+        require "pakyow/presenter/renderable"
+
+        require "pakyow/presenter/renderer"
+        require "pakyow/presenter/renderer/behavior/cleanup_prototype_nodes"
+        require "pakyow/presenter/renderer/behavior/cleanup_unbound_bindings"
+        require "pakyow/presenter/renderer/behavior/create_template_nodes"
+        require "pakyow/presenter/renderer/behavior/install_development_tools"
+        require "pakyow/presenter/renderer/behavior/install_authenticity"
+        require "pakyow/presenter/renderer/behavior/place_in_mode"
+        require "pakyow/presenter/renderer/behavior/render_components"
+        require "pakyow/presenter/renderer/behavior/set_page_title"
+        require "pakyow/presenter/renderer/behavior/setup_endpoints"
+        require "pakyow/presenter/renderer/behavior/setup_forms"
+
         object.class_eval do
           isolate Renderer do
             include Renderer::Behavior::CleanupPrototypeNodes

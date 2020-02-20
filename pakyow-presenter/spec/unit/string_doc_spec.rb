@@ -1,3 +1,5 @@
+require "string_doc"
+
 RSpec.describe StringDoc do
   let :doc do
     StringDoc.new(html)
