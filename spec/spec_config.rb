@@ -37,9 +37,10 @@ RSpec.configure do |config|
   end
 
   config.before :suite do
+    require "pastel"
     require "pakyow/application"
     require "pakyow/support/cli/style"
-    Pakyow::Support::CLI.instance_variable_set(:@style, Pastel.new(enabled: true))
+    Pakyow::Support::CLI.instance_variable_set(:@__style, Pastel.new(enabled: true))
 
     if Pakyow.respond_to?(:config)
       $original_pakyow_config = Pakyow.config

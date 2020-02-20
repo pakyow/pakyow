@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
-require "pastel"
-
 module Pakyow
   module Support
     module CLI
       def self.style
-        @style ||= Pastel.new
+        unless defined?(@__style)
+          require "pastel"
+          @__style = Pastel.new
+        end
+
+        @__style
       end
     end
   end
