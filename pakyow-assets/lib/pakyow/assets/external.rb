@@ -109,20 +109,26 @@ module Pakyow
         private def get(path)
           @path = path
           internet = Async::HTTP::Internet.new
-          response = internet.get(build_uri(path))
-          @status = response.status
 
-          if response.status == 301 || response.status == 302
-            get(response.headers["location"])
-          elsif response.status >= 500
-            raise Failed, "Unexpected response status: #{response.status}"
-          else
-            @body = response.body.read
-          end
-        rescue SocketError => error
-          raise Failed.build(error)
+          Async do
+            begin
+              response = internet.get(build_uri(path))
+              @status = response.status
+
+              if response.status == 301 || response.status == 302
+                get(response.headers["location"])
+              elsif response.status >= 500
+                raise Failed, "Unexpected response status: #{response.status}"
+              else
+                @body = response.body.read
+              end
+            rescue SocketError => error
+              raise Failed.build(error)
+            ensure
+              response&.close
+            end
+          end.wait
         ensure
-          response&.close
           internet&.close
         end
 
