@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Prevent multiple forwards to the same deprecator.**
+
+    *Related links:*
+    - [Pull Request #408][pr-408]
+
   * `chg` **Don't present spinner when running commands outside a tty.**
 
     *Related links:*
@@ -208,6 +213,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-408]: https://github.com/pakyow/pakyow/pull/408
 [pr-403]: https://github.com/pakyow/pakyow/pull/403
 [pr-396]: https://github.com/pakyow/pakyow/pull/396
 [pr-393]: https://github.com/pakyow/pakyow/pull/393
