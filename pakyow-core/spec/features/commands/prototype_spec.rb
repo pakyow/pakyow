@@ -27,7 +27,11 @@ RSpec.describe "cli: prototype" do
     context "without any arguments" do
       it "boots with defaults" do
         run_command(command, project: true)
-        expect(Pakyow.config.server.proxy).to eq(true)
+
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.server.proxy).to eq(true)
+        end
+
         expect(Pakyow.config.server.host).to eq("localhost")
         expect(Pakyow.config.server.port).to eq(3000)
       end

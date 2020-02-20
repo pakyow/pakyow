@@ -16,6 +16,12 @@ RSpec.describe "setting up the environment deprecator" do
           Pakyow.deprecator.instance_variable_get(:@reporter).instance_variable_get(:@logger)
         ).to be(Pakyow.logger)
       end
+
+      it "is forwarded to from the global deprecator" do
+        expect(Pakyow.deprecator).to receive(:deprecated).with(:test, solution: "do not use").exactly(:once)
+
+        Pakyow::Support::Deprecator.global.deprecated(:test, solution: "do not use")
+      end
     end
   end
 
