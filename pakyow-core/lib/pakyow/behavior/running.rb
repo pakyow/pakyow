@@ -18,6 +18,7 @@ module Pakyow
 
       apply_extension do
         class_state :processes, default: []
+        class_state :__running, default: false, reader: false
 
         on "run" do
           endpoint = Async::HTTP::Endpoint.parse(
@@ -55,43 +56,60 @@ module Pakyow
         end
 
         def run
-          boot
+          unless running?
+            boot
 
-          Async::Reactor.run do |reactor|
-            @__reactor = reactor
+            Async::Reactor.run do |reactor|
+              @__reactor = reactor
 
-            handle_at_exit
-            call_hooks :before, :run
-            @__process_thread = start_processes
+              handle_at_exit
+              call_hooks :before, :run
+              @__process_thread = start_processes
+              @__running = true
+            end
+
+            if defined?(@__process_thread)
+              @__process_thread.join
+            end
+
+            call_hooks :after, :run
           end
 
-          if defined?(@__process_thread)
-            @__process_thread.join
-          end
-
-          call_hooks :after, :run
+          self
         rescue SignalException, Interrupt
           exit
         end
 
+        # Returns true if the environment is running.
+        #
+        def running?
+          @__running == true
+        end
+
         def shutdown
-          performing :shutdown do
-            # Stop the async reactor.
-            #
-            @__reactor.stop
+          if running?
+            performing :shutdown do
+              # Stop the async reactor.
+              #
+              @__reactor.stop
 
-            # Close the bound endpoint so we can respawn on the same port.
-            #
-            if defined?(@bound_endpoint)
-              @bound_endpoint.close
+              # Close the bound endpoint so we can respawn on the same port.
+              #
+              if defined?(@bound_endpoint)
+                @bound_endpoint.close
+              end
+
+              # Finally, stop the process manager to invoke the respawn.
+              #
+              if defined?(@process_manager)
+                @process_manager.stop
+              end
             end
 
-            # Finally, stop the process manager to invoke the respawn.
-            #
-            if defined?(@process_manager)
-              @process_manager.stop
-            end
+            @__running = false
           end
+
+          self
         end
 
         def restart(environment = nil)

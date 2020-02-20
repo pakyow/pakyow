@@ -303,7 +303,9 @@ module Pakyow
   class_state :mounts,      default: []
   class_state :setups,      default: {}
   class_state :frameworks,  default: {}
-  class_state :booted,      default: false, reader: false
+  class_state :__loaded,    default: false, reader: false
+  class_state :__setup,     default: false, reader: false
+  class_state :__booted,    default: false, reader: false
   class_state :server,      default: nil, reader: false
   class_state :env,         default: nil, reader: false
   class_state :setup_error, default: nil
@@ -361,30 +363,34 @@ module Pakyow
     # Loads the Pakyow environment for the current project.
     #
     def load(env: nil)
-      @env = (env ||= config.default_env).to_sym
+      unless loaded?
+        @env = (env ||= config.default_env).to_sym
 
-      if File.exist?(config.loader_path + ".rb")
-        require config.loader_path
-      else
-        require "pakyow/integrations/bundler/setup"
-        require "pakyow/integrations/bootsnap"
+        if File.exist?(config.loader_path + ".rb")
+          require config.loader_path
+        else
+          require "pakyow/integrations/bundler/setup"
+          require "pakyow/integrations/bootsnap"
 
-        require "pakyow/integrations/bundler/require"
-        require "pakyow/integrations/dotenv"
+          require "pakyow/integrations/bundler/require"
+          require "pakyow/integrations/dotenv"
 
-        if File.exist?(config.environment_path + ".rb")
-          require config.environment_path
+          if File.exist?(config.environment_path + ".rb")
+            require config.environment_path
+          end
+
+          load_apps
         end
 
-        load_apps
-      end
+        performing :configure do
+          configure!(env)
+        end
 
-      performing :configure do
-        configure!(env)
-      end
+        performing :load do
+          $LOAD_PATH.unshift(config.lib)
+        end
 
-      performing :load do
-        $LOAD_PATH.unshift(config.lib)
+        @__loaded = true
       end
     end
 
@@ -396,30 +402,40 @@ module Pakyow
       end
     end
 
+    # Returns true if the environment has loaded.
+    #
+    def loaded?
+      @__loaded == true
+    end
+
     # Prepares the environment for booting.
     #
     # @param env [Symbol] the environment to prepare for
     #
     def setup(env: nil)
-      performing :setup do
-        load(env: env)
+      unless setup?
+        performing :setup do
+          load(env: env)
 
-        destinations = Logger::Multiplexed.new(
-          *config.logger.destinations.map { |destination, io|
-            io.sync = config.logger.sync
-            Logger::Destination.new(destination, io)
-          }
-        )
+          destinations = Logger::Multiplexed.new(
+            *config.logger.destinations.map { |destination, io|
+              io.sync = config.logger.sync
+              Logger::Destination.new(destination, io)
+            }
+          )
 
-        @output = config.logger.formatter.new(destinations)
+          @output = config.logger.formatter.new(destinations)
 
-        # Replace the default logger with a configured logger. We don't overwrite `@logger` here so
-        # that objects that hold a reference to the thread local logger before setup still point to
-        # the right object and log to the appropriate logger after setup.
-        #
-        logger.replace(Logger.new("pkyw", output: @output, level: config.logger.level))
+          # Replace the default logger with a configured logger. We don't overwrite `@logger` here so
+          # that objects that hold a reference to the thread local logger before setup still point to
+          # the right object and log to the appropriate logger after setup.
+          #
+          logger.replace(Logger.new("pkyw", output: @output, level: config.logger.level))
 
-        Console.logger = Logger.new("asnc", output: @output, level: :warn)
+          Console.logger = Logger.new("asnc", output: @output, level: :warn)
+
+          @__setup = true
+        end
       end
 
       self
@@ -427,10 +443,10 @@ module Pakyow
       @setup_error = error; self
     end
 
-    # Returns true if the environment has booted.
+    # Returns true if the environment has been setup.
     #
-    def booted?
-      @booted == true
+    def setup?
+      @__setup == true
     end
 
     # Boots the environment without running it.
@@ -438,40 +454,48 @@ module Pakyow
     def boot
       ensure_setup_succeeded
 
-      performing :boot do
-        # Setup each app.
-        #
-        mounts.map { |mount| mount[:app] }.uniq.each do |app|
-          if block = setups[app]
-            app.setup(&block)
-          else
-            app.setup
+      unless booted?
+        performing :boot do
+          # Setup each app.
+          #
+          mounts.map { |mount| mount[:app] }.uniq.each do |app|
+            if block = setups[app]
+              app.setup(&block)
+            else
+              app.setup
+            end
           end
+
+          # Mount each app.
+          #
+          @apps = mounts.map { |mount|
+            initialize_app_for_mount(mount)
+          }
+
+          # Create the callable pipeline.
+          #
+          @pipeline = Pakyow.__pipeline.callable(self)
+
+          # Set the environment as booted ahead of telling each app that it is booted. This allows an
+          # app's after boot hook to access the booted app through `Pakyow.app`.
+          #
+          @__booted = true
+
+          # Now tell each app that it has been booted.
+          #
+          @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
         end
-
-        # Mount each app.
-        #
-        @apps = mounts.map { |mount|
-          initialize_app_for_mount(mount)
-        }
-
-        # Create the callable pipeline.
-        #
-        @pipeline = Pakyow.__pipeline.callable(self)
-
-        # Set the environment as booted ahead of telling each app that it is booted. This allows an
-        # app's after boot hook to access the booted app through `Pakyow.app`.
-        #
-        @booted = true
-
-        # Now tell each app that it has been booted.
-        #
-        @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
       end
 
       self
     rescue StandardError => error
       handle_boot_failure(error)
+    end
+
+    # Returns true if the environment has booted.
+    #
+    def booted?
+      @__booted == true
     end
 
     def register_framework(framework_name, framework_module)

@@ -37,12 +37,20 @@ RSpec.shared_context "migration" do
 
   def run_migrations
     run_command("db:migrate", adapter: :sql, connection: :default, project: true)
+
+    Pakyow.instance_variable_set(:@__loaded, false)
+    Pakyow.instance_variable_set(:@__setup, false)
+    Pakyow.instance_variable_set(:@__booted, false)
   end
 
   def finalize_migrations(count_before, count_after)
     verify_migration_count(count_before) do
       run_command("db:finalize", adapter: :sql, connection: :default, project: true)
     end
+
+    Pakyow.instance_variable_set(:@__loaded, false)
+    Pakyow.instance_variable_set(:@__setup, false)
+    Pakyow.instance_variable_set(:@__booted, false)
   end
 
   private
