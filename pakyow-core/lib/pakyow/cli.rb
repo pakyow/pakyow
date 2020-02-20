@@ -47,12 +47,7 @@ module Pakyow
             options[:env] = :prototype
           end
 
-          if project_context?
-            Pakyow.setup(env: options[:env])
-          end
-
-          Pakyow.load_tasks
-          Pakyow.load_commands
+          Pakyow.load(env: options[:env])
 
           if command
             cli.with(command) do |callable_command|

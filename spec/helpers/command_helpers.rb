@@ -17,8 +17,7 @@ module CommandHelpers
     allow(Pakyow::CLI).to receive(:project_context?).and_return(project)
     allow(Process).to receive(:exit)
 
-    Pakyow.load_tasks
-    Pakyow.load_commands
+    Pakyow.load
 
     cli = Pakyow::CLI.new(feedback: Pakyow::CLI::Feedback.new(output))
     loaded&.call(cli)

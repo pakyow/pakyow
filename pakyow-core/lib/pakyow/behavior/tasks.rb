@@ -20,9 +20,7 @@ module Pakyow
 
         config.deprecate :tasks, solution: "use `config.commands'"
 
-        # @api private
-        def load_tasks
-          require "pakyow/task"
+        on "load" do
           tasks.clear
 
           Support::Deprecator.global.ignore do
