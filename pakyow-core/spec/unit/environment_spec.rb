@@ -336,6 +336,20 @@ RSpec.describe Pakyow do
         Pakyow.load
       end
     end
+
+    describe "idempotence" do
+      before do
+        allow(Pakyow).to receive(:performing).and_call_original
+      end
+
+      it "is idempotent" do
+        Pakyow.load
+        Pakyow.load
+        Pakyow.load
+
+        expect(Pakyow).to have_received(:performing).with(:load).exactly(:once)
+      end
+    end
   end
 
   describe "::load_apps" do
@@ -417,6 +431,20 @@ RSpec.describe Pakyow do
     it "returns the environment" do
       expect(Pakyow.setup).to be(Pakyow)
     end
+
+    describe "idempotence" do
+      before do
+        allow(Pakyow).to receive(:performing).and_call_original
+      end
+
+      it "is idempotent" do
+        Pakyow.setup
+        Pakyow.setup
+        Pakyow.setup
+
+        expect(Pakyow).to have_received(:performing).with(:setup).exactly(:once)
+      end
+    end
   end
 
   describe "::boot" do
@@ -455,16 +483,6 @@ RSpec.describe Pakyow do
       allow(app_instance).to receive(:respond_to?).with(:booted).and_return(false)
       expect(app_instance).to_not receive(:booted)
       perform
-    end
-
-    it "sets the environment as booted"
-    it "creates a callable pipeline"
-    it "clears the loaded tasks"
-    it "deep freezes"
-
-    context "booting in unsafe mode" do
-      it "does not clear the loaded tasks"
-      it "does not deep freeze"
     end
 
     context "something goes wrong" do
@@ -507,17 +525,23 @@ RSpec.describe Pakyow do
         allow(Pakyow).to receive(:booted?).and_return(true)
       end
 
-      it "calls booted on each app that responds to booted" do
-        expect(app_instance).to receive(:booted)
+      it "does not call booted on any app" do
+        expect(app_instance).not_to receive(:booted)
         perform
       end
+    end
 
-      it "does not call booted on an app that does not respond to booted" do
-        allow(app_instance).to receive(:respond_to?)
-        allow(app_instance).to receive(:respond_to?).with(:booted).and_return(false)
-        expect(app_instance).to_not receive(:booted)
+    describe "idempotence" do
+      before do
+        allow(Pakyow).to receive(:performing).and_call_original
+      end
 
-        perform
+      it "is idempotent" do
+        Pakyow.boot
+        Pakyow.boot
+        Pakyow.boot
+
+        expect(Pakyow).to have_received(:performing).with(:boot).exactly(:once)
       end
     end
   end
@@ -674,6 +698,151 @@ RSpec.describe Pakyow do
       expect(Pakyow).to receive(:output).at_least(:once).and_call_original
 
       Pakyow.global_logger
+    end
+  end
+
+  describe "::run" do
+    describe "idempotence" do
+      before do
+        allow(Async::Reactor).to receive(:run) do |&block|
+          block.call
+        end
+
+        allow(Pakyow).to receive(:boot)
+        allow(Pakyow).to receive(:call_hooks)
+        allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
+      end
+
+      it "is idempotent" do
+        Pakyow.run
+        Pakyow.run
+        Pakyow.run
+
+        expect(Async::Reactor).to have_received(:run).exactly(:once)
+      end
+    end
+  end
+
+  describe "::shutdown" do
+    context "environment is running" do
+      before do
+        allow(Async::Reactor).to receive(:run) do |&block|
+          block.call
+        end
+
+        allow(Pakyow).to receive(:boot)
+        allow(Pakyow).to receive(:call_hooks)
+        allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
+
+        Pakyow.run
+
+        Pakyow.instance_variable_set(:@filewatcher, double(stop: nil))
+        Pakyow.instance_variable_set(:@__reactor, double(stop: nil))
+      end
+
+      describe "idempotence" do
+        before do
+          allow(Pakyow).to receive(:performing).and_call_original
+        end
+
+        it "is idempotent" do
+          Pakyow.shutdown
+          Pakyow.shutdown
+          Pakyow.shutdown
+
+          expect(Pakyow).to have_received(:performing).with(:shutdown).exactly(:once)
+        end
+      end
+    end
+
+    context "environment is not running" do
+      before do
+        allow(Pakyow).to receive(:performing).and_call_original
+      end
+
+      it "does not shutdown" do
+        expect(Pakyow).not_to have_received(:performing).with(:shutdown)
+      end
+    end
+  end
+
+  describe "::loaded?" do
+    context "environment is loaded" do
+      before do
+        Pakyow.load
+      end
+
+      it "returns true" do
+        expect(Pakyow.loaded?).to be(true)
+      end
+    end
+
+    context "environment is not loaded" do
+      it "returns false" do
+        expect(Pakyow.loaded?).to be(false)
+      end
+    end
+  end
+
+  describe "::setup?" do
+    context "environment is setup" do
+      before do
+        Pakyow.setup
+      end
+
+      it "returns true" do
+        expect(Pakyow.setup?).to be(true)
+      end
+    end
+
+    context "environment is not setup" do
+      it "returns false" do
+        expect(Pakyow.setup?).to be(false)
+      end
+    end
+  end
+
+  describe "::booted?" do
+    context "environment is booted" do
+      before do
+        Pakyow.boot
+      end
+
+      it "returns true" do
+        expect(Pakyow.booted?).to be(true)
+      end
+    end
+
+    context "environment is not booted" do
+      it "returns false" do
+        expect(Pakyow.booted?).to be(false)
+      end
+    end
+  end
+
+  describe "::running?" do
+    context "environment is running" do
+      before do
+        allow(Async::Reactor).to receive(:run) do |&block|
+          block.call
+        end
+
+        allow(Pakyow).to receive(:boot)
+        allow(Pakyow).to receive(:call_hooks)
+        allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
+
+        Pakyow.run
+      end
+
+      it "returns true" do
+        expect(Pakyow.running?).to be(true)
+      end
+    end
+
+    context "environment is not running" do
+      it "returns false" do
+        expect(Pakyow.running?).to be(false)
+      end
     end
   end
 end

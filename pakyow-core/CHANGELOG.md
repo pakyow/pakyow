@@ -1,5 +1,11 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Make each phase of the startup sequence idempotent.**
+    - Includes `Pakyow::load`, `Pakyow::setup`, `Pakyow::boot`, `Pakyow::run`, and `Pakyow::Application::setup`.
+
+    *Related links:*
+    - [Pull Request #406][pr-406]
+
   * `chg` **Make the environment setup phase consistent with the app setup phase.**
     - Configure first, then load. Load the environment / application config files prior to configure and load.
 
@@ -241,7 +247,8 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
-[pr-505]: https://github.com/pakyow/pakyow/pull/505
+[pr-406]: https://github.com/pakyow/pakyow/pull/406
+[pr-405]: https://github.com/pakyow/pakyow/pull/405
 [pr-404]: https://github.com/pakyow/pakyow/pull/404
 [pr-402]: https://github.com/pakyow/pakyow/pull/402
 [pr-401]: https://github.com/pakyow/pakyow/pull/401
