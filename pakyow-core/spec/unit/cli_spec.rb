@@ -27,8 +27,8 @@ RSpec.describe Pakyow::CLI do
         allow(Pakyow::CLI).to receive(:project_context?).and_return(false)
       end
 
-      it "does not load the environment" do
-        expect(Pakyow).not_to receive(:load)
+      it "loads the environment" do
+        expect(Pakyow).to receive(:load)
 
         Pakyow::CLI.run([], output: output)
       end
