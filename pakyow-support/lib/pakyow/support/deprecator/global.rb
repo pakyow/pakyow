@@ -14,7 +14,9 @@ module Pakyow
         end
 
         def >>(other)
-          @forwards << other
+          unless @forwards.include?(other)
+            @forwards << other
+          end
         end
 
         def forwarding?

@@ -80,6 +80,24 @@ RSpec.describe Pakyow::Support::Deprecator do
       end
     end
 
+    describe "routing to the same instance twice" do
+      before do
+        global >> deprecator
+        global >> deprecator
+        global >> deprecator
+      end
+
+      let(:deprecator) {
+        double("deprecator", deprecated: nil)
+      }
+
+      it "only routes once" do
+        expect(deprecator).to receive(:deprecated).with(:foo, solution: "use `bar'").exactly(:once)
+
+        global.deprecated :foo, solution: "use `bar'"
+      end
+    end
+
     describe "ignoring deprecations" do
       before do
         global >> deprecator_1
