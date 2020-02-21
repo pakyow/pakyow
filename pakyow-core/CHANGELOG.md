@@ -2,7 +2,13 @@
 
   * `chg` **Accept the environment name in `Pakyow::boot` and `Pakyow::run`.**
 
+    *Related links:*
+    - [Pull Request #410][pr-410]
+
   * `chg` **Setup the environment as part of the boot phase, and setup applications in `setup` instead of `boot`.**
+
+    *Related links:*
+    - [Pull Request #410][pr-410]
 
   * `fix` **Setup the default environment deprecator to be forwarded to from global.**
 
@@ -200,6 +206,9 @@
 
   * `Pakyow::load_apps` is deprecated with no replacement.
 
+    *Related links:*
+    - [Pull Request #410][pr-410]
+
   * `Pakyow::Processes::Proxy::find_local_port` is deprecated, replaced with `Pakyow::Support::System::available_port`.
 
     *Related links:*
@@ -258,6 +267,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-410]: https://github.com/pakyow/pakyow/pull/410
 [pr-409]: https://github.com/pakyow/pakyow/pull/409
 [pr-406]: https://github.com/pakyow/pakyow/pull/406
 [pr-405]: https://github.com/pakyow/pakyow/pull/405
