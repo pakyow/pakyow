@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Setup the environment as part of the boot phase, and setup applications in `setup` instead of `boot`.**
+
   * `fix` **Setup the default environment deprecator to be forwarded to from global.**
 
     *Related links:*
@@ -193,6 +195,8 @@
     - [Commit 26f586d][26f586d]
 
 ## Deprecations
+
+  * `Pakyow::load_apps` is deprecated with no replacement.
 
   * `Pakyow::Processes::Proxy::find_local_port` is deprecated, replaced with `Pakyow::Support::System::available_port`.
 

@@ -26,6 +26,10 @@ RSpec.shared_context "app" do
     end
   end
 
+  let :env_def do
+    Proc.new {}
+  end
+
   let :app_def do
     Proc.new {}
   end
@@ -56,6 +60,7 @@ RSpec.shared_context "app" do
   def setup(env: :test)
     super if defined?(super)
     Pakyow.mount(app, at: mount_path)
+    Pakyow.class_eval(&env_def)
     Pakyow.setup(env: env)
   end
 

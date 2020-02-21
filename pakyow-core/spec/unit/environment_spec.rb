@@ -292,11 +292,6 @@ RSpec.describe Pakyow do
           Pakyow.load
         end
       end
-
-      it "calls load_apps" do
-        expect(Pakyow).to receive(:load_apps)
-        Pakyow.load
-      end
     end
 
     context "environment loader exists" do
@@ -360,15 +355,8 @@ RSpec.describe Pakyow do
       Pakyow.load_apps
     end
 
-    context "application config exists" do
-      before do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(File.join(Pakyow.config.root, "config/application.rb")).and_return(true)
-      end
-
-      it "requires the application" do
-        expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application")) do; end
-      end
+    it "is deprecated" do
+      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(Pakyow, :load_apps, { solution: "do not use" })
     end
   end
 
@@ -394,6 +382,19 @@ RSpec.describe Pakyow do
 
       it "uses the default name" do
         expect(Pakyow.env).to be(Pakyow.config.default_env)
+      end
+    end
+
+    context "application config exists" do
+      before do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(File.join(Pakyow.config.root, "config/application.rb")).and_return(true)
+      end
+
+      it "requires the application" do
+        expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application")) do; end
+
+        Pakyow.setup
       end
     end
 
@@ -510,7 +511,7 @@ RSpec.describe Pakyow do
       end
 
       let :logger do
-        double(:logger, houston: nil)
+        double(:logger, houston: nil, replace: nil)
       end
 
       it "exposes the error" do

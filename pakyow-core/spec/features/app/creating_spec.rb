@@ -101,8 +101,8 @@ RSpec.describe "creating an app" do
       end
     end
 
-    it "evals the given block during boot" do
-      Pakyow.boot
+    it "evals the given block during setup" do
+      Pakyow.setup
       expect(Test::Application.config.name).to eq(:foo)
     end
   end

@@ -114,21 +114,19 @@ RSpec.describe "calling the environment with a request" do
       end
     end
 
-    before do
-      @calls = []
-    end
-
-    # Override `run` so we can mount a second app.
-    #
-    def run
+    let :env_def do
       local = self
-      Pakyow.app :test2 do
-        action do |connection|
-          local.instance_variable_get(:@calls) << :foo
+      Proc.new do
+        Pakyow.app :test2 do
+          action do |connection|
+            local.instance_variable_get(:@calls) << :foo
+          end
         end
       end
+    end
 
-      super
+    before do
+      @calls = []
     end
 
     it "calls both apps for requests to paths at the mounted path" do
