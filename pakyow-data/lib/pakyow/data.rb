@@ -14,8 +14,6 @@ require "pakyow/behavior/data/auto_migrate"
 require "pakyow/behavior/data/connections"
 require "pakyow/behavior/data/memory_db"
 
-require "pakyow/validations/data/unique"
-
 module Pakyow
   config.commands.paths << File.expand_path("../commands", __FILE__)
 

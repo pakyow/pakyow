@@ -1,3 +1,5 @@
+require "pakyow/realtime/websocket"
+
 RSpec.describe Pakyow::Realtime::WebSocket do
   let :instance do
     described_class.new(id, connection)

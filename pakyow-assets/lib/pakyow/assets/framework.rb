@@ -2,27 +2,27 @@
 
 require "pakyow/framework"
 
-require "pakyow/application/behavior/assets"
-require "pakyow/application/behavior/assets/packs"
-require "pakyow/application/behavior/assets/silencing"
-require "pakyow/application/behavior/assets/externals"
-require "pakyow/application/behavior/assets/watching"
-require "pakyow/application/behavior/assets/prelaunching"
-require "pakyow/application/behavior/assets/processing"
-require "pakyow/application/behavior/assets/types"
-
-require "pakyow/presenter/renderer/behavior/assets/install_assets"
-
-require "pakyow/assets/asset"
-require "pakyow/assets/pack"
-
-require "pakyow/application/actions/assets/process"
-require "pakyow/application/actions/assets/public"
-
 module Pakyow
   module Assets
     class Framework < Pakyow::Framework(:assets)
       def boot
+        require "pakyow/application/behavior/assets"
+        require "pakyow/application/behavior/assets/packs"
+        require "pakyow/application/behavior/assets/silencing"
+        require "pakyow/application/behavior/assets/externals"
+        require "pakyow/application/behavior/assets/watching"
+        require "pakyow/application/behavior/assets/prelaunching"
+        require "pakyow/application/behavior/assets/processing"
+        require "pakyow/application/behavior/assets/types"
+
+        require "pakyow/presenter/renderer/behavior/assets/install_assets"
+
+        require "pakyow/assets/asset"
+        require "pakyow/assets/pack"
+
+        require "pakyow/application/actions/assets/process"
+        require "pakyow/application/actions/assets/public"
+
         object.class_eval do
           definable :asset_type, Asset
 

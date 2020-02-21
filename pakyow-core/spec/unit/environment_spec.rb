@@ -1,3 +1,6 @@
+require "pakyow/application"
+require "pakyow/logger/thread_local"
+
 RSpec.describe Pakyow do
   describe "::register_framework" do
     it "registers a framework by name and module" do
@@ -413,7 +416,10 @@ RSpec.describe Pakyow do
     end
 
     it "initializes the environment output" do
-      Pakyow.instance_variable_set(:@output, nil)
+      if Pakyow.instance_variable_defined?(:@output)
+        Pakyow.remove_instance_variable(:@output)
+      end
+
       Pakyow.setup
 
       expect(Pakyow.output).to be_instance_of(Pakyow::Logger::Formatters::Human)
@@ -422,7 +428,10 @@ RSpec.describe Pakyow do
     end
 
     it "initializes the logger" do
-      Pakyow.instance_variable_set(:@logger, nil)
+      if Pakyow.instance_variable_defined?(:@logger)
+        Pakyow.remove_instance_variable(:@logger)
+      end
+
       Pakyow.setup
 
       expect(Pakyow.logger).to be_instance_of(Pakyow::Logger::ThreadLocal)

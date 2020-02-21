@@ -1,3 +1,5 @@
+require "string_doc/attributes"
+
 RSpec.describe StringDoc::Attributes do
   describe "#initialize" do
     it "initializes with a hash" do

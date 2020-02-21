@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
-require "dry/inflector"
-
 module Pakyow
   module Support
     def self.inflector
-      @inflector ||= Dry::Inflector.new do |inflections|
-        inflections.uncountable "children"
+      unless defined?(@__inflector)
+        require "dry/inflector"
+        @__inflector = Dry::Inflector.new do |inflections|
+          inflections.uncountable "children"
+        end
       end
+
+      @__inflector
     end
   end
 end

@@ -12,6 +12,8 @@ require "htmlbeautifier"
 
 require "pakyow/ui"
 
+require "pakyow/data/subscribers"
+
 require_relative "../../spec/helpers/mock_handler"
 
 RSpec.configure do |spec_config|
@@ -69,6 +71,7 @@ RSpec.configure do |spec_config|
 end
 
 $booted = false
+require "pakyow/application"
 Pakyow::Application.after "boot" do
   $booted = true
 end

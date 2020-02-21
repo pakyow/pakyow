@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require "async"
-
-require "console"
-require "console/split"
-
 require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/support/hookable"
@@ -14,7 +9,6 @@ require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/definable"
 require "pakyow/support/pipeline"
-require "pakyow/support/inflector"
 require "pakyow/support/deprecatable"
 
 require "pakyow/behavior/commands"
@@ -35,13 +29,6 @@ require "pakyow/actions/input_parser"
 require "pakyow/actions/logger"
 require "pakyow/actions/normalizer"
 require "pakyow/actions/restart"
-
-require "pakyow/application"
-
-require "pakyow/logger"
-require "pakyow/logger/destination"
-require "pakyow/logger/multiplexed"
-require "pakyow/logger/thread_local"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
 # mounted in the environment, each one handling requests at some path.
@@ -327,6 +314,7 @@ module Pakyow
     #
     def output
       unless defined?(@output)
+        require "pakyow/logger/destination"
         require "pakyow/logger/formatters/human"
         @output = Logger::Formatters::Human.new(
           Logger::Destination.new(:stdout, $stdout)
@@ -348,7 +336,14 @@ module Pakyow
     # Builds and returns a default logger that's replaced in `setup`.
     #
     def logger
-      @logger ||= Logger::ThreadLocal.new(Logger.new("dflt", output: output, level: :all), key: :pakyow_logger)
+      unless defined?(@logger)
+        require "pakyow/logger/thread_local"
+        @logger = Logger::ThreadLocal.new(
+          Logger.new("dflt", output: output, level: :all), key: :pakyow_logger
+        )
+      end
+
+      @logger
     end
 
     # Mounts an app at a path. The app can be any object that responds to `call`.
@@ -417,6 +412,13 @@ module Pakyow
         performing :setup do
           load(env: env)
 
+          require "console"
+          require "console/split"
+
+          require "pakyow/logger"
+          require "pakyow/logger/destination"
+          require "pakyow/logger/multiplexed"
+
           destinations = Logger::Multiplexed.new(
             *config.logger.destinations.map { |destination, io|
               io.sync = config.logger.sync
@@ -456,6 +458,8 @@ module Pakyow
 
       unless booted?
         performing :boot do
+          require "async"
+
           # Setup each app.
           #
           mounts.map { |mount| mount[:app] }.uniq.each do |app|
@@ -511,6 +515,7 @@ module Pakyow
         }
       else
         local = self
+        require "pakyow/application"
         Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
           config.name = app_name
 

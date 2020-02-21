@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "mail"
 require "oga"
 
 require "pakyow/mailer/plaintext"

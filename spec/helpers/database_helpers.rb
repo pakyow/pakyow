@@ -1,8 +1,9 @@
 module DatabaseHelpers
   require "pakyow/data"
   require "pakyow/data/connection"
-  require "pakyow/data/migrator"
   require "pakyow/data/adapters/sql"
+  require "pakyow/data/sources/relational"
+  require "pakyow/data/migrator"
 
   def wait_for_sql_database!(options)
     options = sql_options(options)

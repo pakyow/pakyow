@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/data/adapters/sql/differ"
-require "pakyow/data/sources/relational/migrator"
+require "pakyow/data/sources/relational"
 
 module Pakyow
   module Data

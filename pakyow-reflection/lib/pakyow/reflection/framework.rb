@@ -1,20 +1,21 @@
 # frozen_string_literal: true
 
 require "pakyow/framework"
-require "pakyow/support/inflector"
-
-require "pakyow/application/behavior/reflection/reflecting"
-require "pakyow/presenter/renderer/behavior/reflection/install_form_metadata"
-
-require "pakyow/reflection/mirror"
-require "pakyow/reflection/builders/source"
-require "pakyow/reflection/builders/endpoints"
-require "pakyow/reflection/builders/actions"
 
 module Pakyow
   module Reflection
     class Framework < Pakyow::Framework(:reflection)
       def boot
+        require "pakyow/support/inflector"
+
+        require "pakyow/application/behavior/reflection/reflecting"
+        require "pakyow/presenter/renderer/behavior/reflection/install_form_metadata"
+
+        require "pakyow/reflection/mirror"
+        require "pakyow/reflection/builders/source"
+        require "pakyow/reflection/builders/endpoints"
+        require "pakyow/reflection/builders/actions"
+
         return if object.ancestors.include?(Plugin)
 
         object.configurable :reflection do

@@ -1,3 +1,5 @@
+require "pakyow/application/behavior/ui/logging"
+
 RSpec.describe Pakyow::Application::Behavior::UI::Logging do
   describe "::log" do
     let :payload do
