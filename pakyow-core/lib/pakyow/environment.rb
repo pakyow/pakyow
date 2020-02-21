@@ -454,12 +454,12 @@ module Pakyow
 
     # Boots the environment without running it.
     #
-    def boot
+    def boot(env: nil)
       ensure_setup_succeeded
 
       unless booted?
         performing :boot do
-          setup
+          setup(env: env)
 
           # Mount each app.
           #

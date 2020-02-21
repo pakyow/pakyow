@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Accept the environment name in `Pakyow::boot` and `Pakyow::run`.**
+
   * `chg` **Setup the environment as part of the boot phase, and setup applications in `setup` instead of `boot`.**
 
   * `fix` **Setup the default environment deprecator to be forwarded to from global.**

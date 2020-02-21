@@ -55,9 +55,9 @@ module Pakyow
           )
         end
 
-        def run
+        def run(env: nil)
           unless running?
-            boot
+            boot(env: env)
 
             Async::Reactor.run do |reactor|
               @__reactor = reactor

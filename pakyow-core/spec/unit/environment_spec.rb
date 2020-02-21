@@ -495,6 +495,14 @@ RSpec.describe Pakyow do
       perform
     end
 
+    context "passed an env" do
+      it "passes the env to setup" do
+        expect(Pakyow).to receive(:setup).with(env: :test)
+
+        Pakyow.boot(env: :test)
+      end
+    end
+
     context "something goes wrong" do
       before do
         allow(app_instance).to receive(:booted).and_raise(error)
@@ -712,17 +720,25 @@ RSpec.describe Pakyow do
   end
 
   describe "::run" do
-    describe "idempotence" do
-      before do
-        allow(Async::Reactor).to receive(:run) do |&block|
-          block.call
-        end
-
-        allow(Pakyow).to receive(:boot)
-        allow(Pakyow).to receive(:call_hooks)
-        allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
+    before do
+      allow(Async::Reactor).to receive(:run) do |&block|
+        block.call
       end
 
+      allow(Pakyow).to receive(:boot)
+      allow(Pakyow).to receive(:call_hooks)
+      allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
+    end
+
+    context "passed an env" do
+      it "passes the env to boot" do
+        expect(Pakyow).to receive(:boot).with(env: :test)
+
+        Pakyow.run(env: :test)
+      end
+    end
+
+    describe "idempotence" do
       it "is idempotent" do
         Pakyow.run
         Pakyow.run
