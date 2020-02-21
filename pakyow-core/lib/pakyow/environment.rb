@@ -393,7 +393,7 @@ module Pakyow
       @__loaded == true
     end
 
-    # Prepares the environment for booting.
+    # Prepares the environment for booting by setting up internal state, including applications.
     #
     # @param env [Symbol] the environment to prepare for
     #
@@ -452,7 +452,9 @@ module Pakyow
       @__setup == true
     end
 
-    # Boots the environment without running it.
+    # Boots the environment so that it can be used, without running it.
+    #
+    # @param env [Symbol] the environment to prepare for
     #
     def boot(env: nil)
       ensure_setup_succeeded

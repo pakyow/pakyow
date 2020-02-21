@@ -55,6 +55,10 @@ module Pakyow
           )
         end
 
+        # Runs the environment by booting and starting all registered processes.
+        #
+        # @param env [Symbol] the environment to prepare for
+        #
         def run(env: nil)
           unless running?
             boot(env: env)
