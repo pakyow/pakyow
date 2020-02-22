@@ -373,8 +373,6 @@ module Pakyow
           if File.exist?(config.environment_path + ".rb")
             require config.environment_path
           end
-
-          load_apps
         end
 
         performing :configure do
@@ -389,21 +387,13 @@ module Pakyow
       end
     end
 
-    # Loads apps located in the current project.
-    #
-    def load_apps
-      if File.exist?(File.join(config.root, "config/application.rb"))
-        require File.join(config.root, "config/application")
-      end
-    end
-
     # Returns true if the environment has loaded.
     #
     def loaded?
       @__loaded == true
     end
 
-    # Prepares the environment for booting.
+    # Prepares the environment for booting by setting up internal state, including applications.
     #
     # @param env [Symbol] the environment to prepare for
     #
@@ -436,6 +426,17 @@ module Pakyow
 
           Console.logger = Logger.new("asnc", output: @output, level: :warn)
 
+          # Setup each app.
+          #
+          load_apps_common
+          mounts.map { |mount| mount[:app] }.uniq.each do |app|
+            if block = setups[app]
+              app.setup(&block)
+            else
+              app.setup
+            end
+          end
+
           @__setup = true
         end
       end
@@ -451,24 +452,16 @@ module Pakyow
       @__setup == true
     end
 
-    # Boots the environment without running it.
+    # Boots the environment so that it can be used, without running it.
     #
-    def boot
+    # @param env [Symbol] the environment to prepare for
+    #
+    def boot(env: nil)
       ensure_setup_succeeded
 
       unless booted?
         performing :boot do
-          require "async"
-
-          # Setup each app.
-          #
-          mounts.map { |mount| mount[:app] }.uniq.each do |app|
-            if block = setups[app]
-              app.setup(&block)
-            else
-              app.setup
-            end
-          end
+          setup(env: env)
 
           # Mount each app.
           #
@@ -551,6 +544,12 @@ module Pakyow
       )
     end
 
+    # @deprecated
+    def load_apps
+      load_apps_common
+    end
+    deprecate :load_apps
+
     # @api private
     def initialize_app_for_mount(mount)
       if mount[:app].ancestors.include?(Pakyow::Application)
@@ -575,6 +574,12 @@ module Pakyow
 
       if config.exit_on_boot_failure
         exit(false)
+      end
+    end
+
+    def load_apps_common
+      if File.exist?(File.join(config.root, "config/application.rb"))
+        require File.join(config.root, "config/application")
       end
     end
   end

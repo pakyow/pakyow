@@ -1,3 +1,5 @@
+require "pakyow/support/serializer"
+
 RSpec.describe "persisting state on shutdown" do
   include_context "app"
 

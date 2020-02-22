@@ -55,9 +55,13 @@ module Pakyow
           )
         end
 
-        def run
+        # Runs the environment by booting and starting all registered processes.
+        #
+        # @param env [Symbol] the environment to prepare for
+        #
+        def run(env: nil)
           unless running?
-            boot
+            boot(env: env)
 
             Async::Reactor.run do |reactor|
               @__reactor = reactor
