@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Assume all mounted applications are instances of `Pakyow::Application`.**
+
+    *Related links:*
+    - [Pull Request #411][pr-411]
+
   * `chg` **Accept the environment name in `Pakyow::boot` and `Pakyow::run`.**
 
     *Related links:*
@@ -267,6 +272,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-411]: https://github.com/pakyow/pakyow/pull/411
 [pr-410]: https://github.com/pakyow/pakyow/pull/410
 [pr-409]: https://github.com/pakyow/pakyow/pull/409
 [pr-406]: https://github.com/pakyow/pakyow/pull/406
