@@ -475,7 +475,7 @@ RSpec.describe Pakyow do
     end
 
     let :app_instance do
-      instance_double(Pakyow::Application)
+      instance_double(Pakyow::Application, booted: true)
     end
 
     it "calls after boot hooks" do
@@ -485,13 +485,6 @@ RSpec.describe Pakyow do
 
     it "calls booted on each app that responds to booted" do
       expect(app_instance).to receive(:booted)
-      perform
-    end
-
-    it "does not call booted on an app that does not respond to booted" do
-      allow(app_instance).to receive(:respond_to?)
-      allow(app_instance).to receive(:respond_to?).with(:booted).and_return(false)
-      expect(app_instance).to_not receive(:booted)
       perform
     end
 

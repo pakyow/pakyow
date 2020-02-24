@@ -466,7 +466,7 @@ module Pakyow
           # Mount each app.
           #
           @apps = mounts.map { |mount|
-            initialize_app_for_mount(mount)
+            mount[:app].new(mount_path: mount[:path])
           }
 
           # Create the callable pipeline.
@@ -480,7 +480,7 @@ module Pakyow
 
           # Now tell each app that it has been booted.
           #
-          @apps.select { |app| app.respond_to?(:booted) }.each(&:booted)
+          @apps.each(&:booted)
         end
       end
 
@@ -549,15 +549,6 @@ module Pakyow
       load_apps_common
     end
     deprecate :load_apps
-
-    # @api private
-    def initialize_app_for_mount(mount)
-      if mount[:app].ancestors.include?(Pakyow::Application)
-        mount[:app].new(mount_path: mount[:path])
-      else
-        mount[:app].new
-      end
-    end
 
     private
 
