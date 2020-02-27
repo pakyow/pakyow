@@ -22,19 +22,19 @@ module Pakyow
           #
           def rescued?
             if is_a?(Application)
-              self.class.rescued? || (defined?(@rescued) && !!@rescued)
+              self.class.rescued? || (instance_variable_defined?(:@rescued) && !!@rescued)
             else
-              defined?(@rescued) && !!@rescued
+              instance_variable_defined?(:@rescued) && !!@rescued
             end
           end
 
           # Enters rescue mode after logging the error.
           #
-          private def rescue!(error)
+          def rescue!(error)
             @rescued = error
 
             performing :rescue do
-              Pakyow.logger.error(error)
+              Pakyow.logger.houston(error)
 
               if is_a?(Application)
                 singleton_class.include Rescued

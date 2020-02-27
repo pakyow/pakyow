@@ -7,13 +7,16 @@ RSpec.describe "defining a source for an unknown adapter" do
     end
   end
 
-  let :allow_application_rescues do
-    true
-  end
+  let(:autorun) {
+    false
+  }
 
-  it "boots the app in rescue mode" do
-    expect(Pakyow.apps.first.rescued?).to be(true)
-    expect(call("/")[0]).to eq(500)
-    expect(call("/")[2]).to include("`foo' is not a known adapter")
+  it "raises an error" do
+    expect {
+      setup_and_run
+    }.to raise_error(Pakyow::ApplicationError) do |error|
+      expect(error.cause).to be_instance_of(Pakyow::Data::UnknownAdapter)
+      expect(error.message).to eq("`foo' is not a known adapter")
+    end
   end
 end

@@ -1,14 +1,40 @@
 RSpec.describe "app rescuing" do
   include_context "app"
 
-  let(:allow_application_rescues) { true }
+  let(:autorun) {
+    false
+  }
 
-  context "app boots in rescue mode" do
-    let(:app_def) {
-      Proc.new {
-        fail "failed to boot app"
-      }
+  let(:allow_application_rescues) {
+    true
+  }
+
+  context "app is rescued" do
+    before do
+      allow(Pakyow.logger).to receive(:houston)
+      app.rescue!(error)
+      setup_and_run
+    end
+
+    let(:error) {
+      begin
+        fail "this is a test"
+      rescue => error
+        error
+      end
     }
+
+    it "reports the error" do
+      expect(Pakyow.logger).to have_received(:houston).with(error)
+    end
+
+    it "appears to be rescued" do
+      expect(app.rescued?).to be(true)
+    end
+
+    it "exposes the error" do
+      expect(app.rescued).to be(error)
+    end
 
     it "responds 500 to any request" do
       expect(call("/")[0]).to eq(500)
@@ -20,37 +46,63 @@ RSpec.describe "app rescuing" do
         <<~ERROR
           Test::Application failed to initialize.
 
-          failed to boot app
+          this is a test
         ERROR
       )
     end
-  end
 
-  context "app fails during setup" do
-    let(:app_def) {
-      Proc.new {
-        attr_reader :fully_initialized
+    describe "calling hooks" do
+      before do
+        Pakyow.app(:test).shutdown
+      end
 
-        on "setup" do
-          fail
-        end
+      let(:app_def) {
+        local = self
+        Proc.new {
+          before "initialize" do
+            local.calls << "before initialize"
+          end
 
-        on "initialize" do
-          @fully_initialized = true
-        end
+          after "initialize" do
+            local.calls << "after initialize"
+          end
+
+          before "boot" do
+            local.calls << "before boot"
+          end
+
+          after "boot" do
+            local.calls << "after boot"
+          end
+
+          before "shutdown" do
+            local.calls << "before shutdown"
+          end
+
+          after "shutdown" do
+            local.calls << "after shutdown"
+          end
+        }
       }
-    }
 
-    it "is rescued" do
-      expect(Pakyow.app(:test).rescued?).to be(true)
-    end
+      let(:calls) {
+        []
+      }
 
-    it "partially initializes" do
-      expect(Pakyow.app(:test).mount_path).to eq("/")
-    end
+      it "does not call initialize hooks" do
+        expect(calls).not_to include("before initialize")
+        expect(calls).not_to include("after initialize")
+      end
 
-    it "does not fully initialize" do
-      expect(Pakyow.app(:test).fully_initialized).not_to be(true)
+      it "does not call boot hooks" do
+        expect(calls).not_to include("before boot")
+        expect(calls).not_to include("after boot")
+      end
+
+      it "does not call shutdown hooks" do
+        expect(calls).not_to include("before shutdown")
+        expect(calls).not_to include("after shutdown")
+      end
     end
   end
 end

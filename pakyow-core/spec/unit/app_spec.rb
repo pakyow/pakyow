@@ -1,3 +1,5 @@
+require "pakyow/application"
+
 RSpec.describe Pakyow::Application do
   let :app_class do
     Pakyow::Application.make :test
@@ -29,6 +31,42 @@ RSpec.describe Pakyow::Application do
         app_class.setup
 
         expect(app_class).to have_received(:performing).with(:setup).exactly(:once)
+      end
+    end
+
+    context "when setup fails because of a runtime error" do
+      before do
+        app_class.before "load" do
+          fail "testing rescue mode"
+        end
+
+        Pakyow.logger.set(Logger.new(File::NULL))
+      end
+
+      it "wraps the error in an application error" do
+        expect {
+          app_class.setup
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to eq("testing rescue mode")
+        end
+      end
+    end
+
+    context "when setup fails because of a syntax error" do
+      before do
+        app_class.before "load" do
+          eval("if")
+        end
+
+        Pakyow.logger.set(Logger.new(File::NULL))
+      end
+
+      it "wraps the error in an application error" do
+        expect {
+          app_class.setup
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to include("syntax error, unexpected end-of-input")
+        end
       end
     end
   end
@@ -66,57 +104,37 @@ RSpec.describe Pakyow::Application do
 
     context "when initialization fails because of a runtime error" do
       before do
-        app_class.before "load" do
+        app_class.before "initialize" do
           fail "testing rescue mode"
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))
-
-        app_class.setup
       end
 
-      it "halts" do
+      it "wraps the error in an application error" do
         expect {
-          app.call(connection)
-        }.to throw_symbol(:halt)
-      end
-
-      it "enters rescue mode" do
-        catch :halt do
-          app.call(connection)
+          app_class.new
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to eq("testing rescue mode")
         end
-
-        expect(connection.status).to eq(500)
-
-        response_body = connection.body.read
-        expect(response_body).to include("failed to initialize")
-        expect(response_body).to include("testing rescue mode")
-        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
 
-    context "when setup fails because of a syntax error" do
+    context "when initialization fails because of a syntax error" do
       before do
-        app_class.before "load" do
+        app_class.before "initialize" do
           eval("if")
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))
       end
 
-      it "enters rescue mode" do
-        app_class.setup
-
-        catch :halt do
-          app.call(connection)
+      it "wraps the error in an application error" do
+        expect {
+          app_class.new
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to include("syntax error, unexpected end-of-input")
         end
-
-        expect(connection.status).to eq(500)
-
-        response_body = connection.body.read
-        expect(response_body).to include("failed to initialize")
-        expect(response_body).to include("syntax error, unexpected end-of-input")
-        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
   end
@@ -143,7 +161,7 @@ RSpec.describe Pakyow::Application do
     end
   end
 
-  describe "#boot" do
+  describe "#booted" do
     let :app do
       app_class.new(:test)
     end
@@ -172,19 +190,12 @@ RSpec.describe Pakyow::Application do
         Pakyow.logger.set(Logger.new(File::NULL))
       end
 
-      it "enters rescue mode" do
-        app.booted
-
-        catch :halt do
-          app.call(connection)
+      it "wraps the error in an application error" do
+        expect {
+          app_class.new.booted
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to eq("testing rescue mode")
         end
-
-        expect(connection.status).to eq(500)
-
-        response_body = connection.body.read
-        expect(response_body).to include("failed to initialize")
-        expect(response_body).to include("testing rescue mode")
-        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
 
@@ -197,19 +208,12 @@ RSpec.describe Pakyow::Application do
         Pakyow.logger.set(Logger.new(File::NULL))
       end
 
-      it "enters rescue mode" do
-        app.booted
-
-        catch :halt do
-          app.call(connection)
+      it "wraps the error in an application error" do
+        expect {
+          app_class.new.booted
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to include("syntax error, unexpected end-of-input")
         end
-
-        expect(connection.status).to eq(500)
-
-        response_body = connection.body.read
-        expect(response_body).to include("failed to initialize")
-        expect(response_body).to include("syntax error, unexpected end-of-input")
-        expect(response_body).to include("pakyow-core/spec/unit/app_spec.rb")
       end
     end
   end
@@ -232,6 +236,42 @@ RSpec.describe Pakyow::Application do
     it "calls before shutdown hooks" do
       app.shutdown
       expect($called_before_shutdown).to be(true)
+    end
+
+    context "when shutdown fails because of a runtime error" do
+      before do
+        app_class.before "shutdown" do
+          fail "testing rescue mode"
+        end
+
+        Pakyow.logger.set(Logger.new(File::NULL))
+      end
+
+      it "wraps the error in an application error" do
+        expect {
+          app_class.new.shutdown
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to eq("testing rescue mode")
+        end
+      end
+    end
+
+    context "when shutdown fails because of a syntax error" do
+      before do
+        app_class.before "shutdown" do
+          eval("if")
+        end
+
+        Pakyow.logger.set(Logger.new(File::NULL))
+      end
+
+      it "wraps the error in an application error" do
+        expect {
+          app_class.new.shutdown
+        }.to raise_error(Pakyow::ApplicationError) do |error|
+          expect(error.cause.message).to include("syntax error, unexpected end-of-input")
+        end
+      end
     end
   end
 

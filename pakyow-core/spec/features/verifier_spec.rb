@@ -15,7 +15,7 @@ RSpec.describe "global verifier" do
     end
 
     let :error_message do
-      "RuntimeError: Pakyow will not boot without a secret configured in `Pakyow.config.secrets`"
+      "Pakyow will not boot without a secret configured in `Pakyow.config.secrets`"
     end
 
     context "no secrets are available" do

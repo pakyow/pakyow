@@ -442,8 +442,6 @@ module Pakyow
       end
 
       self
-    rescue => error
-      @setup_error = error; self
     end
 
     # Returns true if the environment has been setup.
@@ -457,8 +455,6 @@ module Pakyow
     # @param env [Symbol] the environment to prepare for
     #
     def boot(env: nil)
-      ensure_setup_succeeded
-
       unless booted?
         performing :boot do
           setup(env: env)
@@ -485,8 +481,6 @@ module Pakyow
       end
 
       self
-    rescue StandardError => error
-      handle_boot_failure(error)
     end
 
     # Returns true if the environment has booted.
@@ -551,22 +545,6 @@ module Pakyow
     deprecate :load_apps
 
     private
-
-    def ensure_setup_succeeded
-      if @setup_error
-        handle_boot_failure(@setup_error)
-      end
-    end
-
-    def handle_boot_failure(error)
-      @error = error
-
-      logger.houston(error)
-
-      if config.exit_on_boot_failure
-        exit(false)
-      end
-    end
 
     def load_apps_common
       if File.exist?(File.join(config.root, "config/application.rb"))

@@ -5,6 +5,9 @@ require "json"
 require "pakyow/error"
 
 module Pakyow
+  class ApplicationError < Error
+  end
+
   class InvalidData < Error
     class_state :messages, default: {
       verification: "Provided data didn't pass verification"
