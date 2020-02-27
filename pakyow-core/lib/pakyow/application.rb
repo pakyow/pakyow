@@ -23,6 +23,7 @@ require "pakyow/application/behavior/plugins"
 require "pakyow/application/behavior/operations"
 
 require "pakyow/connection"
+require "pakyow/errors"
 
 module Pakyow
   # Pakyow's main application object. Can be defined directly or subclassed to
@@ -172,7 +173,7 @@ module Pakyow
           class_eval(&block)
         end
 
-        unless setup?
+        unless setup? || rescued?
           performing :setup do
             performing :configure do
               configure!(environment)
@@ -190,7 +191,7 @@ module Pakyow
 
         self
       rescue ScriptError, StandardError => error
-        rescue!(error)
+        raise ApplicationError.build(error, context: self)
       end
 
       # Returns true if the application has been setup.
@@ -210,6 +211,8 @@ module Pakyow
           # Empty, but still need to perform initialize.
         end
       end
+    rescue ScriptError, StandardError => error
+      raise ApplicationError.build(error, context: self)
     end
 
     # Called by the environment after it boots the app.
@@ -219,7 +222,7 @@ module Pakyow
         call_hooks :after, :boot
       end
     rescue ScriptError, StandardError => error
-      rescue!(error)
+      raise ApplicationError.build(error, context: self)
     end
 
     # Calls the app pipeline with a connection created from the rack env.
@@ -236,7 +239,11 @@ module Pakyow
     end
 
     def shutdown
-      performing :shutdown do; end
+      unless rescued?
+        performing :shutdown do; end
+      end
+    rescue ScriptError, StandardError => error
+      raise ApplicationError.build(error, context: self)
     end
 
     def _dump(_)

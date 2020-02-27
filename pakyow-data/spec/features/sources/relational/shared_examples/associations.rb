@@ -292,12 +292,17 @@ RSpec.shared_examples :source_associations do
             end
           end
 
-          let :allow_application_rescues do
-            true
-          end
+          let(:autorun) {
+            false
+          }
 
-          it "raises an error that puts the app in rescue mode" do
-            expect(call("/")[2]).to include("unknown source `posts' for association: comments belongs_to post")
+          it "raises an error" do
+            expect {
+              setup_and_run
+            }.to raise_error(Pakyow::ApplicationError) do |error|
+              expect(error.cause).to be_instance_of(Pakyow::Data::UnknownSource)
+              expect(error.message).to eq("unknown source `posts' for association: comments belongs_to post")
+            end
           end
         end
       end
@@ -699,12 +704,17 @@ RSpec.shared_examples :source_associations do
             end
           end
 
-          let :allow_application_rescues do
-            true
-          end
+          let(:autorun) {
+            false
+          }
 
-          it "raises an error that puts the app in rescue mode" do
-            expect(call("/")[2]).to include("unknown source `comments' for association: posts has_one comment")
+          it "raises an error" do
+            expect {
+              setup_and_run
+            }.to raise_error(Pakyow::ApplicationError) do |error|
+              expect(error.cause).to be_instance_of(Pakyow::Data::UnknownSource)
+              expect(error.message).to eq("unknown source `comments' for association: posts has_one comment")
+            end
           end
         end
       end
@@ -1119,12 +1129,17 @@ RSpec.shared_examples :source_associations do
             end
           end
 
-          let :allow_application_rescues do
-            true
-          end
+          let(:autorun) {
+            false
+          }
 
-          it "raises an error that puts the app in rescue mode" do
-            expect(call("/")[2]).to include("unknown source `relateds' for association: posts has_one comment")
+          it "raises an error" do
+            expect {
+              setup_and_run
+            }.to raise_error(Pakyow::ApplicationError) do |error|
+              expect(error.cause).to be_instance_of(Pakyow::Data::UnknownSource)
+              expect(error.message).to eq("unknown source `relateds' for association: posts has_one comment")
+            end
           end
         end
       end
@@ -2020,12 +2035,17 @@ RSpec.shared_examples :source_associations do
             end
           end
 
-          let :allow_application_rescues do
-            true
-          end
+          let(:autorun) {
+            false
+          }
 
-          it "raises an error that puts the app in rescue mode" do
-            expect(call("/")[2]).to include("unknown source `comments' for association: posts has_many comments")
+          it "raises an error" do
+            expect {
+              setup_and_run
+            }.to raise_error(Pakyow::ApplicationError) do |error|
+              expect(error.cause).to be_instance_of(Pakyow::Data::UnknownSource)
+              expect(error.message).to eq("unknown source `comments' for association: posts has_many comments")
+            end
           end
         end
       end
@@ -2442,12 +2462,17 @@ RSpec.shared_examples :source_associations do
             end
           end
 
-          let :allow_application_rescues do
-            true
-          end
+          let(:autorun) {
+            false
+          }
 
-          it "raises an error that puts the app in rescue mode" do
-            expect(call("/")[2]).to include("unknown source `relateds' for association: posts has_many comments")
+          it "raises an error" do
+            expect {
+              setup_and_run
+            }.to raise_error(Pakyow::ApplicationError) do |error|
+              expect(error.cause).to be_instance_of(Pakyow::Data::UnknownSource)
+              expect(error.message).to eq("unknown source `relateds' for association: posts has_many comments")
+            end
           end
         end
       end

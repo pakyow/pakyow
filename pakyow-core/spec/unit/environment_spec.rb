@@ -2,6 +2,12 @@ require "pakyow/application"
 require "pakyow/logger/thread_local"
 
 RSpec.describe Pakyow do
+  after do
+    if Pakyow.instance_variable_defined?(:@__process_thread)
+      Pakyow.remove_instance_variable(:@__process_thread)
+    end
+  end
+
   describe "::register_framework" do
     it "registers a framework by name and module" do
       class FooFramework
@@ -361,43 +367,6 @@ RSpec.describe Pakyow do
   end
 
   describe "::setup" do
-    context "called with an environment name" do
-      let :name do
-        :foo
-      end
-
-      before do
-        Pakyow.setup(env: name)
-      end
-
-      it "uses the passed name" do
-        expect(Pakyow.env).to be(name)
-      end
-    end
-
-    context "called without an environment name" do
-      before do
-        Pakyow.setup
-      end
-
-      it "uses the default name" do
-        expect(Pakyow.env).to be(Pakyow.config.default_env)
-      end
-    end
-
-    context "application config exists" do
-      before do
-        allow(File).to receive(:exist?).and_call_original
-        allow(File).to receive(:exist?).with(File.join(Pakyow.config.root, "config/application.rb")).and_return(true)
-      end
-
-      it "requires the application" do
-        expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application")) do; end
-
-        Pakyow.setup
-      end
-    end
-
     it "calls hooks" do
       expect(Pakyow).to receive(:performing).with(:setup).and_call_original
       expect(Pakyow).to receive(:performing).with(:configure)
@@ -438,8 +407,55 @@ RSpec.describe Pakyow do
       expect(Pakyow.logger).to be_instance_of(Pakyow::Logger::ThreadLocal)
     end
 
+    it "sets up each application"
+
     it "returns the environment" do
       expect(Pakyow.setup).to be(Pakyow)
+    end
+
+    context "called with an environment name" do
+      let :name do
+        :foo
+      end
+
+      before do
+        Pakyow.setup(env: name)
+      end
+
+      it "uses the passed name" do
+        expect(Pakyow.env).to be(name)
+      end
+    end
+
+    context "called without an environment name" do
+      before do
+        Pakyow.setup
+      end
+
+      it "uses the default name" do
+        expect(Pakyow.env).to be(Pakyow.config.default_env)
+      end
+    end
+
+    context "application config exists" do
+      before do
+        allow(File).to receive(:exist?).and_call_original
+        allow(File).to receive(:exist?).with(File.join(Pakyow.config.root, "config/application.rb")).and_return(true)
+      end
+
+      it "requires the application" do
+        expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application")) do; end
+
+        Pakyow.setup
+      end
+    end
+
+    context "something goes wrong" do
+      it "raises an error"
+    end
+
+    context "application is rescued" do
+      it "does not setup the application"
     end
 
     describe "idempotence" do
@@ -475,7 +491,7 @@ RSpec.describe Pakyow do
     end
 
     let :app_instance do
-      instance_double(Pakyow::Application, booted: true)
+      instance_double(Pakyow::Application, booted: true, rescued?: false)
     end
 
     it "calls after boot hooks" do
@@ -483,7 +499,7 @@ RSpec.describe Pakyow do
       perform
     end
 
-    it "calls booted on each app that responds to booted" do
+    it "calls booted on each application" do
       expect(app_instance).to receive(:booted)
       perform
     end
@@ -515,20 +531,17 @@ RSpec.describe Pakyow do
         double(:logger, houston: nil, replace: nil)
       end
 
-      it "exposes the error" do
-        perform
-        expect(Pakyow.error).to be(error)
+      it "raises the error" do
+        expect {
+          perform
+        }.to raise_error do |error|
+          expect(error).to be(error)
+        end
       end
+    end
 
-      it "logs the error and each line of the backtrace" do
-        expect(logger).to receive(:houston).with(error)
-        perform
-      end
-
-      it "exits" do
-        expect(Pakyow).to receive(:exit)
-        perform
-      end
+    context "application is rescued" do
+      it "does not boot the application"
     end
 
     context "environment has already booted" do
@@ -723,6 +736,12 @@ RSpec.describe Pakyow do
       allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
     end
 
+    it "registers an at_exit handler" do
+      expect(Pakyow).to receive(:at_exit)
+
+      Pakyow.run
+    end
+
     context "passed an env" do
       it "passes the env to boot" do
         expect(Pakyow).to receive(:boot).with(env: :test)
@@ -738,6 +757,46 @@ RSpec.describe Pakyow do
         Pakyow.run
 
         expect(Async::Reactor).to have_received(:run).exactly(:once)
+      end
+    end
+
+    describe "rescuing" do
+      context "SignalException is encountered" do
+        before do
+          allow(Async::Reactor).to receive(:run) do
+            raise SignalException.new("HUP")
+          end
+        end
+
+        it "exits gracefully" do
+          Pakyow.run
+
+          expect(Pakyow).to have_received(:exit).with(no_args)
+        end
+      end
+
+      context "Interrupt is encountered" do
+        before do
+          allow(Async::Reactor).to receive(:run) do |&block|
+            raise Interrupt
+          end
+        end
+
+        it "exits gracefully" do
+          Pakyow.run
+
+          expect(Pakyow).to have_received(:exit).with(no_args)
+        end
+      end
+
+      context "ApplicationError is encountered" do
+        it "rescues the application"
+        it "retries"
+      end
+
+      context "some other error is encountered" do
+        it "exposes the error"
+        it "reports the error"
       end
     end
   end
@@ -861,6 +920,70 @@ RSpec.describe Pakyow do
     context "environment is not running" do
       it "returns false" do
         expect(Pakyow.running?).to be(false)
+      end
+    end
+  end
+
+  describe "at_exit handler" do
+    before do
+      @at_exit_block = nil
+      allow(Pakyow).to receive(:at_exit) do |&block|
+        @at_exit_block = block
+      end
+
+      allow(Async::Reactor).to receive(:run) do |&block|
+        block.call
+      end
+
+      allow(Pakyow).to receive(:boot)
+      allow(Pakyow).to receive(:call_hooks)
+      allow(Pakyow).to receive(:shutdown)
+      allow(Pakyow).to receive(:puts)
+      allow(Pakyow).to receive(:start_processes).and_return(instance_double(Thread, join: nil))
+      allow(Pakyow.logger).to receive(:<<)
+
+      Pakyow.run
+    end
+
+    context "process is the main process" do
+      it "calls shutdown" do
+        expect(Pakyow).to receive(:shutdown)
+
+        @at_exit_block.call
+      end
+
+      it "says goodbye" do
+        expect(Pakyow.logger).to receive(:<<).with("Goodbye")
+
+        @at_exit_block.call
+      end
+    end
+
+    context "process is a child process" do
+      before do
+        allow(Process).to receive(:pid).and_return(42)
+        Pakyow.instance_variable_set(:@apps, [app_double_1, app_double_2])
+      end
+
+      let(:app_double_1) {
+        instance_double(Pakyow::Application, shutdown: nil)
+      }
+
+      let(:app_double_2) {
+        instance_double(Pakyow::Application, shutdown: nil)
+      }
+
+      it "does not call shutdown" do
+        expect(Pakyow).not_to receive(:shutdown)
+
+        @at_exit_block.call
+      end
+
+      it "shuts down each application" do
+        expect(app_double_1).to receive(:shutdown)
+        expect(app_double_2).to receive(:shutdown)
+
+        @at_exit_block.call
       end
     end
   end

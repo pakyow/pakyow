@@ -53,12 +53,16 @@ RSpec.describe "app sessions" do
       end
     end
 
-    let :allow_application_rescues do
-      true
-    end
+    let(:autorun) {
+      false
+    }
 
     it "raises an error" do
-      expect(call("/")[2]).to include("cannot load such file -- pakyow/application/connection/session/missing")
+      expect {
+        setup_and_run
+      }.to raise_error(Pakyow::ApplicationError) do |error|
+        expect(error.cause).to be_instance_of(LoadError)
+      end
     end
   end
 

@@ -162,7 +162,7 @@ module Pakyow
 
     class UnknownSubscriberAdapter < Error
       class_state :messages, default: {
-        default: "Failed to load subscriber adapter named `{adapter}'"
+        default: "failed to load subscriber adapter named `{adapter}'"
       }.freeze
     end
   end

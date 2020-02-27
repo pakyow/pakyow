@@ -6,6 +6,7 @@ require "async/http/endpoint"
 
 require "pakyow/support/extension"
 
+require "pakyow/errors"
 require "pakyow/process"
 require "pakyow/process_manager"
 require "pakyow/processes/proxy"
@@ -80,8 +81,16 @@ module Pakyow
           end
 
           self
+        rescue ApplicationError => error
+          error.context.rescue!(error); retry
         rescue SignalException, Interrupt
           exit
+        rescue => error
+          @error = error
+          logger.houston(error)
+          if config.exit_on_boot_failure
+            exit(false)
+          end
         end
 
         # Returns true if the environment is running.
@@ -154,13 +163,15 @@ module Pakyow
                 puts
               end
 
-              Pakyow.logger << "Goodbye"
-
               shutdown
+
+              Pakyow.logger << "Goodbye"
             else
-              @apps.select { |app|
-                app.respond_to?(:shutdown)
-              }.each(&:shutdown)
+              @apps.each do |app|
+                app.shutdown
+              rescue ApplicationError => error
+                app.rescue!(error)
+              end
             end
           end
         end

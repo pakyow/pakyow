@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve error handling when running the environment.**
+
+    *Related links:*
+    - [Pull Request #412][pr-412]
+
   * `chg` **Assume all mounted applications are instances of `Pakyow::Application`.**
 
     *Related links:*
@@ -272,6 +277,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-412]: https://github.com/pakyow/pakyow/pull/412
 [pr-411]: https://github.com/pakyow/pakyow/pull/411
 [pr-410]: https://github.com/pakyow/pakyow/pull/410
 [pr-409]: https://github.com/pakyow/pakyow/pull/409
