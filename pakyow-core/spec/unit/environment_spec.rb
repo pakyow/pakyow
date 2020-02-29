@@ -38,8 +38,8 @@ RSpec.describe Pakyow do
       end
 
       it "registers the app at the path" do
-        expect(Pakyow.mounts.last[:app]).to be(app)
-        expect(Pakyow.mounts.last[:path]).to be(path)
+        expect(Pakyow.__mounts.keys.last).to be(app)
+        expect(Pakyow.__mounts.values.last[:path]).to be(path)
       end
     end
 

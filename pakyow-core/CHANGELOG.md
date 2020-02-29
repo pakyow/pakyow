@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Handle defining the same app multiple times.**
+
+    *Related links:*
+    - [Pull Request #413][pr-413]
+
   * `chg` **Improve error handling when running the environment.**
 
     *Related links:*
@@ -277,6 +282,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-413]: https://github.com/pakyow/pakyow/pull/413
 [pr-412]: https://github.com/pakyow/pakyow/pull/412
 [pr-411]: https://github.com/pakyow/pakyow/pull/411
 [pr-410]: https://github.com/pakyow/pakyow/pull/410

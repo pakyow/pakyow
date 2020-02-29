@@ -227,7 +227,7 @@ RSpec.describe "command line interface" do
   end
 
   after do
-    Pakyow.mounts.clear
+    Pakyow.__mounts.clear
 
     cache_dir = File.expand_path("../support/tmp/cache", __FILE__)
     if File.exist?(cache_dir)
