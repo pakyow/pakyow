@@ -287,8 +287,8 @@ module Pakyow
 
   extend Support::ClassState
   class_state :apps,        default: []
-  class_state :mounts,      default: []
-  class_state :setups,      default: {}
+  class_state :__mounts,    default: {}
+  class_state :__setups,    default: {}
   class_state :frameworks,  default: {}
   class_state :__loaded,    default: false, reader: false
   class_state :__setup,     default: false, reader: false
@@ -352,7 +352,7 @@ module Pakyow
     # @param at [String] where the endpoint should be mounted
     #
     def mount(app, at:)
-      mounts << { app: app, path: at }
+      @__mounts[app] = { path: at }
     end
 
     # Loads the Pakyow environment for the current project.
@@ -429,11 +429,14 @@ module Pakyow
           # Setup each app.
           #
           load_apps_common
-          mounts.map { |mount| mount[:app] }.uniq.each do |app|
-            if block = setups[app]
-              app.setup(&block)
-            else
+          @__mounts.keys.uniq.each do |app|
+            setups = @__setups[app]
+            if setups.nil? || setups.empty?
               app.setup
+            else
+              setups.each do |block|
+                app.setup(&block)
+              end
             end
           end
 
@@ -461,8 +464,8 @@ module Pakyow
 
           # Mount each app.
           #
-          @apps = mounts.map { |mount|
-            mount[:app].new(mount_path: mount[:path])
+          @apps = @__mounts.map { |app, options|
+            app.new(mount_path: options[:path])
           }
 
           # Create the callable pipeline.
@@ -504,13 +507,18 @@ module Pakyow
         local = self
         require "pakyow/application"
         Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
-          config.name = app_name
+          # Change the name only if it's still the default. It's possible the app has already been
+          # defined and we're simply extending it.
+          #
+          config.name = app_name if config.name == :pakyow
 
           # Including frameworks during make lets frameworks attach `after :make` hooks.
           #
           include_frameworks(*(only || local.frameworks.keys) - Array.ensure(without))
         }.tap do |app|
-          @setups[app] = block if block_given?
+          @__setups[app] ||= []
+          @__setups[app] << block if block_given?
+
           mount(app, at: path) if mount
         end
       end

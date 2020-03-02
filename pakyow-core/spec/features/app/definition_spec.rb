@@ -64,4 +64,46 @@ RSpec.describe "defining an app" do
       end
     end
   end
+
+  describe "defining the same app twice" do
+    let :app_def do
+      Proc.new do
+        config.name = "define-test"
+
+        action do |connection|
+          connection.body = StringIO.new(config.name.to_s)
+          connection.halt
+        end
+
+        Pakyow.app :test do
+          config.name = "define-test2"
+        end
+      end
+    end
+
+    it "extends the second time" do
+      expect(call[2]).to eq("define-test2")
+    end
+
+    context "second definition has a different mount point" do
+      let :app_def do
+        Proc.new do
+          config.name = "define-test"
+
+          action do |connection|
+            connection.body = StringIO.new(config.name.to_s)
+            connection.halt
+          end
+
+          Pakyow.app :test, path: "/other" do
+          end
+        end
+      end
+
+      it "changes the mount point" do
+        expect(call("/")[0]).to eq(404)
+        expect(call("/other")[2]).to eq("define-test")
+      end
+    end
+  end
 end

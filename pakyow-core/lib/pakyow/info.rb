@@ -12,13 +12,13 @@ module Pakyow
         pakyow: "v#{VERSION}"
       },
 
-      apps: Pakyow.mounts.map { |mount|
+      apps: Pakyow.__mounts.map { |app, options|
         {
-          mount_path: mount[:path],
-          class: mount[:app].to_s,
-          reference: mount[:app].config.name.inspect,
-          frameworks: mount[:app].config.loaded_frameworks,
-          app_root: File.expand_path(mount[:app].config.root)
+          mount_path: options[:path],
+          class: app.to_s,
+          reference: app.config.name.inspect,
+          frameworks: app.config.loaded_frameworks,
+          app_root: File.expand_path(app.config.root)
         }
       }
     }
