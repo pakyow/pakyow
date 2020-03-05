@@ -11,7 +11,6 @@ module Pakyow
         require "pakyow/application/behavior/assets/silencing"
         require "pakyow/application/behavior/assets/externals"
         require "pakyow/application/behavior/assets/watching"
-        require "pakyow/application/behavior/assets/prelaunching"
         require "pakyow/application/behavior/assets/processing"
         require "pakyow/application/behavior/assets/types"
 
@@ -170,7 +169,6 @@ module Pakyow
           include Application::Behavior::Assets::Silencing
           include Application::Behavior::Assets::Externals
           include Application::Behavior::Assets::Watching
-          include Application::Behavior::Assets::Prelaunching
           include Application::Behavior::Assets::Processing
           include Application::Behavior::Assets::Types
 

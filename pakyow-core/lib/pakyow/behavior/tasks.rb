@@ -16,6 +16,8 @@ module Pakyow
         configurable :tasks do
           setting :paths, ["./tasks", File.expand_path("../../tasks", __FILE__)]
           setting :prelaunch, []
+
+          deprecate :prelaunch
         end
 
         config.deprecate :tasks, solution: "use `config.commands'"

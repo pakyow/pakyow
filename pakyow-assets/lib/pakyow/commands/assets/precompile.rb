@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-command :assets, :precompile do
+command :assets, :precompile, prelaunch: :build do
   describe "Precompile assets"
   required :app
 

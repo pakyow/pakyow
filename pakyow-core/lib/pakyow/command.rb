@@ -14,6 +14,49 @@ module Pakyow
   #
   # Internally, commands wrap rake to support things like dependencies.
   #
+  # = Prelaunching
+  #
+  # Pakyow has a built-in concept called "prelaunching" that provides a way to run a sequence of
+  # commands when deploying a project. Prelaunch is broken into two phases:
+  #
+  #   * Build: Build phase commands don't require a full boot and emit artifacts that alter the
+  #     environment, such as by precompiling assets to the filesystem or uploading them to a CDN.
+  #     The build phase runs when the project is being built.
+  #
+  #   * Release: Release phase commands require a full boot and have the ability to directly alter
+  #     the environment, such as by running database migrations. The release phase runs within the
+  #     deployed project just before it boots.
+  #
+  # Prelaunch phases are invoked through the build-in `prelaunch:build` and `prelaunch:release`
+  # commands. For deployment processes that don't require separate build and release phases, all
+  # prelaunch phases can be run at once through the built-in `prelaunch` command.
+  #
+  # Commands can hook into a prelaunch phase using the `prelaunch` hook:
+  #
+  #   command :some_prelaunch_command, prelaunch: :build do
+  #     ...
+  #   end
+  #
+  # Prelaunch commands that require the application context are called once for every application
+  # mounted on the environment, effectively prelaunching each one:
+  #
+  #   command :some_prelaunch_command, prelaunch: :build do
+  #     require :app
+  #
+  #     ...
+  #   end
+  #
+  # Commands can hook into this behavior by passing a block to `prelaunch` that calls the command
+  # with the necessary arguments for each invocation:
+  #
+  #   command :some_prelaunch_command do
+  #     prelaunch :build do |command|
+  #       command.call { ... }
+  #     end
+  #
+  #     ...
+  #   end
+  #
   class Command < Operation
     include Support::Hookable
     include Support::Makeable
@@ -23,6 +66,7 @@ module Pakyow
     class_state :options, default: {}, inheritable: true
     class_state :flags, default: {}, inheritable: true
     class_state :aliases, default: {}, inheritable: true
+    class_state :__prelaunch_block, default: nil, inheritable: true
 
     after "make" do
       if cli?
@@ -159,6 +203,10 @@ module Pakyow
         end
       end
 
+      def prelaunch(phase, &block)
+        @prelaunch, @__prelaunch_block = phase, block
+      end
+
       def call(**values)
         @rake.invoke(values)
         @rake.reenable
@@ -194,6 +242,29 @@ module Pakyow
       # @api private
       def boot?
         defined?(@boot) && @boot == true
+      end
+
+      # @api private
+      def prelaunch?
+        defined?(@prelaunch) && !@prelaunch.nil?
+      end
+
+      # @api private
+      def prelaunch_phase
+        defined?(@prelaunch) && @prelaunch
+      end
+
+      # @api private
+      def prelaunches(&block)
+        if @__prelaunch_block
+          @__prelaunch_block.call(block)
+        elsif app?
+          Pakyow.apps.each do |app|
+            yield app: app
+          end
+        else
+          yield
+        end
       end
 
       # @api private

@@ -96,11 +96,5 @@ RSpec.describe Pakyow::Application do
         expect(app.config.tasks.prelaunch).to eq([])
       end
     end
-
-    describe "commands.prelaunch" do
-      it "exists" do
-        expect(app.config.commands.prelaunch).to eq([])
-      end
-    end
   end
 end

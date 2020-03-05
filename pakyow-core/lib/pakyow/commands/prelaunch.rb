@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 command :prelaunch do
-  describe "Run the prelaunch commands"
+  describe "Run all phases of the prelaunch sequence"
   required :cli
 
   action do
@@ -22,11 +22,15 @@ command :prelaunch do
         @cli.call(command, **options)
       end
     end
+
+    %w(prelaunch:build prelaunch:release).each do |command|
+      @cli.call(command)
+    end
   end
 
   private def each_command(object)
     Pakyow::Support::Deprecator.global.ignore do
-      (object.config.tasks.prelaunch + object.config.commands.prelaunch).uniq.each do |command, options = {}|
+      (object.config.tasks.prelaunch).uniq.each do |command, options = {}|
         yield command, options.merge(global_options)
       end
     end
