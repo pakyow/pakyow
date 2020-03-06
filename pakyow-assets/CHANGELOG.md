@@ -1,3 +1,12 @@
+# v1.0.5 (unreleased)
+
+  * `fix` **Download external asset content in full.**
+
+    *Related links:*
+    - [Pull Request #415][pr-415]
+
+[pr-415]: https://github.com/pakyow/pakyow/pull/415/
+
 # v1.0.4
 
   * `fix` **Escape external asset uris so they do not fail on fetch.**
