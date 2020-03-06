@@ -1,4 +1,4 @@
-# v1.0.5 (unreleased)
+# v1.0.5
 
   * `fix` **Download external asset content in full.**
 
