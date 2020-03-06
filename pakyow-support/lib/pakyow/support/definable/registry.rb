@@ -23,7 +23,7 @@ module Pakyow
         attr_reader :builder, :parent, :definitions
 
         # @api private
-        PRIORITIES = { default: 0, high: 1, low: -1 }.freeze
+        PRIORITIES = { high: 1, default: 0, low: -1 }.freeze
 
         def initialize(name, object, parent:, namespace: [], builder: nil, lookup: nil, abstract: true)
           @name = name
@@ -162,8 +162,10 @@ module Pakyow
         end
 
         private def reprioritize!
-          @definitions.sort! { |a, b|
-            (@priorities[b] || 0) <=> (@priorities[a] || 0)
+          @definitions = @definitions.group_by { |definition|
+            @priorities[definition]
+          }.sort.reverse.flat_map { |_priority, definitions|
+            definitions
           }
         end
 

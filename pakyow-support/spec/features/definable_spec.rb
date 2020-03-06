@@ -95,6 +95,21 @@ RSpec.describe "defining state via definable" do
         "Test::Application::Controllers::Foo"
       ])
     end
+
+    context "with a numerical priority" do
+      before do
+        application.controller :qux, priority: -100 do; end
+      end
+
+      it "respects the priority" do
+        expect(application.controllers.each.map(&:name)).to eq([
+          "Test::Application::Controllers::Bar",
+          "Test::Application::Controllers::Baz",
+          "Test::Application::Controllers::Foo",
+          "Test::Application::Controllers::Qux"
+        ])
+      end
+    end
   end
 
   describe "defined state introspection" do
@@ -466,6 +481,22 @@ RSpec.describe "defining state via definable" do
       application.controllers(:foo) {}
 
       expect(application.controllers(:foo)).to be(Test::Application::Controllers::Foo)
+    end
+  end
+
+  describe "defined state order" do
+    before do
+      application.controller :foo do; end
+      application.controller :bar do; end
+      application.controller :baz do; end
+    end
+
+    it "maintains the definition order" do
+      expect(application.controllers.definitions).to eq([
+        Test::Application::Controllers::Foo,
+        Test::Application::Controllers::Bar,
+        Test::Application::Controllers::Baz
+      ])
     end
   end
 end
