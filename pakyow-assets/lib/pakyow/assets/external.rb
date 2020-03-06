@@ -117,7 +117,10 @@ module Pakyow
           elsif response.status >= 500
             raise Failed, "Unexpected response status: #{response.status}"
           else
-            @body = response.body.read
+            @body = String.new
+            while body = response.body.read
+              @body << body
+            end
           end
         rescue SocketError => error
           raise Failed.build(error)
