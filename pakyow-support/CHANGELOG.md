@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Ensure that defined state maintains the original definition order.**
+
+    *Related links:*
+    - [Pull Request #414][pr-414]
+
   * `fix` **Prevent multiple forwards to the same deprecator.**
 
     *Related links:*
@@ -213,6 +218,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-414]: https://github.com/pakyow/pakyow/pull/414
 [pr-408]: https://github.com/pakyow/pakyow/pull/408
 [pr-403]: https://github.com/pakyow/pakyow/pull/403
 [pr-396]: https://github.com/pakyow/pakyow/pull/396
