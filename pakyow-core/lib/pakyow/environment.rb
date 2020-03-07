@@ -440,6 +440,10 @@ module Pakyow
             end
           end
 
+          @apps = @__mounts.map { |app, options|
+            app.new(mount_path: options[:path])
+          }
+
           @__setup = true
         end
       end
@@ -461,12 +465,6 @@ module Pakyow
       unless booted?
         performing :boot do
           setup(env: env)
-
-          # Mount each app.
-          #
-          @apps = @__mounts.map { |app, options|
-            app.new(mount_path: options[:path])
-          }
 
           # Create the callable pipeline.
           #

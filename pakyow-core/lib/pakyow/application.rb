@@ -138,10 +138,8 @@ module Pakyow
 
     configurable :tasks do
       setting :prelaunch, []
-    end
 
-    configurable :commands do
-      setting :prelaunch, []
+      deprecate :prelaunch
     end
 
     include Support::Definable

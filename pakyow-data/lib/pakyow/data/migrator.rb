@@ -80,6 +80,8 @@ module Pakyow
       end
 
       def sources
+        return [] unless Pakyow.booted?
+
         Pakyow.apps.reject(&:rescued?).flat_map { |app|
           app.data.containers.flat_map(&:sources).concat(
             app.plugs.flat_map { |plug|

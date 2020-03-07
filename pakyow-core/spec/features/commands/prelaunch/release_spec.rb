@@ -1,16 +1,16 @@
 require "pakyow/cli"
 
-RSpec.describe "cli: prelaunch" do
+RSpec.describe "cli: prelaunch:release" do
   include_context "app"
   include_context "command"
 
   let :command do
-    "prelaunch"
+    "prelaunch:release"
   end
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true, tty: false)).to eq("\e[34;1mRun all phases of the prelaunch sequence\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow prelaunch\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
+      expect(run_command(command, help: true, project: true, tty: false)).to eq("\e[34;1mRun the release phase of the prelaunch sequence\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow prelaunch:release\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
     end
   end
 
@@ -61,10 +61,10 @@ RSpec.describe "cli: prelaunch" do
         end
       end
 
-      it "runs each command with the defined options" do
+      it "runs each release phase command with the defined options" do
         run_command(command, project: true, tty: false)
 
-        expect(calls).to eq([:baz, :foo])
+        expect(calls).to eq([:foo])
       end
 
       it "adds the cli as an option" do
@@ -120,10 +120,10 @@ RSpec.describe "cli: prelaunch" do
         }
       }
 
-      it "runs each command against each app with the defined options" do
+      it "runs each release phase command against each app with the defined options" do
         run_command(command, project: true, tty: false)
 
-        expect(calls).to eq([:app_baz, :app_baz, :app_foo, :app_foo])
+        expect(calls).to eq([:app_foo, :app_foo])
       end
 
       it "adds the cli as an option" do
@@ -176,7 +176,7 @@ RSpec.describe "cli: prelaunch" do
       before do
         local = self
 
-        Pakyow.command :foo, prelaunch: :build do
+        Pakyow.command :foo, prelaunch: :release do
           required :cli
 
           action do
@@ -184,7 +184,7 @@ RSpec.describe "cli: prelaunch" do
           end
         end
 
-        Pakyow.command :bar, prelaunch: :release do
+        Pakyow.command :bar, prelaunch: :build do
           required :cli
 
           action do
@@ -196,49 +196,7 @@ RSpec.describe "cli: prelaunch" do
       it "runs the command" do
         run_command(command, project: true, tty: false)
 
-        expect(calls).to eq([:foo, :bar])
-      end
-    end
-
-    describe "running defined tasks" do
-      before do
-        local = self
-
-        Pakyow.config.tasks.prelaunch << :foo
-
-        Pakyow.command :foo do
-          action do
-            local.calls << :foo
-          end
-        end
-      end
-
-      let(:app_def) {
-        local = self
-
-        Proc.new {
-          configure do
-            config.tasks.prelaunch << :app_foo
-          end
-
-          Pakyow.command :app_foo do
-            action do
-              local.calls << :app_foo
-            end
-          end
-        }
-      }
-
-      it "runs prelaunch tasks defined for the environment" do
-        run_command(command, project: true, tty: false)
-
-        expect(calls).to include(:foo)
-      end
-
-      it "runs prelaunch tasks defined for an application" do
-        run_command(command, project: true, tty: false)
-
-        expect(calls).to include(:app_foo)
+        expect(calls).to eq([:foo])
       end
     end
   end

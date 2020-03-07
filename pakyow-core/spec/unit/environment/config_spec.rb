@@ -278,12 +278,6 @@ RSpec.describe Pakyow do
       end
     end
 
-    describe "commands.prelaunch" do
-      it "has a default value" do
-        expect(Pakyow.config.commands.prelaunch).to eq([])
-      end
-    end
-
     describe "redis.connection.url" do
       before do
         @original_redis_url = ENV["REDIS_URL"]

@@ -13,7 +13,6 @@ module Pakyow
       apply_extension do
         configurable :commands do
           setting :paths, ["./commands", File.expand_path("../../commands", __FILE__)]
-          setting :prelaunch, []
         end
 
         definable :command, Command, builder: -> (*namespace, object_name, **opts) {

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deprecator"
 require "pakyow/support/extension"
 
 require "pakyow/data/connection"
@@ -58,16 +59,6 @@ module Pakyow
                 end
               }
             }
-
-            # Register a prelaunch task to migrate every migratable connection.
-            #
-            @data_connections.each do |adapter, connections|
-              connections.each do |connection_name, connection|
-                if connection.migratable? && connection_name != :memory
-                  config.commands.prelaunch << ["db:migrate", { adapter: adapter, connection: connection_name }]
-                end
-              end
-            end
           end
         end
       end
