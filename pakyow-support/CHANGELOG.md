@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Handleable` for handling events (such as errors) on your objects.**
+
   * `chg` **Improve pipeline call performance.**
 
     *Related links:*
