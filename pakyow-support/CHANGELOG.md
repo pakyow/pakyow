@@ -2,6 +2,9 @@
 
   * `add` **Introduce `Handleable` for handling events (such as errors) on your objects.**
 
+    *Related links:*
+    - [Pull Request #417][pr-417]
+
   * `chg` **Improve pipeline call performance.**
 
     *Related links:*
@@ -292,6 +295,7 @@
 [pr-421]: https://github.com/pakyow/pakyow/pull/421
 [pr-420]: https://github.com/pakyow/pakyow/pull/420
 [pr-419]: https://github.com/pakyow/pakyow/pull/419
+[pr-417]: https://github.com/pakyow/pakyow/pull/417
 [pr-414]: https://github.com/pakyow/pakyow/pull/414
 [pr-408]: https://github.com/pakyow/pakyow/pull/408
 [pr-403]: https://github.com/pakyow/pakyow/pull/403
