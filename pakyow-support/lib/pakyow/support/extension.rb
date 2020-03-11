@@ -144,6 +144,12 @@ module Pakyow
         @__extension_common_module = Module.new(&block)
       end
 
+      # Register a block defining methods to be prependend into the including object and its class.
+      #
+      def common_prepend_methods(&block)
+        @__extension_common_prepend_module = Module.new(&block)
+      end
+
       # @api private
       def included(base)
         enforce_restrictions(base)
@@ -160,6 +166,7 @@ module Pakyow
         :@__extension_extend_module,
         :@__extension_prepend_module,
         :@__extension_common_module,
+        :@__extension_common_prepend_module,
         :@__extension_dependencies
       ].freeze
 
@@ -192,6 +199,11 @@ module Pakyow
         if instance_variable_defined?(:@__extension_common_module)
           base.extend @__extension_common_module
           base.include @__extension_common_module
+        end
+
+        if instance_variable_defined?(:@__extension_common_prepend_module)
+          base.prepend @__extension_common_prepend_module
+          base.singleton_class.prepend @__extension_common_prepend_module
         end
       end
 
