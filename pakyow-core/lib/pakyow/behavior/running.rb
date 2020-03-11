@@ -87,7 +87,7 @@ module Pakyow
           exit
         rescue => error
           @error = error
-          logger.houston(error)
+          houston(error)
           if config.exit_on_boot_failure
             exit(false)
           end

@@ -744,7 +744,7 @@ module Pakyow
             presenter.instance_exec(node, context, string, &block); returning
           rescue => error
             if presenter.app.config.presenter.features.streaming
-              Pakyow.logger.houston(error)
+              Pakyow.houston(error)
 
               presenter.clear
               presenter.attributes[:class] << :"render-failed"

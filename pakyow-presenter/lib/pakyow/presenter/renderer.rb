@@ -165,7 +165,7 @@ module Pakyow
             end
           end
         rescue StandardError => error
-          connection.logger.houston(error)
+          Pakyow.houston(error)
 
           if connection.app.class.includes_framework?(:routing)
             catch :halt do

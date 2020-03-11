@@ -1,4 +1,8 @@
 RSpec.describe "handling errors when calling the environment" do
+  before do
+    allow(Pakyow).to receive(:houston)
+  end
+
   context "low-level error occurs" do
     before do
       Pakyow.action do |connection|
@@ -44,12 +48,8 @@ RSpec.describe "handling errors when calling the environment" do
       call("/")
     end
 
-    it "logs the error with the connection logger" do
-      logger_double = instance_double(Pakyow::Logger, prologue: nil, epilogue: nil)
-      allow_any_instance_of(Pakyow::Connection).to receive(:logger).and_return(logger_double)
-      expect(logger_double).to receive(:houston) do |error|
-        expect(error.message).to eq("something went wrong")
-      end
+    it "reports the error" do
+      expect(Pakyow).to receive(:houston)
 
       call("/")
     end

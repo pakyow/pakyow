@@ -537,7 +537,7 @@ module Pakyow
         }.wait
       }.finalize
     rescue StandardError => error
-      Pakyow.logger.houston(error)
+      houston(error)
 
       Async::HTTP::Protocol::Response.new(
         nil, 500, {}, Async::HTTP::Body::Buffered.wrap(

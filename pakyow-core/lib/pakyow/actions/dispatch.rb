@@ -16,8 +16,8 @@ module Pakyow
           error_404(connection)
         end
       rescue StandardError => error
+        Pakyow.houston(error)
         connection.error = error
-        connection.logger.houston(error)
         error_500(connection)
       end
 

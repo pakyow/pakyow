@@ -261,7 +261,7 @@ module Pakyow
         @connection, @route = connection, route
         @route.pipeline.callable(self).call(connection); halt
       rescue StandardError => error
-        @connection.logger.houston(error)
+        Pakyow.houston(error)
         handle_error(error)
       end
 

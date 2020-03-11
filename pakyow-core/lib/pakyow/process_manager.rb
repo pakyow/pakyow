@@ -59,7 +59,7 @@ module Pakyow
               process.call
             rescue Interrupt
             rescue => error
-              Pakyow.logger.houston(error); exit 1
+              Pakyow.houston(error); exit 1
             end
 
             break unless status.success?
