@@ -226,31 +226,29 @@ module Pakyow
 
           @children.each do |child_controller|
             child_controller.call(connection, request_path)
-            break if connection.halted?
+            return if connection.halted?
           end
 
           unless connection.halted?
             self.class.routes[request_method].to_a.each do |route|
-              catch :reject do
-                if route_match = route.match(request_path)
-                  connection.params.merge!(route_match.named_captures)
+              if route_match = route.match(request_path)
+                connection.params.merge!(route_match.named_captures)
 
-                  connection.set(
-                    :__endpoint_path,
-                    String.normalize_path(
-                      File.join(
-                        self.class.path_to_self.to_s, route.path.to_s
-                      )
+                connection.set(
+                  :__endpoint_path,
+                  String.normalize_path(
+                    File.join(
+                      self.class.path_to_self.to_s, route.path.to_s
                     )
                   )
+                )
 
-                  connection.set(:__endpoint_name, route.name)
+                connection.set(:__endpoint_name, route.name)
 
-                  dup.call_route(connection, route)
-                end
+                dup.call_route(connection, route)
               end
 
-              break if connection.halted?
+              return if connection.halted?
             end
           end
         end
@@ -259,7 +257,8 @@ module Pakyow
       # @api private
       def call_route(connection, route)
         @connection, @route = connection, route
-        @route.pipeline.callable(self).call(connection); halt
+        @route.pipeline.callable(self).call(connection)
+        halt unless connection.rejected?
       rescue StandardError => error
         Pakyow.houston(error)
         handle_error(error)
@@ -451,7 +450,7 @@ module Pakyow
       # Rejects the request, calling the next matching route.
       #
       def reject
-        throw :reject
+        @connection.reject
       end
 
       class_state :templates, default: {}, inheritable: true

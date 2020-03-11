@@ -12,7 +12,7 @@ module Pakyow
 
         prepend_methods do
           def initialize(*args)
-            @__halted = @__pipelined = false
+            @__halted = @__rejected = @__pipelined = false
 
             super
           end
@@ -26,6 +26,14 @@ module Pakyow
 
         def pipelined?
           @__pipelined == true
+        end
+
+        def reject
+          throw :reject, @__rejected = true
+        end
+
+        def rejected?
+          @__rejected == true
         end
 
         def halt

@@ -20,14 +20,16 @@ module Pakyow
         def call(object, stack = @stack.dup)
           catch :halt do
             until stack.empty? || object.halted?
-              action = stack.shift
-              if action.arity == 0
-                action.call do
-                  call(object, stack)
-                end
-              else
-                action.call(object) do
-                  call(object, stack)
+              catch :reject do
+                action = stack.shift
+                if action.arity == 0
+                  action.call do
+                    call(object, stack)
+                  end
+                else
+                  action.call(object) do
+                    call(object, stack)
+                  end
                 end
               end
             end

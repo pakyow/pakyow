@@ -359,6 +359,35 @@ RSpec.describe "pipelines" do
     end
   end
 
+  context "an action rejects" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo
+        action :bar
+        action :baz
+
+        def foo(result)
+          result.reject
+          result << "foo"
+        end
+
+        def bar(result)
+          result << "bar"
+        end
+
+        def baz(result)
+          result << "baz"
+        end
+      end
+    end
+
+    it "skips to the next action" do
+      expect(pipelined.new.call(result.new).results).to eq(["bar", "baz"])
+    end
+  end
+
   context "an action yields" do
     let :pipelined do
       Class.new do
