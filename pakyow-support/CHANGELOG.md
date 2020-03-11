@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support rejection in pipelines.**
+
+    *Related links:*
+    - [Pull Request #420][pr-420]
+
   * `add` **Introduce `Extension::common_prepend_methods` to prepend methods to an instance and class.**
 
     *Related links:*
@@ -223,6 +228,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-420]: https://github.com/pakyow/pakyow/pull/420
 [pr-419]: https://github.com/pakyow/pakyow/pull/419
 [pr-414]: https://github.com/pakyow/pakyow/pull/414
 [pr-408]: https://github.com/pakyow/pakyow/pull/408
