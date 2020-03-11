@@ -28,13 +28,13 @@ module Pakyow
             end
           end
 
-          # Enters rescue mode after logging the error.
+          # Enters rescue mode after reporting the error.
           #
           def rescue!(error)
             @rescued = error
 
             performing :rescue do
-              Pakyow.logger.houston(error)
+              Pakyow.houston(error)
 
               if is_a?(Application)
                 singleton_class.include Rescued
