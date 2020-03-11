@@ -50,6 +50,10 @@ RSpec.shared_context "app" do
     @connection
   end
 
+  let :mount_app do
+    true
+  end
+
   before do
     ENV["SECRET"] = "test"
     Pakyow.config.logger.enabled = false
@@ -59,7 +63,7 @@ RSpec.shared_context "app" do
 
   def setup(env: :test)
     super if defined?(super)
-    Pakyow.mount(app, at: mount_path)
+    Pakyow.mount(app, at: mount_path) if mount_app
     Pakyow.class_eval(&env_def)
     Pakyow.setup(env: env)
   end

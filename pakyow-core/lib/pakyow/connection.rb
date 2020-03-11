@@ -12,6 +12,7 @@ require "protocol/http/body/rewindable"
 require "mini_mime"
 
 require "pakyow/support/deep_dup"
+require "pakyow/support/handleable"
 require "pakyow/support/hookable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/inspectable"
@@ -41,6 +42,11 @@ module Pakyow
 
     include Support::Pipeline::Object
 
+    include Support::Handleable
+
+    require "pakyow/connection/behavior/handling"
+    include Behavior::Handling
+
     attr_reader :id, :timestamp, :logger, :status, :headers, :body
 
     attr_writer :body
@@ -63,6 +69,7 @@ module Pakyow
       @headers = {}
       @request = request
       @body = Async::HTTP::Body::Buffered.wrap(StringIO.new)
+      @__original_body = @body
       @params = Pakyow::Connection::Params.new
       @streams = []
 
@@ -364,6 +371,27 @@ module Pakyow
           Async::HTTP::Protocol::Response[@status, finalize_headers, @body]
         end
       end
+    end
+
+    # Triggers `event`, passing any arguments to triggered handlers.
+    #
+    # Calls connection handlers, then propagates the event to the environment.
+    #
+    def trigger(event, *args, **kwargs)
+      super(event, *args, **kwargs) do
+        if block_given?
+          yield
+        else
+          Pakyow.trigger(event, *args, **kwargs)
+        end
+      end
+
+      halt
+    end
+
+    # @api private
+    def handling_target
+      Pakyow
     end
 
     # @api private

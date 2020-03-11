@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Handle events and errors in the environment and application objects.**
+
   * `fix` **Log the epilogue even if another action halts.**
 
     *Related links:*

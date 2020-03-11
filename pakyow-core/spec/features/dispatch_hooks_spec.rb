@@ -11,8 +11,6 @@ RSpec.describe "environment dispatch hooks" do
 
       after :dispatch do |*args, **kwargs|
         local.calls[:after] << [args, kwargs]
-
-        kwargs[:connection].halt
       end
     }
   }
@@ -43,9 +41,5 @@ RSpec.describe "environment dispatch hooks" do
 
   it "passes the connection to after dispatch hooks" do
     expect(@calls[:after][0][1][:connection]).to be_instance_of(Pakyow::Connection)
-  end
-
-  it "calls after dispatch before handling as missing" do
-    expect(call("/")[0]).to eq(200)
   end
 end

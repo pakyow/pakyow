@@ -8,6 +8,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/definable"
+require "pakyow/support/handleable"
 require "pakyow/support/pipeline"
 require "pakyow/support/deprecatable"
 
@@ -28,8 +29,14 @@ require "pakyow/behavior/verifier"
 
 require "pakyow/actions/input_parser"
 require "pakyow/actions/logger"
+require "pakyow/actions/missing"
 require "pakyow/actions/normalizer"
 require "pakyow/actions/restart"
+
+require "pakyow/handleable/actions/handle"
+require "pakyow/handleable/behavior/statuses"
+require "pakyow/handleable/behavior/defaults/not_found"
+require "pakyow/handleable/behavior/defaults/server_error"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
 # mounted in the environment, each one handling requests at some path.
@@ -100,10 +107,8 @@ module Pakyow
   setting :timezone, :utc
   setting :secrets, ["pakyow"]
 
-  setting :connection_class do
-    require "pakyow/connection"
-    Connection
-  end
+  require "pakyow/connection"
+  setting :connection_class, Connection
 
   setting :root do
     File.expand_path(".")
@@ -261,6 +266,7 @@ module Pakyow
   end
 
   include Support::Definable
+  include Support::Handleable
 
   include Behavior::Commands
   include Behavior::Dispatching
@@ -276,7 +282,14 @@ module Pakyow
   include Behavior::Restarting
   include Behavior::Verifier
 
+  include Handleable::Behavior::Statuses
+
+  include Handleable::Behavior::Defaults::NotFound
+  include Handleable::Behavior::Defaults::ServerError
+
   include Support::Pipeline
+  action :handle, Handleable::Actions::Handle
+  action :missing, Actions::Missing
   action :log, Actions::Logger
   action :normalize, Actions::Normalizer
   action :parse, Actions::InputParser
@@ -525,11 +538,9 @@ module Pakyow
     end
 
     def call(input)
-      config.connection_class.new(input).yield_self { |connection|
-        connection.async {
-          super(connection)
-        }.wait
-      }.finalize
+      connection = config.connection_class.new(input)
+      connection.async { super(connection) }.wait
+      connection.finalize
     rescue StandardError => error
       houston(error)
 
