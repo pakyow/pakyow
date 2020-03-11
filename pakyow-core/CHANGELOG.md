@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Global error reporting through `Pakyow::houston`.**
+
   * `add` **Split prelaunch commands into `prelaunch:build` and `prelaunch:release` phases.**
     - Build phase commands don't require a full boot and emit artifacts that alter the environment,
       such as by precompiling assets to the filesystem or uploading them to a CDN. The build phase

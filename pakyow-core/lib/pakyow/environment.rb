@@ -13,6 +13,7 @@ require "pakyow/support/deprecatable"
 
 require "pakyow/behavior/commands"
 require "pakyow/behavior/deprecations"
+require "pakyow/behavior/erroring"
 require "pakyow/behavior/initializers"
 require "pakyow/behavior/input_parsing"
 require "pakyow/behavior/plugins"
@@ -89,7 +90,7 @@ module Pakyow
   using Support::Refinements::Array::Ensurable
 
   include Support::Hookable
-  events :load, :configure, :setup, :boot, :shutdown, :run
+  events :load, :configure, :setup, :boot, :shutdown, :run, :error
 
   include Support::Configurable
 
@@ -262,6 +263,7 @@ module Pakyow
   include Support::Definable
 
   include Behavior::Commands
+  include Behavior::Erroring
   include Behavior::Initializers
   include Behavior::InputParsing
   include Behavior::Plugins
