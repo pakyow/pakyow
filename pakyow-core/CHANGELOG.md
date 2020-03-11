@@ -2,6 +2,9 @@
 
   * `add` **Global error reporting through `Pakyow::houston`.**
 
+    *Related links:*
+    - [Pull Request #418][pr-418]
+
   * `add` **Split prelaunch commands into `prelaunch:build` and `prelaunch:release` phases.**
     - Build phase commands don't require a full boot and emit artifacts that alter the environment,
       such as by precompiling assets to the filesystem or uploading them to a CDN. The build phase
@@ -295,6 +298,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-418]: https://github.com/pakyow/pakyow/pull/418
 [pr-416]: https://github.com/pakyow/pakyow/pull/416
 [pr-413]: https://github.com/pakyow/pakyow/pull/413
 [pr-412]: https://github.com/pakyow/pakyow/pull/412
