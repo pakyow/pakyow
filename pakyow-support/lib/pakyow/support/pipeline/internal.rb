@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module Support
     module Pipeline
@@ -7,8 +9,12 @@ module Pakyow
       class Internal
         attr_reader :actions
 
-        def initialize(&block)
+        extend DeepFreeze
+        insulate :context
+
+        def initialize(context, &block)
           @actions = []
+          @context = context
 
           if block_given?
             instance_exec(&block)
@@ -16,16 +22,27 @@ module Pakyow
         end
 
         def initialize_copy(_)
-          @actions = @actions.dup
+          @actions = @actions.map(&:dup)
+
           super
         end
 
-        def callable(context)
-          Callable.new(@actions, context)
+        def call(context, state, actions = @actions.dup)
+          catch :halt do
+            until actions.empty? || state.halted?
+              catch :reject do
+                actions.shift.call(context, state) do
+                  call(context, state, actions)
+                end
+              end
+            end
+          end
+
+          state.pipelined
         end
 
         def action(target, *options, before: nil, after: nil, &block)
-          Action.new(target, *options, &block).tap do |action|
+          Action.new(@context, target, *options, &block).tap do |action|
             if before
               if i = @actions.index { |a| a.name == before }
                 @actions.insert(i, action)
@@ -67,6 +84,14 @@ module Pakyow
           @actions.delete_if { |action|
             targets.include?(action.target)
           }
+        end
+
+        # @api private
+        def reset(context)
+          @context = context
+          @actions.each do |action|
+            action.reset(context)
+          end
         end
       end
     end

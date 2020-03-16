@@ -166,6 +166,32 @@ RSpec.describe "pipelines" do
         expect(pipelined.new.call(result.new).results).to eq(["option"])
       end
     end
+
+    describe "object reuse" do
+      let :pipelined do
+        Class.new do
+          include Pakyow::Support::Pipeline
+
+          action Class.new {
+            def call(result)
+              result << @foo
+              @foo = :foo
+            end
+          }
+        end
+      end
+
+      it "calls on the same instance for the same pipeline" do
+        instance = pipelined.new
+        expect(instance.call(result.new).results).to eq([nil])
+        expect(instance.call(result.new).results).to eq([:foo])
+      end
+
+      it "calls on a new instance for a new pipeline" do
+        expect(pipelined.new.call(result.new).results).to eq([nil])
+        expect(pipelined.new.call(result.new).results).to eq([nil])
+      end
+    end
   end
 
   context "action is a named class" do
@@ -229,7 +255,7 @@ RSpec.describe "pipelines" do
     end
   end
 
-  context "action is a callable instance" do
+  context "action is a proc" do
     let :pipelined do
       Class.new do
         include Pakyow::Support::Pipeline
@@ -245,7 +271,7 @@ RSpec.describe "pipelines" do
     end
   end
 
-  context "action is a named callable instance" do
+  context "action is a named proc" do
     let :pipelined do
       Class.new do
         include Pakyow::Support::Pipeline
@@ -253,6 +279,42 @@ RSpec.describe "pipelines" do
         action :foo, Proc.new { |result|
           result << "foo"
         }
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+    end
+  end
+
+  context "action is a callable instance" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action Class.new {
+          def call(result)
+            result << "foo"
+          end
+        }.new
+      end
+    end
+
+    it "calls the pipeline" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+    end
+  end
+
+  context "action is a named callable instance" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo, Class.new {
+          def call(result)
+            result << "foo"
+          end
+        }.new
       end
     end
 
@@ -388,7 +450,7 @@ RSpec.describe "pipelines" do
     end
   end
 
-  context "an action yields" do
+  context "an action method yields" do
     let :pipelined do
       Class.new do
         include Pakyow::Support::Pipeline
@@ -454,6 +516,70 @@ RSpec.describe "pipelines" do
         instance.call(result.new)
         expect(instance.results).to eq(["foo", "bar1", "baz", "bar2"])
       end
+    end
+  end
+
+  context "an action class yields" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo
+
+        action :bar, Class.new {
+          def call(result)
+            result << "bar1"
+            yield
+            result << "bar2"
+          end
+        }
+
+        action :baz
+
+        def foo(result)
+          result << "foo"
+        end
+
+        def baz(result)
+          result << "baz"
+        end
+      end
+    end
+
+    it "wraps the next actions" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar1", "baz", "bar2"])
+    end
+  end
+
+  context "an action object yields" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo
+
+        action :bar, Class.new {
+          def call(result)
+            result << "bar1"
+            yield
+            result << "bar2"
+          end
+        }.new
+
+        action :baz
+
+        def foo(result)
+          result << "foo"
+        end
+
+        def baz(result)
+          result << "baz"
+        end
+      end
+    end
+
+    it "wraps the next actions" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar1", "baz", "bar2"])
     end
   end
 
@@ -589,11 +715,35 @@ RSpec.describe "pipelines" do
         end
       end
 
-      it "replaces the actions of the current pipeline" do
+      before do
         expect(pipelined.new.call(result.new).results).to eq(["current"])
+      end
 
+      it "replaces the actions of the current pipeline" do
         pipelined.use_pipeline pipeline_module
         expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz", "qux", "unnamed"])
+      end
+
+      describe "using a pipeline module in two different classes" do
+        let :pipelined_2 do
+          Class.new do
+            include Pakyow::Support::Pipeline
+
+            action :current
+
+            def current(result)
+              result << "current_2"
+            end
+          end
+        end
+
+        it "works for both pipelines objects" do
+          pipelined.use_pipeline pipeline_module
+          expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz", "qux", "unnamed"])
+
+          pipelined_2.use_pipeline pipeline_module
+          expect(pipelined_2.new.call(result.new).results).to eq(["foo", "bar", "baz", "qux", "unnamed"])
+        end
       end
     end
 
@@ -983,7 +1133,7 @@ RSpec.describe "pipelines" do
     end
   end
 
-  describe "adding an action after initialization" do
+  describe "adding an action when calling" do
     let :pipelined do
       Class.new do
         include Pakyow::Support::Pipeline
@@ -992,6 +1142,7 @@ RSpec.describe "pipelines" do
 
         def foo(result)
           action :bar
+
           result << "foo"
         end
 
@@ -1001,12 +1152,38 @@ RSpec.describe "pipelines" do
       end
     end
 
-    it "fails" do
-      expect {
-        pipelined.new.call(result.new)
-      }.to raise_error(RuntimeError) do |error|
-        expect(error.message).to eq("cannot define action on a finalized pipeline")
+    it "does not call the new action" do
+      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+    end
+  end
+
+  describe "adding an action on the instance" do
+    let :pipelined do
+      Class.new do
+        include Pakyow::Support::Pipeline
+
+        action :foo
+
+        def foo(result)
+          result << "foo"
+        end
+
+        def bar(result)
+          result << "bar"
+        end
       end
+    end
+
+    let(:callable) {
+      pipelined.new
+    }
+
+    before do
+      callable.action :bar
+    end
+
+    it "calls the new action" do
+      expect(callable.call(result.new).results).to eq(["foo", "bar"])
     end
   end
 end

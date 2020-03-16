@@ -192,12 +192,8 @@ module Pakyow
         self.class.routes.values.flatten.each do |route|
           route.pipeline = self.class.__pipeline.dup
 
-          self.class.limit_by_route[route.name].to_a.reverse.each do |limit|
-            if index = route.pipeline.actions.index(limit[:after])
-              route.pipeline.actions.insert(index + 1, limit[:insert])
-            else
-              route.pipeline.actions << limit[:insert]
-            end
+          self.class.limit_by_route[route.name].to_a.each do |action|
+            route.pipeline.actions << action
           end
 
           route.pipeline.actions.delete_if do |action|
@@ -205,7 +201,7 @@ module Pakyow
               self.class.skips_by_route[route.name].to_a.include?(action.name)
           end
 
-          route.pipeline.actions << Support::Pipeline::Action.new(:dispatch)
+          route.pipeline.action(:dispatch)
         end
       end
 
@@ -257,7 +253,7 @@ module Pakyow
       # @api private
       def call_route(connection, route)
         @connection, @route = connection, route
-        @route.pipeline.callable(self).call(connection)
+        @route.pipeline.call(self, connection)
         halt unless connection.rejected?
       rescue StandardError => error
         Pakyow.houston(error)
@@ -475,10 +471,7 @@ module Pakyow
 
           if only.any?
             only.each do |route_name|
-              (@limit_by_route[route_name] ||= []) << {
-                insert: Support::Pipeline::Action.new(name, &block),
-                after: @__pipeline.actions.last
-              }
+              (@limit_by_route[route_name] ||= []) << Support::Pipeline::Action.new(self, name, &block)
             end
           else
             super(name, &block)
@@ -497,12 +490,6 @@ module Pakyow
               (@skips_by_route[route_name] ||= []) << name
             end
           end
-        end
-
-        def use_pipeline(*)
-          super
-
-          @limit_by_route = {}
         end
 
         # Conveniently define defaults when subclassing +Pakyow::Routing::Controller+.

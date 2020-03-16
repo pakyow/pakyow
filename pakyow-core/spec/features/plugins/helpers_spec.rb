@@ -56,7 +56,19 @@ RSpec.describe "accessing helpers from another plugin" do
       plug :testable_foo, at: "/"
       plug :testable_bar, at: "/bar"
 
-      action :test
+      action :test do |connection|
+        plug = connection.params[:plug]
+        helper = connection.params[:helper] || :test_helper
+
+        helper_context = if plug
+          @object.new(connection).testable_bar(plug).testable_foo
+        else
+          @object.new(connection).testable_bar.testable_foo
+        end
+
+        connection.body = StringIO.new(helper_context.send(helper))
+        connection.halt
+      end
 
       after "initialize" do
         @object = Class.new do
@@ -70,22 +82,6 @@ RSpec.describe "accessing helpers from another plugin" do
         end
 
         self.class.include_helpers :passive, @object
-      end
-
-      class_eval do
-        def test(connection)
-          plug = connection.params[:plug]
-          helper = connection.params[:helper] || :test_helper
-
-          helper_context = if plug
-            @object.new(connection).testable_bar(plug).testable_foo
-          else
-            @object.new(connection).testable_bar.testable_foo
-          end
-
-          connection.body = StringIO.new(helper_context.send(helper))
-          connection.halt
-        end
       end
     end
   end
@@ -119,7 +115,19 @@ RSpec.describe "accessing helpers from the app" do
       plug :testable, at: "/"
       plug :testable, at: "/foo", as: :foo
 
-      action :test
+      action :test do |connection|
+        plug = connection.params[:plug]
+        helper = connection.params[:helper] || :test_helper
+
+        helper_context = if plug
+          @object.new(connection).testable(plug)
+        else
+          @object.new(connection).testable
+        end
+
+        connection.body = StringIO.new(helper_context.send(helper))
+        connection.halt
+      end
 
       after "initialize" do
         @object = Class.new do
@@ -133,22 +141,6 @@ RSpec.describe "accessing helpers from the app" do
         end
 
         self.class.include_helpers :passive, @object
-      end
-
-      class_eval do
-        def test(connection)
-          plug = connection.params[:plug]
-          helper = connection.params[:helper] || :test_helper
-
-          helper_context = if plug
-            @object.new(connection).testable(plug)
-          else
-            @object.new(connection).testable
-          end
-
-          connection.body = StringIO.new(helper_context.send(helper))
-          connection.halt
-        end
       end
     end
   end
