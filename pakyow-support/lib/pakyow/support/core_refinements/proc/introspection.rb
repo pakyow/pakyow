@@ -13,6 +13,14 @@ module Pakyow
                 (parameter_type == :key || parameter_type == :keyreq) && parameter_name == argument_name
               }
             end
+
+            # Returns true if this proc accepts a keyword argument.
+            #
+            def keyword_arguments?
+              parameters.any? { |(parameter_type, _)|
+                parameter_type == :key || parameter_type == :keyreq
+              }
+            end
           end
         end
       end
