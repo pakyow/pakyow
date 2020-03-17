@@ -81,7 +81,7 @@ module Pakyow
           after "setup" do
             unless Pakyow.env?(:prototype)
               controllers.each do |controller|
-                action(controller, self)
+                action(controller.new(self))
               end
             end
           end

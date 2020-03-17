@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve pipeline performance.**
+
+    *Related links:*
+    - [Pull Request #421][pr-421]
+
   * `add` **Support rejection in pipelines.**
 
     *Related links:*
@@ -228,6 +233,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-421]: https://github.com/pakyow/pakyow/pull/421
 [pr-420]: https://github.com/pakyow/pakyow/pull/420
 [pr-419]: https://github.com/pakyow/pakyow/pull/419
 [pr-414]: https://github.com/pakyow/pakyow/pull/414

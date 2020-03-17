@@ -263,7 +263,7 @@ module Pakyow
 
     # @api private
     def perform(app_connection)
-      @__pipeline.call(app_connection)
+      @__pipeline.call(self, app_connection)
     end
 
     class << self

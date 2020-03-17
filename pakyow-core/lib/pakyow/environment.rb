@@ -468,10 +468,6 @@ module Pakyow
         performing :boot do
           setup(env: env)
 
-          # Create the callable pipeline.
-          #
-          @pipeline = Pakyow.__pipeline.callable(self)
-
           # Set the environment as booted ahead of telling each app that it is booted. This allows an
           # app's after boot hook to access the booted app through `Pakyow.app`.
           #
@@ -532,7 +528,7 @@ module Pakyow
       config.connection_class.new(input).yield_self { |connection|
         connection.async {
           catch :halt do
-            @pipeline.call(connection)
+            super(connection)
           end
         }.wait
       }.finalize

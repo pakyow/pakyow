@@ -48,7 +48,6 @@ module Pakyow
     #
     module Pipeline
       require "pakyow/support/pipeline/action"
-      require "pakyow/support/pipeline/callable"
       require "pakyow/support/pipeline/extension"
       require "pakyow/support/pipeline/internal"
 
@@ -64,12 +63,11 @@ module Pakyow
 
       apply_extension do
         class_state :__pipelines, default: {}, inheritable: true
-        class_state :__pipeline, default: Internal.new, inheritable: true
+        class_state :__pipeline, default: Internal.new(self), inheritable: true
 
         # Define a default pipeline.
         #
-        pipeline :default do
-        end
+        pipeline :default do; end
 
         # Use the default pipeline so that actions can be defined immediately without ceremony.
         #
@@ -81,31 +79,10 @@ module Pakyow
           @__pipeline = self.class.__pipeline.dup
 
           super
-
-          @__pipeline = @__pipeline.callable(self)
-        end
-
-        def initialize_copy(_)
-          super
-
-          @__pipeline = @__pipeline.dup
-
-          # rebind any methods to the new instance
-          @__pipeline.instance_variable_get(:@stack).map! { |action|
-            if action.is_a?(::Method) && action.receiver.is_a?(self.class)
-              action.unbind.bind(self)
-            else
-              action
-            end
-          }
         end
 
         def action(*args, &block)
-          if @__pipeline.is_a?(Internal)
-            @__pipeline.action(*args, &block)
-          else
-            raise RuntimeError, "cannot define action on a finalized pipeline"
-          end
+          @__pipeline.action(*args, &block)
         end
       end
 
@@ -113,7 +90,7 @@ module Pakyow
         # Defines a pipeline.
         #
         def pipeline(name, &block)
-          @__pipelines[name.to_sym] = Internal.new(&block)
+          @__pipelines[name.to_sym] = Internal.new(self, &block)
         end
 
         # Uses a pipeline.
@@ -149,6 +126,12 @@ module Pakyow
           @__pipeline.skip(*actions)
         end
 
+        def inherited(subclass)
+          super
+
+          subclass.__pipeline.reset(subclass)
+        end
+
         private def find_pipeline(name_or_pipeline)
           case name_or_pipeline
           when Pipeline::Extension
@@ -163,10 +146,12 @@ module Pakyow
         end
       end
 
-      # Calls the pipeline, passing +state+.
-      #
-      def call(state)
-        @__pipeline.call(state)
+      common_methods do
+        # Calls the pipeline, passing +state+.
+        #
+        def call(state)
+          @__pipeline.call(self, state)
+        end
       end
     end
   end

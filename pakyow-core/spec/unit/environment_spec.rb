@@ -638,7 +638,7 @@ RSpec.describe Pakyow do
 
   describe "restart action" do
     let :pipeline do
-      Pakyow.instance_variable_get(:@pipeline)
+      Pakyow.instance_variable_get(:@__pipeline)
     end
 
     context "development mode" do
@@ -651,15 +651,7 @@ RSpec.describe Pakyow do
       end
 
       it "restarts before dispatch" do
-        expect(pipeline.instance_variable_get(:@stack).map(&:owner).map(&:name)).to eq(
-          [
-            "Pakyow::Actions::Logger",
-            "Pakyow::Actions::Normalizer",
-            "Pakyow::Actions::InputParser",
-            "Pakyow::Actions::Restart",
-            "Pakyow::Actions::Dispatch"
-          ]
-        )
+        expect(pipeline.actions.map(&:name)).to eq([:log, :normalize, :parse, :restart, :dispatch])
       end
     end
 
@@ -673,15 +665,7 @@ RSpec.describe Pakyow do
       end
 
       it "restarts before dispatch" do
-        expect(pipeline.instance_variable_get(:@stack).map(&:owner).map(&:name)).to eq(
-          [
-            "Pakyow::Actions::Logger",
-            "Pakyow::Actions::Normalizer",
-            "Pakyow::Actions::InputParser",
-            "Pakyow::Actions::Restart",
-            "Pakyow::Actions::Dispatch"
-          ]
-        )
+        expect(pipeline.actions.map(&:name)).to eq([:log, :normalize, :parse, :restart, :dispatch])
       end
     end
 
