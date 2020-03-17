@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Method#keyword_arguments?` and `Proc#keyword_arguments?` refinements.**
+
+    *Related links:*
+    - [Pull Request #422][pr-422]
+
   * `chg` **Improve pipeline performance.**
 
     *Related links:*
@@ -233,6 +238,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-422]: https://github.com/pakyow/pakyow/pull/422
 [pr-421]: https://github.com/pakyow/pakyow/pull/421
 [pr-420]: https://github.com/pakyow/pakyow/pull/420
 [pr-419]: https://github.com/pakyow/pakyow/pull/419

@@ -86,4 +86,72 @@ RSpec.describe Pakyow::Support::Refinements::Proc::Introspection do
       end
     end
   end
+
+  describe "#keyword_argument?" do
+    context "proc accepts no arguments" do
+      let :proc do
+        Proc.new do
+        end
+      end
+
+      it "returns false" do
+        expect(proc.keyword_arguments?).to be(false)
+      end
+    end
+
+    context "proc accepts one argument" do
+      let :proc do
+        Proc.new do |bar|
+        end
+      end
+
+      it "returns false" do
+        expect(proc.keyword_arguments?).to be(false)
+      end
+    end
+
+    context "proc accepts one keyword argument" do
+      let :proc do
+        Proc.new do |bar: nil|
+        end
+      end
+
+      it "returns true" do
+        expect(proc.keyword_arguments?).to be(true)
+      end
+    end
+
+    context "proc accepts two arguments, one of them a keyword argument" do
+      let :proc do
+        Proc.new do |baz, bar: nil|
+        end
+      end
+
+      it "returns true" do
+        expect(proc.keyword_arguments?).to be(true)
+      end
+    end
+
+    context "proc accepts multiple keyword arguments" do
+      let :proc do
+        Proc.new do |bar: nil, baz: nil|
+        end
+      end
+
+      it "returns true" do
+        expect(proc.keyword_arguments?).to be(true)
+      end
+    end
+
+    context "proc requires a keyword argument" do
+      let :proc do
+        Proc.new do |bar:|
+        end
+      end
+
+      it "returns true" do
+        expect(proc.keyword_arguments?).to be(true)
+      end
+    end
+  end
 end
