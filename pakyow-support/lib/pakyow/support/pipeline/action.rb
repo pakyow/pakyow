@@ -2,6 +2,10 @@
 
 require "securerandom"
 
+require "pakyow/support/core_refinements/method/introspection"
+require "pakyow/support/core_refinements/unbound_method/introspection"
+require "pakyow/support/core_refinements/proc/introspection"
+
 require "pakyow/support/inspectable"
 
 module Pakyow
@@ -11,6 +15,10 @@ module Pakyow
       class Action
         include Inspectable
         inspectable :name
+
+        using Refinements::Method::Introspection
+        using Refinements::UnboundMethod::Introspection
+        using Refinements::Proc::Introspection
 
         attr_reader :target, :name, :options
 
@@ -26,8 +34,8 @@ module Pakyow
           @def_context = def_context
         end
 
-        def call(context, *args, &next_action)
-          callable.call(context, *args, &next_action)
+        def call(context, state, *args, **kwargs, &next_action)
+          callable.call(context, state, *args, **kwargs, &next_action)
         end
 
         def freeze(*)
@@ -82,40 +90,82 @@ module Pakyow
         end
 
         private def build_block(name, block)
-          case block.arity
-          when 0
-            Proc.new do |context, *|
+          wrap_callable(
+            block,
+            block_empty: -> (context, &next_action) {
               context.instance_eval(&block)
-            end
-          else
-            Proc.new do |context, *args|
+            },
+            block_args: -> (context, *args, &next_action) {
               context.instance_exec(*args, &block)
-            end
-          end
+            },
+            block_kwargs: -> (context, *args, **kwargs, &next_action) {
+              context.instance_exec(*args, **kwargs, &block)
+            }
+          )
         end
 
         private def build_method(method)
-          case method.arity
-          when 0
-            Proc.new do |context, *, &next_action|
+          wrap_callable(
+            method,
+            block_empty: -> (context, &next_action) {
               method.bind(context).call(&next_action)
-            end
-          else
-            Proc.new do |context, *args, &next_action|
+            },
+            block_args: -> (context, *args, &next_action) {
               method.bind(context).call(*args, &next_action)
-            end
-          end
+            },
+            block_kwargs: -> (context, *args, **kwargs, &next_action) {
+              method.bind(context).call(*args, **kwargs, &next_action)
+            }
+          )
         end
 
         private def build_object(object)
-          case object.method(:call).arity
-          when 0
-            Proc.new do |context, *, &next_action|
+          wrap_callable(
+            object.method(:call),
+            block_empty: -> (_, &next_action) {
               object.call(&next_action)
+            },
+            block_args: -> (_, *args, &next_action) {
+              object.call(*args, &next_action)
+            },
+            block_kwargs: -> (_, *args, **kwargs, &next_action) {
+              object.call(*args, **kwargs, &next_action)
+            }
+          )
+        end
+
+        private def wrap_callable(callable, block_empty:, block_args:, block_kwargs:)
+          if callable.keyword_arguments?
+            if callable.argument_list?
+              if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
+                Proc.new do |context, state, *args, **kwargs, &next_action|
+                  block_kwargs.call(context, state, *args, **kwargs, &next_action)
+                end
+              else
+                Proc.new do |context, state, *, **kwargs, &next_action|
+                  block_kwargs.call(context, state, **kwargs, &next_action)
+                end
+              end
+            else
+              Proc.new do |context, *, **kwargs, &next_action|
+                block_kwargs.call(context, **kwargs, &next_action)
+              end
             end
           else
-            Proc.new do |context, *args, &next_action|
-              object.call(*args, &next_action)
+            if callable.argument_list?
+              if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
+                Proc.new do |context, state, *args, **, &next_action|
+                  block_args.call(context, state, *args, &next_action)
+                end
+              else
+                Proc.new do |context, state, *, **, &next_action|
+                  block_args.call(context, state, &next_action)
+                end
+              end
+            else
+              Proc.new do |context, state, *, **, &next_action|
+                block_empty.call(context, &next_action)
+              end
             end
           end
         end

@@ -147,10 +147,10 @@ module Pakyow
       end
 
       common_methods do
-        # Calls the pipeline, passing +state+.
+        # Calls the pipeline, passing +state+ along with any arguments.
         #
-        def call(state)
-          @__pipeline.call(self, state)
+        def call(state, *args, **kwargs)
+          @__pipeline.call(self, state, *args, **kwargs)
         end
       end
     end
