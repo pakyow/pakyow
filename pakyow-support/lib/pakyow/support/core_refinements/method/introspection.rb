@@ -21,6 +21,14 @@ module Pakyow
                 parameter_type == :key || parameter_type == :keyreq
               }
             end
+
+            # Returns true if this method accepts one or more arguments.
+            #
+            def argument_list?
+              parameters.any? { |(parameter_type, _)|
+                parameter_type == :req || parameter_type == :opt
+              }
+            end
           end
         end
       end

@@ -154,4 +154,50 @@ RSpec.describe Pakyow::Support::Refinements::UnboundMethod::Introspection do
       end
     end
   end
+
+  describe "#argument_list?" do
+    context "method accepts no arguments" do
+      before do
+        def foo
+        end
+      end
+
+      it "returns false" do
+        expect(method(:foo).unbind.argument_list?).to be(false)
+      end
+    end
+
+    context "method accepts one argument" do
+      before do
+        def foo(bar)
+        end
+      end
+
+      it "returns true" do
+        expect(method(:foo).unbind.argument_list?).to be(true)
+      end
+    end
+
+    context "method accepts one keyword argument" do
+      before do
+        def foo(bar: nil)
+        end
+      end
+
+      it "returns false" do
+        expect(method(:foo).unbind.argument_list?).to be(false)
+      end
+    end
+
+    context "method accepts two arguments, one of them a keyword argument" do
+      before do
+        def foo(baz, bar: nil)
+        end
+      end
+
+      it "returns true" do
+        expect(method(:foo).unbind.argument_list?).to be(true)
+      end
+    end
+  end
 end

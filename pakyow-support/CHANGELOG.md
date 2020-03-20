@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `#argument_list?` refinement for `Proc`, `Method`, and `UnboundMethod` introspection.**
+
+    *Related links:*
+    - [Pull Request #424][pr-424]
+
   * `add` **Introduce `UnboundMethod` introspection refinements.**
 
     *Related links:*
@@ -243,6 +248,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-424]: https://github.com/pakyow/pakyow/pull/424
 [pr-423]: https://github.com/pakyow/pakyow/pull/423
 [pr-422]: https://github.com/pakyow/pakyow/pull/422
 [pr-421]: https://github.com/pakyow/pakyow/pull/421
