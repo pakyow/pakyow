@@ -214,8 +214,8 @@ RSpec.describe "handling events with handleable" do
       before do
         local = self
 
-        handleable.handle :foo do |event, **args|
-          local.handled = [event, args]
+        handleable.handle :foo do |event, random: nil|
+          local.handled = [event, random]
         end
       end
 
@@ -226,7 +226,8 @@ RSpec.describe "handling events with handleable" do
       it "receives values passed through trigger" do
         handleable.trigger :foo, random: random
 
-        expect(handled).to eq([:foo, { random: random }])
+        expect(handled[0]).to eq(:foo)
+        expect(handled[1]).to eq(random)
       end
     end
   end
@@ -245,7 +246,7 @@ RSpec.describe "handling events with handleable" do
         raise RuntimeError, "something went wrong"
       end
 
-      expect(handled).to be_instance_of(RuntimeError)
+      expect(handled.object).to be_instance_of(RuntimeError)
       expect(handled.message).to eq("something went wrong")
     end
 
@@ -254,7 +255,7 @@ RSpec.describe "handling events with handleable" do
         raise RuntimeError, "something went wrong"
       end
 
-      expect(handled).to be_instance_of(RuntimeError)
+      expect(handled.object).to be_instance_of(RuntimeError)
       expect(handled.message).to eq("something went wrong")
     end
 
@@ -262,8 +263,8 @@ RSpec.describe "handling events with handleable" do
       before do
         local = self
 
-        handleable.handle RuntimeError do |event, **args|
-          local.handled = [event, args]
+        handleable.handle RuntimeError do |event, random: nil|
+          local.handled = [event, random]
         end
       end
 
@@ -276,9 +277,9 @@ RSpec.describe "handling events with handleable" do
           raise RuntimeError, "something went wrong"
         end
 
-        expect(handled[0]).to be_instance_of(RuntimeError)
+        expect(handled[0].object).to be_instance_of(RuntimeError)
         expect(handled[0].message).to eq("something went wrong")
-        expect(handled[1]).to eq(random: random)
+        expect(handled[1]).to eq(random)
       end
     end
   end

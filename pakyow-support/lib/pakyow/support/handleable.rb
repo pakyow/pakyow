@@ -3,6 +3,9 @@
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
 
+require "pakyow/support/handleable/event"
+require "pakyow/support/handleable/pipeline"
+
 module Pakyow
   module Support
     # Makes an object able to handle events, such as errors.
@@ -14,12 +17,13 @@ module Pakyow
 
       apply_extension do
         class_state :__handlers, default: {
-          default: Proc.new { |event|
-            case event
-            when Exception
-              raise event
+          default: Class.new(Pipeline).tap do |pipeline|
+            pipeline.action do |event|
+              if event.object.is_a?(Exception)
+                raise event
+              end
             end
-          }
+          end
         }, inheritable: true
       end
 
@@ -38,7 +42,7 @@ module Pakyow
         # will be called when triggered for the exception or its subclass.
         #
         def handle(event = nil, &block)
-          @__handlers[event || :global] = block
+          (@__handlers[event || :global] ||= Class.new(Pipeline)).action(&block)
         end
 
         # Yields a context where exceptions automatically trigger handlers.
@@ -51,10 +55,10 @@ module Pakyow
           trigger(error, **kwargs)
         end
 
-        # Triggers `event`, passing any keyword arguments to triggered handlers.
+        # Triggers `event`, passing any arguments to triggered handlers.
         #
-        def trigger(event, **kwargs)
-          instance_exec(event, **kwargs, &resolve_handler_for_event(event)); self
+        def trigger(event, *args, **kwargs)
+          resolve_handler_for_event(event).__pipeline.call(self, Event.new(event), *args, **kwargs); self
         end
 
         private def resolve_handler_for_event(event)
