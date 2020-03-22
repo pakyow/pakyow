@@ -18,7 +18,7 @@ module Pakyow
             #
             def keyword_arguments?
               parameters.any? { |(parameter_type, _)|
-                parameter_type == :key || parameter_type == :keyreq
+                parameter_type == :key || parameter_type == :keyreq || parameter_type == :keyrest
               }
             end
 
@@ -26,7 +26,7 @@ module Pakyow
             #
             def argument_list?
               parameters.any? { |(parameter_type, _)|
-                parameter_type == :req || parameter_type == :opt
+                parameter_type == :req || parameter_type == :opt || parameter_type == :rest
               }
             end
           end

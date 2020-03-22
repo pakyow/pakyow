@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Handle argument globs in method introspections.**
+
+    *Related links:*
+    - [Pull Request #426][pr-426]
+
   * `chg` **Pass keyword arguments through pipelines.**
 
     *Related links:*
@@ -253,6 +258,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-426]: https://github.com/pakyow/pakyow/pull/426
 [pr-425]: https://github.com/pakyow/pakyow/pull/425
 [pr-424]: https://github.com/pakyow/pakyow/pull/424
 [pr-423]: https://github.com/pakyow/pakyow/pull/423

@@ -153,6 +153,17 @@ RSpec.describe Pakyow::Support::Refinements::Method::Introspection do
         expect(method(:foo).keyword_arguments?).to be(true)
       end
     end
+
+    context "method accepts a keyword argument glob" do
+      before do
+        def foo(**args)
+        end
+      end
+
+      it "returns true" do
+        expect(method(:foo).keyword_arguments?).to be(true)
+      end
+    end
   end
 
   describe "#argument_list?" do
@@ -192,6 +203,17 @@ RSpec.describe Pakyow::Support::Refinements::Method::Introspection do
     context "method accepts two arguments, one of them a keyword argument" do
       before do
         def foo(baz, bar: nil)
+        end
+      end
+
+      it "returns true" do
+        expect(method(:foo).argument_list?).to be(true)
+      end
+    end
+
+    context "method accepts an argument glob" do
+      before do
+        def foo(*args)
         end
       end
 
