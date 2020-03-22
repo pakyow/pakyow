@@ -153,6 +153,17 @@ RSpec.describe Pakyow::Support::Refinements::Proc::Introspection do
         expect(proc.keyword_arguments?).to be(true)
       end
     end
+
+    context "proc accepts a keyword argument glob" do
+      let :proc do
+        Proc.new do |**args|
+        end
+      end
+
+      it "returns true" do
+        expect(proc.keyword_arguments?).to be(true)
+      end
+    end
   end
 
   describe "#argument_list" do
@@ -192,6 +203,17 @@ RSpec.describe Pakyow::Support::Refinements::Proc::Introspection do
     context "proc accepts two arguments, one of them a keyword argument" do
       let :proc do
         Proc.new do |baz, bar: nil|
+        end
+      end
+
+      it "returns true" do
+        expect(proc.argument_list?).to be(true)
+      end
+    end
+
+    context "proc accepts an argument glob" do
+      let :proc do
+        Proc.new do |*args|
         end
       end
 
