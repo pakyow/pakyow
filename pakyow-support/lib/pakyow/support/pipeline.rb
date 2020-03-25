@@ -152,6 +152,12 @@ module Pakyow
         def call(state, *args, **kwargs)
           @__pipeline.call(self, state, *args, **kwargs)
         end
+
+        # Calls the pipeline in reverse order, passing +state+ along with any arguments.
+        #
+        def rcall(state, *args, **kwargs)
+          @__pipeline.rcall(self, state, *args, **kwargs)
+        end
       end
     end
   end
