@@ -43,12 +43,10 @@ module Pakyow
           connection.error = error
           connection.status = 500
 
-          catch :halt do
-            call_handlers_with_args(
-              exceptions_for_class(error.class) || handlers_for_code(500),
-              error
-            )
-          end
+          call_handlers_with_args(
+            exceptions_for_class(error.class) || handlers_for_code(500),
+            error
+          )
 
           halt
         end
