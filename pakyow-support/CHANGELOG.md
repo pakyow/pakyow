@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve the ability to define actions on a pipeline instance.**
+
+    *Related links:*
+    - [Pull Request #428][pr-428]
+
   * `add` **Introduce `Pipeline#rcall` for calling pipelines in reverse.**
 
     *Related links:*
@@ -263,6 +268,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-428]: https://github.com/pakyow/pakyow/pull/428
 [pr-427]: https://github.com/pakyow/pakyow/pull/427
 [pr-426]: https://github.com/pakyow/pakyow/pull/426
 [pr-425]: https://github.com/pakyow/pakyow/pull/425

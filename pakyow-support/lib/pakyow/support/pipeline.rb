@@ -61,6 +61,15 @@ module Pakyow
         base.extend Pipeline::Extension
       end
 
+      # @api private
+      attr_reader :__pipeline
+
+      def initialize_copy(_)
+        @__pipeline = @__pipeline.dup
+
+        super
+      end
+
       apply_extension do
         class_state :__pipelines, default: {}, inheritable: true
         class_state :__pipeline, default: Internal.new(self), inheritable: true
@@ -79,10 +88,6 @@ module Pakyow
           @__pipeline = self.class.__pipeline.dup
 
           super
-        end
-
-        def action(*args, &block)
-          @__pipeline.action(*args, &block)
         end
       end
 
@@ -116,12 +121,6 @@ module Pakyow
           @__pipeline.exclude_actions(pipeline.actions)
         end
 
-        # Defines an action on the current pipeline.
-        #
-        def action(action = nil, *options, before: nil, after: nil, &block)
-          @__pipeline.action(action, *options, before: before, after: after, &block)
-        end
-
         def skip(*actions)
           @__pipeline.skip(*actions)
         end
@@ -147,6 +146,12 @@ module Pakyow
       end
 
       common_methods do
+        # Defines an action on the current pipeline.
+        #
+        def action(action = nil, *options, before: nil, after: nil, &block)
+          @__pipeline.action(action, *options, before: before, after: after, &block)
+        end
+
         # Calls the pipeline, passing +state+ along with any arguments.
         #
         def call(state, *args, **kwargs)
