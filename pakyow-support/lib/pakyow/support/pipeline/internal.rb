@@ -36,6 +36,10 @@ module Pakyow
         end
 
         def call_actions(context, *args, __actions:, **kwargs)
+          Thread.current[:__pw_pipeline] ||= object_id
+
+          finished = false
+
           catch :halt do
             until __actions.empty?
               catch :reject do
@@ -44,9 +48,19 @@ module Pakyow
                 end
               end
             end
+
+            finished = true
+          end
+
+          unless finished || Thread.current[:__pw_pipeline] == object_id
+            throw :halt
           end
 
           args.first
+        ensure
+          if Thread.current[:__pw_pipeline] == object_id
+            Thread.current[:__pw_pipeline] = nil
+          end
         end
 
         def action(target, *options, before: nil, after: nil, &block)
