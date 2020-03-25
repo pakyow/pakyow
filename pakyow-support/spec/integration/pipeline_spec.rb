@@ -323,44 +323,6 @@ RSpec.describe "pipelines" do
     end
   end
 
-  describe "setting state as pipelined" do
-    it "is not set to pipelined from the start" do
-      expect(result.new.pipelined?).to be(false)
-    end
-
-    context "during pipelining" do
-      let :pipelined do
-        Class.new do
-          include Pakyow::Support::Pipeline
-
-          action :check
-
-          def check(result)
-            result << result.pipelined?
-          end
-        end
-      end
-
-      it "is not set to pipelined" do
-        expect(pipelined.new.call(result.new).results).to eq([false])
-      end
-    end
-
-    context "after pipelining" do
-      let :pipelined do
-        Class.new do
-          include Pakyow::Support::Pipeline
-        end
-      end
-
-      it "is set to pipelined" do
-        state = result.new
-        pipelined.new.call(state)
-        expect(state.pipelined?).to be(true)
-      end
-    end
-  end
-
   context "action does not accept an argument" do
     let :pipelined do
       Class.new do

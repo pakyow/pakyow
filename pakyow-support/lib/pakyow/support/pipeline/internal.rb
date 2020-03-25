@@ -27,26 +27,26 @@ module Pakyow
           super
         end
 
-        def call(context, state, *args, **kwargs)
-          call_actions(context, state, *args, __actions: @actions.dup, **kwargs)
+        def call(context, *args, **kwargs)
+          call_actions(context, *args, __actions: @actions.dup, **kwargs)
         end
 
-        def rcall(context, state, *args, **kwargs)
-          call_actions(context, state, *args, __actions: @actions.reverse, **kwargs)
+        def rcall(context, *args, **kwargs)
+          call_actions(context, *args, __actions: @actions.reverse, **kwargs)
         end
 
-        def call_actions(context, state, *args, __actions:, **kwargs)
+        def call_actions(context, *args, __actions:, **kwargs)
           catch :halt do
-            until __actions.empty? || state.halted?
+            until __actions.empty?
               catch :reject do
-                __actions.shift.call(context, state, *args, **kwargs) do
-                  call_actions(context, state, *args, __actions: __actions, **kwargs)
+                __actions.shift.call(context, *args, **kwargs) do
+                  call_actions(context, *args, __actions: __actions, **kwargs)
                 end
               end
             end
           end
 
-          state.pipelined
+          args.first
         end
 
         def action(target, *options, before: nil, after: nil, &block)

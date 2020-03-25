@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Allow pipelines to be called without state.**
+
+    *Related links:*
+    - [Pull Request #429][pr-429]
+
   * `chg` **Improve the ability to define actions on a pipeline instance.**
 
     *Related links:*
@@ -268,6 +273,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-429]: https://github.com/pakyow/pakyow/pull/429
 [pr-428]: https://github.com/pakyow/pakyow/pull/428
 [pr-427]: https://github.com/pakyow/pakyow/pull/427
 [pr-426]: https://github.com/pakyow/pakyow/pull/426
