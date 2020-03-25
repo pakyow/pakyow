@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pipeline#rcall` for calling pipelines in reverse.**
+
+    *Related links:*
+    - [Pull Request #427][pr-427]
+
   * `chg` **Handle argument globs in method introspections.**
 
     *Related links:*
@@ -258,6 +263,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-427]: https://github.com/pakyow/pakyow/pull/427
 [pr-426]: https://github.com/pakyow/pakyow/pull/426
 [pr-425]: https://github.com/pakyow/pakyow/pull/425
 [pr-424]: https://github.com/pakyow/pakyow/pull/424

@@ -27,12 +27,20 @@ module Pakyow
           super
         end
 
-        def call(context, state, *args, __actions: @actions.dup, **kwargs)
+        def call(context, state, *args, **kwargs)
+          call_actions(context, state, *args, __actions: @actions.dup, **kwargs)
+        end
+
+        def rcall(context, state, *args, **kwargs)
+          call_actions(context, state, *args, __actions: @actions.reverse, **kwargs)
+        end
+
+        def call_actions(context, state, *args, __actions:, **kwargs)
           catch :halt do
             until __actions.empty? || state.halted?
               catch :reject do
                 __actions.shift.call(context, state, *args, **kwargs) do
-                  call(context, state, *args, __actions: __actions, **kwargs)
+                  call_actions(context, state, *args, __actions: __actions, **kwargs)
                 end
               end
             end
