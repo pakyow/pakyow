@@ -42,7 +42,7 @@ module Pakyow
         # will be called when triggered for the exception or its subclass.
         #
         def handle(event = nil, &block)
-          (@__handlers[event || :global] ||= Class.new(Pipeline)).action(&block)
+          (@__handlers[event || :global] ||= Pipeline.new).action(&block)
         end
 
         # Yields a context where exceptions automatically trigger handlers.
