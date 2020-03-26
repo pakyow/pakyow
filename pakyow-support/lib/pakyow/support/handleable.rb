@@ -3,7 +3,6 @@
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
 
-require "pakyow/support/handleable/event"
 require "pakyow/support/handleable/pipeline"
 
 module Pakyow
@@ -19,7 +18,7 @@ module Pakyow
         class_state :__handlers, default: {
           default: Class.new(Pipeline).tap do |pipeline|
             pipeline.action do |event|
-              if event.object.is_a?(Exception)
+              if event.is_a?(Exception)
                 raise event
               end
             end
@@ -58,7 +57,7 @@ module Pakyow
         # Triggers `event`, passing any arguments to triggered handlers.
         #
         def trigger(event, *args, **kwargs)
-          resolve_handler_for_event(event).__pipeline.rcall(self, Event.new(event), *args, **kwargs); self
+          resolve_handler_for_event(event).__pipeline.rcall(self, event, *args, **kwargs); self
         end
 
         private def resolve_handler_for_event(event)

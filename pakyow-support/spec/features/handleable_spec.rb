@@ -246,7 +246,7 @@ RSpec.describe "handling events with handleable" do
         raise RuntimeError, "something went wrong"
       end
 
-      expect(handled.object).to be_instance_of(RuntimeError)
+      expect(handled).to be_instance_of(RuntimeError)
       expect(handled.message).to eq("something went wrong")
     end
 
@@ -255,7 +255,7 @@ RSpec.describe "handling events with handleable" do
         raise RuntimeError, "something went wrong"
       end
 
-      expect(handled.object).to be_instance_of(RuntimeError)
+      expect(handled).to be_instance_of(RuntimeError)
       expect(handled.message).to eq("something went wrong")
     end
 
@@ -277,7 +277,7 @@ RSpec.describe "handling events with handleable" do
           raise RuntimeError, "something went wrong"
         end
 
-        expect(handled[0].object).to be_instance_of(RuntimeError)
+        expect(handled[0]).to be_instance_of(RuntimeError)
         expect(handled[0].message).to eq("something went wrong")
         expect(handled[1]).to eq(random)
       end
