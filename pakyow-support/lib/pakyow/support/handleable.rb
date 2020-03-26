@@ -58,7 +58,7 @@ module Pakyow
         # Triggers `event`, passing any arguments to triggered handlers.
         #
         def trigger(event, *args, **kwargs)
-          resolve_handler_for_event(event).__pipeline.call(self, Event.new(event), *args, **kwargs); self
+          resolve_handler_for_event(event).__pipeline.rcall(self, Event.new(event), *args, **kwargs); self
         end
 
         private def resolve_handler_for_event(event)

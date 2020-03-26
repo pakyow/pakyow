@@ -179,12 +179,12 @@ RSpec.describe "handling events with handleable" do
     before do
       local = self
 
-      handleable.handle :foo do
-        local.handled = :foo_class
+      handleable.handle :foo do |event|
+        local.handled = :foo_class; throw :halt
       end
 
-      instance.handle :foo do
-        local.handled = :foo_instance
+      instance.handle :foo do |event|
+        local.handled = :foo_instance; throw :halt
       end
     end
 
@@ -215,7 +215,7 @@ RSpec.describe "handling events with handleable" do
         local = self
 
         handleable.handle :foo do |event, random: nil|
-          local.handled = [event, random]
+          local.handled = [event, random]; throw :halt
         end
       end
 
@@ -264,7 +264,7 @@ RSpec.describe "handling events with handleable" do
         local = self
 
         handleable.handle RuntimeError do |event, random: nil|
-          local.handled = [event, random]
+          local.handled = [event, random]; throw :halt
         end
       end
 
