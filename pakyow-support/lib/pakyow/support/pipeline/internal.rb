@@ -28,39 +28,11 @@ module Pakyow
         end
 
         def call(context, *args, **kwargs)
-          call_actions(context, *args, __actions: @actions.dup, **kwargs)
+          call_actions(@actions.dup, context, *args, **kwargs)
         end
 
         def rcall(context, *args, **kwargs)
-          call_actions(context, *args, __actions: @actions.reverse, **kwargs)
-        end
-
-        def call_actions(context, *args, __actions:, **kwargs)
-          Thread.current[:__pw_pipeline] ||= object_id
-
-          finished = false
-
-          catch :halt do
-            until __actions.empty?
-              catch :reject do
-                __actions.shift.call(context, *args, **kwargs) do
-                  call_actions(context, *args, __actions: __actions, **kwargs)
-                end
-              end
-            end
-
-            finished = true
-          end
-
-          unless finished || Thread.current[:__pw_pipeline] == object_id
-            throw :halt
-          end
-
-          args.first
-        ensure
-          if Thread.current[:__pw_pipeline] == object_id
-            Thread.current[:__pw_pipeline] = nil
-          end
+          call_actions(@actions.reverse, context, *args, **kwargs)
         end
 
         def action(target, *options, before: nil, after: nil, &block)
@@ -113,6 +85,38 @@ module Pakyow
           @context = context
           @actions.each do |action|
             action.reset(context)
+          end
+        end
+
+        private def call_actions(actions, context, *args, **kwargs)
+          Thread.current[:__pw_pipeline] ||= object_id
+
+          finished = false
+
+          catch :halt do
+            call_each_action(actions, context, *args, **kwargs)
+
+            finished = true
+          end
+
+          unless finished || Thread.current[:__pw_pipeline] == object_id
+            throw :halt
+          end
+
+          args.first
+        ensure
+          if Thread.current[:__pw_pipeline] == object_id
+            Thread.current[:__pw_pipeline] = nil
+          end
+        end
+
+        private def call_each_action(actions, context, *args, **kwargs)
+          until actions.empty?
+            catch :reject do
+              actions.shift.call(context, *args, **kwargs) do
+                call_each_action(actions, context, *args, **kwargs)
+              end
+            end
           end
         end
       end

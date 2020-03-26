@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve pipeline call performance.**
+
+    *Related links:*
+    - [Pull Request #430][pr-430]
+
   * `chg` **Allow pipelines to be called without state.**
 
     *Related links:*
@@ -273,6 +278,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-430]: https://github.com/pakyow/pakyow/pull/430
 [pr-429]: https://github.com/pakyow/pakyow/pull/429
 [pr-428]: https://github.com/pakyow/pakyow/pull/428
 [pr-427]: https://github.com/pakyow/pakyow/pull/427
