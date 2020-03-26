@@ -27,26 +27,40 @@ module Pakyow
           super
         end
 
-        def call(context, state, *args, **kwargs)
-          call_actions(context, state, *args, __actions: @actions.dup, **kwargs)
+        def call(context, *args, **kwargs)
+          call_actions(context, *args, __actions: @actions.dup, **kwargs)
         end
 
-        def rcall(context, state, *args, **kwargs)
-          call_actions(context, state, *args, __actions: @actions.reverse, **kwargs)
+        def rcall(context, *args, **kwargs)
+          call_actions(context, *args, __actions: @actions.reverse, **kwargs)
         end
 
-        def call_actions(context, state, *args, __actions:, **kwargs)
+        def call_actions(context, *args, __actions:, **kwargs)
+          Thread.current[:__pw_pipeline] ||= object_id
+
+          finished = false
+
           catch :halt do
-            until __actions.empty? || state.halted?
+            until __actions.empty?
               catch :reject do
-                __actions.shift.call(context, state, *args, **kwargs) do
-                  call_actions(context, state, *args, __actions: __actions, **kwargs)
+                __actions.shift.call(context, *args, **kwargs) do
+                  call_actions(context, *args, __actions: __actions, **kwargs)
                 end
               end
             end
+
+            finished = true
           end
 
-          state.pipelined
+          unless finished || Thread.current[:__pw_pipeline] == object_id
+            throw :halt
+          end
+
+          args.first
+        ensure
+          if Thread.current[:__pw_pipeline] == object_id
+            Thread.current[:__pw_pipeline] = nil
+          end
         end
 
         def action(target, *options, before: nil, after: nil, &block)

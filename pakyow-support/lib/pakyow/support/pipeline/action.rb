@@ -34,8 +34,8 @@ module Pakyow
           @def_context = def_context
         end
 
-        def call(context, state, *args, **kwargs, &next_action)
-          callable.call(context, state, *args, **kwargs, &next_action)
+        def call(context, *args, **kwargs, &next_action)
+          callable.call(context, *args, **kwargs, &next_action)
         end
 
         def freeze(*)
@@ -138,24 +138,24 @@ module Pakyow
           if callable.keyword_arguments?
             if callable.argument_list?
               if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
-                Proc.new do |context, state, *args, **kwargs, &next_action|
-                  block_kwargs.call(context, state, *args, **kwargs, &next_action)
+                Proc.new do |context, *args, **kwargs, &next_action|
+                  block_kwargs.call(context, *args, **kwargs, &next_action)
                 end
               else
-                Proc.new do |context, state, *, **kwargs, &next_action|
-                  block_kwargs.call(context, state, **kwargs, &next_action)
+                Proc.new do |context, *, **kwargs, &next_action|
+                  block_kwargs.call(context, **kwargs, &next_action)
                 end
               end
             else
-              Proc.new do |context, *, **kwargs, &next_action|
+              Proc.new do |context, **kwargs, &next_action|
                 block_kwargs.call(context, **kwargs, &next_action)
               end
             end
           else
             if callable.argument_list?
               if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
-                Proc.new do |context, state, *args, **, &next_action|
-                  block_args.call(context, state, *args, &next_action)
+                Proc.new do |context, *args, **, &next_action|
+                  block_args.call(context, *args, &next_action)
                 end
               else
                 Proc.new do |context, state, *, **, &next_action|
@@ -163,7 +163,7 @@ module Pakyow
                 end
               end
             else
-              Proc.new do |context, state, *, **, &next_action|
+              Proc.new do |context, *, **, &next_action|
                 block_empty.call(context, &next_action)
               end
             end

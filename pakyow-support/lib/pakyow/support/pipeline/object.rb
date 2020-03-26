@@ -11,21 +11,11 @@ module Pakyow
         extend Support::Extension
 
         prepend_methods do
-          def initialize(*args)
-            @__halted = @__rejected = @__pipelined = false
+          def initialize(*)
+            @__halted = @__rejected = false
 
             super
           end
-        end
-
-        def pipelined
-          @__pipelined = true
-
-          self
-        end
-
-        def pipelined?
-          @__pipelined == true
         end
 
         def reject

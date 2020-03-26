@@ -155,9 +155,7 @@ module Pakyow
 
           if render_implicitly?(connection)
             begin
-              catch :halt do
-                render(connection, view_path: view_path)
-              end
+              render(connection, view_path: view_path)
             rescue UnknownPage => error
               unless connection.app.is_a?(Plugin)
                 raise ImplicitRenderingError.build(error, context: view_path)
@@ -168,9 +166,7 @@ module Pakyow
           Pakyow.houston(error)
 
           if connection.app.class.includes_framework?(:routing)
-            catch :halt do
-              connection.app.controller_for_connection(connection).handle_error(error)
-            end
+            connection.app.controller_for_connection(connection).handle_error(error)
           end
         end
 

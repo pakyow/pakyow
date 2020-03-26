@@ -527,9 +527,7 @@ module Pakyow
     def call(input)
       config.connection_class.new(input).yield_self { |connection|
         connection.async {
-          catch :halt do
-            super(connection)
-          end
+          super(connection)
         }.wait
       }.finalize
     rescue StandardError => error

@@ -4,11 +4,9 @@ module Pakyow
   module Actions
     class Dispatch
       def call(connection)
-        catch :halt do
-          Pakyow.apps.each do |app|
-            if connection.path.start_with?(app.mount_path)
-              app.call(connection)
-            end
+        Pakyow.apps.each do |app|
+          if connection.path.start_with?(app.mount_path)
+            app.call(connection)
           end
         end
 

@@ -152,16 +152,16 @@ module Pakyow
           @__pipeline.action(action, *options, before: before, after: after, &block)
         end
 
-        # Calls the pipeline, passing +state+ along with any arguments.
+        # Calls the pipeline with any given arguments.
         #
-        def call(state, *args, **kwargs)
-          @__pipeline.call(self, state, *args, **kwargs)
+        def call(*args, **kwargs)
+          @__pipeline.call(self, *args, **kwargs)
         end
 
-        # Calls the pipeline in reverse order, passing +state+ along with any arguments.
+        # Calls the pipeline in reverse order with any given arguments.
         #
-        def rcall(state, *args, **kwargs)
-          @__pipeline.rcall(self, state, *args, **kwargs)
+        def rcall(*args, **kwargs)
+          @__pipeline.rcall(self, *args, **kwargs)
         end
       end
     end
