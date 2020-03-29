@@ -73,6 +73,18 @@ RSpec.describe "handling events with handleable" do
 
       expect(handled).to eq(:global)
     end
+
+    it "does not handle handled events on the class" do
+      handleable.trigger :bar
+
+      expect(handled).to eq(:bar)
+    end
+
+    it "does not handle handled events on the instance" do
+      instance.trigger :bar
+
+      expect(handled).to eq(:bar)
+    end
   end
 
   context "named handler is defined" do
@@ -192,6 +204,72 @@ RSpec.describe "handling events with handleable" do
       instance.trigger :foo
 
       expect(handled).to eq(:foo_instance)
+    end
+  end
+
+  context "two handlers are defined for the same event" do
+    before do
+      @handled = []
+
+      local = self
+
+      handleable.handle :foo do
+        local.handled << :one
+      end
+
+      handleable.handle :foo do
+        local.handled << :two
+      end
+    end
+
+    it "calls both handlers" do
+      handleable.trigger :foo
+
+      expect(handled).to eq([:two, :one])
+    end
+  end
+
+  context "two error handlers are defined that both match the error" do
+    before do
+      @handled = []
+
+      local = self
+
+      handleable.handle Exception do
+        local.handled << :exception
+      end
+
+      handleable.handle RuntimeError do
+        local.handled << :runtime_error
+      end
+    end
+
+    it "calls both handlers" do
+      handleable.trigger RuntimeError.new
+
+      expect(handled).to eq([:runtime_error, :exception])
+    end
+  end
+
+  context "error handler is defined as well as a global error handler" do
+    before do
+      @handled = []
+
+      local = self
+
+      handleable.handle Exception do
+        local.handled << :exception
+      end
+
+      handleable.handle do
+        local.handled << :global
+      end
+    end
+
+    it "calls both handlers" do
+      handleable.trigger RuntimeError.new
+
+      expect(handled).to eq([:global, :exception])
     end
   end
 

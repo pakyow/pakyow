@@ -15,20 +15,14 @@ module Pakyow
       extend_dependency ClassState
 
       apply_extension do
-        class_state :__handlers, default: {
-          default: Class.new(Pipeline).tap do |pipeline|
-            pipeline.action do |event|
-              if event.is_a?(Exception)
-                raise event
-              end
-            end
-          end
-        }, inheritable: true
+        class_state :__handlers, default: {}, inheritable: true
+        class_state :__handler_events, default: [], inheritable: true
       end
 
       prepend_methods do
         def initialize(*)
           @__handlers = self.class.__handlers.dup
+          @__handler_events = self.class.__handler_events.dup
 
           super
         end
@@ -41,7 +35,14 @@ module Pakyow
         # will be called when triggered for the exception or its subclass.
         #
         def handle(event = nil, &block)
-          (@__handlers[event || :global] ||= Pipeline.new).action(&block)
+          event = event || :global
+
+          unless handler = @__handlers[event]
+            handler = @__handlers[event] = Pipeline.new
+            @__handler_events.unshift(event)
+          end
+
+          handler.action(&block)
         end
 
         # Yields a context where exceptions automatically trigger handlers.
@@ -56,21 +57,35 @@ module Pakyow
 
         # Triggers `event`, passing any arguments to triggered handlers.
         #
-        def trigger(event, *args, **kwargs)
-          resolve_handler_for_event(event).__pipeline.rcall(self, event, *args, **kwargs); self
+        def trigger(event, *args, **kwargs, &block)
+          call_each_handler_for_event(event, self, *args, **kwargs, &block); self
         end
 
-        private def resolve_handler_for_event(event)
-          handler = case event
+        private def call_each_handler_for_event(event, context, *args, **kwargs)
+          case event
           when Exception
-            @__handlers.find { |handler_event, handler|
-              handler_event.is_a?(Class) && event.is_a?(handler_event)
-            }&.at(1)
+            handled = false
+
+            @__handler_events.each do |handler_event|
+              if handler_event == :global || (handler_event.is_a?(Class) && event.is_a?(handler_event))
+                handled = true; call_handler(@__handlers[handler_event], event, context, *args, **kwargs)
+              end
+            end
+
+            unless handled || block_given?
+              raise event
+            end
           else
-            @__handlers[event]
+            if handler = @__handlers[event] || @__handlers[:global]
+              call_handler(handler, event, context, *args, **kwargs)
+            end
           end
 
-          handler || @__handlers[:global] || @__handlers[:default]
+          yield if block_given?
+        end
+
+        private def call_handler(handler, event, context, *args, **kwargs)
+          handler.__pipeline.rcall(context, event, *args, **kwargs)
         end
       end
     end
