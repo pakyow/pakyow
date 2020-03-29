@@ -2,6 +2,7 @@
 
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
+require "pakyow/support/hookable"
 
 require "pakyow/support/handleable/pipeline"
 
@@ -10,6 +11,23 @@ module Pakyow
     # Makes an object able to handle events, such as errors.
     #
     module Handleable
+      # @api private
+      module Hooks
+        extend Extension
+
+        apply_extension do
+          events :handle
+        end
+
+        common_prepend_methods do
+          private def call_handler(handler, event, context, *args, **kwargs)
+            performing :handle, event, *args, **kwargs do
+              super
+            end
+          end
+        end
+      end
+
       extend Extension
 
       extend_dependency ClassState
@@ -17,6 +35,10 @@ module Pakyow
       apply_extension do
         class_state :__handlers, default: {}, inheritable: true
         class_state :__handler_events, default: [], inheritable: true
+
+        if ancestors.include?(Hookable)
+          include Hooks
+        end
       end
 
       prepend_methods do
