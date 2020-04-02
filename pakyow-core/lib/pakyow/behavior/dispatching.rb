@@ -19,9 +19,9 @@ module Pakyow
       #
       def dispatch(connection)
         performing :dispatch, connection: connection do
-          apps.each do |app|
-            app.call(connection) if app.accept?(connection)
-          end
+          apps.find { |app|
+            app.accept?(connection)
+          }&.call(connection)
         end
 
         unless connection.halted? || connection.streaming?
