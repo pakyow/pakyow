@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Let applications define connection acceptance with an `#accept?` method.**
+
+    *Related links:*
+    - [Pull Request #433][pr-433]
+
   * `add` **Introduce a `dispatch` event to the environment.**
 
     *Related links:*
@@ -313,6 +318,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-433]: https://github.com/pakyow/pakyow/pull/433
 [pr-432]: https://github.com/pakyow/pakyow/pull/432
 [pr-431]: https://github.com/pakyow/pakyow/pull/431
 [pr-418]: https://github.com/pakyow/pakyow/pull/418

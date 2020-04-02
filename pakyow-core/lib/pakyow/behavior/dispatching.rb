@@ -20,9 +20,7 @@ module Pakyow
       def dispatch(connection)
         performing :dispatch, connection: connection do
           apps.each do |app|
-            if connection.path.start_with?(app.mount_path)
-              app.call(connection)
-            end
+            app.call(connection) if app.accept?(connection)
           end
         end
 

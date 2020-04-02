@@ -223,6 +223,12 @@ module Pakyow
       raise ApplicationError.build(error, context: self)
     end
 
+    # Returns true if the application accepts the connection.
+    #
+    def accept?(connection)
+      connection.path.start_with?(mount_path)
+    end
+
     # Calls the app pipeline with a connection created from the rack env.
     #
     def call(connection)
