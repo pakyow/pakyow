@@ -11,14 +11,18 @@ module Pakyow
         after :setup do
           action :dispatch
         end
+
+        events :dispatch
       end
 
       # Dispatches the connection to an application.
       #
       def dispatch(connection)
-        apps.each do |app|
-          if connection.path.start_with?(app.mount_path)
-            app.call(connection)
+        performing :dispatch, connection: connection do
+          apps.each do |app|
+            if connection.path.start_with?(app.mount_path)
+              app.call(connection)
+            end
           end
         end
 

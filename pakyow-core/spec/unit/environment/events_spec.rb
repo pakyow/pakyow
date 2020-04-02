@@ -23,5 +23,9 @@ RSpec.describe Pakyow do
     it "includes `run`" do
       expect(Pakyow.events).to include(:run)
     end
+
+    it "includes `dispatch`" do
+      expect(Pakyow.events).to include(:dispatch)
+    end
   end
 end
