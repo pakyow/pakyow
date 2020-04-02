@@ -131,7 +131,7 @@ RSpec.describe "calling the environment with a request" do
 
     it "calls both apps for requests to paths at the mounted path" do
       expect(call("/")[0]).to eq(404)
-      expect(@calls).to eq([:root, :foo])
+      expect(@calls).to eq([:root])
     end
 
     context "app halts the connection" do
