@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Update @babel/standalone to 7.9.4.**
+
+    *Related links:*
+    - [Pull Request #437][pr-437]
+
   * `add` **Devtools component is now an autoloaded pack in `development` and `prototype` modes.**
 
     *Related links:*
@@ -15,6 +20,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-437]: https://github.com/pakyow/pakyow/pull/437/commits
 [pr-376]: https://github.com/pakyow/pakyow/pull/376/commits
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
 [ec13cdd]: https://github.com/pakyow/pakyow/commit/ec13cdde0b7926d35e0a340fc93889d4166882dd
