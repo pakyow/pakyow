@@ -2,6 +2,9 @@
 
   * `chg` **Ensure that environment dispatch happens after user-defined actions.**
 
+    *Related links:*
+    - [Pull Request #431][pr-431]
+
   * `add` **Global error reporting through `Pakyow::houston`.**
 
     *Related links:*
@@ -239,6 +242,9 @@
 
   * `Pakyow::Actions::Dispatch` is deprecated with no replacement.
 
+    *Related links:*
+    - [Pull Request #431][pr-431]
+
   * `Pakyow::load_apps` is deprecated with no replacement.
 
     *Related links:*
@@ -302,6 +308,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-431]: https://github.com/pakyow/pakyow/pull/431
 [pr-418]: https://github.com/pakyow/pakyow/pull/418
 [pr-416]: https://github.com/pakyow/pakyow/pull/416
 [pr-413]: https://github.com/pakyow/pakyow/pull/413
