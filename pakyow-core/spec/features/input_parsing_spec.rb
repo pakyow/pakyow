@@ -13,6 +13,7 @@ RSpec.describe "parsing requests" do
   let :action do
     Proc.new do |connection|
       connection.parsed_input
+      connection.halt
     end
   end
 

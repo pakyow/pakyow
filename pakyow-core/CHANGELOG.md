@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Ensure that environment dispatch happens after user-defined actions.**
+
   * `add` **Global error reporting through `Pakyow::houston`.**
 
     *Related links:*
