@@ -9,6 +9,7 @@ RSpec.describe "parsing requests" do
     local = self
     Proc.new do |connection|
       connection.body = StringIO.new(Marshal.dump(input: connection.parsed_input.keys, params: connection.params.keys))
+      connection.halt
     end
   end
 

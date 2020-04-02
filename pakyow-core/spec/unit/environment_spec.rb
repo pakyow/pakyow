@@ -631,8 +631,18 @@ RSpec.describe Pakyow do
       expect(Pakyow.__pipeline.actions.find { |action| action.name == :parse }).to_not be_nil
     end
 
-    it "includes dispatch" do
-      expect(Pakyow.__pipeline.actions.find { |action| action.name == :dispatch }).to_not be_nil
+    it "does not include dispatch" do
+      expect(Pakyow.__pipeline.actions.find { |action| action.name == :dispatch }).to be_nil
+    end
+
+    context "after setup" do
+      before do
+        Pakyow.setup(env: :development)
+      end
+
+      it "includes dispatch as the last action" do
+        expect(Pakyow.__pipeline.actions.last.name).to eq(:dispatch)
+      end
     end
   end
 

@@ -13,6 +13,7 @@ require "pakyow/support/deprecatable"
 
 require "pakyow/behavior/commands"
 require "pakyow/behavior/deprecations"
+require "pakyow/behavior/dispatching"
 require "pakyow/behavior/erroring"
 require "pakyow/behavior/initializers"
 require "pakyow/behavior/input_parsing"
@@ -25,7 +26,6 @@ require "pakyow/behavior/watching"
 require "pakyow/behavior/restarting"
 require "pakyow/behavior/verifier"
 
-require "pakyow/actions/dispatch"
 require "pakyow/actions/input_parser"
 require "pakyow/actions/logger"
 require "pakyow/actions/normalizer"
@@ -263,6 +263,7 @@ module Pakyow
   include Support::Definable
 
   include Behavior::Commands
+  include Behavior::Dispatching
   include Behavior::Erroring
   include Behavior::Initializers
   include Behavior::InputParsing
@@ -279,11 +280,10 @@ module Pakyow
   action :log, Actions::Logger
   action :normalize, Actions::Normalizer
   action :parse, Actions::InputParser
-  action :dispatch, Actions::Dispatch
 
   before :configure do
     if env?(:development) || env?(:prototype)
-      action :restart, Actions::Restart, before: :dispatch
+      action :restart, Actions::Restart
     end
   end
 
