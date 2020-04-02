@@ -54,6 +54,36 @@ RSpec.describe Pakyow::Actions::Logger do
     expect(Pakyow.logger).to have_received(:epilogue).with(connection)
   end
 
+  context "a halt occurs" do
+    it "still logs the epilogue" do
+      connection.async do
+        catch :halt do
+          action.call(connection) do
+            throw :halt
+          end
+        end
+      end
+
+      expect(Pakyow.logger).to have_received(:epilogue).with(connection)
+    end
+
+    it "throws another halt" do
+      finished = false
+
+      connection.async do
+        catch :halt do
+          action.call(connection) do
+            throw :halt
+          end
+
+          finished = true
+        end
+      end
+
+      expect(finished).to eq(false)
+    end
+  end
+
   context "silencer exists" do
     let :output do
       double(:output, verbose!: nil)
