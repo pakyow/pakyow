@@ -30,7 +30,7 @@ RSpec.describe "minifying assets" do
     it "minifies external js" do
       expect(call("/assets/packs/external-transpiled.js")[2]).to eq_sans_whitespace(
         <<~MINIFIED
-          "use strict";function _instanceof(n,a){return null!=a&&"undefined"!=typeof Symbol&&a[Symbol.hasInstance]?a[Symbol.hasInstance](n):n instanceof a}function _classCallCheck(n,a){if(!_instanceof(n,a))throw new TypeError("Cannot call a class as a function")}var Rectangle=function Rectangle(n){_classCallCheck(this,Rectangle),console.log(n)};
+          "use strict";function _instanceof(n,a){return null!=a&&"undefined"!=typeof Symbol&&a[Symbol.hasInstance]?a[Symbol.hasInstance](n):n instanceof a}function _classCallCheck(n,a){if(!_instanceof(n,a))throw new TypeError("Cannot call a class as a function")}var Rectangle=function n(a){_classCallCheck(this,n),console.log(a)};
         MINIFIED
       )
     end

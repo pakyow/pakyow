@@ -137,9 +137,9 @@ module Pakyow
               end
             end
 
-            configurable :uglifier do
+            configurable :terser do
               configurable :source_map do
-                setting :sources_content, true
+                setting :include_sources, true
               end
             end
 
