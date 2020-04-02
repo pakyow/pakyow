@@ -237,6 +237,8 @@
 
 ## Deprecations
 
+  * `Pakyow::Actions::Dispatch` is deprecated with no replacement.
+
   * `Pakyow::load_apps` is deprecated with no replacement.
 
     *Related links:*
