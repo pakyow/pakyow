@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce a `dispatch` event to the environment.**
+
+    *Related links:*
+    - [Pull Request #432][pr-432]
+
   * `chg` **Ensure that environment dispatch happens after user-defined actions.**
 
     *Related links:*
@@ -308,6 +313,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-432]: https://github.com/pakyow/pakyow/pull/432
 [pr-431]: https://github.com/pakyow/pakyow/pull/431
 [pr-418]: https://github.com/pakyow/pakyow/pull/418
 [pr-416]: https://github.com/pakyow/pakyow/pull/416
