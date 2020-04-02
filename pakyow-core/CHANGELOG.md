@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Log the epilogue even if another action halts.**
+
+    *Related links:*
+    - [Pull Request #436][pr-436]
+
   * `chg` **Call only the first application that accepts a request.**
 
     *Related links:*
@@ -323,6 +328,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-436]: https://github.com/pakyow/pakyow/pull/436
 [pr-434]: https://github.com/pakyow/pakyow/pull/434
 [pr-433]: https://github.com/pakyow/pakyow/pull/433
 [pr-432]: https://github.com/pakyow/pakyow/pull/432

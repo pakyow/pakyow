@@ -19,8 +19,18 @@ module Pakyow
 
       def call_with_logging(connection)
         connection.logger.prologue(connection)
-        yield
+
+        finished = false
+
+        catch :halt do
+          yield
+
+          finished = true
+        end
+
         connection.logger.epilogue(connection)
+
+        throw :halt unless finished
       end
 
       def silence?(connection)
