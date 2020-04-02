@@ -27,17 +27,17 @@ group :test do
 
   gem "event_emitter", ">= 0.2"
   gem "httparty", ">= 0.17"
-  gem "rack", ">= 2.0.6"
+  gem "rack", ">= 2.2.2"
 
   gem "rspec", "~> 3.9"
   gem "rspec-benchmark", "~> 0.5"
 
-  gem "warning", "~> 0.10"
+  gem "warning", "~> 1.0"
 
   gem "sassc", "~> 2.2"
 
   gem "mysql2", "~> 0.5"
-  gem "pg", "~> 1.1"
+  gem "pg", "~> 1.2"
   gem "sqlite3", "~> 1.4"
 
   gem "bootsnap", "~> 1.4"
@@ -48,5 +48,5 @@ group :test do
 
   gem "benchmark-ips", "~> 2.7", require: false
 
-  gem "http", "~> 4.2"
+  gem "http", "~> 4.4"
 end

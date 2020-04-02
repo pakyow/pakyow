@@ -23,5 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "dry-inflector", "~> 0.2.0"
   spec.add_dependency "pastel", "~> 0.7.3"
   spec.add_dependency "tty-command", "~> 0.9.0"
-  spec.add_dependency "tty-spinner", "~> 0.9.1"
+  spec.add_dependency "tty-spinner", "~> 0.9.3"
 end
