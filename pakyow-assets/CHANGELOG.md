@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Refactor Babel to be a `Pakyow::Assets::Script`.**
+
+    *Related links:*
+    - [Pull Request #439][pr-439]
+
   * `chg` **Replace uglifier with terser.**
 
     *Related links:*

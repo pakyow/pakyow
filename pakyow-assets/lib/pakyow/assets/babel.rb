@@ -1,33 +1,20 @@
 # frozen_string_literal: true
 
-require "mini_racer"
-require "execjs"
+require "pakyow/support/deprecatable"
 
-require "pakyow/support/inflector"
+require "pakyow/assets/scripts/babel"
 
 module Pakyow
   module Assets
     class Babel
-      def self.transform(content, **options)
-        context.call("Babel.transform", content, camelize_keys(options))
-      end
+      class << self
+        extend Support::Deprecatable
 
-      private
+        def transform(content, **options)
+          Scripts::Babel.transform(content, **options)
+        end
 
-      def self.context
-        @context ||= ExecJS.compile(
-          File.read(
-            File.expand_path("../../../../src/@babel/standalone@7.9.4/babel.js", __FILE__)
-          )
-        )
-      end
-
-      def self.camelize_keys(options)
-        Hash[options.map { |key, value|
-          key = Support.inflector.camelize(key)
-          key = key[0, 1].downcase + key[1..-1]
-          [key, value]
-        }]
+        deprecate :transform, solution: "use `Pakyow::Assets::Scripts::Babel::transform'"
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require "pakyow/support/deprecatable"
 
-require "pakyow/assets/asset"
+require "pakyow/assets/scripts/asset"
 require "pakyow/assets/scripts/terser"
 
 module Pakyow
@@ -28,7 +28,7 @@ module Pakyow
 
         def process(content)
           result = if transformable?
-            transformed = Babel.transform(content, **@options)
+            transformed = Scripts::Babel.transform(content, **@options)
             { content: transformed["code"], map: transformed["map"] }
           else
             { content: content, map: "" }
