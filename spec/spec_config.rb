@@ -158,6 +158,14 @@ RSpec.configure do |config|
       end
     end
 
+    if defined?(Pakyow::Assets::Scripts::Babel)
+      Pakyow::Assets::Scripts::Babel.destroy
+    end
+
+    if defined?(Pakyow::Assets::Scripts::Terser)
+      Pakyow::Assets::Scripts::Terser.destroy
+    end
+
     remove_constants(
       (Object.constants - $original_constants).select { |constant_name|
         constant_name.to_s.start_with?("Test")
