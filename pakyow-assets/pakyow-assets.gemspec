@@ -25,7 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
   spec.add_dependency "async-http", "~> 0.50.0"
-  spec.add_dependency "execjs", "~> 2.7"
   spec.add_dependency "mini_mime", "~> 1.0"
   spec.add_dependency "mini_racer", "~> 0.2.9"
   spec.add_dependency "sassc", "~> 2.2"

@@ -1,4 +1,5 @@
 require "pakyow/application/behavior/assets/types/js"
+require "pakyow/assets/asset"
 
 RSpec.describe Pakyow::Application::Behavior::Assets::Types::Js do
   let :config do
@@ -50,7 +51,7 @@ RSpec.describe Pakyow::Application::Behavior::Assets::Types::Js do
     end
 
     it "transpiles" do
-      expect(Pakyow::Assets::Babel).to receive(:transform).with(
+      expect(Pakyow::Assets::Scripts::Babel).to receive(:transform).with(
         content, **config.babel.to_h
       ).and_call_original
 
@@ -58,7 +59,7 @@ RSpec.describe Pakyow::Application::Behavior::Assets::Types::Js do
     end
 
     it "returns the transpiled code" do
-      allow(Pakyow::Assets::Babel).to receive(:transform).and_return(
+      allow(Pakyow::Assets::Scripts::Babel).to receive(:transform).and_return(
         "code" => "transpiled"
       )
 

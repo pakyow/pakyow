@@ -69,6 +69,15 @@ module Pakyow
             context.eval(function)
           end
         end
+
+        private def camelize_keys(hash)
+          Hash[hash.map { |key, value|
+            key = Support.inflector.camelize(key)
+            key = key[0, 1].downcase + key[1..-1]
+            value = camelize_keys(value) if value.is_a?(Hash)
+            [key, value]
+          }]
+        end
       end
     end
   end

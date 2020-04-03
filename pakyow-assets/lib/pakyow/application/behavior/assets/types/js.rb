@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/assets/babel"
+require "pakyow/assets/scripts/babel"
 require "pakyow/assets/scripts/terser"
 
 module Pakyow
@@ -31,7 +31,7 @@ module Pakyow
 
                 def process(content)
                   result = if transformable?
-                    transformed = Pakyow::Assets::Babel.transform(content, **@options)
+                    transformed = Pakyow::Assets::Scripts::Babel.transform(content, **@options)
                     { content: transformed["code"], map: transformed["map"] }
                   else
                     { content: content, map: "" }
