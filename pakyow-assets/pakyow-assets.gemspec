@@ -30,5 +30,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency "mini_racer", "~> 0.2.9"
   spec.add_dependency "sassc", "~> 2.2"
   spec.add_dependency "source_map", "~> 3.0"
-  spec.add_dependency "uglifier", "~> 4.2"
 end

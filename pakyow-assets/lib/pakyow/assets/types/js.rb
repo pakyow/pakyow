@@ -3,9 +3,7 @@
 require "pakyow/support/deprecatable"
 
 require "pakyow/assets/asset"
-require "pakyow/assets/babel"
-
-require "uglifier"
+require "pakyow/assets/scripts/terser"
 
 module Pakyow
   module Assets
@@ -66,30 +64,30 @@ module Pakyow
         end
 
         def minify(input)
-          options = @config.uglifier.to_h
+          filename = Pathname.new(@local_path.to_s).relative_path_from(
+            Pathname.new(Pakyow.config.root)
+          ).to_s
+
+          options = @config.terser.to_h
 
           if @config.source_maps
             options[:source_map] ||= {}
 
-            if input[:map].to_s.empty?
-              options[:source_map][:filename] = Pathname.new(@local_path.to_s).relative_path_from(
-                Pathname.new(Pakyow.config.root)
-              ).to_s
-            else
-              options[:source_map][:input_source_map] = input[:map]
+            options[:source_map][:filename] = filename
+
+            unless input[:map].nil? || input[:map].empty?
+              options[:source_map][:include_sources].delete
+              options[:source_map][:content] = input[:map].to_json
             end
           else
             options.delete(:source_map)
           end
 
-          uglifier = Uglifier.new(options)
+          result = Pakyow::Assets::Scripts::Terser.minify(
+            { filename => input[:content] }, options
+          )
 
-          if @config.source_maps
-            content, map = uglifier.compile_with_map(input[:content])
-            { content: content, map: map }
-          else
-            { content: uglifier.compile(input[:content]) }
-          end
+          { content: result["code"], map: result["map"] }
         rescue StandardError => error
           Pakyow.logger.error "[#{self.class}] #{error}"
 

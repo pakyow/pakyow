@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Replace uglifier with terser.**
+
+    *Related links:*
+    - [Pull Request #438][pr-438]
+
   * `chg` **Update @babel/standalone to 7.9.4.**
 
     *Related links:*
@@ -20,6 +25,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-438]: https://github.com/pakyow/pakyow/pull/438/commits
 [pr-437]: https://github.com/pakyow/pakyow/pull/437/commits
 [pr-376]: https://github.com/pakyow/pakyow/pull/376/commits
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
