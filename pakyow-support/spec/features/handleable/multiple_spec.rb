@@ -32,12 +32,12 @@ RSpec.describe "using multiple handleable objects" do
       @handled = []
     end
 
-    it "calls handlers in both contexts" do
+    it "calls the first handler" do
       handleable_2.trigger :foo do
         handleable_1.trigger :foo
       end
 
-      expect(handled).to eq([:foo_2, :foo_1])
+      expect(handled).to eq([:foo_2])
     end
   end
 
@@ -56,14 +56,14 @@ RSpec.describe "using multiple handleable objects" do
       @handled = []
     end
 
-    it "calls handlers in both contexts" do
+    it "calls the first handler" do
       error = RuntimeError.new
 
       handleable_2.trigger error do
         handleable_1.trigger error
       end
 
-      expect(handled).to eq([:foo_2, :foo_1])
+      expect(handled).to eq([:foo_2])
     end
 
     it "re-raises the error when no handlers match" do

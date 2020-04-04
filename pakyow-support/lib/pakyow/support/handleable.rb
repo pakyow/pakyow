@@ -80,34 +80,30 @@ module Pakyow
         # Triggers `event`, passing any arguments to triggered handlers.
         #
         def trigger(event, *args, **kwargs, &block)
-          call_each_handler_for_event(event, self, *args, **kwargs, &block); self
-        end
-
-        private def call_each_handler_for_event(event, context, *args, **kwargs)
-          case event
-          when Exception
-            handled = false
-
-            @__handler_events.each do |handler_event|
-              if handler_event == :global || (handler_event.is_a?(Class) && event.is_a?(handler_event))
-                handled = true; call_handler(@__handlers[handler_event], event, context, *args, **kwargs)
-              end
-            end
-
-            unless handled || block_given?
-              raise event
-            end
-          else
-            if handler = @__handlers[event] || @__handlers[:global]
-              call_handler(handler, event, context, *args, **kwargs)
-            end
+          if handler = find_handler(event)
+            handler.__pipeline.rcall(self, event, *args, **kwargs)
+          elsif block_given?
+            yield
+          elsif event.is_a?(Exception)
+            raise event
           end
 
-          yield if block_given?
+          self
         end
 
-        private def call_handler(handler, event, context, *args, **kwargs)
-          handler.__pipeline.rcall(context, event, *args, **kwargs)
+        private def find_handler(event)
+          case event
+          when Exception
+            @__handler_events.each do |handler_event|
+              if handler_event == :global || (handler_event.is_a?(Class) && event.is_a?(handler_event))
+                return @__handlers[handler_event]
+              end
+            end
+          else
+            return @__handlers[event] || @__handlers[:global]
+          end
+
+          nil
         end
       end
     end

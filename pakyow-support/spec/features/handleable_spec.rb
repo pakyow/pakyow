@@ -247,7 +247,7 @@ RSpec.describe "handling events with handleable" do
     it "calls both handlers" do
       handleable.trigger RuntimeError.new
 
-      expect(handled).to eq([:runtime_error, :exception])
+      expect(handled).to eq([:runtime_error])
     end
   end
 
@@ -269,7 +269,7 @@ RSpec.describe "handling events with handleable" do
     it "calls both handlers" do
       handleable.trigger RuntimeError.new
 
-      expect(handled).to eq([:global, :exception])
+      expect(handled).to eq([:global])
     end
   end
 
