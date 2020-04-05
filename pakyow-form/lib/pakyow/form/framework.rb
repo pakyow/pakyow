@@ -22,53 +22,53 @@ module Pakyow
                 data.ephemeral(:errors, form_id: connection.form[:id]).set([])
               end
             end
+
+            handle InvalidData, as: :bad_request do |error, connection:|
+              if connection.form && connection.form.include?(:origin)
+                raw_messages = case error.result
+                when Verifier::Result
+                  error.result.messages(type: :presentable)
+                else
+                  error.result.messages
+                end
+
+                errors = case raw_messages
+                when Array
+                  raw_messages.map { |message|
+                    { message: message }
+                  }
+                when Hash
+                  raw_messages.flat_map { |type, messages|
+                    case messages
+                    when Array
+                      messages.map { |type_message|
+                        { field: type, message: type_message }
+                      }
+                    when Hash
+                      messages.flat_map { |field, field_messages|
+                        field_messages.map { |field_message|
+                          { field: field, message: field_message }
+                        }
+                      }
+                    end
+                  }
+                end
+
+                if connection.app.class.includes_framework?(:ui) && ui?
+                  data.ephemeral(:errors, form_id: connection.form[:id]).set(errors)
+                else
+                  connection.set(:__form_errors, errors)
+                  connection.set(:__form_values, params.reject { |key| key == :form })
+                  reroute connection.form[:origin], method: :get, as: :bad_request
+                end
+              else
+                reject
+              end
+            end
           end
 
           isolated :Connection do
             include Pakyow::Application::Connection::Helpers::Form
-          end
-
-          handle InvalidData, as: :bad_request do |error|
-            if connection.form && connection.form.include?(:origin)
-              raw_messages = case error.result
-              when Verifier::Result
-                error.result.messages(type: :presentable)
-              else
-                error.result.messages
-              end
-
-              errors = case raw_messages
-              when Array
-                raw_messages.map { |message|
-                  { message: message }
-                }
-              when Hash
-                raw_messages.flat_map { |type, messages|
-                  case messages
-                  when Array
-                    messages.map { |type_message|
-                      { field: type, message: type_message }
-                    }
-                  when Hash
-                    messages.flat_map { |field, field_messages|
-                      field_messages.map { |field_message|
-                        { field: field, message: field_message }
-                      }
-                    }
-                  end
-                }
-              end
-
-              if app.class.includes_framework?(:ui) && ui?
-                data.ephemeral(:errors, form_id: connection.form[:id]).set(errors)
-              else
-                connection.set(:__form_errors, errors)
-                connection.set(:__form_values, params.reject { |key| key == :form })
-                reroute connection.form[:origin], method: :get, as: :bad_request
-              end
-            else
-              reject
-            end
           end
 
           component :form do
