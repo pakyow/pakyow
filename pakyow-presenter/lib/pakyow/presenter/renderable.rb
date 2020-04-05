@@ -23,6 +23,15 @@ module Pakyow
       def rendered?
         @rendered == true
       end
+
+      def render(view_path = nil, as: nil, modes: [:default])
+        app.isolated(:Renderer).render(
+          self,
+          view_path: view_path,
+          presenter_path: as,
+          modes: modes
+        )
+      end
     end
   end
 end

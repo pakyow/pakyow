@@ -17,46 +17,49 @@ module Pakyow
           extend Support::Extension
 
           # @api private
-          def self.render_error(error, context)
-            context.respond_to :html do
+          #
+          def self.render_error(error, connection)
+            if connection.format == :html
               if Pakyow.env?(:production)
-                context.render "/500"
+                connection.render "/500"
               else
                 unless error.is_a?(Pakyow::Error)
                   error = Pakyow::Error.build(error)
                 end
 
                 error.extend Support::Bindable
-                context.expose :pw_error, error
-                context.render "/development/500"
+                connection.set :pw_error, error
+                connection.render "/development/500"
               end
             end
           end
 
           apply_extension do
-            handle 404 do
-              respond_to :html do
-                render "/404"
+            handle 404 do |connection:|
+              if connection.format == :html
+                connection.render "/404"
               end
             end
 
-            handle 500 do |error|
-              ErrorRendering.render_error(error, self)
-            end
-
-            handle Pakyow::Presenter::UnknownPage, as: 404 do |error|
-              if Pakyow.env?(:production)
-                trigger 404
-              else
-                ErrorRendering.render_error(error, self)
+            handle 500 do |connection:|
+              if error = connection.error
+                ErrorRendering.render_error(error, connection)
               end
             end
 
-            handle Pakyow::Presenter::ImplicitRenderingError, as: 404 do |error|
+            handle Pakyow::Presenter::UnknownPage, as: 404 do |error, connection:|
               if Pakyow.env?(:production)
-                trigger 404
+                trigger 404, connection: connection
               else
-                ErrorRendering.render_error(error, self)
+                ErrorRendering.render_error(connection.error, connection)
+              end
+            end
+
+            handle Pakyow::Presenter::ImplicitRenderingError, as: 404 do |error, connection:|
+              if Pakyow.env?(:production)
+                trigger 404, connection: connection
+              else
+                ErrorRendering.render_error(connection.error, connection)
               end
             end
 

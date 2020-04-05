@@ -5,6 +5,10 @@ RSpec.describe "404 error views in production" do
     :production
   end
 
+  let :allow_request_failures do
+    true
+  end
+
   it "renders the built-in 404 page by default" do
     expect(call("/missing")[0]).to eq(404)
     expect(call("/missing")[2]).to include("404 (Not Found)")
@@ -28,27 +32,22 @@ RSpec.describe "404 error views in production" do
   context "app defines its own 404 handler" do
     let :app_def do
       Proc.new do
-        handle 404 do
-          $handled = true
+        handle 404 do |connection:|
           connection.body = StringIO.new("foo")
+          connection.halt
         end
       end
     end
 
-    after do
-      $handled = false
-    end
-
     it "handles instead of presenter" do
       expect(call("/missing")[2]).to eq("foo")
-      expect($handled).to eq(true)
     end
 
     context "handler renders the default 404 view" do
       let :app_def do
         Proc.new do
-          handle 404 do
-            render "/404"
+          handle 404 do |connection:|
+            connection.render "/404"
           end
         end
       end
@@ -66,8 +65,8 @@ RSpec.describe "404 error views in production" do
             config.presenter.path = File.expand_path("../../views", __FILE__)
           end
 
-          handle 404 do
-            render "/non_standard_404"
+          handle 404 do |connection:|
+            connection.render "/non_standard_404"
           end
         end
       end
