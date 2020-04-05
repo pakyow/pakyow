@@ -31,8 +31,8 @@ RSpec.describe "processing an asset" do
         expect(call("/assets/nonexistent.css")[1]["content-type"]).to eq(nil)
       end
 
-      it "responds with an empty body" do
-        expect(call("/assets/nonexistent.css")[2]).to be_empty
+      it "responds with the default body" do
+        expect(call("/assets/nonexistent.css")[2]).to eq("404 Not Found")
       end
     end
   end
@@ -53,8 +53,8 @@ RSpec.describe "processing an asset" do
         expect(call("/assets/default.css")[1]["content-type"]).to eq(nil)
       end
 
-      it "responds with an empty body" do
-        expect(call("/assets/default.css")[2]).to be_empty
+      it "responds with the default body" do
+        expect(call("/assets/default.css")[2]).to eq("404 Not Found")
       end
     end
 
@@ -67,8 +67,8 @@ RSpec.describe "processing an asset" do
         expect(call("/assets/nonexistent.css")[1]["content-type"]).to eq(nil)
       end
 
-      it "responds with an empty body" do
-        expect(call("/assets/nonexistent.css")[2]).to be_empty
+      it "responds with the default body" do
+        expect(call("/assets/nonexistent.css")[2]).to eq("404 Not Found")
       end
     end
   end
