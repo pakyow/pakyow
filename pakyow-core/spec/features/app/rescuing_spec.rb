@@ -10,10 +10,14 @@ RSpec.describe "app rescuing" do
   }
 
   context "app is rescued" do
-    before do
+    def rescue!
       allow(Pakyow.logger).to receive(:houston)
       app.rescue!(error)
       setup_and_run
+    end
+
+    before do
+      rescue!
     end
 
     let(:error) {
@@ -39,16 +43,6 @@ RSpec.describe "app rescuing" do
     it "responds 500 to any request" do
       expect(call("/")[0]).to eq(500)
       expect(call("/foo/tfwayn")[0]).to eq(500)
-    end
-
-    it "responds with the error" do
-      expect(call("/")[2]).to include(
-        <<~ERROR
-          Test::Application failed to initialize.
-
-          this is a test
-        ERROR
-      )
     end
 
     describe "calling hooks" do
@@ -102,6 +96,28 @@ RSpec.describe "app rescuing" do
       it "does not call shutdown hooks" do
         expect(calls).not_to include("before shutdown")
         expect(calls).not_to include("after shutdown")
+      end
+    end
+
+    describe "calling handlers" do
+      def rescue!
+        allow(Pakyow.logger).to receive(:houston)
+        setup(env: mode)
+        app.rescue!(error)
+        run
+      end
+
+      let(:app_def) {
+        Proc.new {
+          handle 500 do |connection:|
+            connection.body = "handled #{connection.error}"
+            connection.halt
+          end
+        }
+      }
+
+      it "calls 500 handlers on the application" do
+        expect(call("/")[2]).to eq("handled this is a test")
       end
     end
   end

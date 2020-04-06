@@ -33,7 +33,7 @@ module Pakyow
           def rescue!(error)
             @rescued = error
 
-            performing :rescue do
+            performing :rescue, error: error do
               Pakyow.houston(error)
 
               if is_a?(Application)
@@ -47,16 +47,10 @@ module Pakyow
 
         module Rescued
           def call(connection)
-            message = <<~ERROR
-              #{self.class} failed to initialize.
-
-              #{rescued.message}
-              #{rescued.backtrace.join("\n")}
-            ERROR
-
-            connection.status = 500
-            connection.body = StringIO.new(message)
-            connection.halt
+            isolated(:Connection).new(self, connection).tap do |application_connection|
+              application_connection.error = rescued
+              application_connection.trigger 500
+            end
           end
         end
       end
