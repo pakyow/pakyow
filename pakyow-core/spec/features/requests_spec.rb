@@ -1,20 +1,30 @@
 RSpec.describe "calling the environment with a request" do
   include_context "app"
 
-  let :app_def do
-    Proc.new do
-      action do |connection|
-        connection.body = StringIO.new("foo")
-      end
-    end
-  end
-
   it "responds 404 for any path" do
     expect(call("/" + SecureRandom.hex(8))[0]).to eq(404)
   end
 
   it "responds with the default connection body" do
     expect(call("/" + SecureRandom.hex(8))[2]).to eq("404 Not Found")
+  end
+
+  context "action modifies the body but does not halt" do
+    let :app_def do
+      Proc.new do
+        action do |connection|
+          connection.body = StringIO.new("foo")
+        end
+      end
+    end
+
+    it "responds 404 for any path" do
+      expect(call("/" + SecureRandom.hex(8))[0]).to eq(404)
+    end
+
+    it "responds with the default body" do
+      expect(call("/" + SecureRandom.hex(8))[2]).to eq("404 Not Found")
+    end
   end
 
   context "connection is halted" do
@@ -129,47 +139,9 @@ RSpec.describe "calling the environment with a request" do
       @calls = []
     end
 
-    it "calls both apps for requests to paths at the mounted path" do
+    it "calls the first application that accepts the request" do
       expect(call("/")[0]).to eq(404)
       expect(@calls).to eq([:root])
-    end
-
-    context "app halts the connection" do
-      let :app_def do
-        local = self
-        Proc.new do
-          action do |connection|
-            local.instance_variable_get(:@calls) << :root
-            connection.halt
-          end
-        end
-      end
-
-      it "does not call future apps that match" do
-        expect(call("/")[0]).to eq(200)
-        expect(@calls).to eq([:root])
-      end
-    end
-
-    context "app errors when processing a connection" do
-      let :app_def do
-        local = self
-        Proc.new do
-          action do |connection|
-            local.instance_variable_get(:@calls) << :root
-            fail
-          end
-        end
-      end
-
-      let :allow_request_failures do
-        true
-      end
-
-      it "does not call future apps that match" do
-        expect(call("/")[0]).to eq(500)
-        expect(@calls).to eq([:root])
-      end
     end
   end
 end

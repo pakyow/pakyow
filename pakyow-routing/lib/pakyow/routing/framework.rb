@@ -14,7 +14,6 @@ module Pakyow
         require "pakyow/routing/extensions"
         require "pakyow/routing/helpers/exposures"
 
-        require "pakyow/application/actions/routing/respond_missing"
         require "pakyow/application/behavior/routing/definition"
 
         require "pakyow/security/behavior/disabling"
@@ -86,12 +85,6 @@ module Pakyow
             end
           end
 
-          # Create the global controller instance.
-          #
-          after "initialize" do
-            @global_controller = isolated(:Controller).new(self)
-          end
-
           # Register routes as endpoints.
           #
           after "initialize" do
@@ -99,22 +92,6 @@ module Pakyow
               controllers.each do |controller|
                 controller.build_endpoints(endpoints)
               end
-            end
-          end
-
-          # Register the respond missing action as the last registered action.
-          #
-          after "initialize", priority: -10 do
-            unless Pakyow.env?(:prototype) || is_a?(Plugin)
-              action(Application::Actions::Routing::RespondMissing)
-            end
-          end
-
-          # Expose the global controller for handling errors from other frameworks.
-          #
-          def controller_for_connection(connection)
-            @global_controller.dup.tap do |controller|
-              controller.instance_variable_set(:@connection, connection)
             end
           end
 

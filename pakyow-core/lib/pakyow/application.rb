@@ -4,6 +4,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/configurable"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/definable"
+require "pakyow/support/handleable"
 require "pakyow/support/hookable"
 require "pakyow/support/inspectable"
 require "pakyow/support/makeable"
@@ -21,6 +22,13 @@ require "pakyow/application/behavior/restarting"
 require "pakyow/application/behavior/initializers"
 require "pakyow/application/behavior/plugins"
 require "pakyow/application/behavior/operations"
+
+require "pakyow/application/actions/missing"
+
+require "pakyow/handleable/actions/handle"
+require "pakyow/handleable/behavior/statuses"
+require "pakyow/handleable/behavior/defaults/not_found"
+require "pakyow/handleable/behavior/defaults/server_error"
 
 require "pakyow/connection"
 require "pakyow/errors"
@@ -143,8 +151,12 @@ module Pakyow
     end
 
     include Support::Definable
+    include Support::Handleable
     include Support::Makeable
+
     include Support::Pipeline
+    action :handle, Handleable::Actions::Handle
+    action :missing, Actions::Missing
 
     include Behavior::Sessions
     include Behavior::Endpoints
@@ -156,6 +168,17 @@ module Pakyow
     include Behavior::Initializers
     include Behavior::Plugins
     include Behavior::Operations
+
+    include Handleable::Behavior::Statuses
+
+    include Handleable::Behavior::Defaults::NotFound
+    include Handleable::Behavior::Defaults::ServerError
+
+    # `Pakyow::Application` is frozen at runtime which precludes defining handlers in context of an
+    # action or similar. Undefining the method results in a more user-friendly undefined method
+    # error instead of a frozen error.
+    #
+    undef handle
 
     # Isolate the connection before making the app so that other before make hooks and the make
     # block itself has access to the isolated connection class. In practice, this design detail
@@ -232,13 +255,16 @@ module Pakyow
     # Calls the app pipeline with a connection created from the rack env.
     #
     def call(connection)
-      app_connection = isolated(:Connection).new(self, connection)
-      super(app_connection)
-    rescue => error
-      if app_connection && respond_to?(:controller_for_connection) && controller = controller_for_connection(app_connection)
-        controller.handle_error(error)
-      else
-        raise error
+      super(isolated(:Connection).new(self, connection))
+    end
+
+    # Triggers `event`, passing any arguments to triggered handlers.
+    #
+    # Calls application handlers, then propagates the event to the environment.
+    #
+    def trigger(event, *args, **kwargs, &block)
+      super do
+        Pakyow.trigger(event, *args, **kwargs, &block)
       end
     end
 

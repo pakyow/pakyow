@@ -19,6 +19,10 @@ RSpec.describe "parsing requests" do
 
   include_context "app"
 
+  let(:allow_request_failures) {
+    true
+  }
+
   it "is possible to define a connection parser" do
     expect(call("/", method: :post, headers: { "content-type" => "application/foo" }, input: StringIO.new("foo"))[2]).to eq("oof")
   end

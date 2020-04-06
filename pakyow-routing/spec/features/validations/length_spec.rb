@@ -15,6 +15,10 @@ RSpec.describe "email validation" do
     end
   end
 
+  let :allow_request_failures do
+    true
+  end
+
   context "value is not accepted" do
     it "responds 400" do
       expect(call("/test", params: { value: "b" })[0]).to eq(400)

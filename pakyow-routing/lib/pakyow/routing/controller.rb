@@ -4,11 +4,14 @@ require "forwardable"
 require "uri"
 
 require "pakyow/support/aargv"
+require "pakyow/support/handleable"
 require "pakyow/support/hookable"
 require "pakyow/support/pipeline"
 require "pakyow/support/core_refinements/string/normalization"
 
 require "pakyow/connection/statuses"
+
+require "pakyow/handleable/behavior/statuses"
 
 require "pakyow/security/errors"
 
@@ -152,12 +155,15 @@ module Pakyow
       include Support::Hookable
       events :dispatch
 
-      include Routing::Behavior::ErrorHandling
-      include Routing::Behavior::ParamVerification
-
       include Support::Pipeline
 
       using Support::Refinements::String::Normalization
+
+      include Support::Handleable
+      include Handleable::Behavior::Statuses
+
+      include Routing::Behavior::ErrorHandling
+      include Routing::Behavior::ParamVerification
 
       METHOD_GET    = :get
       METHOD_HEAD   = :head
@@ -253,11 +259,16 @@ module Pakyow
       # @api private
       def call_route(connection, route)
         @connection, @route = connection, route
-        @route.pipeline.call(self, connection)
+
+        handling(connection: connection) do
+          @route.pipeline.call(self, connection)
+        rescue => error
+          connection.error = error
+          Pakyow.houston(error)
+          raise error
+        end
+
         halt unless connection.rejected?
-      rescue StandardError => error
-        Pakyow.houston(error)
-        handle_error(error)
       end
 
       # @api private

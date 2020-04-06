@@ -105,7 +105,6 @@ module Pakyow
           when Symbol
             SYMBOL_TO_CODE[code_or_symbol]
           else
-            code_or_symbol = code_or_symbol.to_i
             if CODE_TO_DESCRIPTION.key?(code_or_symbol)
               code_or_symbol
             else

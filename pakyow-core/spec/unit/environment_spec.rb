@@ -661,7 +661,7 @@ RSpec.describe Pakyow do
       end
 
       it "restarts before dispatch" do
-        expect(pipeline.actions.map(&:name)).to eq([:log, :normalize, :parse, :restart, :dispatch])
+        expect(pipeline.actions.map(&:name)).to eq([:handle, :missing, :log, :normalize, :parse, :restart, :dispatch])
       end
     end
 
@@ -675,7 +675,7 @@ RSpec.describe Pakyow do
       end
 
       it "restarts before dispatch" do
-        expect(pipeline.actions.map(&:name)).to eq([:log, :normalize, :parse, :restart, :dispatch])
+        expect(pipeline.actions.map(&:name)).to eq([:handle, :missing, :log, :normalize, :parse, :restart, :dispatch])
       end
     end
 

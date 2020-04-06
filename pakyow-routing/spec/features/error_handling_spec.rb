@@ -164,14 +164,17 @@ RSpec.describe "error handling" do
           controller do
             default do
               trigger 404
-              res.body = ["foo"]
+
+              # This should not be executed if `trigger` halts correctly.
+              #
+              connection.body = "foo"
             end
           end
         end
       end
 
       it "halts" do
-        expect(call[2]).not_to eq(["foo"])
+        expect(call[2]).not_to eq("foo")
       end
 
       it "sets the response code" do
@@ -207,7 +210,7 @@ RSpec.describe "error handling" do
       context "and another error of the same type occurs" do
         let :app_def do
           Proc.new do
-            controller do
+            controller :one do
               handle StandardError, as: 401 do
                 send "handled exception"
               end
@@ -217,7 +220,7 @@ RSpec.describe "error handling" do
               end
             end
 
-            controller do
+            controller :two do
               get "/foo" do
                 raise StandardError
               end
@@ -322,7 +325,7 @@ RSpec.describe "error handling" do
       end
 
       it "returns the default response" do
-        expect(call[2]).to eq("")
+        expect(call[2]).to eq("500 Server Error")
       end
     end
   end
@@ -331,8 +334,9 @@ RSpec.describe "error handling" do
     context "and a global handler is defined" do
       let :app_def do
         Proc.new do
-          handle 404 do
-            send "not found"
+          handle 404 do |connection:|
+            connection.body = "not found"
+            connection.halt
           end
         end
       end
@@ -352,7 +356,7 @@ RSpec.describe "error handling" do
       end
 
       it "returns the default response" do
-        expect(call[2]).to eq("")
+        expect(call[2]).to eq("404 Not Found")
       end
     end
   end
@@ -361,8 +365,9 @@ RSpec.describe "error handling" do
     context "and a global handler is defined" do
       let :app_def do
         Proc.new do
-          handle 500 do
-            send "boom"
+          handle 500 do |connection:|
+            connection.body = "boom"
+            connection.halt
           end
 
           controller do
@@ -392,8 +397,8 @@ RSpec.describe "error handling" do
     context "and a global handler is defined for the error class" do
       let :app_def do
         Proc.new do
-          handle ArgumentError, as: 406 do
-            send "boom"
+          handle ArgumentError, as: 406 do |connection:|
+            connection.body = "boom"
           end
 
           controller do
@@ -442,9 +447,9 @@ RSpec.describe "error handling" do
     let :app_def do
       Proc.new do
         controller do
-          handle 500 do
+          handle 500 do |connection:|
             @state << "handler"
-            send @state
+            connection.body = @state
           end
 
           default do
@@ -468,9 +473,9 @@ RSpec.describe "error handling" do
     let :app_def do
       Proc.new do
         controller do
-          handle 500 do
+          handle 500 do |connection:|
             @state << "handler2"
-            send @state
+            connection.body = @state
           end
 
           handle 500 do

@@ -18,21 +18,19 @@ module Pakyow
       # Dispatches the connection to an application.
       #
       def dispatch(connection)
+        finished = false
+
         performing :dispatch, connection: connection do
-          apps.find { |app|
-            app.accept?(connection)
-          }&.call(connection)
+          catch :halt do
+            apps.find { |app|
+              app.accept?(connection)
+            }&.call(connection)
+
+            finished = true
+          end
         end
 
-        unless connection.halted? || connection.streaming?
-          connection.status = 404
-          connection.body = "404 Not Found"
-        end
-      rescue StandardError => error
-        houston(error)
-        connection.error = error
-        connection.status = 500
-        connection.body = "500 Server Error"
+        throw :halt unless finished
       end
     end
   end
