@@ -1,6 +1,9 @@
 # v1.1.0 (unreleased)
 
-  * `add` **Handle events and errors in the environment and application objects.**
+  * `add` **Add event/error handling to applications, connections, and the environment.**
+
+    *Related links:*
+    - [Pull Request #440][pr-440]
 
   * `fix` **Log the epilogue even if another action halts.**
 
@@ -330,6 +333,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-440]: https://github.com/pakyow/pakyow/pull/440
 [pr-436]: https://github.com/pakyow/pakyow/pull/436
 [pr-434]: https://github.com/pakyow/pakyow/pull/434
 [pr-433]: https://github.com/pakyow/pakyow/pull/433
