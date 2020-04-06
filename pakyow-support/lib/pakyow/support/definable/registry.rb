@@ -88,6 +88,7 @@ module Pakyow
 
         # @api private
         def <<(definition)
+          @priorities[definition] = PRIORITIES[:default]
           @definitions << definition
         end
 
