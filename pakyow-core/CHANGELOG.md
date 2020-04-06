@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Make `Rack::Compatibility` compatible with protocol-http@0.16.**
+
+    *Related links:*
+    - [Pull Request #443][pr-443]
+
   * `add` **Add event/error handling to applications, connections, and the environment.**
 
     *Related links:*
@@ -333,6 +338,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-443]: https://github.com/pakyow/pakyow/pull/443
 [pr-440]: https://github.com/pakyow/pakyow/pull/440
 [pr-436]: https://github.com/pakyow/pakyow/pull/436
 [pr-434]: https://github.com/pakyow/pakyow/pull/434

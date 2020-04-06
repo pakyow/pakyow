@@ -57,10 +57,21 @@ module Pakyow
       end
 
       def normalize_header_key_value(key, value)
-        if value && policy = Protocol::HTTP::Headers::MERGE_POLICY[key.to_s.downcase.gsub("_", "-")]
+        if value && policy = header_policy(key)
           policy.new(value.to_s)
         else
           value
+        end
+      end
+
+      def header_policy(key)
+        key = key.to_s.downcase.gsub("_", "-")
+        if defined?(Protocol::HTTP::Headers::MERGE_POLICY)
+          Protocol::HTTP::Headers::MERGE_POLICY[key]
+        elsif defined?(Protocol::HTTP::Headers::POLICY)
+          Protocol::HTTP::Headers::POLICY[key]
+        else
+          nil
         end
       end
     end
