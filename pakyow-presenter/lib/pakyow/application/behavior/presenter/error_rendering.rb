@@ -4,7 +4,6 @@ require "cgi"
 
 require "redcarpet"
 
-require "pakyow/support/bindable"
 require "pakyow/support/extension"
 
 require "pakyow/error"
@@ -27,7 +26,6 @@ module Pakyow
                   error = Pakyow::Error.build(error)
                 end
 
-                error.extend Support::Bindable
                 connection.set :pw_error, error
                 connection.render "/development/500"
               end

@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 require "pakyow/support/core_refinements/string/normalization"
+require "pakyow/support/bindable"
 
 require "pakyow/error"
 
 module Pakyow
+  class Error
+    include Support::Bindable
+  end
+
   module Presenter
     class Error < Pakyow::Error
     end
