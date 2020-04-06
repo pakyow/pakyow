@@ -2,6 +2,7 @@
 
 require "pakyow/support/class_state"
 require "pakyow/support/deprecatable"
+require "pakyow/support/handleable"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/pipeline/object"
@@ -10,9 +11,7 @@ require "pakyow/behavior/verification"
 
 module Pakyow
   class Operation
-    extend Support::ClassState
-    class_state :__handlers, default: {}, inheritable: true
-
+    include Support::Handleable
     include Support::Makeable
 
     include Support::Pipeline
@@ -47,12 +46,8 @@ module Pakyow
     end
 
     def perform
-      call(self)
-    rescue => error
-      if handler = self.class.__handlers[error.class] || self.class.__handlers[:global]
-        instance_exec(&handler); self
-      else
-        raise error
+      handling do
+        call(self)
       end
     end
 
@@ -105,10 +100,6 @@ module Pakyow
     end
 
     class << self
-      def handle(error = nil, &block)
-        @__handlers[error || :global] = block
-      end
-
       # @api private
       def deprecate(target = self, solution: "do not use")
         if __verifiers[:default]&.allowable_keys&.include?(target)

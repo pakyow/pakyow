@@ -3,6 +3,7 @@
 require "pakyow/support/class_state"
 require "pakyow/support/configurable"
 require "pakyow/support/definable"
+require "pakyow/support/handleable"
 require "pakyow/support/hookable"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
@@ -14,6 +15,8 @@ require "pakyow/application/behavior/helpers"
 require "pakyow/application/behavior/operations"
 require "pakyow/application/behavior/rescuing"
 require "pakyow/application/behavior/restarting"
+
+require "pakyow/handleable/behavior/statuses"
 
 require "pakyow/application"
 require "pakyow/endpoints"
@@ -67,6 +70,7 @@ module Pakyow
     end
 
     include Support::Definable
+    include Support::Handleable
     include Support::Hookable
     include Support::Makeable
     include Support::Pipeline
@@ -84,6 +88,8 @@ module Pakyow
     include Application::Behavior::Operations
     include Application::Behavior::Rescuing
     include Application::Behavior::Restarting
+
+    include Handleable::Behavior::Statuses
 
     attr_reader :parent
 

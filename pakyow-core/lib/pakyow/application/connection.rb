@@ -3,6 +3,8 @@
 require "delegate"
 
 require "pakyow/support/core_refinements/string/normalization"
+
+require "pakyow/support/handleable"
 require "pakyow/support/hookable"
 
 module Pakyow
@@ -20,6 +22,11 @@ module Pakyow
       include Behavior::Session
       include Behavior::Verifier
       include Behavior::Values
+
+      include Support::Handleable
+
+      require "pakyow/connection/behavior/handling"
+      include Pakyow::Connection::Behavior::Handling
 
       using Support::Refinements::String::Normalization
 
@@ -49,10 +56,31 @@ module Pakyow
         __getobj__.method
       end
 
+      # Triggers `event`, passing any arguments to triggered handlers.
+      #
+      # Calls connection handlers, then propagates the event to the application.
+      #
+      def trigger(event, *args, **kwargs)
+        super(event, *args, **kwargs) do
+          if block_given?
+            yield
+          else
+            @app.trigger(event, *args, **kwargs)
+          end
+        end
+
+        halt
+      end
+
       # Fixes an issue using pp inside a delegator.
       #
       def pp(*args)
         Kernel.pp(*args)
+      end
+
+      # @api private
+      def handling_target
+        @app
       end
 
       # @api private

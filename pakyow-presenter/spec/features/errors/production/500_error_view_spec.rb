@@ -48,9 +48,9 @@ RSpec.describe "500 error views in production" do
   context "app defines its own 500 handler" do
     let :app_def do
       Proc.new do
-        handle 500 do
-          $handled = true
+        handle 500 do |connection:|
           connection.body = StringIO.new("foo")
+          connection.halt
         end
 
         controller do
@@ -61,20 +61,15 @@ RSpec.describe "500 error views in production" do
       end
     end
 
-    after do
-      $handled = false
-    end
-
     it "handles instead of presenter" do
       expect(call("/fail")[2]).to eq("foo")
-      expect($handled).to eq(true)
     end
 
     context "handler renders the default 500 view" do
       let :app_def do
         Proc.new do
-          handle 500 do
-            render "/500"
+          handle 500 do |connection:|
+            connection.render "/500"
           end
 
           controller do
@@ -98,8 +93,8 @@ RSpec.describe "500 error views in production" do
             config.presenter.path = File.expand_path("../../views", __FILE__)
           end
 
-          handle 500 do
-            render "/non_standard_500"
+          handle 500 do |connection:|
+            connection.render "/non_standard_500"
           end
 
           controller do

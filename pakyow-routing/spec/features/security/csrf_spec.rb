@@ -51,8 +51,9 @@ RSpec.describe "processing requests with csrf protection" do
     context "403 handler is defined globally" do
       let :app_def do
         Proc.new do
-          handle 403 do
-            send "403"
+          handle 403 do |connection:|
+            connection.body = "403"
+            connection.halt
           end
 
           controller do
@@ -86,11 +87,11 @@ RSpec.describe "processing requests with csrf protection" do
       end
     end
 
-    context "error handler is defined globally" do
+    xcontext "error handler is defined globally" do
       let :app_def do
         Proc.new do
-          handle Pakyow::Security::InsecureRequest, as: 404 do
-            send "404"
+          handle Pakyow::Security::InsecureRequest, as: 404 do |connection:|
+            connection.body = "404"
           end
 
           controller do

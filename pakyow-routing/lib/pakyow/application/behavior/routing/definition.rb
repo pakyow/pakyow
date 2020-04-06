@@ -24,13 +24,6 @@ module Pakyow
                 expand_within(:resource, param: param, &block)
               end
             end
-
-            # Registers an error handler automatically available in all Controller instances.
-            #
-            # @see Routing::Behavior::ErrorHandling#handle
-            def handle(name_exception_or_code, as: nil, &block)
-              isolated(:Controller).handle(name_exception_or_code, as: as, &block)
-            end
           end
         end
       end

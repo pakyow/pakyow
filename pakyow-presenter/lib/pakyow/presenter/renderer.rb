@@ -162,12 +162,6 @@ module Pakyow
               end
             end
           end
-        rescue StandardError => error
-          Pakyow.houston(error)
-
-          if connection.app.class.includes_framework?(:routing)
-            connection.app.controller_for_connection(connection).handle_error(error)
-          end
         end
 
         # @api private

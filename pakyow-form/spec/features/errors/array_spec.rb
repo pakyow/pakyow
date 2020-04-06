@@ -51,7 +51,7 @@ RSpec.describe "triggering errors with a result containing an array of messages"
       expect(result[0]).to be(400)
       body = result[2]
       expect(body).to include_sans_whitespace("something went wrong")
-      expect(body).to include_sans_whitespace("something elsewent wrong")
+      expect(body).to include_sans_whitespace("something else went wrong")
     end
   end
 end

@@ -11,8 +11,8 @@ module Pakyow
         extend Support::Extension
 
         apply_extension do
-          handle InsecureRequest, as: 403 do
-            trigger(403)
+          isolated :Controller do
+            handle InsecureRequest, as: 403
           end
         end
       end
