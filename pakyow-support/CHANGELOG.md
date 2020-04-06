@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Build state on configurable instances prior to freezing.**
+
+    *Related links:*
+    - [Pull Request #441][pr-441]
+
   * `add` **Introduce `Handleable` for handling events (such as errors) on your objects.**
 
     *Related links:*
@@ -283,6 +288,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-441]: https://github.com/pakyow/pakyow/pull/441
 [pr-430]: https://github.com/pakyow/pakyow/pull/430
 [pr-429]: https://github.com/pakyow/pakyow/pull/429
 [pr-428]: https://github.com/pakyow/pakyow/pull/428

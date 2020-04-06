@@ -125,11 +125,15 @@ module Pakyow
         end
       end
 
-      # Returns the configuration.
-      #
-      def config
-        @config ||= self.class.config.dup.update_configurable(self)
+      prepend_methods do
+        def initialize(*)
+          @config = self.class.config.dup.update_configurable(self)
+
+          super
+        end
       end
+
+      attr_reader :config
     end
   end
 end
