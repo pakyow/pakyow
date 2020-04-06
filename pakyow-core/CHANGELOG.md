@@ -5,6 +5,11 @@
     *Related links:*
     - [Pull Request #443][pr-443]
 
+  * `chg` **Handle application errors through the normal error handling process.**
+
+    *Related links:*
+    - [Pull Request #442][pr-442]
+
   * `add` **Add event/error handling to applications, connections, and the environment.**
 
     *Related links:*
@@ -339,6 +344,7 @@
     - [Pull Request #338][pr-338]
 
 [pr-443]: https://github.com/pakyow/pakyow/pull/443
+[pr-442]: https://github.com/pakyow/pakyow/pull/442
 [pr-440]: https://github.com/pakyow/pakyow/pull/440
 [pr-436]: https://github.com/pakyow/pakyow/pull/436
 [pr-434]: https://github.com/pakyow/pakyow/pull/434
