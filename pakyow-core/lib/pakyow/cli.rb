@@ -37,7 +37,7 @@ module Pakyow
 
         cli = new(feedback: Feedback.new(output))
 
-        cli.handle do
+        cli.handling do
           parser = Parsers::Global.new(argv)
           command = parser.command
           options = parser.options
@@ -76,12 +76,12 @@ module Pakyow
     end
 
     def with(command)
-      handle(find_callable_command(command)) do |callable_command|
+      handling(find_callable_command(command)) do |callable_command|
         yield callable_command
       end
     end
 
-    def handle(command = nil)
+    def handling(command = nil)
       yield command
     rescue StandardError => error
       if @feedback.tty?
