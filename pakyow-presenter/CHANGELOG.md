@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Render error views when the application is rescued before setup.**
+
   * `chg` **Endpoints now pull param values from related objects.**
 
     *Related links:*
