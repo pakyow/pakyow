@@ -42,7 +42,9 @@ RSpec.describe "running the environment" do
     context "some other error is encountered" do
       before do
         allow(Async::Reactor).to receive(:run) do
-          raise error
+          unless @raised
+            @raised = true; raise error
+          end
         end
       end
 
@@ -57,13 +59,17 @@ RSpec.describe "running the environment" do
       it "exposes the error" do
         Pakyow.run
 
-        expect(Pakyow.error).to be(error)
+        expect(Pakyow.error).to be_instance_of(Pakyow::EnvironmentError)
+        expect(Pakyow.error.cause).to be(error)
       end
 
       it "reports the error" do
         Pakyow.run
 
-        expect(Pakyow.logger).to have_received(:houston).with(error)
+        expect(Pakyow.logger).to have_received(:houston) do |received_error|
+          expect(received_error).to be_instance_of(Pakyow::EnvironmentError)
+          expect(received_error.cause).to be(error)
+        end
       end
 
       context "exit_on_boot_failure is true" do

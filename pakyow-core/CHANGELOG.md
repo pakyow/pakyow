@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Add the rescue pattern to the environment.**
+
   * `fix` **Make `Rack::Compatibility` compatible with protocol-http@0.16.**
 
     *Related links:*

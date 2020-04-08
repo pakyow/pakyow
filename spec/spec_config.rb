@@ -136,7 +136,7 @@ RSpec.configure do |config|
     reset_config(Pakyow::Application) if defined?(Pakyow::Application)
     reset_config(Pakyow)
 
-    [:@port, :@host, :@logger, :@app, :@output, :@deprecator, :@config].each do |ivar|
+    [:@port, :@host, :@logger, :@app, :@output, :@deprecator, :@config, :@error].each do |ivar|
       if Pakyow.instance_variable_defined?(ivar)
         Pakyow.remove_instance_variable(ivar)
       end

@@ -62,7 +62,7 @@ module Pakyow
         #
         def run(env: nil)
           unless running?
-            boot(env: env)
+            boot(env: env) unless rescued?
 
             Async::Reactor.run do |reactor|
               @__reactor = reactor
@@ -81,16 +81,14 @@ module Pakyow
           end
 
           self
-        rescue ApplicationError => error
-          error.context.rescue!(error); retry
         rescue SignalException, Interrupt
           exit
-        rescue => error
-          @error = error
-          houston(error)
-          if config.exit_on_boot_failure
-            exit(false)
-          end
+        rescue ApplicationError => error
+          error.context.rescue!(error); retry
+        rescue EnvironmentError => error
+          handle_environment_error(error); retry
+        rescue ScriptError, StandardError => error
+          handle_environment_error(EnvironmentError.build(error)); retry
         end
 
         # Returns true if the environment is running.
@@ -173,6 +171,14 @@ module Pakyow
                 app.rescue!(error)
               end
             end
+          end
+        end
+
+        private def handle_environment_error(error)
+          Pakyow.rescue!(error)
+
+          if config.exit_on_boot_failure
+            exit(false)
           end
         end
       end
