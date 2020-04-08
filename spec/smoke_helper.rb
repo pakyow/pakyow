@@ -79,13 +79,15 @@ RSpec.configure do |config|
     Dir.chdir(@project_path)
   end
 
-  def boot(environment: self.environment, envars: self.envars, port: self.port, host: self.host)
+  def boot(environment: self.environment, envars: self.envars, port: self.port, host: self.host, wait: true)
     Bundler.with_original_env do
       @server = Process.spawn(envars, "pakyow boot -e #{environment} -p #{port} --host #{host}")
     end
 
-    wait_for_boot do
-      yield if block_given?
+    if wait
+      wait_for_boot do
+        yield if block_given?
+      end
     end
   end
 
