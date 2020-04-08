@@ -110,7 +110,7 @@ RSpec.shared_context "app" do
           response_body << content
         end
 
-        [result.status, Protocol::HTTP::Headers.new(result.headers).to_h, response_body]
+        [result.status, result.headers.to_h, response_body]
       else
         result
       end
