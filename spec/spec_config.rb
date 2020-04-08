@@ -26,12 +26,6 @@ RSpec.configure do |config|
     config.filter_run_excluding benchmark: true
   end
 
-  if ENV.key?("CI_SMOKE")
-    config.filter_run smoke: true
-  else
-    config.filter_run_excluding smoke: true
-  end
-
   def rss
    `ps -eo pid,rss | grep #{Process.pid} | awk '{print $2}'`.to_i
   end
