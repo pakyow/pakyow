@@ -122,7 +122,7 @@ module Pakyow
     inspectable :@environment
 
     include Support::Hookable
-    events :setup, :initialize, :configure, :load, :finalize, :boot, :rescue, :shutdown
+    events :setup, :initialize, :configure, :load, :finalize, :boot, :shutdown
 
     extend Support::ClassState
     class_state :__setup, default: false, reader: false
