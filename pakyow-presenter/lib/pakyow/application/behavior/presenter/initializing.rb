@@ -27,8 +27,6 @@ module Pakyow
                     }
                   )
                 )
-
-                templates << Pakyow::Presenter::Templates.new(:errors, File.join(File.expand_path("../../../../", __FILE__), "views", "errors"))
               end
             end
 

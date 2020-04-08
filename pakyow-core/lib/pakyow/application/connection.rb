@@ -31,9 +31,17 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       def initialize(app, connection)
-        performing :initialize do
-          @app = app; __setobj__(connection)
+        if app.rescued?
+          __initialize(app, connection)
+        else
+          performing :initialize do
+            __initialize(app, connection)
+          end
         end
+      end
+
+      private def __initialize(app, connection)
+        @app = app; __setobj__(connection)
       end
 
       def initialize_dup(_)

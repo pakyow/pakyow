@@ -1,6 +1,7 @@
 require_relative "./connection/shared_examples/values"
 require_relative "./connection/shared_examples/verifier"
 
+require "pakyow/application/connection"
 require "pakyow/application/connection/session/cookie"
 
 require "pakyow/support/deep_dup"
@@ -17,7 +18,8 @@ RSpec.describe Pakyow::Application::Connection do
       Pakyow::Application,
       config: Pakyow::Application.config.deep_dup,
       session_object: Pakyow::Application::Connection::Session::Cookie,
-      session_options: Pakyow::Application.config.session.cookie.deep_dup
+      session_options: Pakyow::Application.config.session.cookie.deep_dup,
+      rescued?: false
     )
   end
 
@@ -57,6 +59,29 @@ RSpec.describe Pakyow::Application::Connection do
 
       expect(before).to be(true)
       expect(after).to be(true)
+    end
+
+    context "application is rescued" do
+      before do
+        allow(app).to receive(:rescued?).and_return(true)
+      end
+
+      it "does not call the initialize hooks" do
+        before, after = nil
+
+        described_class.before "initialize" do
+          before = true
+        end
+
+        described_class.after "initialize" do
+          after = true
+        end
+
+        connection
+
+        expect(before).to be(nil)
+        expect(after).to be(nil)
+      end
     end
   end
 
