@@ -104,7 +104,7 @@ module Pakyow
 
   setting :default_env, :development
   setting :freeze_on_boot, true
-  setting :exit_on_boot_failure, true
+  setting :exit_on_boot_failure, false
   setting :timezone, :utc
   setting :secrets, ["pakyow"]
 
@@ -136,6 +136,7 @@ module Pakyow
   end
 
   config.deprecate :freeze_on_boot
+  config.deprecate :exit_on_boot_failure
 
   configurable :server do
     setting :host, "localhost"

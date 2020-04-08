@@ -177,8 +177,10 @@ module Pakyow
         private def handle_environment_error(error)
           Pakyow.rescue!(error)
 
-          if config.exit_on_boot_failure
-            exit(false)
+          Pakyow.deprecator.ignore do
+            if config.exit_on_boot_failure
+              exit(false)
+            end
           end
         end
       end

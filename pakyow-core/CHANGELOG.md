@@ -277,6 +277,8 @@
 
 ## Deprecations
 
+  * `Pakyow.config.exit_on_boot_failure` is deprecated with no replacement.
+
   * `Pakyow::Actions::Dispatch` is deprecated with no replacement.
 
     *Related links:*
