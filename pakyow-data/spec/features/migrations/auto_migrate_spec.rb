@@ -66,7 +66,7 @@ RSpec.describe "auto migrating on boot" do
           let :app_def do
             Proc.new do
               before "initialize" do
-                @error = true
+                rescue!(RuntimeError.new)
               end
 
               source :posts do
