@@ -197,9 +197,9 @@ module Pakyow
             end
           end
 
+          include Application::Behavior::Presenter::Initializing
           include Application::Behavior::Presenter::ErrorRendering
           include Application::Behavior::Presenter::Exposures
-          include Application::Behavior::Presenter::Initializing
           include Application::Behavior::Presenter::Modes
           include Application::Behavior::Presenter::Versions
           include Application::Behavior::Presenter::Watching

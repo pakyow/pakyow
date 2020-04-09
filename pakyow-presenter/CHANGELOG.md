@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Render error views when the application is rescued before setup.**
+
+    *Related links:*
+    - [Pull Request #446][pr-446]
+
   * `chg` **Endpoints now pull param values from related objects.**
 
     *Related links:*
@@ -11,6 +16,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+[pr-446]: https://github.com/pakyow/pakyow/pull/446
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
 [ce9a018]: https://github.com/pakyow/pakyow/commit/ce9a0186b70f99aadb173fc37e1d9541ce9834da
 [802295c]: https://github.com/pakyow/pakyow/commit/802295c0396383b96fadafd121192d41bb63457e

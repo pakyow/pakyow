@@ -4,7 +4,9 @@ require "cgi"
 
 require "redcarpet"
 
+require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
+require "pakyow/support/safe_string"
 
 require "pakyow/error"
 
@@ -15,24 +17,67 @@ module Pakyow
         module ErrorRendering
           extend Support::Extension
 
-          # @api private
-          #
-          def self.render_error(error, connection)
-            if connection.format == :html
-              if Pakyow.env?(:production)
-                connection.render "/500"
-              else
-                unless error.is_a?(Pakyow::Error)
-                  error = Pakyow::Error.build(error)
-                end
+          using Support::DeepDup
 
-                connection.set :pw_error, error
-                connection.render "/development/500"
+          class << self
+            # @api private
+            def render_error(error, connection)
+              if connection.format == :html
+                if Pakyow.env?(:production)
+                  if connection.app.rescued?
+                    connection.body = build_error_view("/500").to_html
+                    connection.halt
+                  else
+                    connection.render "/500"
+                  end
+                else
+                  unless error.is_a?(Pakyow::Error)
+                    error = Pakyow::Error.build(error)
+                  end
+
+                  if connection.app.rescued?
+                    error_view = build_error_view("/development/500")
+                    error_binder = connection.app.binders(:pw_error).new(error, app: connection.app)
+                    error_view.find(:pw_error).bind(error_binder)
+
+                    connection.body = error_view.to_html
+                    connection.halt
+                  else
+                    connection.set :pw_error, error
+
+                    connection.render "/development/500"
+                  end
+                end
               end
+            end
+
+            # @api private
+            def error_templates
+              @__error_templates ||= Pakyow::Presenter::Templates.new(
+                :errors, File.join(File.expand_path("../../../../", __FILE__), "views", "errors")
+              )
+            end
+
+            # @api private
+            def build_error_view(view_path)
+              info = error_templates.info(view_path).deep_dup
+              info[:layout].build(info[:page])
             end
           end
 
           apply_extension do
+            if ancestors.include?(Application)
+              after "load.presenter" do
+                templates << ErrorRendering.error_templates
+              end
+
+              after "rescue" do
+                unless templates.definitions.any? { |definition| definition.name == :errors }
+                  templates << ErrorRendering.error_templates
+                end
+              end
+            end
+
             handle 404 do |connection:|
               if connection.format == :html
                 connection.render "/404"
@@ -62,6 +107,10 @@ module Pakyow
             end
 
             binder :pw_error do
+              # Include this explicitly since helpers might not load during rescue.
+              #
+              include Support::SafeStringHelpers
+
               def message
                 html_safe(markdown.render(format(object.message)))
               end
