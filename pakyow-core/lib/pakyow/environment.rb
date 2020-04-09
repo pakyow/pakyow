@@ -19,6 +19,7 @@ require "pakyow/behavior/erroring"
 require "pakyow/behavior/initializers"
 require "pakyow/behavior/input_parsing"
 require "pakyow/behavior/plugins"
+require "pakyow/behavior/rescuing"
 require "pakyow/behavior/silencing"
 require "pakyow/behavior/tasks"
 require "pakyow/behavior/timezone"
@@ -103,7 +104,7 @@ module Pakyow
 
   setting :default_env, :development
   setting :freeze_on_boot, true
-  setting :exit_on_boot_failure, true
+  setting :exit_on_boot_failure, false
   setting :timezone, :utc
   setting :secrets, ["pakyow"]
 
@@ -135,6 +136,7 @@ module Pakyow
   end
 
   config.deprecate :freeze_on_boot
+  config.deprecate :exit_on_boot_failure
 
   configurable :server do
     setting :host, "localhost"
@@ -274,6 +276,7 @@ module Pakyow
   include Behavior::Initializers
   include Behavior::InputParsing
   include Behavior::Plugins
+  include Behavior::Rescuing
   include Behavior::Silencing
   include Behavior::Tasks
   include Behavior::Timezone
@@ -318,10 +321,6 @@ module Pakyow
     # Name of the environment
     #
     attr_reader :env
-
-    # Any error encountered during the boot process
-    #
-    attr_reader :error
 
     # Global log output.
     #
@@ -400,6 +399,10 @@ module Pakyow
 
         @__loaded = true
       end
+    rescue ApplicationError => error
+      raise error
+    rescue ScriptError, StandardError => error
+      raise EnvironmentError.build(error)
     end
 
     # Returns true if the environment has loaded.
@@ -464,6 +467,10 @@ module Pakyow
       end
 
       self
+    rescue ApplicationError => error
+      raise error
+    rescue ScriptError, StandardError => error
+      raise EnvironmentError.build(error)
     end
 
     # Returns true if the environment has been setup.
@@ -493,6 +500,10 @@ module Pakyow
       end
 
       self
+    rescue ApplicationError => error
+      raise error
+    rescue ScriptError, StandardError => error
+      raise EnvironmentError.build(error)
     end
 
     # Returns true if the environment has booted.

@@ -14,17 +14,15 @@ RSpec.describe Pakyow do
 
     describe "exit_on_boot_failure" do
       it "has a default value" do
-        expect(Pakyow.config.exit_on_boot_failure).to eq(true)
+        expect(Pakyow.config.exit_on_boot_failure).to eq(false)
       end
 
-      context "in test" do
-        before do
-          Pakyow.configure!(:test)
-        end
+      it "is deprecated" do
+        expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+          "Pakyow.config.exit_on_boot_failure", { solution: "do not use" }
+        )
 
-        it "defaults to false" do
-          expect(Pakyow.config.exit_on_boot_failure).to eq(false)
-        end
+        Pakyow.config.exit_on_boot_failure
       end
     end
 

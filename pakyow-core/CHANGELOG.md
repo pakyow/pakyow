@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Add the rescue pattern to the environment.**
+
+    *Related links:*
+    - [Pull Request #444][pr-444]
+
   * `fix` **Make `Rack::Compatibility` compatible with protocol-http@0.16.**
 
     *Related links:*
@@ -274,6 +279,11 @@
     - [Commit 26f586d][26f586d]
 
 ## Deprecations
+
+  * `Pakyow.config.exit_on_boot_failure` is deprecated with no replacement.
+
+    *Related links:*
+    - [Pull Request #444][pr-444]
 
   * `Pakyow::Actions::Dispatch` is deprecated with no replacement.
 

@@ -5,6 +5,9 @@ require "json"
 require "pakyow/error"
 
 module Pakyow
+  class EnvironmentError < Error
+  end
+
   class ApplicationError < Error
   end
 
