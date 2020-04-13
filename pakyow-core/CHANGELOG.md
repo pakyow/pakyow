@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve cookie / session performance along with test coverage.**
+
+    *Related links:*
+    - [Pull Request #447][pr-447]
+
   * `add` **Add the rescue pattern to the environment.**
 
     *Related links:*
@@ -353,6 +358,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-447]: https://github.com/pakyow/pakyow/pull/447
 [pr-443]: https://github.com/pakyow/pakyow/pull/443
 [pr-442]: https://github.com/pakyow/pakyow/pull/442
 [pr-440]: https://github.com/pakyow/pakyow/pull/440

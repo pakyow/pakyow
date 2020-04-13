@@ -1,3 +1,4 @@
+require "pakyow/application/connection"
 require "pakyow/application/connection/session/cookie"
 
 RSpec.describe Pakyow::Application::Connection::Session::Cookie do
@@ -88,18 +89,6 @@ RSpec.describe Pakyow::Application::Connection::Session::Cookie do
         it "resets the session" do
           expect(instance).to be_empty
         end
-      end
-    end
-
-    context "cookie has already been deserialized" do
-      before do
-        current[:foo] = "bar"
-        connection.cookies["test.session"] = current.to_s
-        instance
-      end
-
-      it "initializes" do
-        expect(described_class.new(connection, options)).to eq(foo: "bar")
       end
     end
   end
