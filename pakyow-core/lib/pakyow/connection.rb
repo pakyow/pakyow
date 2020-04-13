@@ -435,28 +435,30 @@ module Pakyow
 
       # Delete cookies with nil/empty values.
       #
-      cookies.delete_if do |_, value|
+      cookies.delete_if do |_key, value|
         value.nil? || value.empty?
       end
 
       # Normalize cookies.
       #
-      cookies.keys.each do |key|
-        cookies[key] = normalize_cookie(cookies.delete(key))
+      cookies.each_key do |key|
+        cookies[key] = normalize_cookie(cookies[key])
       end
 
       # Set cookies that have new values.
       #
-      cookies.reject { |key, cookie|
-        cookie[:value] == @request_cookies[key]
-      }.each do |key, cookie|
-        response_cookies[key] = cookie_config.merge(cookie)
+      cookies.each_pair do |key, cookie|
+        unless cookie[:value] == @request_cookies[key]
+          response_cookies[key] = cookie_config.merge(cookie)
+        end
       end
 
       # Remove cookies.
       #
-      (@request_cookies.keys - cookies.keys).each do |key|
-        response_cookies[key] = DELETE_COOKIE
+      @request_cookies.each_key do |key|
+        unless cookies.include?(key)
+          response_cookies[key] = DELETE_COOKIE
+        end
       end
 
       # Build the header value.
@@ -465,7 +467,7 @@ module Pakyow
       set_header(
         "set-cookie",
         response_cookies.map { |key, cookie|
-          String.new("#{escape(key.to_s)}=#{escape(cookie[:value].to_s)}") << cookie_options(cookie)
+          escape(key.to_s) << "=" << escape(cookie[:value].to_s) << serialize_cookie(cookie)
         }
       )
     end
@@ -479,59 +481,48 @@ module Pakyow
       end
     end
 
-    def cookie_options(cookie)
-      String.new.tap do |options|
-        options << "; domain=#{cookie[:domain]}" if cookie[:domain]
-        options << "; path=#{cookie[:path]}" if cookie[:path]
-        options << "; max-age=#{cookie[:max_age]}" if cookie[:max_age]
+    def serialize_cookie(cookie)
+      serialized = String.new
 
-        if expires = cookie[:expires]
-          expires = case expires
-          when Integer
-            Time.now + expires
-          when Date, DateTime, Time
-            expires
-          else
-            nil
-          end
+      serialized << "; domain=#{cookie[:domain]}" if cookie[:domain]
+      serialized << "; path=#{cookie[:path]}" if cookie[:path]
+      serialized << "; max-age=#{cookie[:max_age]}" if cookie[:max_age]
 
-          options << "; expires=#{expires.httpdate}" if expires
-        end
-
-        options << "; secure" if cookie[:secure]
-        options << "; HttpOnly" if cookie[:http_only]
-
-        if same_site = cookie[:same_site]
-          same_site = case same_site
-          when :lax
-            "Lax"
-          when :strict
-            "Strict"
-          else
-            nil
-          end
-
-          options << "; SameSite=#{same_site}" if same_site
-        end
+      expires_value = cookie[:expires]
+      expires = case expires_value
+      when Integer
+        Time.now + expires_value
+      when Date, DateTime, Time
+        expires_value
+      else
+        nil
       end
+
+      serialized << "; expires=#{expires.httpdate}" if expires
+
+      serialized << "; Secure" if cookie[:secure]
+      serialized << "; HttpOnly" if cookie[:http_only]
+
+      same_site = case cookie[:same_site].to_s
+      when "lax"
+        "Lax"
+      when "strict"
+        "Strict"
+      else
+        nil
+      end
+
+      serialized << "; SameSite=#{same_site}" if same_site
+
+      serialized
     end
 
     def cookie_config
       unless instance_variable_defined?(:@cookie_config)
-        config = {}
-        add_cookie_config(Pakyow.config.cookies, config)
-        @cookie_config = config
+        @cookie_config = Pakyow.config.cookies.to_h
       end
 
       @cookie_config
-    end
-
-    def add_cookie_config(new_options, config)
-      new_options.to_h.each do |key, value|
-        if value
-          config[key] = value
-        end
-      end
     end
 
     def build_params

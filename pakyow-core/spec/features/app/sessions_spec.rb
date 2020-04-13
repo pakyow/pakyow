@@ -8,7 +8,7 @@ RSpec.describe "app sessions" do
         when "/set"
           connection.session[:foo] = "bar"
         when "/get"
-          connection.body = connection.session[:foo]
+          connection.body = connection.session[:foo].to_s
         end
 
         connection.halt
@@ -21,8 +21,9 @@ RSpec.describe "app sessions" do
   end
 
   it "reads values from the session" do
-    headers = call("/set")[1]
-    expect(call("/get", headers: { "cookie" => headers["set-cookie"].join("\n") })[2]).to eq("bar")
+    cookie = call("/set")[1]["set-cookie"][0]
+    response = call("/get", headers: { "cookie" => cookie })
+    expect(response[2]).to eq("bar")
   end
 
   context "sessions are disabled" do
