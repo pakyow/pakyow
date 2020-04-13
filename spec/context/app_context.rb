@@ -91,9 +91,15 @@ RSpec.shared_context "app" do
       headers["content-type"] = "application/json"
     end
 
+    DEFAULT_HEADERS.each do |key, value|
+      unless headers.include?(key)
+        headers[key] = value
+      end
+    end
+
     body = Async::HTTP::Body::Buffered.wrap(input)
     request = Async::HTTP::Protocol::Request.new(
-      scheme, "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers.new(DEFAULT_HEADERS.merge(headers).to_a), body
+      scheme, "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers[headers], body
     ).tap do |request|
       request.remote_address = Addrinfo.tcp("localhost", "http")
     end
