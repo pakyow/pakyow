@@ -3,7 +3,7 @@
 require "pakyow/routing"
 require "pakyow/presenter"
 
-require "pakyow/realtime/framework"
+require_relative "realtime/framework"
 
 module Pakyow
   configurable :realtime do

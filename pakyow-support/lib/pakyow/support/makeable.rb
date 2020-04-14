@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deprecator"
-require "pakyow/support/extension"
-require "pakyow/support/hookable"
-require "pakyow/support/inflector"
-require "pakyow/support/isolable"
-require "pakyow/support/object_name"
+require_relative "deprecator"
+require_relative "extension"
+require_relative "hookable"
+require_relative "inflector"
+require_relative "isolable"
+require_relative "object_name"
 
 module Pakyow
   module Support

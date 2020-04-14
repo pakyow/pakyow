@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "string_doc/meta_attributes"
+require_relative "meta_attributes"
 
 class StringDoc
   # Lets two or more nodes to be represented as a single node in a doc, then manipulated together.

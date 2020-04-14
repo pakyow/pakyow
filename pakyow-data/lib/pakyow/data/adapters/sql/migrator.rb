@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/data/adapters/sql/differ"
-require "pakyow/data/sources/relational"
+require_relative "differ"
+require_relative "../../sources/relational"
 
 module Pakyow
   module Data
@@ -9,7 +9,7 @@ module Pakyow
       class Sql
         # @api private
         class Migrator < Sources::Relational::Migrator
-          require "pakyow/data/adapters/sql/migrator/adapter_methods"
+          require_relative "migrator/adapter_methods"
 
           def initialize(*)
             super

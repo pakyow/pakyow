@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/operation"
+require_relative "../../operation"
 
 module Pakyow
   class Application

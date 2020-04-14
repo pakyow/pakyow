@@ -7,7 +7,7 @@ require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 require "pakyow/support/pipeline/object"
 
-require "pakyow/behavior/verification"
+require_relative "behavior/verification"
 
 module Pakyow
   class Operation

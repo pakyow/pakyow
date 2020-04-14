@@ -2,7 +2,7 @@
 
 require "pakyow/support/message_verifier"
 
-require "pakyow/realtime/websocket"
+require_relative "../../../realtime/websocket"
 
 module Pakyow
   class Application

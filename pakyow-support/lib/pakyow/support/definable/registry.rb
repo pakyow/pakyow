@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_dup"
-require "pakyow/support/inflector"
+require_relative "../deep_dup"
+require_relative "../inflector"
 
 module Pakyow
   module Support

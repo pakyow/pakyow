@@ -3,7 +3,7 @@
 require "pakyow/support/deprecator"
 require "pakyow/support/extension"
 
-require "pakyow/task"
+require_relative "../task"
 
 module Pakyow
   module Behavior

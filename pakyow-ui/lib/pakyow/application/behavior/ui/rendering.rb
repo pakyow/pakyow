@@ -8,7 +8,7 @@ require "pakyow/support/inflector"
 
 require "pakyow/application/helpers/realtime/subscriptions"
 
-require "pakyow/ui/handler"
+require_relative "../../../ui/handler"
 
 module Pakyow
   class Application

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/system"
+require_relative "system"
 
 module Pakyow
   module Support

@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/presenter/presenters/endpoint"
+require_relative "../../presenters/endpoint"
 
 module Pakyow
   module Presenter

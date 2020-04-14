@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/data/adapters/sql/migrator"
+require_relative "../migrator"
 
 module Pakyow
   module Data

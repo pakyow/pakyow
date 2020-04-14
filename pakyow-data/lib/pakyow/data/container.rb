@@ -2,7 +2,7 @@
 
 require "pakyow/support/inflector"
 
-require "pakyow/data/types"
+require_relative "types"
 
 module Pakyow
   module Data

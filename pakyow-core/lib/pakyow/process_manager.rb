@@ -2,9 +2,9 @@
 
 require "process/group"
 
-require "pakyow/process"
-
 require "pakyow/support/inflector"
+
+require_relative "process"
 
 module Pakyow
   # Manages one or more processes.

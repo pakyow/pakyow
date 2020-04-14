@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_dup"
+require_relative "deep_dup"
 
 module Pakyow
   module Support

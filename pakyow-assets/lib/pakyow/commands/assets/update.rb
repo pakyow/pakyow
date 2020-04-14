@@ -7,8 +7,8 @@ command :assets, :update do
   argument :asset, "The asset to update"
 
   action do
-    require "pakyow/assets/errors"
-    require "pakyow/assets/external"
+    require_relative "../../assets/errors"
+    require_relative "../../assets/external"
 
     if @asset
       @asset = @asset.to_sym

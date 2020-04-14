@@ -2,8 +2,8 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/assets/scripts/babel"
-require "pakyow/assets/scripts/terser"
+require_relative "../../../../assets/scripts/babel"
+require_relative "../../../../assets/scripts/terser"
 
 module Pakyow
   class Application

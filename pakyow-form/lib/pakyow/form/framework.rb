@@ -11,7 +11,7 @@ module Pakyow
         require "pakyow/support/extension"
         require "pakyow/support/inflector"
 
-        require "pakyow/application/connection/helpers/form"
+        require_relative "../application/connection/helpers/form"
 
         object.class_eval do
           isolated :Controller do

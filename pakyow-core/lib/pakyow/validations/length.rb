@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/validator"
+require_relative "../validator"
 
 module Pakyow
   module Validations

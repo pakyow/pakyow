@@ -7,7 +7,7 @@ require "pakyow/support/indifferentize"
 require "pakyow/support/inflector"
 require "pakyow/support/safe_string"
 
-require "string_doc"
+require_relative "../../string_doc"
 
 module Pakyow
   module Presenter

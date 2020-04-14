@@ -1,3 +1,3 @@
 # frozen_string_literal: true
 
-require "pakyow/routing/extensions/resource"
+require_relative "extensions/resource"

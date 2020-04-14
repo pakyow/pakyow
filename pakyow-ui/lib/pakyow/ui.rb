@@ -5,4 +5,4 @@ require "pakyow/data"
 require "pakyow/presenter"
 require "pakyow/realtime"
 
-require "pakyow/ui/framework"
+require_relative "ui/framework"

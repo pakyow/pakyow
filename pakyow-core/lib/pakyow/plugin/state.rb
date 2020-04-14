@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/loader"
+require_relative "../loader"
 
 module Pakyow
   class Plugin

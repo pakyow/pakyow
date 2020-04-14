@@ -19,7 +19,7 @@ module Pakyow
       def initialize(app, adapter = :memory, adapter_config = {})
         @app = app
 
-        require "pakyow/data/subscribers/adapters/#{adapter}"
+        require_relative "subscribers/adapters/#{adapter}"
         @adapter = Pakyow::Data::Subscribers::Adapters.const_get(
           adapter.to_s.capitalize
         ).new(

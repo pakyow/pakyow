@@ -7,7 +7,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/indifferentize"
 require "pakyow/support/inflector"
 
-require "pakyow/data/errors"
+require_relative "errors"
 
 module Pakyow
   module Data

@@ -3,16 +3,16 @@
 require "pakyow"
 require "pakyow/routing"
 
-require "pakyow/data/connection"
+require_relative "data/connection"
 
 Pakyow::Data::Connection.register_adapter :sql
 
-require "pakyow/data/errors"
-require "pakyow/data/framework"
+require_relative "data/errors"
+require_relative "data/framework"
 
-require "pakyow/behavior/data/auto_migrate"
-require "pakyow/behavior/data/connections"
-require "pakyow/behavior/data/memory_db"
+require_relative "behavior/data/auto_migrate"
+require_relative "behavior/data/connections"
+require_relative "behavior/data/memory_db"
 
 module Pakyow
   config.commands.paths << File.expand_path("../commands", __FILE__)

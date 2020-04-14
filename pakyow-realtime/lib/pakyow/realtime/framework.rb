@@ -6,20 +6,20 @@ module Pakyow
   module Realtime
     class Framework < Pakyow::Framework(:realtime)
       def boot
-        require "pakyow/application/actions/realtime/upgrader"
+        require_relative "../application/actions/realtime/upgrader"
 
-        require "pakyow/application/helpers/realtime/broadcasting"
-        require "pakyow/application/helpers/realtime/subscriptions"
-        require "pakyow/application/helpers/realtime/socket"
+        require_relative "../application/helpers/realtime/broadcasting"
+        require_relative "../application/helpers/realtime/subscriptions"
+        require_relative "../application/helpers/realtime/socket"
 
-        require "pakyow/application/behavior/realtime/handling"
-        require "pakyow/application/behavior/realtime/serialization"
-        require "pakyow/application/behavior/realtime/server"
-        require "pakyow/application/behavior/realtime/silencing"
+        require_relative "../application/behavior/realtime/handling"
+        require_relative "../application/behavior/realtime/serialization"
+        require_relative "../application/behavior/realtime/server"
+        require_relative "../application/behavior/realtime/silencing"
 
-        require "pakyow/presenter/renderer/behavior/realtime/install_websocket"
+        require_relative "../presenter/renderer/behavior/realtime/install_websocket"
 
-        require "pakyow/application/actions/realtime/upgrader"
+        require_relative "../application/actions/realtime/upgrader"
 
         object.class_eval do
           register_helper :active, Application::Helpers::Realtime::Broadcasting

@@ -6,14 +6,14 @@ module Pakyow
   module Data
     class Framework < Pakyow::Framework(:data)
       def boot
-        require "pakyow/application/behavior/data/lookup"
-        require "pakyow/application/behavior/data/serialization"
-        require "pakyow/application/helpers/data"
+        require_relative "../application/behavior/data/lookup"
+        require_relative "../application/behavior/data/serialization"
+        require_relative "../application/helpers/data"
 
-        require "pakyow/validations/data/unique"
+        require_relative "../validations/data/unique"
 
-        require "pakyow/data/object"
-        require "pakyow/data/sources/relational"
+        require_relative "object"
+        require_relative "sources/relational"
 
         object.class_eval do
           definable :source, Sources::Relational, builder: -> (*namespace, object_name, **opts) {

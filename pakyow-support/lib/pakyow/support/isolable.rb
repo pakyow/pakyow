@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "pakyow/support/extension"
-require "pakyow/support/inflector"
-require "pakyow/support/object_namespace"
-require "pakyow/support/object_name"
+require_relative "extension"
+require_relative "inflector"
+require_relative "object_namespace"
+require_relative "object_name"
 
 module Pakyow
   module Support

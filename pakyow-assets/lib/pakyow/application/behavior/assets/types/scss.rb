@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/application/behavior/assets/types/sass"
+require_relative "../../../../application/behavior/assets/types/sass"
 
 module Pakyow
   class Application

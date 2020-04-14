@@ -2,7 +2,7 @@
 
 require "pakyow/support/core_refinements/array/ensurable"
 
-require "pakyow/presenter/view"
+require_relative "../view"
 
 module Pakyow
   module Presenter

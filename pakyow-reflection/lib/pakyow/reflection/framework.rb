@@ -8,13 +8,13 @@ module Pakyow
       def boot
         require "pakyow/support/inflector"
 
-        require "pakyow/application/behavior/reflection/reflecting"
-        require "pakyow/presenter/renderer/behavior/reflection/install_form_metadata"
+        require_relative "../application/behavior/reflection/reflecting"
+        require_relative "../presenter/renderer/behavior/reflection/install_form_metadata"
 
-        require "pakyow/reflection/mirror"
-        require "pakyow/reflection/builders/source"
-        require "pakyow/reflection/builders/endpoints"
-        require "pakyow/reflection/builders/actions"
+        require_relative "mirror"
+        require_relative "builders/source"
+        require_relative "builders/endpoints"
+        require_relative "builders/actions"
 
         return if object.ancestors.include?(Plugin)
 

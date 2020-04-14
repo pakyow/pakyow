@@ -4,10 +4,10 @@ require "string_doc"
 
 require "pakyow/support/deep_dup"
 
-require "pakyow/presenter/errors"
-require "pakyow/presenter/view"
+require_relative "../errors"
+require_relative "../view"
 
-require "pakyow/presenter/composers/view"
+require_relative "../composers/view"
 
 module Pakyow
   module Presenter

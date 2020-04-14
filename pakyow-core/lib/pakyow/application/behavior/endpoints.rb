@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/endpoints"
+require_relative "../../endpoints"
 
 module Pakyow
   class Application

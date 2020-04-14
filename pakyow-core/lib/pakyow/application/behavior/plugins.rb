@@ -5,7 +5,7 @@ require "pakyow/errors"
 require "pakyow/support/deep_dup"
 require "pakyow/support/extension"
 
-require "pakyow/plugin/lookup"
+require_relative "../../plugin/lookup"
 
 module Pakyow
   class Application

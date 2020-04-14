@@ -3,7 +3,7 @@
 require "tty-command"
 require "tty-spinner"
 
-require "pakyow/support/cli/style"
+require_relative "style"
 
 module Pakyow
   module Support

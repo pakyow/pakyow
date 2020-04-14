@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/assets/asset"
+require_relative "../../assets/asset"
 
 module Pakyow
   class Application

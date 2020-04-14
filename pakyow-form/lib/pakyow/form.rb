@@ -4,4 +4,4 @@ require "pakyow/data"
 require "pakyow/presenter"
 require "pakyow/routing"
 
-require "pakyow/form/framework"
+require_relative "form/framework"

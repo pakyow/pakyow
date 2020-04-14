@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/reflection/builders/base"
-require "pakyow/reflection/builders/helpers/controller"
+require_relative "base"
+require_relative "helpers/controller"
 
 module Pakyow
   module Reflection

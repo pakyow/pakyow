@@ -6,7 +6,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/hookable"
 require "pakyow/support/makeable"
 
-require "pakyow/operation"
+require_relative "operation"
 
 module Pakyow
   # Commands are callable operations that define an api through arguments, options, and flags. In

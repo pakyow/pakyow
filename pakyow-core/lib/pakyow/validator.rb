@@ -3,7 +3,7 @@
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
 
-require "pakyow/errors"
+require_relative "errors"
 
 module Pakyow
   class Validator

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/pipeline"
+require_relative "../pipeline"
 
 module Pakyow
   module Support

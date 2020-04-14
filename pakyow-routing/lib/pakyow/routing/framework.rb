@@ -10,16 +10,16 @@ module Pakyow
       def boot
         require "pakyow/validations"
 
-        require "pakyow/routing/controller"
-        require "pakyow/routing/extensions"
-        require "pakyow/routing/helpers/exposures"
+        require_relative "controller"
+        require_relative "extensions"
+        require_relative "helpers/exposures"
 
-        require "pakyow/application/behavior/routing/definition"
+        require_relative "../application/behavior/routing/definition"
 
-        require "pakyow/security/behavior/disabling"
-        require "pakyow/security/behavior/helpers"
-        require "pakyow/security/behavior/insecure"
-        require "pakyow/security/behavior/pipeline"
+        require_relative "../security/behavior/disabling"
+        require_relative "../security/behavior/helpers"
+        require_relative "../security/behavior/insecure"
+        require_relative "../security/behavior/pipeline"
 
         object.class_eval do
           include Pakyow::Application::Behavior::Routing::Definition

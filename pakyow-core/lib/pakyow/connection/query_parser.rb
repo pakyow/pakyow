@@ -2,7 +2,7 @@
 
 require "cgi"
 
-require "pakyow/error"
+require_relative "../error"
 
 module Pakyow
   class Connection

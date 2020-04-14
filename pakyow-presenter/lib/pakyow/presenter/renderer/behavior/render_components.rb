@@ -3,7 +3,7 @@
 require "pakyow/support/extension"
 require "pakyow/support/makeable"
 
-require "pakyow/presenter/composers/component"
+require_relative "../../composers/component"
 
 module Pakyow
   module Presenter

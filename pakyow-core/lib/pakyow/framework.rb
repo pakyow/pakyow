@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/environment"
+require_relative "environment"
 
 module Pakyow
   # Base framework class.

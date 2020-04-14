@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/loader"
+require_relative "../../loader"
 
 module Pakyow
   class Application

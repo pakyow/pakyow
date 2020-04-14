@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/info"
+require_relative "../info"
 
 require "pakyow/support/inflector"
 require "pakyow/support/cli/style"

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deprecator"
+require_relative "deprecator"
 
 module Pakyow
   module Support

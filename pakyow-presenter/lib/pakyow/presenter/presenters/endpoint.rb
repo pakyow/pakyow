@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/presenter/presenter"
-require "pakyow/presenter/presenters/form"
+require_relative "../presenter"
+require_relative "../presenters/form"
 
 module Pakyow
   module Presenter

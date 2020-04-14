@@ -9,4 +9,4 @@ require "pakyow/data"
 
 require "pakyow/form"
 
-require "pakyow/reflection/framework"
+require_relative "reflection/framework"

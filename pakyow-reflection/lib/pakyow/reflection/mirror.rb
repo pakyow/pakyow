@@ -4,11 +4,11 @@ require "pakyow/support/inflector"
 
 require "pakyow/presenter/composers/view"
 
-require "pakyow/reflection/action"
-require "pakyow/reflection/attribute"
-require "pakyow/reflection/endpoint"
-require "pakyow/reflection/nested"
-require "pakyow/reflection/scope"
+require_relative "action"
+require_relative "attribute"
+require_relative "endpoint"
+require_relative "nested"
+require_relative "scope"
 
 module Pakyow
   module Reflection

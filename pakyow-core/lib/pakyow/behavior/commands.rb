@@ -2,8 +2,8 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/command"
-require "pakyow/loader"
+require_relative "../command"
+require_relative "../loader"
 
 module Pakyow
   module Behavior

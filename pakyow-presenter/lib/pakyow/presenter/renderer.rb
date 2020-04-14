@@ -6,9 +6,9 @@ require "pakyow/support/hookable"
 require "pakyow/support/core_refinements/proc/introspection"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/presenter/renderer/behavior/render_components"
+require_relative "renderer/behavior/render_components"
 
-require "pakyow/presenter/composers/view"
+require_relative "composers/view"
 
 module Pakyow
   module Presenter

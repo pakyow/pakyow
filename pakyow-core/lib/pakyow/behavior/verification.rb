@@ -5,7 +5,7 @@ require "forwardable"
 require "pakyow/support/class_state"
 require "pakyow/support/extension"
 
-require "pakyow/verifier"
+require_relative "../verifier"
 
 module Pakyow
   module Behavior

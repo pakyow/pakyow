@@ -3,9 +3,9 @@
 require "delegate"
 require "socket"
 
-require "pakyow/support/class_state"
-require "pakyow/support/deprecator"
-require "pakyow/support/deprecatable"
+require_relative "class_state"
+require_relative "deprecator"
+require_relative "deprecatable"
 
 module Pakyow
   module Support

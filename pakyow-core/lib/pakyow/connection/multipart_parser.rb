@@ -3,9 +3,9 @@
 require "multipart_parser/reader"
 require "protocol/http/headers"
 
-require "pakyow/error"
+require_relative "../error"
 
-require "pakyow/connection/multipart_input"
+require_relative "multipart_input"
 
 module Pakyow
   class Connection

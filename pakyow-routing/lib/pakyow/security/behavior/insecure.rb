@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/security/errors"
+require_relative "../errors"
 
 module Pakyow
   module Security

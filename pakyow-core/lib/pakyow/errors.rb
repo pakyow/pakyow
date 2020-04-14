@@ -2,7 +2,7 @@
 
 require "json"
 
-require "pakyow/error"
+require_relative "error"
 
 module Pakyow
   class EnvironmentError < Error

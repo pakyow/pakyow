@@ -14,8 +14,8 @@ require "pakyow/presenter/binding_parts"
 require "pakyow/presenter/versioned_view"
 require "pakyow/presenter/presenter"
 
-require "pakyow/ui/recordable/helpers/client_remapping"
-require "pakyow/ui/recordable/attributes"
+require_relative "recordable/helpers/client_remapping"
+require_relative "recordable/attributes"
 
 module Pakyow
   module UI

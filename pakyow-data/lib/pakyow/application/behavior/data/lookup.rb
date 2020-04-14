@@ -2,9 +2,9 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/data/container"
-require "pakyow/data/lookup"
-require "pakyow/data/subscribers"
+require_relative "../../../data/container"
+require_relative "../../../data/lookup"
+require_relative "../../../data/subscribers"
 
 module Pakyow
   class Application

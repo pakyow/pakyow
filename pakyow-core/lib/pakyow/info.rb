@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/version"
+require_relative "version"
 
 module Pakyow
   # Returns information about the environment.

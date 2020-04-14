@@ -5,7 +5,7 @@ require "forwardable"
 
 require "pakyow/support/indifferentize"
 
-require "pakyow/connection/query_parser"
+require_relative "query_parser"
 
 module Pakyow
   class Connection

@@ -5,7 +5,7 @@ require "securerandom"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
-require "pakyow/data/sources/base"
+require_relative "base"
 
 module Pakyow
   module Data

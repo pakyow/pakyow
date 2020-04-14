@@ -7,19 +7,19 @@ require "pakyow/support/extension"
 
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/data/adapters/base"
-require "pakyow/data/types"
+require_relative "../adapters/base"
+require_relative "../types"
 
 module Pakyow
   module Data
     module Adapters
       # @api private
       class Sql < Base
-        require "pakyow/data/adapters/sql/commands"
-        require "pakyow/data/adapters/sql/dataset_methods"
-        require "pakyow/data/adapters/sql/migrator"
-        require "pakyow/data/adapters/sql/runner"
-        require "pakyow/data/adapters/sql/source_extension"
+        require_relative "../adapters/sql/commands"
+        require_relative "../adapters/sql/dataset_methods"
+        require_relative "../adapters/sql/migrator"
+        require_relative "../adapters/sql/runner"
+        require_relative "../adapters/sql/source_extension"
 
         TYPES = {
           # overrides for default types
@@ -38,7 +38,7 @@ module Pakyow
           bignum: Data::Types::Coercible::Integer.meta(mapping: :bignum, database_type: :Bignum)
         }.freeze
 
-        require "pakyow/data/adapters/sql/types"
+        require_relative "../adapters/sql/types"
 
         attr_reader :connection
 

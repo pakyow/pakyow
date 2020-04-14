@@ -5,8 +5,8 @@ require "json"
 require "pakyow/support/extension"
 require "pakyow/support/indifferentize"
 
-require "pakyow/connection/query_parser"
-require "pakyow/connection/multipart_parser"
+require_relative "../connection/query_parser"
+require_relative "../connection/multipart_parser"
 
 module Pakyow
   module Behavior

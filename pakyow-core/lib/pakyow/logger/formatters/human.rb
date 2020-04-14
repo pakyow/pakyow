@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-require "pakyow/connection"
-require "pakyow/error"
+require_relative "../../error"
+require_relative "../../connection"
+require_relative "../../connection/statuses"
 
-require "pakyow/logger/colorizer"
-require "pakyow/logger/formatter"
-require "pakyow/logger/timekeeper"
-
-require "pakyow/connection/statuses"
+require_relative "../colorizer"
+require_relative "../formatter"
+require_relative "../timekeeper"
 
 module Pakyow
   class Logger

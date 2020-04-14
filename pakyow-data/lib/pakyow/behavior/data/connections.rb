@@ -3,7 +3,7 @@
 require "pakyow/support/deprecator"
 require "pakyow/support/extension"
 
-require "pakyow/data/connection"
+require_relative "../../data/connection"
 
 module Pakyow
   module Behavior

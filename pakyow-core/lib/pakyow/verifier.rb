@@ -4,10 +4,10 @@ require "forwardable"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
-require "pakyow/errors"
-require "pakyow/types"
-require "pakyow/validator"
-require "pakyow/validations"
+require_relative "errors"
+require_relative "types"
+require_relative "validator"
+require_relative "validations"
 
 module Pakyow
   class Verifier

@@ -2,17 +2,17 @@
 
 require "pakyow/support/cli/style"
 
-require "pakyow/error"
-require "pakyow/environment"
+require_relative "error"
+require_relative "environment"
 
 module Pakyow
   # The Pakyow command line interface.
   #
   # @api private
   class CLI
-    require "pakyow/cli/feedback"
-    require "pakyow/cli/parsers/command"
-    require "pakyow/cli/parsers/global"
+    require_relative "cli/feedback"
+    require_relative "cli/parsers/command"
+    require_relative "cli/parsers/global"
 
     class InvalidInput < Error; end
 
