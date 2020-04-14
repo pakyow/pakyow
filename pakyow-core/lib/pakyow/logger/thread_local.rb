@@ -2,7 +2,7 @@
 
 require "forwardable"
 
-require "pakyow/logger"
+require_relative "../logger"
 
 module Pakyow
   class Logger

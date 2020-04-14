@@ -7,7 +7,7 @@ require "concurrent/executor/single_thread_executor"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/message_verifier"
 
-require "pakyow/realtime/websocket"
+require_relative "websocket"
 
 module Pakyow
   module Realtime

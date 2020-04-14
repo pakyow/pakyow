@@ -5,7 +5,7 @@ require "pakyow/support/makeable"
 require "pakyow/support/class_state"
 require "pakyow/support/inflector"
 
-require "pakyow/data/sources/base"
+require_relative "base"
 
 module Pakyow
   module Data

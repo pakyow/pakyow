@@ -15,8 +15,8 @@ module Pakyow
   class Logger < Console::Filter[internal: 0, debug: 1, info: 2, warn: 3, error: 4, fatal: 5, unknown: 6]
     extend Support::Deprecatable
 
-    require "pakyow/logger/colorizer"
-    require "pakyow/logger/timekeeper"
+    require_relative "logger/colorizer"
+    require_relative "logger/timekeeper"
 
     # @!attribute [r] id
     #   @return [String] the unique id of the logger instance

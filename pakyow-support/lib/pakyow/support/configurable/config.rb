@@ -3,14 +3,14 @@
 require "concurrent/array"
 require "concurrent/hash"
 
-require "pakyow/support/class_state"
-require "pakyow/support/deep_dup"
-require "pakyow/support/deep_freeze"
-require "pakyow/support/deprecatable"
-require "pakyow/support/makeable"
-require "pakyow/support/object_name"
+require_relative "../class_state"
+require_relative "../deep_dup"
+require_relative "../deep_freeze"
+require_relative "../deprecatable"
+require_relative "../makeable"
+require_relative "../object_name"
 
-require "pakyow/support/configurable/setting"
+require_relative "setting"
 
 module Pakyow
   module Support

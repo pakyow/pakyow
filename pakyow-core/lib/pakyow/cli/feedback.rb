@@ -4,7 +4,7 @@ require "forwardable"
 
 require "pakyow/support/cli/style"
 
-require "pakyow/error"
+require_relative "../error"
 
 module Pakyow
   class CLI

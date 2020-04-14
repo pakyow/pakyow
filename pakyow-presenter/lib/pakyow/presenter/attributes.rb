@@ -4,10 +4,10 @@ require "forwardable"
 
 require "pakyow/support/safe_string"
 
-require "pakyow/presenter/attributes/boolean"
-require "pakyow/presenter/attributes/hash"
-require "pakyow/presenter/attributes/set"
-require "pakyow/presenter/attributes/string"
+require_relative "attributes/boolean"
+require_relative "attributes/hash"
+require_relative "attributes/set"
+require_relative "attributes/string"
 
 module Pakyow
   module Presenter

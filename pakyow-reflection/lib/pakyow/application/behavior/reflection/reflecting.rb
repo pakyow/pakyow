@@ -2,7 +2,7 @@
 
 require "pakyow/support/class_state"
 
-require "pakyow/reflection/mirror"
+require_relative "../../../reflection/mirror"
 
 module Pakyow
   class Application

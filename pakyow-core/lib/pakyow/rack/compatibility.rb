@@ -3,7 +3,7 @@
 require "protocol/http/headers"
 require "rack/request"
 
-require "pakyow/environment"
+require_relative "../environment"
 
 module Pakyow
   module Rack

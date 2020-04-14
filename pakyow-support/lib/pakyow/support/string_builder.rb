@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/safe_string"
+require_relative "safe_string"
 
 module Pakyow
   module Support

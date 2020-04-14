@@ -5,7 +5,7 @@ require "base64"
 require "pakyow/support/indifferentize"
 require "pakyow/support/message_verifier"
 
-require "pakyow/application/connection/session/base"
+require_relative "base"
 
 module Pakyow
   class Application

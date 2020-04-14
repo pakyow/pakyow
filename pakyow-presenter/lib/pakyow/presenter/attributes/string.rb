@@ -4,7 +4,7 @@ require "forwardable"
 
 require "pakyow/support/safe_string"
 
-require "pakyow/presenter/attributes/attribute"
+require_relative "attribute"
 
 module Pakyow
   module Presenter

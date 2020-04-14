@@ -20,16 +20,16 @@ require "pakyow/support/pipeline/object"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
-require "pakyow/logger"
+require_relative "logger"
 
 module Pakyow
   # Represents the connection throughout a request/response lifecycle.
   #
   class Connection
-    require "pakyow/connection/headers"
-    require "pakyow/connection/params"
-    require "pakyow/connection/query_parser"
-    require "pakyow/connection/statuses"
+    require_relative "connection/headers"
+    require_relative "connection/params"
+    require_relative "connection/query_parser"
+    require_relative "connection/statuses"
 
     using Support::DeepDup
     using Support::Indifferentize
@@ -45,7 +45,7 @@ module Pakyow
 
     include Support::Handleable
 
-    require "pakyow/connection/behavior/handling"
+    require_relative "connection/behavior/handling"
     include Behavior::Handling
 
     attr_reader :id, :timestamp, :logger, :status, :headers, :body

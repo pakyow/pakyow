@@ -8,7 +8,7 @@ module Pakyow
       module Handling
         extend Support::Extension
 
-        require "pakyow/handleable/behavior/statuses"
+        require_relative "../../handleable/behavior/statuses"
         include_dependency Handleable::Behavior::Statuses
 
         prepend_methods do

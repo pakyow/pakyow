@@ -3,8 +3,8 @@
 require "mail"
 require "oga"
 
-require "pakyow/mailer/plaintext"
-require "pakyow/mailer/style_inliner"
+require_relative "plaintext"
+require_relative "style_inliner"
 
 module Pakyow
   module Mailer

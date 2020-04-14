@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/security/helpers/csrf"
+require_relative "../helpers/csrf"
 
 module Pakyow
   module Security

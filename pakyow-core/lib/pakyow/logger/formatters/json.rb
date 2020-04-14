@@ -2,9 +2,9 @@
 
 require "json"
 
-require "pakyow/logger"
-require "pakyow/logger/formatter"
-require "pakyow/logger/timekeeper"
+require_relative "../../logger"
+require_relative "../formatter"
+require_relative "../timekeeper"
 
 module Pakyow
   class Logger

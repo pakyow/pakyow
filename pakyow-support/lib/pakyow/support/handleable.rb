@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require "pakyow/support/class_state"
-require "pakyow/support/extension"
-require "pakyow/support/hookable"
+require_relative "class_state"
+require_relative "extension"
+require_relative "hookable"
 
-require "pakyow/support/handleable/pipeline"
+require_relative "handleable/pipeline"
 
 module Pakyow
   module Support

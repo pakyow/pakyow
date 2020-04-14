@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/core_refinements/array/ensurable"
+require_relative "core_refinements/array/ensurable"
 
 module Pakyow
   module Support

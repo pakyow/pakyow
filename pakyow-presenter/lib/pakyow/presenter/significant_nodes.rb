@@ -2,8 +2,8 @@
 
 require "string_doc"
 
-require "pakyow/presenter/presenters/endpoint"
-require "pakyow/presenter/presenters/form"
+require_relative "presenters/endpoint"
+require_relative "presenters/form"
 
 module Pakyow
   module Presenter

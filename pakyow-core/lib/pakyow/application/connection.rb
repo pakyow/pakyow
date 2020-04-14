@@ -15,9 +15,9 @@ module Pakyow
       include Support::Hookable
       events :initialize, :dup
 
-      require "pakyow/application/connection/behavior/session"
-      require "pakyow/application/connection/behavior/verifier"
-      require "pakyow/application/connection/behavior/values"
+      require_relative "connection/behavior/session"
+      require_relative "connection/behavior/verifier"
+      require_relative "connection/behavior/values"
 
       include Behavior::Session
       include Behavior::Verifier
@@ -25,7 +25,7 @@ module Pakyow
 
       include Support::Handleable
 
-      require "pakyow/connection/behavior/handling"
+      require_relative "../connection/behavior/handling"
       include Pakyow::Connection::Behavior::Handling
 
       using Support::Refinements::String::Normalization

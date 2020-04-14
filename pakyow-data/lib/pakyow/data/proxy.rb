@@ -4,7 +4,7 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/deep_dup"
 require "pakyow/support/inspectable"
 
-require "pakyow/data/result"
+require_relative "result"
 
 module Pakyow
   module Data

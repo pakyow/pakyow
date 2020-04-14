@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require "pakyow/support/class_state"
-require "pakyow/support/deep_dup"
-require "pakyow/support/deprecatable"
-require "pakyow/support/extension"
-require "pakyow/support/isolable"
-require "pakyow/support/makeable"
+require_relative "class_state"
+require_relative "deep_dup"
+require_relative "deprecatable"
+require_relative "extension"
+require_relative "isolable"
+require_relative "makeable"
 
-require "pakyow/support/definable/registry"
-require "pakyow/support/definable/state"
+require_relative "definable/registry"
+require_relative "definable/state"
 
 module Pakyow
   module Support

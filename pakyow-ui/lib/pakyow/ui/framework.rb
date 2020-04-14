@@ -24,14 +24,14 @@ module Pakyow
       def boot
         require "concurrent/executor/single_thread_executor"
 
-        require "pakyow/application/helpers/ui"
+        require_relative "../application/helpers/ui"
 
-        require "pakyow/application/behavior/ui/logging"
-        require "pakyow/application/behavior/ui/recording"
-        require "pakyow/application/behavior/ui/rendering"
-        require "pakyow/application/behavior/ui/timeouts"
+        require_relative "../application/behavior/ui/logging"
+        require_relative "../application/behavior/ui/recording"
+        require_relative "../application/behavior/ui/rendering"
+        require_relative "../application/behavior/ui/timeouts"
 
-        require "pakyow/presenter/renderer/behavior/ui/install_transforms"
+        require_relative "../presenter/renderer/behavior/ui/install_transforms"
 
         require "pakyow/support/deep_freeze"
 

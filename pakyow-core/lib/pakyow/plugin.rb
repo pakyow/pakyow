@@ -8,27 +8,27 @@ require "pakyow/support/hookable"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
 
-require "pakyow/application/behavior/aspects"
-require "pakyow/application/behavior/endpoints"
-require "pakyow/application/behavior/frameworks"
-require "pakyow/application/behavior/helpers"
-require "pakyow/application/behavior/operations"
-require "pakyow/application/behavior/rescuing"
-require "pakyow/application/behavior/restarting"
+require_relative "application/behavior/aspects"
+require_relative "application/behavior/endpoints"
+require_relative "application/behavior/frameworks"
+require_relative "application/behavior/helpers"
+require_relative "application/behavior/operations"
+require_relative "application/behavior/rescuing"
+require_relative "application/behavior/restarting"
 
-require "pakyow/handleable/behavior/statuses"
+require_relative "handleable/behavior/statuses"
 
-require "pakyow/application"
-require "pakyow/endpoints"
+require_relative "application"
+require_relative "endpoints"
 
-require "pakyow/plugin/helper_caller"
+require_relative "plugin/helper_caller"
 
 module Pakyow
   # Base plugin class.
   #
   # @api private
   class Plugin
-    require "pakyow/plugin/state"
+    require_relative "plugin/state"
 
     extend Support::ClassState
     class_state :__enabled_features, default: []

@@ -10,9 +10,9 @@ require "pakyow/support/class_state"
 require "pakyow/support/safe_string"
 require "pakyow/support/string_builder"
 
-require "pakyow/presenter/presentable"
+require_relative "presentable"
 
-require "pakyow/presenter/presenters/endpoint"
+require_relative "presenters/endpoint"
 
 module Pakyow
   module Presenter

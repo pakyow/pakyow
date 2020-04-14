@@ -4,7 +4,7 @@ require "pakyow/support/extension"
 require "pakyow/support/message_verifier"
 require "pakyow/support/safe_string"
 
-require "pakyow/presenter/presenters/form"
+require_relative "../../presenters/form"
 
 module Pakyow
   module Presenter

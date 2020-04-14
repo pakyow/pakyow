@@ -10,16 +10,16 @@ module Pakyow
           extend Support::Extension
 
           apply_extension do
-            require "pakyow/application/behavior/assets/types/js"
+            require_relative "types/js"
             include Js
 
-            require "pakyow/application/behavior/assets/types/css"
+            require_relative "types/css"
             include Css
 
-            require "pakyow/application/behavior/assets/types/sass"
+            require_relative "types/sass"
             include Sass
 
-            require "pakyow/application/behavior/assets/types/scss"
+            require_relative "types/scss"
             include Scss
           end
         end

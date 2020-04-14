@@ -7,7 +7,7 @@ require "pakyow/data/sources/ephemeral"
 
 require "pakyow/realtime/channel"
 
-require "pakyow/ui/recordable"
+require_relative "recordable"
 
 module Pakyow
   module UI

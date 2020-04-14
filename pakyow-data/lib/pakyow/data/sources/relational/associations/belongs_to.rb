@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/data/sources/relational/association"
+require_relative "../association"
 
 module Pakyow
   module Data

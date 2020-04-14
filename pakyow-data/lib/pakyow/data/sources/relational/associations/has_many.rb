@@ -2,7 +2,7 @@
 
 require "pakyow/support/inflector"
 
-require "pakyow/data/sources/relational/association"
+require_relative "../association"
 
 module Pakyow
   module Data

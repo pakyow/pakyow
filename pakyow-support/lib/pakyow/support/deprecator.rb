@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deprecation"
-require "pakyow/support/deprecator/reporters/null"
-
+require_relative "deprecation"
+require_relative "deprecator/reporters/null"
 
 module Pakyow
   module Support

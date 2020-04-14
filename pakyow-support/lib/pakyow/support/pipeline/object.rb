@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/extension"
+require_relative "../extension"
 
 module Pakyow
   module Support

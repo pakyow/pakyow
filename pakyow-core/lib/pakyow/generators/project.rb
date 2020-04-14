@@ -3,8 +3,8 @@
 require "bundler"
 require "securerandom"
 
-require "pakyow/generator"
-require "pakyow/version"
+require_relative "../generator"
+require_relative "../version"
 
 module Pakyow
   # @api private

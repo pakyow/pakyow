@@ -5,8 +5,8 @@ require "pakyow/support/safe_string"
 
 require "pakyow/helper"
 
-require "pakyow/application/helpers/app"
-require "pakyow/application/helpers/connection"
+require_relative "../helpers/app"
+require_relative "../helpers/connection"
 
 module Pakyow
   class Application

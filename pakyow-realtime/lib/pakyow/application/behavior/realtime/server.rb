@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/realtime/server"
+require_relative "../../../realtime/server"
 
 module Pakyow
   class Application

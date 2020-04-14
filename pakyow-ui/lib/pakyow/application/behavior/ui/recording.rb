@@ -2,7 +2,7 @@
 
 require "pakyow/support/extension"
 
-require "pakyow/ui/recordable"
+require_relative "../../../ui/recordable"
 
 module Pakyow
   class Application

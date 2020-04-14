@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/realtime/channel"
+require_relative "../../../realtime/channel"
 
 module Pakyow
   class Application

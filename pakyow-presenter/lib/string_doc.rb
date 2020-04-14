@@ -26,9 +26,9 @@ require "pakyow/support/silenceable"
 # @api private
 #
 class StringDoc
-  require "string_doc/attributes"
-  require "string_doc/node"
-  require "string_doc/meta_node"
+  require_relative "string_doc/attributes"
+  require_relative "string_doc/node"
+  require_relative "string_doc/meta_node"
 
   class << self
     # Creates an empty doc.

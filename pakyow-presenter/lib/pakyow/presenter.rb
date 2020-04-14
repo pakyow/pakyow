@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-require "pakyow/presenter/errors"
-require "pakyow/presenter/framework"
+require_relative "presenter/errors"
+require_relative "presenter/framework"

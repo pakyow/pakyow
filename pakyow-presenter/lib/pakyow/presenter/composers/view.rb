@@ -6,7 +6,7 @@ require "pakyow/support/class_state"
 require "pakyow/support/deep_dup"
 require "pakyow/support/core_refinements/string/normalization"
 
-require "pakyow/presenter/errors"
+require_relative "../errors"
 
 module Pakyow
   module Presenter

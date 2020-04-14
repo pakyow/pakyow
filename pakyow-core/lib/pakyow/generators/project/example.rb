@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/generator"
-require "pakyow/generators/project"
+require_relative "../../generator"
+require_relative "../project"
 
 module Pakyow
   # @api private

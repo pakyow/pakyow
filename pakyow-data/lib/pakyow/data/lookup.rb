@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "pakyow/data/errors"
-require "pakyow/data/proxy"
-require "pakyow/data/sources/ephemeral"
+require_relative "errors"
+require_relative "proxy"
+require_relative "sources/ephemeral"
 
 module Pakyow
   module Data

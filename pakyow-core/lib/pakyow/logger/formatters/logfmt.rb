@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/logger/formatters/json"
+require_relative "json"
 
 module Pakyow
   class Logger

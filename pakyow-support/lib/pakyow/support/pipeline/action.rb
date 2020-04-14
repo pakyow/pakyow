@@ -2,11 +2,11 @@
 
 require "securerandom"
 
-require "pakyow/support/core_refinements/method/introspection"
-require "pakyow/support/core_refinements/unbound_method/introspection"
-require "pakyow/support/core_refinements/proc/introspection"
+require_relative "../core_refinements/method/introspection"
+require_relative "../core_refinements/unbound_method/introspection"
+require_relative "../core_refinements/proc/introspection"
 
-require "pakyow/support/inspectable"
+require_relative "../inspectable"
 
 module Pakyow
   module Support

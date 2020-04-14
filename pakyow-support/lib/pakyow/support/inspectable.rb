@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require "pakyow/support/class_state"
-require "pakyow/support/extension"
+require_relative "class_state"
+require_relative "extension"
 
 module Pakyow
   module Support

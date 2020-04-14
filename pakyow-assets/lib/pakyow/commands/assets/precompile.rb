@@ -5,7 +5,7 @@ command :assets, :precompile, prelaunch: :build do
   required :app
 
   action do
-    require "pakyow/assets/precompiler"
+    require_relative "../../assets/precompiler"
 
     Pakyow::Assets::Precompiler.new(@app).precompile!
   end

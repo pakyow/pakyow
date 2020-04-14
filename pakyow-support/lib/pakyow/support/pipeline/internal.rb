@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "pakyow/support/deep_freeze"
+require_relative "../deep_freeze"
 
 module Pakyow
   module Support

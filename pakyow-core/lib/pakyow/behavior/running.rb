@@ -6,11 +6,11 @@ require "async/http/endpoint"
 
 require "pakyow/support/extension"
 
-require "pakyow/errors"
-require "pakyow/process"
-require "pakyow/process_manager"
-require "pakyow/processes/proxy"
-require "pakyow/processes/server"
+require_relative "../errors"
+require_relative "../process"
+require_relative "../process_manager"
+require_relative "../processes/proxy"
+require_relative "../processes/server"
 
 module Pakyow
   module Behavior

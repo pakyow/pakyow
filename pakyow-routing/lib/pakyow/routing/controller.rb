@@ -13,12 +13,12 @@ require "pakyow/connection/statuses"
 
 require "pakyow/handleable/behavior/statuses"
 
-require "pakyow/security/errors"
+require_relative "../security/errors"
 
-require "pakyow/routing/route"
+require_relative "route"
 
-require "pakyow/routing/controller/behavior/error_handling"
-require "pakyow/routing/controller/behavior/param_verification"
+require_relative "controller/behavior/error_handling"
+require_relative "controller/behavior/param_verification"
 
 module Pakyow
   module Routing
