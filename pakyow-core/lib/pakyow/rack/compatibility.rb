@@ -21,11 +21,11 @@ module Pakyow
       end
 
       def request_header(key)
-        normalize_header_key_value(key, @request.get_header(normalize_header(key)))
+        rack_normalize_header_key_value(key, @request.get_header(rack_normalize_header(key)))
       end
 
       def request_header?(key)
-        @request.has_header?(normalize_header(key))
+        @request.has_header?(rack_normalize_header(key))
       end
 
       def ip
@@ -52,11 +52,11 @@ module Pakyow
 
       private
 
-      def normalize_header(key)
+      def rack_normalize_header(key)
         key.to_s.upcase.gsub("-", "_")
       end
 
-      def normalize_header_key_value(key, value)
+      def rack_normalize_header_key_value(key, value)
         if value && policy = header_policy(key)
           policy.new(value.to_s)
         else

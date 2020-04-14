@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
   spec.add_dependency "async", "~> 1.24"
-  spec.add_dependency "async-http", "~> 0.50.0"
+  spec.add_dependency "async-http", "~> 0.51.0"
   spec.add_dependency "async-io", "~> 1.28"
   spec.add_dependency "bundler", "~> 2.1"
   spec.add_dependency "console", "~> 1.8"

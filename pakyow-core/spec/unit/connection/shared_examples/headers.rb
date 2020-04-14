@@ -78,12 +78,12 @@ RSpec.shared_examples :connection_headers do
       end
 
       it "returns the value" do
-        expect(connection.header("foo-bar")).to eq("baz")
+        expect(connection.header("foo-bar").to_s).to eq("baz")
       end
 
       context "passed a weird header name" do
         it "normalizes" do
-          expect(connection.header("fOo-baR")).to eq("baz")
+          expect(connection.header("fOo-baR").to_s).to eq("baz")
         end
       end
     end
@@ -98,13 +98,13 @@ RSpec.shared_examples :connection_headers do
   describe "#set_header" do
     it "sets the value" do
       connection.set_header("foo-bar", "baz")
-      expect(connection.header("foo-bar")).to eq("baz")
+      expect(connection.header("foo-bar").to_s).to eq("baz")
     end
 
     context "passed a weird header name" do
       it "normalizes" do
         connection.set_header("fOo-baR", "baz")
-        expect(connection.header("foo-bar")).to eq("baz")
+        expect(connection.header("foo-bar").to_s).to eq("baz")
       end
     end
 
@@ -126,15 +126,15 @@ RSpec.shared_examples :connection_headers do
   describe "#set_headers" do
     it "sets each value" do
       connection.set_headers("foo-bar" => "baz", "bar-baz" => "qux")
-      expect(connection.header("foo-bar")).to eq("baz")
-      expect(connection.header("bar-baz")).to eq("qux")
+      expect(connection.header("foo-bar").to_s).to eq("baz")
+      expect(connection.header("bar-baz").to_s).to eq("qux")
     end
 
     context "passed a weird header name" do
       it "normalizes" do
         connection.set_headers("fOo-baR" => "baz", "Bar-BAZ" => "qux")
-        expect(connection.header("foo-bar")).to eq("baz")
-        expect(connection.header("bar-baz")).to eq("qux")
+        expect(connection.header("foo-bar").to_s).to eq("baz")
+        expect(connection.header("bar-baz").to_s).to eq("qux")
       end
     end
   end

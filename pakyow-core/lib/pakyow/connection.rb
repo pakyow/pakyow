@@ -26,6 +26,7 @@ module Pakyow
   # Represents the connection throughout a request/response lifecycle.
   #
   class Connection
+    require "pakyow/connection/headers"
     require "pakyow/connection/params"
     require "pakyow/connection/query_parser"
     require "pakyow/connection/statuses"
@@ -66,7 +67,7 @@ module Pakyow
       @id = SecureRandom.hex(4)
       @timestamp = Time.now
       @status = 200
-      @headers = {}
+      @headers = Headers.new
       @request = request
       @body = Async::HTTP::Body::Buffered.wrap(StringIO.new)
       @__original_body = @body
@@ -91,7 +92,7 @@ module Pakyow
     end
 
     def header?(key)
-      @headers.key?(normalize_header(key))
+      @headers.include?(normalize_header(key))
     end
 
     def header(key)
@@ -368,7 +369,7 @@ module Pakyow
         if instance_variable_defined?(:@response)
           @response
         else
-          Async::HTTP::Protocol::Response[@status, finalize_headers, @body]
+          Async::HTTP::Protocol::Response[@status, @headers, @body]
         end
       end
     end
@@ -464,12 +465,10 @@ module Pakyow
       # Build the header value.
       #
       # TODO: protect against cookie values being larger than 4096 bytes
-      set_header(
-        "set-cookie",
-        response_cookies.map { |key, cookie|
-          escape(key.to_s) << "=" << escape(cookie[:value].to_s) << serialize_cookie(cookie)
-        }
-      )
+      #
+      response_cookies.each_pair do |key, cookie|
+        set_header("set-cookie", escape(key.to_s) << "=" << escape(cookie[:value].to_s) << serialize_cookie(cookie))
+      end
     end
 
     def normalize_cookie(cookie)
@@ -610,14 +609,6 @@ module Pakyow
 
     def escape(string)
       CGI.escape(string)
-    end
-
-    def finalize_headers
-      @headers.each_with_object([]) { |(key, value), headers|
-        Array.ensure(value).each do |single_value|
-          headers << [key, single_value]
-        end
-      }
     end
   end
 end

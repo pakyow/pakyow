@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Update connection headers to be compatible with async-http@0.51.**
+
+    *Related links:*
+    - [Pull Request #445][pr-445]
+
   * `chg` **Improve cookie / session performance along with test coverage.**
 
     *Related links:*
@@ -359,6 +364,7 @@
     - [Pull Request #338][pr-338]
 
 [pr-447]: https://github.com/pakyow/pakyow/pull/447
+[pr-445]: https://github.com/pakyow/pakyow/pull/445
 [pr-443]: https://github.com/pakyow/pakyow/pull/443
 [pr-442]: https://github.com/pakyow/pakyow/pull/442
 [pr-440]: https://github.com/pakyow/pakyow/pull/440
