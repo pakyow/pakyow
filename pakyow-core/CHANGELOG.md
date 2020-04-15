@@ -2,6 +2,9 @@
 
   * `chg` **Refactor Pakyow::async to run a reactor.**
 
+    *Related links:*
+    - [Pull Request #449][pr-449]
+
   * `fix` **Update connection headers to be compatible with async-http@0.51.**
 
     *Related links:*
@@ -365,6 +368,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-449]: https://github.com/pakyow/pakyow/pull/449
 [pr-447]: https://github.com/pakyow/pakyow/pull/447
 [pr-445]: https://github.com/pakyow/pakyow/pull/445
 [pr-443]: https://github.com/pakyow/pakyow/pull/443
