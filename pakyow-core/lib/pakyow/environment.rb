@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "async"
+Async.logger.warn!
+
 require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/support/hookable"
