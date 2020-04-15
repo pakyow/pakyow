@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Refactor Pakyow::async to run a reactor.**
+
   * `fix` **Update connection headers to be compatible with async-http@0.51.**
 
     *Related links:*

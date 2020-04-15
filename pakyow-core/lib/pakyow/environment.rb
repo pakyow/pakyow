@@ -548,6 +548,11 @@ module Pakyow
       env == name.to_sym
     end
 
+    def async(&block)
+      # @__reactor.async(&block)
+      Async::Reactor.run(&block)
+    end
+
     def call(input)
       connection = config.connection_class.new(input)
       connection.async { super(connection) }.wait
