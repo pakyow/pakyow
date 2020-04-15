@@ -1,22 +1,34 @@
 # frozen_string_literal: true
 
+require "pakyow/support/class_state"
+
 module Pakyow
   # Evals the content of a file into a target.
   #
   class Loader
+    extend Support::ClassState
+    class_state :__loaded_paths, default: []
+
     attr_reader :path
 
     class << self
-      def load_path(path, target:, pattern: "*.rb")
+      def load_path(path, target:, pattern: "*.rb", reload: false)
         Dir.glob(File.join(path, pattern)).each do |file_path|
-          Loader.new(file_path).call(target)
+          if reload || !@__loaded_paths.include?(file_path)
+            Loader.new(file_path).call(target)
+            @__loaded_paths << file_path
+          end
         end
 
         Dir.glob(File.join(path, "*")).select { |each_path|
           File.directory?(each_path)
         }.each do |directory_path|
-          load_path(directory_path, target: target, pattern: pattern)
+          load_path(directory_path, target: target, pattern: pattern, reload: reload)
         end
+      end
+
+      def reset
+        @__loaded_paths.clear
       end
     end
 

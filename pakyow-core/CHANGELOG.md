@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Prevent loading the same path twice by default, support explicit reloads.**
+
+    *Related links:*
+    - [Pull Request #450][pr-450]
+
   * `chg` **Refactor Pakyow::async to run a reactor.**
 
     *Related links:*
@@ -368,6 +373,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-450]: https://github.com/pakyow/pakyow/pull/450
 [pr-449]: https://github.com/pakyow/pakyow/pull/449
 [pr-447]: https://github.com/pakyow/pakyow/pull/447
 [pr-445]: https://github.com/pakyow/pakyow/pull/445
