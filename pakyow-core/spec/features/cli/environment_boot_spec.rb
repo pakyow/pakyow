@@ -8,7 +8,7 @@ RSpec.describe "booting the environment when running the cli" do
     end
   end
 
-  attr_accessor :booted
+  attr_accessor :booted, :loaded
 
   def run(*command)
     output = StringIO.new
@@ -29,6 +29,7 @@ RSpec.describe "booting the environment when running the cli" do
       Pakyow.command :bar, boot: false do
         action do
           local.booted = Pakyow.booted?
+          local.loaded = Pakyow.loaded?
         end
       end
     end
@@ -37,6 +38,12 @@ RSpec.describe "booting the environment when running the cli" do
       run "bar"
 
       expect(@booted).to be(false)
+    end
+
+    it "does not load at the time of running the command" do
+      run "bar"
+
+      expect(@loaded).to be(false)
     end
   end
 end

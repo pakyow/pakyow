@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Avoid loading the environment when running known commands that manage the boot phase.**
+
+    *Related links:*
+    - [Pull Request #451][pr-451]
+
   * `chg` **Prevent loading the same path twice by default, support explicit reloads.**
 
     *Related links:*
@@ -373,6 +378,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-451]: https://github.com/pakyow/pakyow/pull/451
 [pr-450]: https://github.com/pakyow/pakyow/pull/450
 [pr-449]: https://github.com/pakyow/pakyow/pull/449
 [pr-447]: https://github.com/pakyow/pakyow/pull/447
