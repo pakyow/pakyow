@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "async"
+Async.logger.warn!
+
 require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/support/hookable"
@@ -546,6 +549,11 @@ module Pakyow
 
     def env?(name)
       env == name.to_sym
+    end
+
+    def async(&block)
+      # @__reactor.async(&block)
+      Async::Reactor.run(&block)
     end
 
     def call(input)

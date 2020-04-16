@@ -134,10 +134,6 @@ module Pakyow
           boot; @process_manager.restart
         end
 
-        def async(&block)
-          @__reactor.async(&block)
-        end
-
         private def start_processes
           @process_manager = ProcessManager.new
 
