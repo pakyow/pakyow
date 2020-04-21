@@ -28,6 +28,11 @@ module Pakyow
         }
 
         on "load" do
+          load_commands
+        end
+
+        # @api private
+        def load_commands
           config.commands.paths.uniq.each_with_object(commands) do |commands_path, commands|
             Loader.load_path(File.expand_path(commands_path), target: Pakyow)
           end

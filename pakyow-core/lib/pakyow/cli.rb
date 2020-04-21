@@ -47,19 +47,20 @@ module Pakyow
             options[:env] = :prototype
           end
 
-          Pakyow.load(env: options[:env])
-
           if command
-            cli.with(command) do |callable_command|
-              unless options[:help]
-                parser = Parsers::Command.new(callable_command, argv)
-                options = options.merge(parser.options)
-              end
+            # Load commands from common paths prior to loading the environment. If the command can't
+            # be found, `run_cli_command` will issue a full load and try again to find the command.
+            #
+            # This dual-phase load process lets us run known commands without loading. For example,
+            # the boot command needs to run without the environment having been loaded since loading
+            # occurs within a child process instead of the main process.
+            #
+            Pakyow.load_commands
 
-              Pakyow.boot if callable_command.boot?
-              cli.call(command, **options)
-            end
+            run_cli_command(cli, command, options, argv)
           else
+            Pakyow.load(env: options[:env])
+
             cli.help
           end
         end
@@ -68,6 +69,29 @@ module Pakyow
       # @api private
       def project_context?
         File.exist?(Pakyow.config.environment_path + ".rb")
+      end
+
+      private def run_cli_command(cli, command, options, argv)
+        cli.with(command) do |callable_command|
+          unless options[:help]
+            parser = Parsers::Command.new(callable_command, argv)
+            options = options.merge(parser.options)
+          end
+
+          if callable_command.boot?
+            Pakyow.boot(env: options[:env])
+          end
+
+          cli.call(command, **options)
+        end
+      rescue UnknownCommand => error
+        if Pakyow.loaded?
+          raise error
+        else
+          Pakyow.load(env: options[:env])
+
+          retry
+        end
       end
     end
 
