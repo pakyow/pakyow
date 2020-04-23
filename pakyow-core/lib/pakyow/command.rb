@@ -81,6 +81,10 @@ module Pakyow
         end
       end
 
+      verify do
+        optional :env
+      end
+
       rake_args = [:values]
       rake_args = if dependent
         { rake_args => dependent }

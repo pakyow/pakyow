@@ -21,6 +21,7 @@ module CommandHelpers
 
     cli = Pakyow::CLI.new(feedback: Pakyow::CLI::Feedback.new(output))
     loaded&.call(cli)
+    options[:env] ||= :test
     cli.call(command, **options)
     yield cli if block_given?
     output.rewind

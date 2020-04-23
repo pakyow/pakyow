@@ -11,6 +11,6 @@ command :boot, boot: false do
   action do
     Pakyow.config.server.host = @host
     Pakyow.config.server.port = @port
-    Pakyow.run
+    Pakyow.run(env: @env)
   end
 end

@@ -20,7 +20,7 @@ RSpec.describe "cli: boot" do
 
   describe "running" do
     before do
-      expect(Pakyow).to receive(:run)
+      expect(Pakyow).to receive(:run).with(env: :test)
     end
 
     context "without any arguments" do

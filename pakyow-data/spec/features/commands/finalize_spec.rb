@@ -40,6 +40,12 @@ RSpec.describe "cli: db:finalize" do
       allow(Pakyow::Data::Migrator).to receive(:connect).and_return(migrator)
     end
 
+    it "sets up the environment" do
+      expect(Pakyow).to receive(:setup).with(env: :test)
+
+      run_command(command, adapter: adapter, connection: connection, project: true)
+    end
+
     it "connects globally with the given adapter, connection, and overrides" do
       expect(Pakyow::Data::Migrator).to receive(:connect_global) do |opts|
         expect(opts[:adapter]).to be(adapter)

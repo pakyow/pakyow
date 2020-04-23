@@ -7,6 +7,8 @@ command :db, :finalize, boot: false do
   option :connection, "The database connection", default: -> { Pakyow.config.data.default_connection }
 
   action do
+    Pakyow.setup(env: @env)
+
     # We need to boot so that containers are available, but don't want to auto migrate.
     #
     Pakyow.config.data.auto_migrate = false; Pakyow.boot

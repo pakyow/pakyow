@@ -7,6 +7,8 @@ command :db, :drop, boot: false do
   option :connection, "The database connection", default: -> { Pakyow.config.data.default_connection }
 
   action do
+    Pakyow.setup(env: @env)
+
     require "pakyow/data/migrator"
 
     begin

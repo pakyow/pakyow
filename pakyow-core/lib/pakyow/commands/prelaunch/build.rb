@@ -5,7 +5,7 @@ command :prelaunch, :build, boot: false do
   required :cli
 
   action do
-    Pakyow.setup
+    Pakyow.setup(env: @env)
 
     Pakyow.commands.definitions.select { |command|
       command.prelaunch? && command.prelaunch_phase == :build
