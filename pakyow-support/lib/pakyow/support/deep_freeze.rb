@@ -36,10 +36,10 @@ module Pakyow
             if !frozen? && respond_to?(:freeze)
               if !respond_to?(:insulated?) || !insulated?
                 freeze
-              end
 
-              freezable_variables.each do |name|
-                instance_variable_get(name).deep_freeze
+                freezable_variables.each do |name|
+                  instance_variable_get(name).deep_freeze
+                end
               end
             end
 

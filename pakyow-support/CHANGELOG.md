@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't freeze the internal state of insulated objects.**
+
+    *Related links:*
+    - [Pull Request #452][pr-452]
+
   * `fix` **Build state on configurable instances prior to freezing.**
 
     *Related links:*
@@ -288,6 +293,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-452]: https://github.com/pakyow/pakyow/pull/452
 [pr-441]: https://github.com/pakyow/pakyow/pull/441
 [pr-430]: https://github.com/pakyow/pakyow/pull/430
 [pr-429]: https://github.com/pakyow/pakyow/pull/429

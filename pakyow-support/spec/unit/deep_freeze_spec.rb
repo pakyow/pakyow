@@ -150,8 +150,8 @@ RSpec.describe Pakyow::Support::DeepFreeze do
         expect(insulated_object.frozen?).to be(false)
       end
 
-      it "freezes contained state" do
-        expect(insulated_object.internal.frozen?).to be(true)
+      it "does not freeze contained state" do
+        expect(insulated_object.internal.frozen?).to be(false)
       end
     end
   end
