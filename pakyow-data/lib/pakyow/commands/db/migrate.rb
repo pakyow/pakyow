@@ -17,6 +17,8 @@ command :db, :migrate, boot: false do
   end
 
   action do
+    Pakyow.setup(env: @env)
+
     require "pakyow/data/migrator"
 
     migrator = Pakyow::Data::Migrator.connect(

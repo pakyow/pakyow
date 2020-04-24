@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Pass the environment to commands by default, explicitly setting up or booting as needed.**
+
+    *Related links:*
+    - [Pull Request #453][pr-453]
+
   * `chg` **Avoid loading the environment when running known commands that manage the boot phase.**
 
     *Related links:*
@@ -378,6 +383,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-453]: https://github.com/pakyow/pakyow/pull/453
 [pr-451]: https://github.com/pakyow/pakyow/pull/451
 [pr-450]: https://github.com/pakyow/pakyow/pull/450
 [pr-449]: https://github.com/pakyow/pakyow/pull/449

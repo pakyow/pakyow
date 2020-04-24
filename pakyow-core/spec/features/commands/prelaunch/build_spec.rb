@@ -23,6 +23,12 @@ RSpec.describe "cli: prelaunch:build" do
       {}
     }
 
+    it "sets up the environment" do
+      expect(Pakyow).to receive(:setup).with(env: :test)
+
+      run_command(command, project: true, tty: false)
+    end
+
     context "prelaunch commands are defined for the environment" do
       before do
         local = self

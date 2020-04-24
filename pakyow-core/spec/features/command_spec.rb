@@ -438,4 +438,23 @@ RSpec.describe "command" do
       end
     end
   end
+
+  describe "calling with the current environment" do
+    let(:definition) {
+      local = self
+      Proc.new {
+        action do
+          local.env = @env
+        end
+      }
+    }
+
+    attr_accessor :env
+
+    it "passes the environment" do
+      Pakyow.commands(:foo).call(env: :foo)
+
+      expect(env).to eq(:foo)
+    end
+  end
 end

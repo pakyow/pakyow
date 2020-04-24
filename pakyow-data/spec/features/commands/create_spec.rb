@@ -35,6 +35,12 @@ RSpec.describe "cli: db:create" do
       allow(Pakyow::Data::Migrator).to receive(:connect_global).and_return(migrator)
     end
 
+    it "sets up the environment" do
+      expect(Pakyow).to receive(:setup).with(env: :test)
+
+      run_command(command, adapter: adapter, connection: connection, project: true)
+    end
+
     it "connects globally with the given adapter and connection" do
       expect(Pakyow::Data::Migrator).to receive(:connect_global).with(
         adapter: adapter, connection: connection
