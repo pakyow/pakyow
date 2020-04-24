@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Load outside of setup phase, setup outside of boot phase.**
+
+    *Related links:*
+    - [Pull Request #454][pr-454]
+
   * `fix` **Pass the environment to commands by default, explicitly setting up or booting as needed.**
 
     *Related links:*
@@ -383,6 +388,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-454]: https://github.com/pakyow/pakyow/pull/454
 [pr-453]: https://github.com/pakyow/pakyow/pull/453
 [pr-451]: https://github.com/pakyow/pakyow/pull/451
 [pr-450]: https://github.com/pakyow/pakyow/pull/450

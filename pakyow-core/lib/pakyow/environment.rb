@@ -420,9 +420,9 @@ module Pakyow
     #
     def setup(env: nil)
       unless setup?
-        performing :setup do
-          load(env: env)
+        load(env: env)
 
+        performing :setup do
           require "console"
           require "console/split"
 
@@ -488,9 +488,9 @@ module Pakyow
     #
     def boot(env: nil)
       unless booted?
-        performing :boot do
-          setup(env: env)
+        setup(env: env)
 
+        performing :boot do
           # Set the environment as booted ahead of telling each app that it is booted. This allows an
           # app's after boot hook to access the booted app through `Pakyow.app`.
           #
