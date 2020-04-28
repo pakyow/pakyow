@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Handle exceptions in handleable objects.**
+
+    *Related links:*
+    - [Pull Request #455][pr-455]
+
   * `fix` **Don't freeze the internal state of insulated objects.**
 
     *Related links:*
@@ -293,6 +298,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-455]: https://github.com/pakyow/pakyow/pull/455
 [pr-452]: https://github.com/pakyow/pakyow/pull/452
 [pr-441]: https://github.com/pakyow/pakyow/pull/441
 [pr-430]: https://github.com/pakyow/pakyow/pull/430

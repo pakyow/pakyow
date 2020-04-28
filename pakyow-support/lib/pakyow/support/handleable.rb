@@ -52,7 +52,7 @@ module Pakyow
         #
         def handling(**kwargs)
           yield
-        rescue => error
+        rescue Exception => error
           trigger(error, **kwargs)
         end
 
