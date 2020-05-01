@@ -7,10 +7,13 @@ require_relative "../class_state"
 require_relative "../deep_dup"
 require_relative "../deep_freeze"
 require_relative "../deprecatable"
+require_relative "../extension"
 require_relative "../makeable"
 require_relative "../object_name"
 
 require_relative "setting"
+
+require_relative "config/behavior/defining"
 
 module Pakyow
   module Support
@@ -18,6 +21,8 @@ module Pakyow
       # A group of configurable settings.
       #
       class Config
+        include Behavior::Defining
+
         using DeepDup
 
         extend DeepFreeze
@@ -40,36 +45,8 @@ module Pakyow
         end
 
         class << self
-          attr_reader :object_name
-
           # @api private
-          def __configurable
-            @configurable
-          end
-
-          # Define setting `name` with `default`. If a block is given, the default value is built
-          # and cached the first time the setting is accessed.
-          #
-          def setting(name, default = default_omitted = true, &block)
-            name = name.to_sym
-
-            if default_omitted
-              default = nil
-            end
-
-            unless __settings.include?(name)
-              define_setting_methods(name)
-            end
-
-            __settings[name] = Setting.new(
-              name: name,
-              default: default.deep_dup,
-              configurable: __configurable,
-              &block
-            )
-
-            self
-          end
+          attr_reader :__configurable
 
           # Define defaults for one or more environments.
           #
@@ -77,28 +54,6 @@ module Pakyow
             environments.each do |environment|
               (__defaults[environment] ||= Concurrent::Array.new) << block
             end
-          end
-
-          # Define a nested configurable.
-          #
-          def configurable(group, &block)
-            group = group.to_sym
-
-            config = Config.make(
-              ObjectName.build(
-                *object_name.parts.reject { |part| part == :config }, group
-              ),
-              context: self,
-              configurable: __configurable
-            )
-
-            config.class_eval(&block)
-
-            unless __groups.include?(group)
-              define_group_methods(group)
-            end
-
-            __groups[group] = config
           end
 
           # Configure default values for `environment`.
@@ -121,26 +76,6 @@ module Pakyow
             super(target, solution: solution)
           end
 
-          private def define_setting_methods(name)
-            define_method name do |&block|
-              if block
-                find_setting(name).set(block)
-              else
-                find_setting(name).value
-              end
-            end
-
-            define_method :"#{name}=" do |value|
-              find_setting(name).set(value)
-            end
-          end
-
-          private def define_group_methods(name)
-            define_method name do
-              find_group(name)
-            end
-          end
-
           private def find_setting(name)
             @__settings[name]
           end
@@ -150,8 +85,11 @@ module Pakyow
           end
         end
 
+        # @api private
+        attr_reader :__configurable, :__settings, :__groups
+
         def initialize(configurable)
-          @configurable = configurable
+          @__configurable = configurable
           @__settings = Concurrent::Hash.new
           @__groups = Concurrent::Hash.new
         end
@@ -204,9 +142,13 @@ module Pakyow
           super
         end
 
+        def object_name
+          self.class.object_name
+        end
+
         # @api private
         def update_configurable(configurable)
-          @configurable = configurable
+          @__configurable = configurable
 
           @__settings.values.each do |setting|
             setting.update_configurable(configurable)
@@ -221,11 +163,11 @@ module Pakyow
 
         private def deprecated_method_reference(target)
           unless defined?(@deprecated_method_reference)
-            configurable_context = case @configurable
+            configurable_context = case __configurable
             when Class, Module
-              @configurable
+              __configurable
             else
-              @configurable.class
+              __configurable.class
             end
 
             target = if target.to_s[-1] == "="
@@ -251,13 +193,14 @@ module Pakyow
         end
 
         private def find_group(name)
-          @__groups[name] ||= self.class.__groups[name].new(@configurable)
+          @__groups[name] ||= self.class.__groups[name].new(__configurable)
         end
 
         private def build_setting(name)
           setting = self.class.__settings[name]
-          unless @configurable.equal?(self.class.__configurable)
-            setting = setting.dup.update_configurable(@configurable)
+
+          unless __configurable.equal?(self.class.__configurable)
+            setting = setting.dup.update_configurable(__configurable)
           end
 
           setting

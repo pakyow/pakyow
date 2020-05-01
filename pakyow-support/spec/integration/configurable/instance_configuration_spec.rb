@@ -219,4 +219,70 @@ RSpec.describe "configuring an instance of a configurable class" do
       expect(new_instance.config.bar.baz).to eq(:baz)
     end
   end
+
+  describe "adding a setting to the instance's config" do
+    before do
+      instance.config.setting :foo, "foo"
+    end
+
+    let(:instance) {
+      object.new
+    }
+
+    it "is added to the instance" do
+      expect(instance.config.foo).to eq("foo")
+    end
+
+    it "does not change the class" do
+      expect {
+        object.config.foo
+      }.to raise_error(NoMethodError)
+    end
+  end
+
+  describe "adding a group to the instance's config" do
+    before do
+      object.configurable :baz do
+        setting :qux, "qux"
+      end
+
+      instance.config.configurable :foo do
+        setting :bar, "bar"
+      end
+    end
+
+    let(:instance) {
+      object.new
+    }
+
+    it "is added to the instance" do
+      expect(instance.config.foo.bar).to eq("bar")
+    end
+
+    it "does not change the class" do
+      expect {
+        object.config.foo.bar
+      }.to raise_error(NoMethodError)
+    end
+  end
+
+  describe "adding a setting directly to an existing config group" do
+    before do
+      object.configurable :foo do
+        setting :bar, "bar"
+      end
+
+      instance.config.foo.configurable :baz do
+        setting :qux, "qux"
+      end
+    end
+
+    let(:instance) {
+      object.new
+    }
+
+    it "is added to the instance" do
+      expect(instance.config.foo.baz.qux).to eq("qux")
+    end
+  end
 end

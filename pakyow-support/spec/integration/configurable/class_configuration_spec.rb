@@ -166,4 +166,46 @@ RSpec.describe "configuring a configurable class" do
       end
     end
   end
+
+  describe "adding a setting to the object's config" do
+    before do
+      object.config.setting :foo, "foo"
+    end
+
+    it "is added to the object" do
+      expect(object.config.foo).to eq("foo")
+    end
+  end
+
+  describe "adding a group to the object's config" do
+    before do
+      object.configurable :baz do
+        setting :qux, "qux"
+      end
+
+      object.config.configurable :foo do
+        setting :bar, "bar"
+      end
+    end
+
+    it "is added to the object" do
+      expect(object.config.foo.bar).to eq("bar")
+    end
+  end
+
+  describe "adding a setting directly to an existing group" do
+    before do
+      object.configurable :foo do
+        setting :bar, "bar"
+      end
+
+      object.config.foo.configurable :baz do
+        setting :qux, "qux"
+      end
+    end
+
+    it "is added to the object" do
+      expect(object.config.foo.baz.qux).to eq("qux")
+    end
+  end
 end
