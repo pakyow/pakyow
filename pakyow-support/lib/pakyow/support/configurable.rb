@@ -58,7 +58,7 @@ module Pakyow
       extend_dependency ClassState
 
       apply_extension do
-        class_state :__config, default: Config.make(:config, context: self, configurable: self), inheritable: true
+        class_state :__config, default: Config.make(:config, context: self, __configurable: self), inheritable: true
         class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
       end
 
@@ -121,7 +121,7 @@ module Pakyow
         def inherited(subclass)
           super
 
-          subclass.instance_variable_set(:@__config, __config.make(:config, context: subclass, configurable: subclass))
+          subclass.instance_variable_set(:@__config, __config.make(:config, context: subclass, __configurable: subclass))
         end
       end
 

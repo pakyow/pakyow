@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Allow configurable instances to be extended.**
+
+    *Related links:*
+    - [Pull Request #456][pr-456]
+
   * `fix` **Handle exceptions in handleable objects.**
 
     *Related links:*
@@ -298,6 +303,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-456]: https://github.com/pakyow/pakyow/pull/456
 [pr-455]: https://github.com/pakyow/pakyow/pull/455
 [pr-452]: https://github.com/pakyow/pakyow/pull/452
 [pr-441]: https://github.com/pakyow/pakyow/pull/441
