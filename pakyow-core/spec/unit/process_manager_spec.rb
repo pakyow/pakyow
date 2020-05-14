@@ -1,3 +1,5 @@
+require "pakyow/process_manager"
+
 RSpec.describe Pakyow::ProcessManager do
   before do
     allow(Process::Group).to receive(:new).and_return(process_group)

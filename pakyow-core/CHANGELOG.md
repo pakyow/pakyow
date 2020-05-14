@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Introduce the new process model built on containers and services.**
+
   * `fix` **Load outside of setup phase, setup outside of boot phase.**
 
     *Related links:*
@@ -314,6 +316,12 @@
     - [Commit 26f586d][26f586d]
 
 ## Deprecations
+
+  * `Pakyow::ProcessManager` is deprecated in favor of `Pakyow::Runnable::Container`.
+
+  * `Pakyow::Process` is deprecated in favor of `Pakyow::Runnable::Service`.
+
+  * `Pakyow.config.server` is deprecated in favor of `Pakyow.config.runnable.server`.
 
   * `Pakyow.config.exit_on_boot_failure` is deprecated with no replacement.
 

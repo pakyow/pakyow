@@ -4,13 +4,15 @@ require "async/reactor"
 require "async/io/shared_endpoint"
 require "async/http/endpoint"
 
+require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
 require_relative "../errors"
-require_relative "../process"
-require_relative "../process_manager"
-require_relative "../processes/proxy"
-require_relative "../processes/server"
+require_relative "../server"
+require_relative "../runnable/container"
+
+require_relative "running/error_handling"
 
 module Pakyow
   module Behavior
@@ -18,77 +20,178 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        class_state :processes, default: []
         class_state :__running, default: false, reader: false
 
-        on "run" do
-          endpoint = Async::HTTP::Endpoint.parse(
-            "http://#{config.server.host}:#{config.server.port}"
-          )
+        definable :container, Runnable::Container
 
-          @bound_endpoint = Async::Reactor.run {
-            Async::IO::SharedEndpoint.bound(endpoint)
-          }.wait
+        container :supervisor do
+          # Boots and deep freezes the environment, then runs the environment container.
+          #
+          service :environment do
+            include ErrorHandling
 
-          process :server, count: config.server.count do
-            Processes::Server.new(
-              protocol: endpoint.protocol,
-              scheme: endpoint.scheme,
-              endpoint: @bound_endpoint
-            ).run
+            using Support::DeepFreeze
+
+            class << self
+              def prerun(options)
+                Pakyow.container(:environment).services.each do |service|
+                  service.prerun(options)
+                end
+              end
+
+              def postrun(options)
+                Pakyow.container(:environment).services.each do |service|
+                  service.postrun(options)
+                end
+              end
+            end
+
+            def perform
+              handling do
+                Pakyow.boot(env: options[:env])
+
+                Pakyow.deprecator.ignore do
+                  if Pakyow.config.freeze_on_boot
+                    Pakyow.deep_freeze
+                  end
+                end
+
+                GC.start
+              end
+
+              Pakyow.container(:environment).run(parent: self, **options)
+            end
           end
+        end
 
-          unless ENV.key?("PW_RESPAWN")
-            Pakyow.logger << Processes::Server.running_text(
-              scheme: "http", host: config.server.host, port: config.server.port
-            )
+        container :environment do
+          # Boots the environment (if necessary), then runs the server.
+          #
+          service :server do
+            include ErrorHandling
+
+            using Support::DeepFreeze
+
+            class << self
+              def prerun(options)
+                endpoint = Async::HTTP::Endpoint.parse(
+                  "#{options[:config].server.scheme}://#{options[:config].server.host}:#{options[:config].server.port}"
+                )
+
+                bound_endpoint = Async::Reactor.run {
+                  Async::IO::SharedEndpoint.bound(endpoint)
+                }.wait
+
+                options[:endpoint] = bound_endpoint
+                options[:protocol] = endpoint.protocol
+
+                Pakyow.logger << running_text(
+                  env: options[:env],
+                  scheme: options[:config].server.scheme,
+                  host: options[:config].server.host,
+                  port: options[:config].server.port
+                )
+              end
+
+              def postrun(options)
+                options[:endpoint].close
+              end
+
+              private def running_text(env:, scheme:, host:, port:)
+                text = String.new("Pakyow › #{env.to_s.capitalize}")
+                text << " › #{scheme}://#{host}:#{port}"
+
+                Support::CLI.style.blue.bold(
+                  text
+                ) + Support::CLI.style.italic("\nUse Ctrl-C to shut down the environment.")
+              end
+            end
+
+            def count
+              options[:config].server.count
+            end
+
+            def perform
+              handling do
+                unless Pakyow.booted?
+                  Pakyow.boot(env: options[:env])
+
+                  Pakyow.deprecator.ignore do
+                    if Pakyow.config.freeze_on_boot
+                      Pakyow.deep_freeze
+                    end
+                  end
+                end
+              end
+
+              Server.run(
+                Pakyow,
+                endpoint: options[:endpoint],
+                protocol: options[:protocol],
+                scheme: options[:config].server.scheme
+              )
+            end
+
+            def shutdown
+              Pakyow.apps.each do |app|
+                app.shutdown
+              rescue ApplicationError => error
+                app.rescue!(error)
+              end
+            end
           end
         end
       end
 
       class_methods do
-        def process(name, count: 1, restartable: true, &block)
-          @processes << Process.new(
-            name: name,
-            count: count,
-            restartable: restartable,
-            &block
-          )
+        extend Support::Deprecatable
+
+        def process(name, restartable: true, &block)
+          container(:environment).service(name, restartable: restartable) do
+            def perform
+              block.call
+            end
+          end
         end
 
-        # Runs the environment by booting and starting all registered processes.
+        deprecate :process, solution: "define services directly on `Pakyow.container(:environment)'"
+
+        # Runs the environment by defining the shared endpoint and running the top-level container.
         #
-        # @param env [Symbol] the environment to prepare for
+        # @param env [Symbol] the environment to run
+        # @param formation [Hash] the formation to run
         #
-        def run(env: nil)
+        def run(env: nil, formation: nil)
           unless running?
-            boot(env: env) unless rescued?
+            formation ||= config.runnable.formation
+            validate_formation!(formation)
 
-            Async::Reactor.run do |reactor|
-              @__reactor = reactor
-
-              handle_at_exit
-              call_hooks :before, :run
-              @__process_thread = start_processes
-              @__running = true
+            performing :run do
+              top_level_container(formation).run(
+                formation: formation,
+                config: config.runnable,
+                env: env,
+              ) do |container|
+                @__running = true
+                @__running_container = container
+                yield container if block_given?
+              end
             end
 
-            if defined?(@__process_thread)
-              @__process_thread.join
+            shutdown
+
+            if $stdout.isatty
+              # Don't let ^C mess up our output.
+              #
+              puts
             end
 
-            call_hooks :after, :run
+            Pakyow.logger << "Goodbye"
+
+            ::Process.exit(@__running_container.success?)
           end
 
           self
-        rescue SignalException, Interrupt
-          exit
-        rescue ApplicationError => error
-          error.context.rescue!(error); retry
-        rescue EnvironmentError => error
-          handle_environment_error(error); retry
-        rescue ScriptError, StandardError => error
-          handle_environment_error(EnvironmentError.build(error)); retry
         end
 
         # Returns true if the environment is running.
@@ -97,86 +200,43 @@ module Pakyow
           @__running == true
         end
 
+        # Shutdown the environment.
+        #
         def shutdown
           if running?
             performing :shutdown do
-              # Stop the async reactor.
+              # Make sure the container is stopped.
               #
-              @__reactor.stop
+              @__running_container.stop
 
-              # Close the bound endpoint so we can respawn on the same port.
+              # Finally, update our internal state.
               #
-              if defined?(@bound_endpoint)
-                @bound_endpoint.close
-              end
-
-              # Finally, stop the process manager to invoke the respawn.
-              #
-              if defined?(@process_manager)
-                @process_manager.stop
-              end
+              @__running = false
             end
-
-            @__running = false
           end
 
           self
         end
 
-        def restart(environment = nil)
-          unless environment.nil? || environment.empty?
-            environment = environment.strip.to_sym
-            unless environment == Pakyow.env
-              Pakyow.setup(env: environment)
-            end
-          end
-
-          boot; @process_manager.restart
-        end
-
-        private def start_processes
-          @process_manager = ProcessManager.new
-
-          Thread.new do
-            @processes.each do |process|
-              @process_manager.add(process)
-            end
-
-            @process_manager.wait
+        # Restart the environment.
+        #
+        def restart
+          if running?
+            @container.restart
           end
         end
 
-        private def handle_at_exit
-          root_pid = ::Process.pid
-
-          at_exit do
-            if ::Process.pid == root_pid
-              if $stdout.isatty
-                # Don't let ^C mess up our output.
-                #
-                puts
-              end
-
-              shutdown
-
-              Pakyow.logger << "Goodbye"
-            else
-              @apps.each do |app|
-                app.shutdown
-              rescue ApplicationError => error
-                app.rescue!(error)
-              end
-            end
+        private def validate_formation!(formation)
+          unless top_level_container(formation)
+            raise FormationError.new_with_message(:missing, formation: formation, container: formation.container)
           end
         end
 
-        private def handle_environment_error(error)
-          Pakyow.rescue!(error)
-
-          Pakyow.deprecator.ignore do
-            if config.exit_on_boot_failure
-              exit(false)
-            end
+        private def top_level_container(formation)
+          if formation.nil? || formation.service?(:all)
+            container(:supervisor)
+          else
+            container(formation.container)
           end
         end
       end

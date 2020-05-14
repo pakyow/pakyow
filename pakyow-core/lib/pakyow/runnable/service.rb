@@ -1,0 +1,217 @@
+# frozen_string_literal: true
+
+require "pakyow/support/class_state"
+require "pakyow/support/handleable"
+require "pakyow/support/inspectable"
+require "pakyow/support/makeable"
+
+module Pakyow
+  module Runnable
+    # Performs work in a system service created by a parent container.
+    #
+    # @example
+    #   Pakyow.container :some_container do
+    #     service :some_service do
+    #       def perform
+    #         until stopped? do
+    #           puts "hello"
+    #           sleep 1
+    #         end
+    #       end
+    #
+    #       def shutdown
+    #         # Do something on shutdown.
+    #       end
+    #     end
+    #   end
+    #
+    # = Restartability
+    #
+    # Services are restartable by default, meaning the container will restart services that exit
+    # until the container itself is stopped. Restartability can be disabled for a service by
+    # defining the service with `restartable: false`:
+    #
+    #   Pakyow.container :some_container do
+    #     service :some_service, restartable: false do
+    #       ...
+    #     end
+    #   end
+    #
+    # Restartability can be determined at runtime by overloading the `restartable?` instance method:
+    #
+    #   Pakyow.container :some_container do
+    #     service :some_service do
+    #       def restartable?
+    #         [true, false].sample
+    #       end
+    #     end
+    #   end
+    #
+    # = Service Limits
+    #
+    # Services can be started any number of times by default, as defined by the container's current
+    # formation. Limits can be imposed on a service by defining the service with `limit: {n}`:
+    #
+    #   Pakyow.container :some_container do
+    #     service :some_service, limit: 1 do
+    #       ...
+    #     end
+    #   end
+    #
+    # Limits can be determined at runtime by overloading the `limit` instance method:
+    #
+    #   Pakyow.container :some_container do
+    #     service :some_service do
+    #       def limit
+    #         [1, 2].sample
+    #       end
+    #     end
+    #   end
+    #
+    # = Prerun / Postrun
+    #
+    # Services running in a top-level container have their `prerun` method invoked when the container
+    # runs. This methods receives the container's run options, giving the service an opportunity to
+    # add its own options for later use. Similarly, `postrun` is called  when the container stops.
+    #
+    class Service
+      class Status
+        include Support::Inspectable
+        inspectable :@status
+
+        def initialize(status = :unknown)
+          @status = status
+        end
+
+        def unknown?
+          @status == :unknown
+        end
+
+        def success?
+          @status == :success
+        end
+
+        def failed?
+          @status == :failed
+        end
+
+        def success!
+          @status = :success
+        end
+
+        def failed!
+          @status = :failed
+        end
+      end
+
+      extend Support::ClassState
+      class_state :restartable, default: true, inheritable: true
+      class_state :limit, default: nil, inheritable: true
+      class_state :count, default: 1, inheritable: true
+
+      include Support::Handleable
+      include Support::Makeable
+
+      include Support::Inspectable
+      inspectable :@options, :@metadata, :@status
+
+      attr_reader :options, :metadata, :reference, :status
+
+      # @api private
+      attr_writer :reference
+
+      def initialize(**options)
+        @options = options
+        @metadata = {}
+        @reference = nil
+        @status = Status.new
+        @__stopped = false
+        @__retries = 0
+      end
+
+      def initialize_copy(_)
+        super
+
+        @options = @options.dup
+        @metadata = @metadata.dup
+        @status = @status.dup
+      end
+
+      # Marks a service as having failed.
+      #
+      def failed!
+        @status.failed!
+
+        @options[:parent]&.failed!
+      end
+
+      # Marks a service as having succeeded.
+      #
+      def success!
+        @status.success!
+      end
+
+      # Returns the service limit, or nil for no limit. This value takes precedence over formations.
+      #
+      def limit
+        self.class.limit
+      end
+
+      # Returns the service count.
+      #
+      def count
+        self.class.count
+      end
+
+      # Runs the service, calling `perform`.
+      #
+      def run
+        perform
+      end
+
+      # Stops the service, calling `shutdown`.
+      #
+      def stop
+        unless stopped?
+          @__stopped = true
+
+          shutdown
+        end
+      end
+
+      # Returns true if the service is restartable.
+      #
+      def restartable?
+        self.class.restartable == true
+      end
+
+      # Returns true if the service is stopped.
+      #
+      def stopped?
+        @__stopped == true
+      end
+
+      # Called when the service is run.
+      #
+      def perform
+        # implemented by subclasses
+      end
+
+      # Called when the service is stopped.
+      #
+      def shutdown
+        # implemented by subclasses
+      end
+
+      class << self
+        def prerun(options)
+          # implemented by subclasses
+        end
+
+        def postrun(options)
+          # implemented by subclasses
+        end
+      end
+    end
+  end
+end

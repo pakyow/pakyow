@@ -1,11 +1,11 @@
+require "pakyow/processes/server"
+
 RSpec.describe Pakyow::Processes::Server do
-  it "initializes with an endpoint, protocol, and scheme"
+  it "is deprecated" do
+    expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+      described_class, { solution: "do not use" }
+    )
 
-  describe "#run" do
-    it "runs the finalized environment in an async http server"
-  end
-
-  describe "::running_text" do
-    it "returns the running text"
+    described_class.new(endpoint: nil, protocol: nil, scheme: nil)
   end
 end

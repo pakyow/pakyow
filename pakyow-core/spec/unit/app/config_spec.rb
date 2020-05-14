@@ -1,3 +1,5 @@
+require "pakyow/application"
+
 RSpec.describe Pakyow::Application do
   describe "configuration options" do
     let :app do

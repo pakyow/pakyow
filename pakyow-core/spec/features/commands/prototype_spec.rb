@@ -32,16 +32,16 @@ RSpec.describe "cli: prototype" do
           expect(Pakyow.config.server.proxy).to eq(true)
         end
 
-        expect(Pakyow.config.server.host).to eq("localhost")
-        expect(Pakyow.config.server.port).to eq(3000)
+        expect(Pakyow.config.runnable.server.host).to eq("localhost")
+        expect(Pakyow.config.runnable.server.port).to eq(3000)
       end
     end
 
     context "passing a host and port" do
       it "boots on the passed host and port" do
         run_command(command, host: "remotehost", port: "4242", project: true)
-        expect(Pakyow.config.server.host).to eq("remotehost")
-        expect(Pakyow.config.server.port).to eq("4242")
+        expect(Pakyow.config.runnable.server.host).to eq("remotehost")
+        expect(Pakyow.config.runnable.server.port).to eq("4242")
       end
     end
   end

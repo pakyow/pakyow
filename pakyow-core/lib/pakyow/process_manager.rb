@@ -2,6 +2,7 @@
 
 require "process/group"
 
+require "pakyow/support/deprecatable"
 require "pakyow/support/inflector"
 
 require_relative "process"
@@ -9,7 +10,12 @@ require_relative "process"
 module Pakyow
   # Manages one or more processes.
   #
+  # @deprecated
+  #
   class ProcessManager
+    extend Support::Deprecatable
+    deprecate
+
     def initialize
       @group, @stopped = ::Process::Group.new, false
     end

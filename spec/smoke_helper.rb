@@ -113,11 +113,14 @@ RSpec.configure do |config|
     defined?(@server)
   end
 
-  def shutdown
+  def shutdown(signal = "TERM")
     if booted?
-      Process.kill("TERM", @server)
-      Process.waitpid(@server)
-      remove_instance_variable(:@server)
+      Process.kill(signal, @server)
+
+      unless signal == "HUP"
+        Process.waitpid(@server)
+        remove_instance_variable(:@server)
+      end
     end
   end
 

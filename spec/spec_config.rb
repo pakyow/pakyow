@@ -80,11 +80,7 @@ RSpec.configure do |config|
 
     $original_constants = Object.constants
 
-    allow(Pakyow).to receive(:at_exit)
-    allow(Pakyow).to receive(:exit)
     allow(Process).to receive(:exit)
-    allow(Process).to receive(:exit!)
-    allow(Pakyow).to receive(:trap)
 
     cache_config(Pakyow)
     cache_config(Pakyow::Application) if defined?(Pakyow::Application)
@@ -145,10 +141,14 @@ RSpec.configure do |config|
     end
 
     if Pakyow.respond_to?(:__definable_registries)
+      sticky_registries = %i(container)
+
       Pakyow.__definable_registries.values.each do |registry|
-        registry.instance_variable_set(:@definitions, [])
-        registry.instance_variable_set(:@priorities, {})
-        registry.instance_variable_set(:@state, {})
+        unless sticky_registries.include?(registry.name)
+          registry.instance_variable_set(:@definitions, [])
+          registry.instance_variable_set(:@priorities, {})
+          registry.instance_variable_set(:@state, {})
+        end
       end
     end
 
