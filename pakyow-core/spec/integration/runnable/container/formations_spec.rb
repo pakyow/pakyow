@@ -185,7 +185,7 @@ RSpec.describe "running a formation container" do
 
       it "runs the expected formation" do
         run_container do
-          wait_for length: 21, timeout: 1 do |result|
+          wait_for length: 21, timeout: 3 do |result|
             expect(result.scan(/foo/).count).to eq(1)
             expect(result.scan(/baz/).count).to eq(6)
           end

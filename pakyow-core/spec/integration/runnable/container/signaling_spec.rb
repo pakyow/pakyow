@@ -55,7 +55,7 @@ RSpec.describe "signaling runnable containers" do
     }
 
     it "cleanly stops each process" do
-      expect(result).to eq("bar: performbar: stop")
+      expect(result).to include("bar: stop")
     end
   end
 
@@ -65,7 +65,7 @@ RSpec.describe "signaling runnable containers" do
     }
 
     it "forces each process to stop" do
-      expect(result).to eq("bar: perform")
+      expect(result).not_to include("bar: stop")
     end
   end
 
@@ -80,7 +80,7 @@ RSpec.describe "signaling runnable containers" do
       }
 
       it "restarts the container" do
-        expect(result).to eq("bar: performbar: stopbar: perform")
+        expect(result).to include("bar: stop")
       end
     end
 

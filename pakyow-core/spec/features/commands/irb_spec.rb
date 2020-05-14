@@ -1,3 +1,5 @@
+require "irb"
+
 require "pakyow/cli"
 require "pakyow/task"
 
