@@ -18,7 +18,6 @@ gem "htmlbeautifier", ">= 1.3"
 gem "pronto", ">= 0.10"
 gem "pronto-rubocop", ">= 0.10", require: false
 gem "pry", ">= 0.12"
-gem "pry-byebug", ">= 3.7"
 gem "rubocop", ">= 0.75"
 
 group :test do
