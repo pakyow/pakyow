@@ -1,9 +1,16 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deprecatable"
+
 module Pakyow
   # A process, runnable within a {ProcessManager}.
   #
+  # @deprecated
+  #
   class Process
+    extend Support::Deprecatable
+    deprecate
+
     attr_reader :name, :count
 
     def initialize(name:, count: 1, restartable: false, &block)

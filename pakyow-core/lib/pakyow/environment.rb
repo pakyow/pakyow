@@ -54,13 +54,13 @@ require_relative "handleable/behavior/defaults/server_error"
 # The environment can be configured
 #
 #   Pakyow.configure do
-#     config.server.port = 2001
+#     config.runnable.server.port = 2001
 #   end
 #
 # It's possible to configure environments differently.
 #
 #   Pakyow.configure :development do
-#     config.server.host = "pakyow.dev"
+#     config.runnable.server.host = "pakyow.dev"
 #   end
 #
 # @see Support::Configurable
@@ -141,28 +141,54 @@ module Pakyow
   config.deprecate :freeze_on_boot
   config.deprecate :exit_on_boot_failure
 
+  configurable :runnable do
+    setting :formation do
+      Runnable::Formation.all
+    end
+
+    configurable :server do
+      setting :count, 1
+      setting :scheme, "http"
+      setting :host, "localhost"
+      setting :port, 3000
+
+      defaults :production do
+        setting :count do
+          ENV["WORKERS"] || 5
+        end
+
+        setting :host do
+          ENV["HOST"] || "0.0.0.0"
+        end
+
+        setting :port do
+          ENV["PORT"] || 3000
+        end
+      end
+    end
+  end
+
   configurable :server do
+    setting :restartable, true
+    deprecate :restartable
+
     setting :host, "localhost"
+    def host=(value); Pakyow.config.runnable.server.host = value; end
+    deprecate :host, solution: "use `config.runnable.server.host'"
+
     setting :port, 3000
+    def port=(value); Pakyow.config.runnable.server.port = value; end
+    deprecate :port, solution: "use `config.runnable.server.port'"
+
     setting :count, 1
+    def count=(value); Pakyow.config.runnable.server.count = value; end
+    deprecate :count, solution: "use `config.runnable.server.count'"
 
     setting :proxy, true
     deprecate :proxy
 
     defaults :production do
       setting :proxy, false
-
-      setting :host do
-        ENV["HOST"] || "0.0.0.0"
-      end
-
-      setting :port do
-        ENV["PORT"] || 3000
-      end
-
-      setting :count do
-        ENV["WORKERS"] || 5
-      end
     end
   end
 

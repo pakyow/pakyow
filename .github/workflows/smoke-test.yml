@@ -8,41 +8,82 @@ jobs:
   smoke-tests:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} Smoke Test
+    name: ${{ matrix.ruby }} Smoke Test (${{ matrix.test }})
+
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
+
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3307:3306
+        env:
+          MYSQL_ROOT_PASSWORD: pakyow
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pakyow
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
 
     strategy:
       matrix:
         ruby:
-          - 2.5.7
-          - 2.6.5
-          - 2.7.0
+          - 2.5.8
+          - 2.6.6
+          - 2.7.1
+
+        test:
+          - content_length
+          - cookies
+          - frozen
+          - head
+          - prelaunch
+          - respawn
+          - restart
+          - signals
+          - startup
+          - assets/fetch
+          - assets/precompile
+          - assets/update
+          - database/bootstrap
+          - database/create
+          - database/drop
+          - database/finalize
+          - database/migrate
+          - database/reset
+          - prelaunch/build
+          - prelaunch/release
+          - rescues/application
+          - rescues/environment
+          - sessions/cookie
 
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-ruby@v1
 
-      - name: Cleanup directories
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
         run: |
-          rm -rf .git
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
 
-      - name: Create zip
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
         run: |
-          cd ../
-          zip -rq pakyow pakyow
-          mv pakyow.zip ../
-
-      - name: Clone ci-helpers
-        run: |
-          cd ../../
-          git clone https://github.com/pakyow/ci-helpers.git
-
-      - name: Run CI
-        run: |
-          cd ../../ci-helpers
-          gem install bundler
-          bundle install
-          bundle exec commands/runner --ruby ${{ matrix.ruby }} --path '../pakyow.zip' -e 'CI=true' -e 'SMOKE=true' -f 'mysql postgres redis' 'bundle exec rspec spec/smoke'
+          CI=true bundle exec rspec spec/smoke/${{ matrix.test }}_spec.rb
         env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
+          POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}

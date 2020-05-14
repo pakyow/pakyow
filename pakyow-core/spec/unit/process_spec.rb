@@ -1,3 +1,5 @@
+require "pakyow/process"
+
 RSpec.describe Pakyow::Process do
   describe "initialization" do
     context "count is not an integer" do

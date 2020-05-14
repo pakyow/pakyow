@@ -1,17 +1,21 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "pakyow/support/system"
+begin
+  require "pakyow/support/system"
 
-# Setup Bundler automatically if it isn't available and we're within a project that supports it.
-#
-if !defined?(Bundler) && Pakyow::Support::System.gemfile?
-  begin
-    require "bundler/setup"
-  rescue LoadError
-    # Bundler isn't installed.
+  # Setup Bundler automatically if it isn't available and we're within a project that supports it.
+  #
+  if !defined?(Bundler) && Pakyow::Support::System.gemfile?
+    begin
+      require "bundler/setup"
+    rescue LoadError
+      # Bundler isn't installed.
+    end
   end
-end
 
-require "pakyow/cli"
-Pakyow::CLI.run
+  require "pakyow/cli"
+  Pakyow::CLI.run
+rescue Interrupt
+  # Exit gracefully.
+end

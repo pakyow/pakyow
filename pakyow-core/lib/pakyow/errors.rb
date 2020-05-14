@@ -11,6 +11,13 @@ module Pakyow
   class ApplicationError < Error
   end
 
+  class FormationError < Error
+    class_state :messages, default: {
+      missing: "`{formation}' is an invalid formation because it defines a top-level container ({container}) that doesn't exist",
+      multiple: "`{formation}' is an invalid formation because it defines multiple top-level containers ({containers})"
+    }.freeze
+  end
+
   class InvalidData < Error
     class_state :messages, default: {
       verification: "Provided data didn't pass verification"
@@ -100,6 +107,30 @@ module Pakyow
   class UnknownValidationError < Error
     class_state :messages, default: {
       default: "`{validation}' is not a known validation"
+    }.freeze
+  end
+
+  class UnknownService < Error
+    class_state :messages, default: {
+      default: "`{service}' is not a known service in the `{container}' container"
+    }.freeze
+
+    def contextual_message
+      available_services = @context.services.each.each_with_object(String.new) do |service, available_services_message|
+        available_services_message << "  - #{service.object_name.name.inspect}\n"
+      end
+
+      <<~MESSAGE
+        Try using one of these available services:
+
+        #{available_services}
+      MESSAGE
+    end
+  end
+
+  class UnknownContainerStrategy < Error
+    class_state :messages, default: {
+      default: "`{strategy}' is not a known container strategy"
     }.freeze
   end
 end

@@ -80,11 +80,7 @@ RSpec.configure do |config|
 
     $original_constants = Object.constants
 
-    allow(Pakyow).to receive(:at_exit)
-    allow(Pakyow).to receive(:exit)
     allow(Process).to receive(:exit)
-    allow(Process).to receive(:exit!)
-    allow(Pakyow).to receive(:trap)
 
     cache_config(Pakyow)
     cache_config(Pakyow::Application) if defined?(Pakyow::Application)
@@ -145,10 +141,14 @@ RSpec.configure do |config|
     end
 
     if Pakyow.respond_to?(:__definable_registries)
+      sticky_registries = %i(container)
+
       Pakyow.__definable_registries.values.each do |registry|
-        registry.instance_variable_set(:@definitions, [])
-        registry.instance_variable_set(:@priorities, {})
-        registry.instance_variable_set(:@state, {})
+        unless sticky_registries.include?(registry.name)
+          registry.instance_variable_set(:@definitions, [])
+          registry.instance_variable_set(:@priorities, {})
+          registry.instance_variable_set(:@state, {})
+        end
       end
     end
 
@@ -262,6 +262,7 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
+
 require "warning"
 warnings = []
 pakyow_path = File.expand_path("../../", __FILE__)
@@ -271,16 +272,18 @@ Warning.process do |warning|
   end
 end
 
-# at_exit do
-#   if warnings.any?
-#     require "pakyow/support/cli/style"
-#     puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
-#     warnings.take(1_000).each do |warning|
-#       puts Pakyow::Support::CLI.style.yellow("  › ") + warning.strip
-#     end
-#     puts
-#   end
-# end
+$toplevel_pid ||= Process.pid
+
+at_exit do
+  if warnings.any? && Process.pid == $toplevel_pid && !ENV.key?("CI") && ENV["WARN"] != "false"
+    require "pakyow/support/cli/style"
+    puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
+    warnings.take(1_000).each do |warning|
+      puts Pakyow::Support::CLI.style.yellow("  › ") + warning.strip
+    end
+    puts
+  end
+end
 
 def start_simplecov(&block)
   if ENV["COVERAGE"]

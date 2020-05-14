@@ -81,11 +81,59 @@ RSpec.describe Pakyow do
       it "has a default value" do
         expect(Pakyow.config.server.port).to eq(3000)
       end
+
+      it "is deprecated" do
+        expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+          "Pakyow.config.server.port", { solution: "use `config.runnable.server.port'" }
+        )
+
+        Pakyow.config.server.port
+      end
+
+      it "sets runnable.server.port" do
+        Pakyow.config.server.port = 42
+
+        expect(Pakyow.config.runnable.server.port).to eq(42)
+      end
     end
 
     describe "server.host" do
       it "has a default value" do
         expect(Pakyow.config.server.host).to eq("localhost")
+      end
+
+      it "is deprecated" do
+        expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+          "Pakyow.config.server.host", { solution: "use `config.runnable.server.host'" }
+        )
+
+        Pakyow.config.server.host
+      end
+
+      it "sets runnable.server.host" do
+        Pakyow.config.server.host = "pakyow.com"
+
+        expect(Pakyow.config.runnable.server.host).to eq("pakyow.com")
+      end
+    end
+
+    describe "server.count" do
+      it "has a default value" do
+        expect(Pakyow.config.server.count).to eq(1)
+      end
+
+      it "is deprecated" do
+        expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
+          "Pakyow.config.server.count", { solution: "use `config.runnable.server.count'" }
+        )
+
+        Pakyow.config.server.count
+      end
+
+      it "sets runnable.server.count" do
+        Pakyow.config.server.count = 42
+
+        expect(Pakyow.config.runnable.server.count).to eq(42)
       end
     end
 

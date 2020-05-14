@@ -1,3 +1,6 @@
+require "pakyow/presenter/templates"
+require "pakyow/presenter/processor"
+
 RSpec.describe "parsing front matter from view templates" do
   let :templates do
     Pakyow::Presenter::Templates.new(

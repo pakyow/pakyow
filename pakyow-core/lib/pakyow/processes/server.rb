@@ -3,11 +3,15 @@
 require "async/http/server"
 
 require "pakyow/support/deep_freeze"
+require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
 module Pakyow
   module Processes
     class Server
+      extend Support::Deprecatable
+      deprecate
+
       using Support::DeepFreeze
 
       class << self

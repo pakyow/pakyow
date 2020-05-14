@@ -1,3 +1,5 @@
+require "pakyow/processes/proxy"
+
 RSpec.describe Pakyow::Processes::Proxy::Server do
   before do
     allow(Async::HTTP::Client).to receive(:new)

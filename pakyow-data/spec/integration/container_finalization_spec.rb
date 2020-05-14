@@ -1,3 +1,5 @@
+require "pakyow/data/container"
+
 RSpec.describe "finalizing a container" do
   let :container do
     Pakyow::Data::Container.new(

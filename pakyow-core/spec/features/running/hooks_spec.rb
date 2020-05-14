@@ -1,16 +1,14 @@
 require "pakyow/support/system"
 
 RSpec.describe "run hooks" do
+  include_context "app"
+  include_context "runnable"
+
   before do
     Pakyow.setup(env: :test)
     Pakyow.config.server.host = "0.0.0.0"
     Pakyow.config.server.port = Pakyow::Support::System.available_port
-    allow(Pakyow).to receive(:start_processes).and_return(thread)
   end
-
-  let(:thread) {
-    Thread.new {}
-  }
 
   context "before run hook fails" do
     before do
@@ -21,10 +19,10 @@ RSpec.describe "run hooks" do
       end
     end
 
-    it "handles gracefully" do
+    it "raises the error" do
       expect {
         Pakyow.run
-      }.not_to raise_error
+      }.to raise_error
     end
   end
 

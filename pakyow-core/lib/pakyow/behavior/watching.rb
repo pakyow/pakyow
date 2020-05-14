@@ -31,7 +31,7 @@ module Pakyow
         end
 
         on "shutdown" do
-          @filewatcher.stop
+          @filewatcher&.stop
         end
       end
 
