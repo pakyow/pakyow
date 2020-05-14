@@ -18,11 +18,11 @@ RSpec.describe "signaling runnable containers" do
 
     container.service :foo, restartable: false do
       define_method :perform do
-        local.run_container(local.container2, timeout: 1, parent: self)
+        local.run_container(local.container2, parent: self)
       end
     end
 
-    container2.service :bar do
+    container2.service :bar, restartable: false do
       define_method :perform do
         local.write_to_parent("bar: perform")
 
@@ -33,7 +33,13 @@ RSpec.describe "signaling runnable containers" do
         local.write_to_parent("bar: stop")
       end
     end
+  end
 
+  let(:container2) {
+    Pakyow::Runnable::Container.make(:test2)
+  }
+
+  def run_then_kill
     run_container do |instance|
       sleep 0.1
 
@@ -42,12 +48,10 @@ RSpec.describe "signaling runnable containers" do
       ::Process.kill(signal, @pid)
 
       sleep 0.1
+
+      yield
     end
   end
-
-  let(:container2) {
-    Pakyow::Runnable::Container.make(:test2)
-  }
 
   describe "signaling a container: INT" do
     let(:signal) {
@@ -55,7 +59,9 @@ RSpec.describe "signaling runnable containers" do
     }
 
     it "cleanly stops each process" do
-      expect(result).to include("bar: stop")
+      run_then_kill do
+        expect(result).to eq("bar: performbar: stop")
+      end
     end
   end
 
@@ -65,7 +71,9 @@ RSpec.describe "signaling runnable containers" do
     }
 
     it "forces each process to stop" do
-      expect(result).not_to include("bar: stop")
+      run_then_kill do
+        expect(result).to eq("bar: perform")
+      end
     end
   end
 
@@ -80,7 +88,9 @@ RSpec.describe "signaling runnable containers" do
       }
 
       it "restarts the container" do
-        expect(result).to include("bar: stop")
+        run_then_kill do
+          expect(result).to eq("bar: performbar: stopbar: perform")
+        end
       end
     end
 
@@ -90,7 +100,9 @@ RSpec.describe "signaling runnable containers" do
       }
 
       it "ignores the signal" do
-        expect(result).to eq("bar: perform")
+        run_then_kill do
+          expect(result).to eq("bar: perform")
+        end
       end
     end
   end

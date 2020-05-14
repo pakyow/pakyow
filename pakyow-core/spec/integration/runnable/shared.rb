@@ -50,7 +50,12 @@ RSpec.shared_context "runnable container" do
     sleep timeout if timeout
 
     @container_instance.stop
-    thread.kill; thread.join
+
+    with_timeout 1 do
+      thread.join
+    end
+  rescue Timeout::Error
+    thread.kill
   end
 
   def write_to_parent(value)

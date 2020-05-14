@@ -6,29 +6,29 @@ RSpec.describe "determining container success" do
   include_context "runnable container"
 
   shared_examples :examples do
+    let(:container_options) {
+      { restartable: false }
+    }
+
     context "service succeeded" do
       before do
-        container.service :foo do
+        container.service :foo, restartable: false do
           define_method :perform do
             # noop
           end
         end
 
-        run_container(timeout: 0.1)
+        run_container(timeout: 0.25)
       end
 
       it "appears successful" do
-        unless @container_instance.success?
-          pp @container_instance.instance_variable_get(:@strategy).instance_variable_get(:@statuses)
-        end
-
         expect(@container_instance.success?).to be(true)
       end
     end
 
     context "service failed" do
       before do
-        container.service :foo do
+        container.service :foo, restartable: false do
           define_method :perform do
             fail
           end
@@ -46,13 +46,13 @@ RSpec.describe "determining container success" do
 
     context "one service succeeded but another failed" do
       before do
-        container.service :foo do
+        container.service :foo, restartable: false do
           define_method :perform do
             # noop
           end
         end
 
-        container.service :foo do
+        container.service :foo, restartable: false do
           define_method :perform do
             fail
           end
@@ -72,13 +72,13 @@ RSpec.describe "determining container success" do
       before do
         local = self
 
-        container.service :foo do
+        container.service :foo, restartable: false do
           define_method :perform do
             # noop
           end
         end
 
-        container2.service :bar do
+        container2.service :bar, restartable: false do
           define_method :perform do
             # noop
           end
@@ -92,10 +92,6 @@ RSpec.describe "determining container success" do
       }
 
       it "appears successful" do
-        unless @container_instance.success?
-          pp @container_instance.instance_variable_get(:@strategy).instance_variable_get(:@statuses)
-        end
-
         expect(@container_instance.success?).to be(true)
       end
     end
