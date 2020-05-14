@@ -8,7 +8,7 @@ jobs:
   smoke-tests:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} Smoke Test (${{ matrix.test }})
+    name: ${{ matrix.ruby }} / ${{ matrix.test }}
 
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}

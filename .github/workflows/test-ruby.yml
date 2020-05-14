@@ -8,7 +8,7 @@ jobs:
   test-ruby:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} ${{ matrix.gem }}
+    name: ${{ matrix.ruby }} / ${{ matrix.gem }}
 
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}
@@ -47,7 +47,7 @@ jobs:
   test-ruby-presenter-realtime-ui:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} ${{ matrix.gem }}
+    name: ${{ matrix.ruby }} / ${{ matrix.gem }}
 
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}
@@ -92,7 +92,7 @@ jobs:
   test-ruby-data:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} ${{ matrix.gem }}
+    name: ${{ matrix.ruby }} / ${{ matrix.gem }}
 
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}
@@ -153,7 +153,7 @@ jobs:
   test-ruby-dbs:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} ${{ matrix.gem }} ${{ matrix.db }}
+    name: ${{ matrix.ruby }} / ${{ matrix.gem }} / ${{ matrix.db }}
 
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}
