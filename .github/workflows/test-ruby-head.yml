@@ -11,6 +11,9 @@ jobs:
 
     name: ${{ matrix.ruby }} ${{ matrix.gem }}
 
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
+
     strategy:
       matrix:
         ruby:
@@ -44,6 +47,9 @@ jobs:
     runs-on: ubuntu-latest
 
     name: ${{ matrix.ruby }} ${{ matrix.gem }}
+
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
 
     services:
       redis:
@@ -84,6 +90,9 @@ jobs:
     runs-on: ubuntu-latest
 
     name: ${{ matrix.ruby }} ${{ matrix.gem }}
+
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
 
     services:
       mysql:

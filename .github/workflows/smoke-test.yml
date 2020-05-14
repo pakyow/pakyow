@@ -10,6 +10,9 @@ jobs:
 
     name: ${{ matrix.ruby }} Smoke Test
 
+    container:
+      image: pakyow/ci-ruby-${{ matrix.ruby }}
+
     services:
       mysql:
         image: mysql:latest
