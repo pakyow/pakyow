@@ -262,6 +262,7 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
+
 require "warning"
 warnings = []
 pakyow_path = File.expand_path("../../", __FILE__)
@@ -274,7 +275,7 @@ end
 $toplevel_pid ||= Process.pid
 
 at_exit do
-  if warnings.any? && Process.pid == $toplevel_pid
+  if warnings.any? && Process.pid == $toplevel_pid && !ENV.key?("CI")
     require "pakyow/support/cli/style"
     puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
     warnings.take(1_000).each do |warning|
