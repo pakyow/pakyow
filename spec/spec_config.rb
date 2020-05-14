@@ -275,7 +275,7 @@ end
 $toplevel_pid ||= Process.pid
 
 at_exit do
-  if warnings.any? && Process.pid == $toplevel_pid && !ENV.key?("CI")
+  if warnings.any? && Process.pid == $toplevel_pid && !ENV.key?("CI") && ENV["WARN"] != "false"
     require "pakyow/support/cli/style"
     puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
     warnings.take(1_000).each do |warning|
