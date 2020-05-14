@@ -8,7 +8,7 @@ jobs:
   smoke-tests:
     runs-on: ubuntu-latest
 
-    name: ${{ matrix.ruby }} Smoke Test
+    name: ${{ matrix.ruby }} Smoke Test (${{ matrix.test }})
 
     container:
       image: pakyow/ci-ruby-${{ matrix.ruby }}
@@ -43,6 +43,31 @@ jobs:
           - 2.6.6
           - 2.7.1
 
+        test:
+          - content_length
+          - cookies
+          - frozen
+          - head
+          - prelaunch
+          - respawn
+          - restart
+          - signals
+          - startup
+          - assets/fetch
+          - assets/precompile
+          - assets/update
+          - database/bootstrap
+          - database/create
+          - database/drop
+          - database/finalize
+          - database/migrate
+          - database/reset
+          - prelaunch/build
+          - prelaunch/release
+          - rescues/application
+          - rescues/environment
+          - sessions/cookie
+
       fail-fast: false
 
     steps:
@@ -57,7 +82,7 @@ jobs:
       - name: Test
         shell: bash -l -e -o pipefail {0}
         run: |
-          CI=true bundle exec rspec spec/smoke
+          CI=true bundle exec rspec spec/smoke/${{ matrix.test }}_spec.rb
         env:
           MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
           POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
