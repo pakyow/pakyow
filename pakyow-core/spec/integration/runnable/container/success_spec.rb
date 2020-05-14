@@ -18,6 +18,10 @@ RSpec.describe "determining container success" do
       end
 
       it "appears successful" do
+        unless @container_instance.success?
+          pp @container_instance.instance_variable_get(:@strategy).instance_variable_get(:@statuses)
+        end
+
         expect(@container_instance.success?).to be(true)
       end
     end
@@ -88,6 +92,10 @@ RSpec.describe "determining container success" do
       }
 
       it "appears successful" do
+        unless @container_instance.success?
+          pp @container_instance.instance_variable_get(:@strategy).instance_variable_get(:@statuses)
+        end
+
         expect(@container_instance.success?).to be(true)
       end
     end
