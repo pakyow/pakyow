@@ -10,8 +10,6 @@ RSpec.describe "running a single service in a container" do
       container.service :foo do
         define_method :perform do
           loop do
-            sleep 0.4
-
             local.write_to_parent("foo")
           end
         end
@@ -19,9 +17,11 @@ RSpec.describe "running a single service in a container" do
     end
 
     it "runs the service until the container is stopped" do
-      run_container(timeout: 1)
-
-      expect(read_from_child).to eq("foofoo")
+      run_container do
+        wait_for length: 6, timeout: 1 do |result|
+          expect(result).to eq("foofoo")
+        end
+      end
     end
   end
 
@@ -60,8 +60,6 @@ RSpec.describe "running a single nested service in a container" do
       container2.service :bar do
         define_method :perform do
           loop do
-            sleep 0.4
-
             local.write_to_parent("bar")
           end
         end
@@ -73,9 +71,11 @@ RSpec.describe "running a single nested service in a container" do
     }
 
     it "runs the nested service until the top-level container is stopped" do
-      run_container(timeout: 1)
-
-      expect(result).to eq("foobarbar")
+      run_container do
+        wait_for length: 9, timeout: 1 do |result|
+          expect(result).to eq("foobarbar")
+        end
+      end
     end
   end
 

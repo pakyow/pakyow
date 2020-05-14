@@ -8,8 +8,6 @@ RSpec.describe "defining the number of services" do
       definitions
 
       allow(Pakyow.logger).to receive(:warn)
-
-      run_container(timeout: 0.25)
     end
 
     let(:container_options) {
@@ -27,7 +25,11 @@ RSpec.describe "defining the number of services" do
     }
 
     it "defaults to one service" do
-      expect(result.scan(/foo/).count).to eq(1)
+      run_container do
+        wait_for length: 3, timeout: 1 do |result|
+          expect(result.scan(/foo/).count).to eq(1)
+        end
+      end
     end
 
     context "service defines a count" do
@@ -42,7 +44,11 @@ RSpec.describe "defining the number of services" do
       }
 
       it "runs the correct number of services" do
-        expect(result.scan(/foo/).count).to eq(3)
+        run_container do
+          wait_for length: 9, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(3)
+          end
+        end
       end
     end
 
@@ -66,7 +72,11 @@ RSpec.describe "defining the number of services" do
       }
 
       it "runs the correct number of services" do
-        expect(result.scan(/foo/).count).to eq(6)
+        run_container do
+          wait_for length: 18, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(6)
+          end
+        end
       end
     end
   end

@@ -14,7 +14,7 @@ RSpec.describe "determining container success" do
           end
         end
 
-        run_container(timeout: 0.5)
+        run_container(timeout: 0.1)
       end
 
       it "appears successful" do
@@ -32,7 +32,7 @@ RSpec.describe "determining container success" do
 
         allow(Pakyow.logger).to receive(:houston)
 
-        run_container(timeout: 0.5)
+        run_container(timeout: 0.1)
       end
 
       it "appears unsuccessful" do
@@ -56,7 +56,7 @@ RSpec.describe "determining container success" do
 
         allow(Pakyow.logger).to receive(:houston)
 
-        run_container(timeout: 0.5)
+        run_container(timeout: 0.1)
       end
 
       it "appears unsuccessful" do
@@ -80,7 +80,7 @@ RSpec.describe "determining container success" do
           end
         end
 
-        run_container(timeout: 0.5)
+        run_container(timeout: 0.1)
       end
 
       let(:container2) {
@@ -98,7 +98,7 @@ RSpec.describe "determining container success" do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.run_container(local.container2, timeout: 0.5, restartable: false, parent: self)
+            local.run_container(local.container2, timeout: 0.1, restartable: false, parent: self)
           end
         end
 
@@ -110,7 +110,7 @@ RSpec.describe "determining container success" do
 
         allow(Pakyow.logger).to receive(:houston)
 
-        run_container(timeout: 1, restartable: false)
+        run_container(timeout: 0.2, restartable: false)
       end
 
       let(:container2) {
@@ -128,7 +128,7 @@ RSpec.describe "determining container success" do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.run_container(local.container2, timeout: 0.5, restartable: false, parent: self)
+            local.run_container(local.container2, timeout: 0.1, restartable: false, parent: self)
           end
         end
 
@@ -146,7 +146,7 @@ RSpec.describe "determining container success" do
 
         allow(Pakyow.logger).to receive(:houston)
 
-        run_container(timeout: 1, restartable: false)
+        run_container(timeout: 0.2, restartable: false)
       end
 
       let(:container2) {

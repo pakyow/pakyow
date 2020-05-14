@@ -14,26 +14,32 @@ RSpec.describe "restarting runnable containers" do
           message = local.message.dup
 
           loop do
-            sleep 0.4
+            sleep 0.1
 
             local.write_to_parent(message)
           end
         end
       end
+    end
 
-      run_container(timeout: 1) do |instance|
-        sleep 0.6
-
-        @message = "bar"
-        instance.restart
-      end
+    def restart(instance)
+      sleep 0.15
+      @message = "bar"
+      instance.restart
     end
 
     attr_reader :message
 
     context "container is restartable" do
       it "restarts the container" do
-        expect(read_from_child).to eq("foobarbar")
+        run_container do |instance|
+          restart(instance)
+
+          wait_for length: 9, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(1)
+            expect(result.scan(/bar/).count).to eq(2)
+          end
+        end
       end
     end
 
@@ -43,7 +49,14 @@ RSpec.describe "restarting runnable containers" do
       }
 
       it "does not restart" do
-        expect(read_from_child).not_to include("bar")
+        run_container do |instance|
+          restart(instance)
+
+          wait_for length: 9, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(3)
+            expect(result.scan(/bar/).count).to eq(0)
+          end
+        end
       end
     end
   end
@@ -74,17 +87,17 @@ RSpec.describe "restarting a service that exits successfully" do
 
       container.service :foo do
         define_method :perform do
-          sleep 0.4
-
           local.write_to_parent("foo")
         end
       end
     end
 
     it "restarts the service until the container is stopped" do
-      run_container(timeout: 1)
-
-      expect(read_from_child).to eq("foofoo")
+      run_container do
+        wait_for length: 9, timeout: 1 do |result|
+          expect(result.scan(/foo/).count).to eq(3)
+        end
+      end
     end
   end
 
@@ -126,9 +139,12 @@ RSpec.describe "restarting a failing service" do
     end
 
     it "restarts the service with backoff until the container is stopped" do
-      run_container(timeout: 1)
-
-      expect(read_from_child).to eq("foofoofoo")
+      run_container do
+        wait_for length: 9, timeout: 1 do |result, elapsed|
+          expect(result.scan(/foo/).count).to eq(3)
+          expect(elapsed).to be > 0.5
+        end
+      end
     end
   end
 
@@ -167,8 +183,6 @@ RSpec.describe "restarting a failing service alongside a running service" do
       container.service :bar do
         define_method :perform do
           loop do
-            sleep 0.4
-
             local.write_to_parent("bar")
           end
         end
@@ -180,10 +194,12 @@ RSpec.describe "restarting a failing service alongside a running service" do
     end
 
     it "runs the service and backs off the failing service until the container is stopped" do
-      run_container(timeout: 4)
-
-      expect(result.scan(/foo/).count).to eq(5)
-      expect(result.scan(/bar/).count).to eq(9)
+      run_container do
+        wait_for length: 21, timeout: 1 do |result, elapsed|
+          expect(result.scan(/foo/).count).to be < 4
+          expect(result.scan(/bar/).count).to be > 4
+        end
+      end
     end
   end
 
@@ -304,8 +320,6 @@ RSpec.describe "running a restartable service in an unrestartable container" do
       container.service :foo do
         define_method :perform do
           loop do
-            sleep 0.4
-
             local.write_to_parent("foo")
           end
         end
@@ -317,9 +331,11 @@ RSpec.describe "running a restartable service in an unrestartable container" do
     }
 
     it "runs the service until the container is stopped" do
-      run_container(timeout: 1)
-
-      expect(read_from_child).to eq("foofoo")
+      run_container do
+        wait_for length: 9, timeout: 1 do |result|
+          expect(result).to eq("foofoofoo")
+        end
+      end
     end
   end
 

@@ -14,19 +14,27 @@ RSpec.describe "limiting the number of services" do
       end
 
       allow(Pakyow.logger).to receive(:warn)
-
-      run_container(timeout: 0.25, formation: Pakyow::Runnable::Formation.all(3))
     end
 
     let(:container_options) {
       { restartable: false }
     }
 
+    let(:run_options) {
+      { formation: Pakyow::Runnable::Formation.all(3) }
+    }
+
     it "limits the number of services" do
-      expect(result.scan(/foo/).count).to eq(2)
+      run_container do
+        wait_for length: 6, timeout: 1 do |result|
+          expect(result.scan(/foo/).count).to eq(2)
+        end
+      end
     end
 
     it "communicates to the user that the service was limited" do
+      run_container timeout: 0.1
+
       expect(Pakyow.logger).to have_received(:warn).with("attempted to run service `test.foo' 3 times, but was limited to 2")
     end
   end

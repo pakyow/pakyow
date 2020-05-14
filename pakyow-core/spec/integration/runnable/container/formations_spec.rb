@@ -6,9 +6,11 @@ RSpec.describe "running a formation container" do
   shared_examples :examples do
     before do
       containers
-
-      run_container(timeout: 0.1, formation: formation, restartable: false)
     end
+
+    let(:run_options) {
+      { formation: formation, restartable: false }
+    }
 
     let(:containers) {
       local = self
@@ -32,8 +34,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs the expected number of services" do
-        expect(result.scan(/foo/).count).to eq(2)
-        expect(result.scan(/bar/).count).to eq(3)
+        run_container do
+          wait_for length: 15, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(2)
+            expect(result.scan(/bar/).count).to eq(3)
+          end
+        end
       end
     end
 
@@ -43,8 +49,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs multiple instances of all known services" do
-        expect(result.scan(/foo/).count).to eq(3)
-        expect(result.scan(/bar/).count).to eq(3)
+        run_container do
+          wait_for length: 18, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(3)
+            expect(result.scan(/bar/).count).to eq(3)
+          end
+        end
       end
     end
 
@@ -56,8 +66,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs the expected number of services" do
-        expect(result.scan(/foo/).count).to eq(0)
-        expect(result.scan(/bar/).count).to eq(3)
+        run_container do
+          wait_for length: 9, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(0)
+            expect(result.scan(/bar/).count).to eq(3)
+          end
+        end
       end
     end
 
@@ -69,7 +83,11 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs a single instance of the described service" do
-        expect(result).to eq("foo")
+        run_container do
+          wait_for length: 3, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(1)
+          end
+        end
       end
     end
 
@@ -82,8 +100,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs the expected number of services" do
-        expect(result.scan(/foo/).count).to eq(2)
-        expect(result.scan(/bar/).count).to eq(3)
+        run_container do
+          wait_for length: 15, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(2)
+            expect(result.scan(/bar/).count).to eq(3)
+          end
+        end
       end
     end
 
@@ -96,8 +118,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs a single instance of the described services" do
-        expect(result.scan(/foo/).count).to eq(1)
-        expect(result.scan(/bar/).count).to eq(1)
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(1)
+            expect(result.scan(/bar/).count).to eq(1)
+          end
+        end
       end
     end
 
@@ -110,8 +136,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs multiple instances of the described services" do
-        expect(result.scan(/foo/).count).to eq(5)
-        expect(result.scan(/bar/).count).to eq(2)
+        run_container do
+          wait_for length: 21, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(5)
+            expect(result.scan(/bar/).count).to eq(2)
+          end
+        end
       end
     end
 
@@ -154,8 +184,12 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs the expected formation" do
-        expect(result.scan(/foo/).count).to eq(1)
-        expect(result.scan(/baz/).count).to eq(6)
+        run_container do
+          wait_for length: 21, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(1)
+            expect(result.scan(/baz/).count).to eq(6)
+          end
+        end
       end
     end
 
@@ -185,7 +219,11 @@ RSpec.describe "running a formation container" do
       }
 
       it "runs the expected formation" do
-        expect(result.scan(/baz/).count).to eq(3)
+        run_container do
+          wait_for length: 9, timeout: 1 do |result|
+            expect(result.scan(/baz/).count).to eq(3)
+          end
+        end
       end
     end
   end

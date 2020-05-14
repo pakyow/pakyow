@@ -34,12 +34,14 @@ RSpec.describe "signaling runnable containers" do
       end
     end
 
-    run_container(timeout: 0.5) do |instance|
+    run_container do |instance|
       sleep 0.1
+
       @pid = instance.instance_variable_get(:@strategy).instance_variable_get(:@services).first.reference
 
-      sleep 0.1
       ::Process.kill(signal, @pid)
+
+      sleep 0.1
     end
   end
 

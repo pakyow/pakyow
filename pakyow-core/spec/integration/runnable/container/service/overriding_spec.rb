@@ -7,8 +7,6 @@ RSpec.describe "overriding functionality in process subclasses" do
     describe "restartable?" do
       before do
         definitions
-
-        run_container(timeout: 1)
       end
 
       let(:definitions) {
@@ -16,8 +14,6 @@ RSpec.describe "overriding functionality in process subclasses" do
 
         container.service :foo do
           define_method :perform do
-            sleep 0.4
-
             local.write_to_parent("foo")
           end
 
@@ -37,7 +33,11 @@ RSpec.describe "overriding functionality in process subclasses" do
         }
 
         it "can disable restarts" do
-          expect(read_from_child).to eq("foo")
+          run_container do
+            expect {
+              wait_for length: 6, timeout: 0.1 do; end
+            }.to raise_error(Timeout::Error)
+          end
         end
       end
 
@@ -47,7 +47,11 @@ RSpec.describe "overriding functionality in process subclasses" do
         }
 
         it "can enable restarts" do
-          expect(read_from_child).to eq("foofoo")
+          run_container do
+            wait_for length: 6, timeout: 1 do |result|
+              expect(result.scan(/foo/).count).to eq(2)
+            end
+          end
         end
       end
 
@@ -57,8 +61,6 @@ RSpec.describe "overriding functionality in process subclasses" do
 
           container.service :foo do
             define_method :perform do
-              sleep 0.4
-
               local.write_to_parent("foo")
             end
 
@@ -69,7 +71,11 @@ RSpec.describe "overriding functionality in process subclasses" do
         }
 
         it "has the default behavior" do
-          expect(read_from_child).to eq("foofoo")
+          run_container do
+            wait_for length: 6, timeout: 1 do |result|
+              expect(result.scan(/foo/).count).to eq(2)
+            end
+          end
         end
       end
     end
@@ -79,8 +85,6 @@ RSpec.describe "overriding functionality in process subclasses" do
         definitions
 
         allow(Pakyow.logger).to receive(:warn)
-
-        run_container(timeout: 0.29, formation: Pakyow::Runnable::Formation.build { |formation| formation.run(:foo, 3) }, **run_options)
       end
 
       let(:definitions) {
@@ -102,11 +106,15 @@ RSpec.describe "overriding functionality in process subclasses" do
       }
 
       let(:run_options) {
-        { service_limit: 2 }
+        { service_limit: 2, formation: Pakyow::Runnable::Formation.build { |formation| formation.run(:foo, 3) } }
       }
 
       it "can define its own limiting logic" do
-        expect(read_from_child).to eq("foofoo")
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(2)
+          end
+        end
       end
 
       describe "calling super" do
@@ -125,7 +133,11 @@ RSpec.describe "overriding functionality in process subclasses" do
         }
 
         it "has the default behavior" do
-          expect(read_from_child).to eq("foofoofoo")
+          run_container do
+            wait_for length: 9, timeout: 1 do |result|
+              expect(result.scan(/foo/).count).to eq(3)
+            end
+          end
         end
       end
     end
@@ -135,8 +147,6 @@ RSpec.describe "overriding functionality in process subclasses" do
         definitions
 
         allow(Pakyow.logger).to receive(:warn)
-
-        run_container(timeout: 0.29, **run_options)
       end
 
       let(:definitions) {
@@ -162,7 +172,11 @@ RSpec.describe "overriding functionality in process subclasses" do
       }
 
       it "can define its own count logic" do
-        expect(read_from_child).to eq("foofoo")
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(2)
+          end
+        end
       end
 
       describe "calling super" do
@@ -181,7 +195,11 @@ RSpec.describe "overriding functionality in process subclasses" do
         }
 
         it "has the default behavior" do
-          expect(read_from_child).to eq("foo")
+          run_container do
+            wait_for length: 3, timeout: 1 do |result|
+              expect(result.scan(/foo/).count).to eq(1)
+            end
+          end
         end
       end
     end
