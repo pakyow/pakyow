@@ -1,48 +1,61 @@
-# name: Smoke Test
+name: Smoke Test
 
-# on:
-#   push:
-#   repository_dispatch:
+on:
+  push:
+  repository_dispatch:
 
-# jobs:
-#   smoke-tests:
-#     runs-on: ubuntu-latest
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
 
-#     name: ${{ matrix.ruby }} Smoke Test
+    name: ${{ matrix.ruby }} Smoke Test
 
-#     strategy:
-#       matrix:
-#         ruby:
-#           - 2.5.7
-#           - 2.6.5
-#           - 2.7.0
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3307:3306
+        env:
+          MYSQL_ROOT_PASSWORD: pakyow
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-#       fail-fast: false
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pakyow
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-#     steps:
-#       - uses: actions/checkout@v1
-#       - uses: actions/setup-ruby@v1
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
 
-#       - name: Cleanup directories
-#         run: |
-#           rm -rf .git
+    strategy:
+      matrix:
+        ruby:
+          - 2.5.7
+          - 2.6.5
+          - 2.7.0
 
-#       - name: Create zip
-#         run: |
-#           cd ../
-#           zip -rq pakyow pakyow
-#           mv pakyow.zip ../
+      fail-fast: false
 
-#       - name: Clone ci-helpers
-#         run: |
-#           cd ../../
-#           git clone https://github.com/pakyow/ci-helpers.git
+    steps:
+      - uses: actions/checkout@v1
 
-#       - name: Run CI
-#         run: |
-#           cd ../../ci-helpers
-#           gem install bundler
-#           bundle install
-#           bundle exec commands/runner --ruby ${{ matrix.ruby }} --path '../pakyow.zip' -e 'CI=true' -e 'SMOKE=true' -f 'mysql postgres redis' 'bundle exec rspec spec/smoke'
-#         env:
-#           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
+
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true bundle exec rake test:${{ matrix.gem }}
+        env:
+          MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
+          POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}

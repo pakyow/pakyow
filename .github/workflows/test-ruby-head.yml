@@ -1,144 +1,137 @@
-# name: Test Ruby HEAD
+name: Test Ruby HEAD
 
-# on:
-#   schedule:
-#     - cron: '0 1 * * *'
-#   repository_dispatch:
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  repository_dispatch:
 
-# jobs:
-#   test-ruby-head:
-#     runs-on: ubuntu-latest
+jobs:
+  test-ruby-head:
+    runs-on: ubuntu-latest
 
-#     name: ${{ matrix.ruby }} ${{ matrix.gem }}
+    name: ${{ matrix.ruby }} ${{ matrix.gem }}
 
-#     strategy:
-#       matrix:
-#         ruby:
-#           - head
+    strategy:
+      matrix:
+        ruby:
+          - head
 
-#         gem:
-#           - assets
-#           - core
-#           - form
-#           - mailer
-#           - routing
-#           - support
+        gem:
+          - assets
+          - core
+          - form
+          - mailer
+          - routing
+          - support
 
-#       fail-fast: false
+      fail-fast: false
 
-#     steps:
-#       - uses: actions/checkout@v1
-#       - uses: actions/setup-ruby@v1
+    steps:
+      - uses: actions/checkout@v1
 
-#       - name: Cleanup directories
-#         run: |
-#           rm -rf .git
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
 
-#       - name: Create zip
-#         run: |
-#           cd ../
-#           zip -rq pakyow pakyow
-#           mv pakyow.zip ../
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true bundle exec rake test:${{ matrix.gem }}
 
-#       - name: Clone ci-helpers
-#         run: |
-#           cd ../../
-#           git clone https://github.com/pakyow/ci-helpers.git
+  test-ruby-head-presenter-realtime-ui:
+    runs-on: ubuntu-latest
 
-#       - name: Run CI
-#         run: |
-#           cd ../../ci-helpers
-#           gem install bundler
-#           bundle install
-#           bundle exec commands/runner --ruby ${{ matrix.ruby }} --path '../pakyow.zip' -e 'CI=true' -f '' 'cd pakyow-${{ matrix.gem }} && bundle exec rspec'
-#         env:
-#           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+    name: ${{ matrix.ruby }} ${{ matrix.gem }}
 
-#   test-ruby-head-presenter-realtime-ui:
-#     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
 
-#     name: ${{ matrix.ruby }} ${{ matrix.gem }}
+    strategy:
+      matrix:
+        ruby:
+          - head
 
-#     strategy:
-#       matrix:
-#         ruby:
-#           - head
+        gem:
+          - form
+          - presenter
+          - realtime
+          - ui
 
-#         gem:
-#           - form
-#           - presenter
-#           - realtime
-#           - ui
+      fail-fast: false
 
-#       fail-fast: false
+    steps:
+      - uses: actions/checkout@v1
 
-#     steps:
-#       - uses: actions/checkout@v1
-#       - uses: actions/setup-ruby@v1
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
 
-#       - name: Cleanup directories
-#         run: |
-#           rm -rf .git
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true bundle exec rake test:${{ matrix.gem }}
+        env:
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}
 
-#       - name: Create zip
-#         run: |
-#           cd ../
-#           zip -rq pakyow pakyow
-#           mv pakyow.zip ../
+  test-ruby-head-data:
+    runs-on: ubuntu-latest
 
-#       - name: Clone ci-helpers
-#         run: |
-#           cd ../../
-#           git clone https://github.com/pakyow/ci-helpers.git
+    name: ${{ matrix.ruby }} ${{ matrix.gem }}
 
-#       - name: Run CI
-#         run: |
-#           cd ../../ci-helpers
-#           gem install bundler
-#           bundle install
-#           bundle exec commands/runner --ruby ${{ matrix.ruby }} --path '../pakyow.zip' -e 'CI=true' -f 'redis' 'cd pakyow-${{ matrix.gem }} && bundle exec rspec'
-#         env:
-#           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3307:3306
+        env:
+          MYSQL_ROOT_PASSWORD: pakyow
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
-#   test-ruby-head-data:
-#     runs-on: ubuntu-latest
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: pakyow
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-#     name: ${{ matrix.ruby }} ${{ matrix.gem }}
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
 
-#     strategy:
-#       matrix:
-#         ruby:
-#           - head
+    strategy:
+      matrix:
+        ruby:
+          - head
 
-#         gem:
-#           - data
+        gem:
+          - data
 
-#       fail-fast: false
+      fail-fast: false
 
-#     steps:
-#       - uses: actions/checkout@v1
-#       - uses: actions/setup-ruby@v1
+    steps:
+      - uses: actions/checkout@v1
 
-#       - name: Cleanup directories
-#         run: |
-#           rm -rf .git
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
 
-#       - name: Create zip
-#         run: |
-#           cd ../
-#           zip -rq pakyow pakyow
-#           mv pakyow.zip ../
-
-#       - name: Clone ci-helpers
-#         run: |
-#           cd ../../
-#           git clone https://github.com/pakyow/ci-helpers.git
-
-#       - name: Run CI
-#         run: |
-#           cd ../../ci-helpers
-#           gem install bundler
-#           bundle install
-#           bundle exec commands/runner --ruby ${{ matrix.ruby }} --path '../pakyow.zip' -e 'CI=true' -f 'mysql postgres redis' 'cd pakyow-${{ matrix.gem }} && bundle exec rspec'
-#         env:
-#           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      - name: Test
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true bundle exec rake test:${{ matrix.gem }}
+        env:
+          MYSQL_URL: mysql2://root:pakyow@mysql:${{ job.services.mysql.ports[3307] }}
+          POSTGRES_URL: postgres://postgres:pakyow@postgres:${{ job.services.postgres.ports[5432] }}
+          REDIS_URL: redis://redis:${{ job.services.redis.ports[6379] }}
