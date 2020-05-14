@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "connection_pool", "~> 2.2"
   spec.add_dependency "dry-types", "~> 1.4"
   spec.add_dependency "redis", "~> 4.1"
-  spec.add_dependency "sequel", "~> 5.31"
+  spec.add_dependency "sequel", "~> 5.32"
 end
