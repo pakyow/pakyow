@@ -131,30 +131,32 @@ module Pakyow
           end
 
           private def run_service(service)
-            Signal.trap(:HUP) do
-              if container.restartable?
-                raise Restart
+            Fiber.new do
+              Signal.trap(:HUP) do
+                if container.restartable?
+                  raise Restart
+                end
               end
-            end
 
-            Signal.trap(:INT) do
-              raise Interrupt
-            end
+              Signal.trap(:INT) do
+                raise Interrupt
+              end
 
-            Signal.trap(:TERM) do
-              raise Terminate
-            end
+              Signal.trap(:TERM) do
+                raise Terminate
+              end
 
-            Pakyow.async do
-              service.run
-            rescue => error
-              Pakyow.houston(error)
+              Pakyow.async do
+                service.run
+              rescue => error
+                Pakyow.houston(error)
 
-              service_failed!(service)
-            end
-          rescue Terminate
-          rescue Interrupt
-            service.stop
+                service_failed!(service)
+              end
+            rescue Terminate
+            rescue Interrupt
+              service.stop
+            end.resume
           end
 
           private def backoff_service(service)
