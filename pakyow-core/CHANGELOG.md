@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Run processes in a fiber to prevent immediate exits in nested processes.**
+
+    *Related links:*
+    - [Pull Request #458][pr-458]
+
   * `chg` **Introduce the new process model built on containers and services.**
 
     *Related links:*
@@ -408,6 +413,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-458]: https://github.com/pakyow/pakyow/pull/458
 [pr-457]: https://github.com/pakyow/pakyow/pull/457
 [pr-454]: https://github.com/pakyow/pakyow/pull/454
 [pr-453]: https://github.com/pakyow/pakyow/pull/453
