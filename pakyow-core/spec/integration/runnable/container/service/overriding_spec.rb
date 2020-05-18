@@ -203,68 +203,6 @@ RSpec.describe "overriding functionality in process subclasses" do
         end
       end
     end
-
-    xdescribe "strategy" do
-      before do
-        definitions
-
-        allow(Pakyow.logger).to receive(:warn)
-      end
-
-      let(:definitions) {
-        local = self
-
-        container.service :foo, restartable: false do
-          define_method :perform do
-            local.write_to_parent("foo")
-          end
-
-          define_method :count do
-            options[:service_count]
-          end
-        end
-      }
-
-      let(:container_options) {
-        { restartable: false }
-      }
-
-      let(:run_options) {
-        { service_count: 2 }
-      }
-
-      it "can define its own count logic" do
-        run_container do
-          wait_for length: 6, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(2)
-          end
-        end
-      end
-
-      describe "calling super" do
-        let(:definitions) {
-          local = self
-
-          container.service :foo, restartable: false do
-            define_method :perform do
-              local.write_to_parent("foo")
-            end
-
-            define_method :count do
-              super()
-            end
-          end
-        }
-
-        it "has the default behavior" do
-          run_container do
-            wait_for length: 3, timeout: 1 do |result|
-              expect(result.scan(/foo/).count).to eq(1)
-            end
-          end
-        end
-      end
-    end
   end
 
   context "forked container" do
