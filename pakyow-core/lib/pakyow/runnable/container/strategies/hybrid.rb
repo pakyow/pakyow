@@ -19,8 +19,8 @@ module Pakyow
           end
 
           private def stop(signal)
-            @strategies.each_value do |strategy|
-              strategy.send(:stop, signal)
+            @services.each do |service|
+              service_strategy(service).send(:stop_service, service, signal)
             end
           end
 
