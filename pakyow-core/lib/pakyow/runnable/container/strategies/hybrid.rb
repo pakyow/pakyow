@@ -16,6 +16,10 @@ module Pakyow
             @strategies = {
               forked: Forked.new, threaded: Threaded.new
             }
+
+            @strategies.each_value do |strategy|
+              strategy.instance_variable_set(:@queue, @queue)
+            end
           end
 
           private def stop(signal)
