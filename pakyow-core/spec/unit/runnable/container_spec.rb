@@ -38,10 +38,6 @@ RSpec.describe Pakyow::Runnable::Container do
 
       true
     end
-
-    def finish
-      @calls << :finish
-    end
   end
 
   shared_context :child do
@@ -54,6 +50,10 @@ RSpec.describe Pakyow::Runnable::Container do
         options[:parent] = parent
       end
     }
+
+    before do
+      allow(::Process).to receive(:pid).and_return(4242)
+    end
   end
 
   before do
@@ -392,22 +392,6 @@ RSpec.describe Pakyow::Runnable::Container do
 
         it "returns the container status" do
           expect(instance.run).to eq(:success)
-        end
-
-        it "does not call finish" do
-          expect(strategy).not_to receive(:finish)
-
-          instance.run(**options)
-        end
-      end
-
-      context "container is not top-level" do
-        include_context :child
-
-        it "calls finish" do
-          expect(strategy).to receive(:finish)
-
-          instance.run(**options)
         end
       end
     end

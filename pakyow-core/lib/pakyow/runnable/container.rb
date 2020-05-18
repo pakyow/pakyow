@@ -101,6 +101,7 @@ module Pakyow
 
       extend Support::ClassState
       class_state :restartable, default: true, inheritable: true
+      class_state :toplevel_pid, default: ::Process.pid, inheritable: true
 
       include Support::Definable
       include Support::Makeable
@@ -175,14 +176,14 @@ module Pakyow
             end
           end
 
-          if toplevel?
+          if toplevel_pid?
             success?
           else
-            @strategy.finish
+            ::Process.exit(success?)
           end
         end
       rescue SignalException, Interrupt => error
-        raise error unless toplevel?
+        raise error unless toplevel_pid?
       ensure
         stop
         postrun!
@@ -236,6 +237,10 @@ module Pakyow
 
       private def toplevel?
         @options[:parent].nil?
+      end
+
+      private def toplevel_pid?
+        ::Process.pid == self.class.toplevel_pid
       end
 
       private def expand_formation(all)
