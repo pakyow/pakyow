@@ -54,4 +54,12 @@ RSpec.describe "limiting the number of services" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end

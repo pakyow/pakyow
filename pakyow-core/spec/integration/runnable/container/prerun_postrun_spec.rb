@@ -153,6 +153,14 @@ RSpec.describe "handling prerun and postrun work" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end
 
 RSpec.describe "handling prerun and postrun work in nested services" do
@@ -230,6 +238,14 @@ RSpec.describe "handling prerun and postrun work in nested services" do
   context "threaded container" do
     let(:run_options) {
       { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
     }
 
     include_examples :examples

@@ -282,4 +282,12 @@ RSpec.describe "overriding functionality in process subclasses" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end
