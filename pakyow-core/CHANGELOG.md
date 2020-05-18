@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Introduce the new hybrid container strategy, use by default.**
+
   * `fix` **Run processes in a fiber to prevent immediate exits in nested processes.**
 
     *Related links:*
