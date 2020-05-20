@@ -173,14 +173,17 @@ module Pakyow
     deprecate :restartable
 
     setting :host, "localhost"
+    remove_method :host=
     def host=(value); Pakyow.config.runnable.server.host = value; end
     deprecate :host, solution: "use `config.runnable.server.host'"
 
     setting :port, 3000
+    remove_method :port=
     def port=(value); Pakyow.config.runnable.server.port = value; end
     deprecate :port, solution: "use `config.runnable.server.port'"
 
     setting :count, 1
+    remove_method :count=
     def count=(value); Pakyow.config.runnable.server.count = value; end
     deprecate :count, solution: "use `config.runnable.server.count'"
 
