@@ -283,6 +283,7 @@ at_exit do
     end
     puts
   end
+rescue Interrupt
 end
 
 def start_simplecov(&block)
