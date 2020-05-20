@@ -1,4 +1,5 @@
 require "pakyow/runnable/container"
+require "pakyow/runnable/container/strategies/hybrid"
 require "pakyow/runnable/container/strategies/forked"
 require "pakyow/runnable/container/strategies/threaded"
 
@@ -38,10 +39,6 @@ RSpec.describe Pakyow::Runnable::Container do
 
       true
     end
-
-    def finish
-      @calls << :finish
-    end
   end
 
   shared_context :child do
@@ -54,6 +51,10 @@ RSpec.describe Pakyow::Runnable::Container do
         options[:parent] = parent
       end
     }
+
+    before do
+      allow(::Process).to receive(:pid).and_return(4242)
+    end
   end
 
   before do
@@ -83,7 +84,7 @@ RSpec.describe Pakyow::Runnable::Container do
   }
 
   before do
-    allow(Pakyow::Runnable::Container::Strategies::Forked).to receive(:new).and_return(strategy)
+    allow(Pakyow::Runnable::Container::Strategies::Hybrid).to receive(:new).and_return(strategy)
   end
 
   describe "::run" do
@@ -139,26 +140,15 @@ RSpec.describe Pakyow::Runnable::Container do
 
     describe "running strategies" do
       before do
+        allow(Pakyow::Runnable::Container::Strategies::Hybrid).to receive(:new).and_return(strategy)
         allow(Pakyow::Runnable::Container::Strategies::Forked).to receive(:new).and_return(strategy)
         allow(Pakyow::Runnable::Container::Strategies::Threaded).to receive(:new).and_return(strategy)
       end
 
-      it "runs the forked strategy by default" do
+      it "runs the hybrid strategy by default" do
         instance.run
 
-        expect(Pakyow::Runnable::Container::Strategies::Forked).to have_received(:new)
-      end
-
-      context "platform doesn't support process forks" do
-        before do
-          allow(Process).to receive(:respond_to?).with(:fork).and_return(false)
-        end
-
-        it "runs the threaded strategy" do
-          instance.run
-
-          expect(Pakyow::Runnable::Container::Strategies::Threaded).to have_received(:new)
-        end
+        expect(Pakyow::Runnable::Container::Strategies::Hybrid).to have_received(:new)
       end
 
       context "strategy is passed" do
@@ -392,22 +382,6 @@ RSpec.describe Pakyow::Runnable::Container do
 
         it "returns the container status" do
           expect(instance.run).to eq(:success)
-        end
-
-        it "does not call finish" do
-          expect(strategy).not_to receive(:finish)
-
-          instance.run(**options)
-        end
-      end
-
-      context "container is not top-level" do
-        include_context :child
-
-        it "calls finish" do
-          expect(strategy).to receive(:finish)
-
-          instance.run(**options)
         end
       end
     end

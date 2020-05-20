@@ -79,21 +79,23 @@ RSpec.describe Pakyow::Runnable::Service do
     end
   end
 
-  # TODO: Revisit.
-  #
-  # describe "#limit" do
-  #   it "is nil" do
-  #     expect(instance.limit).to be(nil)
-  #   end
-  # end
+  describe "#limit" do
+    it "is nil" do
+      expect(instance.limit).to be(nil)
+    end
+  end
 
-  # TODO: Revisit.
-  #
-  # describe "#count" do
-  #   it "is 1" do
-  #     expect(instance.count).to eq(1)
-  #   end
-  # end
+  describe "#count" do
+    it "is 1" do
+      expect(instance.count).to eq(1)
+    end
+  end
+
+  describe "#strategy" do
+    it "is nil" do
+      expect(instance.strategy).to eq(nil)
+    end
+  end
 
   describe "#perform" do
     it "can be called" do
@@ -112,36 +114,46 @@ RSpec.describe Pakyow::Runnable::Service do
   end
 
   describe "overriding functionality in subclasses" do
-    # TODO: Revisit.
-    #
-    # describe "limit" do
-    #   let(:service) {
-    #     described_class.make(:test) {
-    #       def limit
-    #         42
-    #       end
-    #     }
-    #   }
+    describe "limit" do
+      let(:service) {
+        described_class.make(:test) {
+          def limit
+            42
+          end
+        }
+      }
 
-    #   it "can define its own limit" do
-    #     expect(instance.limit).to eq(42)
-    #   end
-    # end
+      it "can define its own limit" do
+        expect(instance.limit).to eq(42)
+      end
+    end
 
-    # TODO: Revisit.
-    #
-    # describe "count" do
-    #   let(:service) {
-    #     described_class.make(:test) {
-    #       def count
-    #         42
-    #       end
-    #     }
-    #   }
+    describe "count" do
+      let(:service) {
+        described_class.make(:test) {
+          def count
+            42
+          end
+        }
+      }
 
-    #   it "can define its own count" do
-    #     expect(instance.count).to eq(42)
-    #   end
-    # end
+      it "can define its own count" do
+        expect(instance.count).to eq(42)
+      end
+    end
+
+    describe "strategy" do
+      let(:service) {
+        described_class.make(:test) {
+          def strategy
+            :threaded
+          end
+        }
+      }
+
+      it "can define its own strategy" do
+        expect(instance.strategy).to eq(:threaded)
+      end
+    end
   end
 end

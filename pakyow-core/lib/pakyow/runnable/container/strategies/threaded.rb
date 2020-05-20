@@ -14,14 +14,8 @@ module Pakyow
             @failed_threads = []
           end
 
-          def finish
-            Thread.current.exit
-          end
-
-          private def stop(_signal)
-            @services.each do |service|
-              service.reference.kill
-            end
+          private def stop_service(service, _signal)
+            service.reference.kill
           end
 
           private def invoke_service(service)

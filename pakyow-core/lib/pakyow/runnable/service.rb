@@ -105,6 +105,7 @@ module Pakyow
       end
 
       extend Support::ClassState
+      class_state :strategy, default: nil, inheritable: true
       class_state :restartable, default: true, inheritable: true
       class_state :limit, default: nil, inheritable: true
       class_state :count, default: 1, inheritable: true
@@ -149,6 +150,12 @@ module Pakyow
       #
       def success!
         @status.success!
+      end
+
+      # Returns the service strategy, or nil for the default strategy. Used only by the hybrid strategy.
+      #
+      def strategy
+        self.class.strategy
       end
 
       # Returns the service limit, or nil for no limit. This value takes precedence over formations.

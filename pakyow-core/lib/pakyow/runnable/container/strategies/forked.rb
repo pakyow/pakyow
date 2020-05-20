@@ -8,15 +8,9 @@ module Pakyow
       module Strategies
         # @api private
         class Forked < Base
-          def finish
-            ::Process.exit(success?)
-          end
-
-          private def stop(signal)
-            @services.each do |service|
-              ::Process.kill(signal, service.reference)
-            rescue Errno::ESRCH
-            end
+          private def stop_service(service, signal)
+            ::Process.kill(signal, service.reference)
+          rescue Errno::ESRCH
           end
 
           private def service_failed!(service)

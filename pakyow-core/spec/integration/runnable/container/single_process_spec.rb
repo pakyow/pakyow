@@ -40,6 +40,14 @@ RSpec.describe "running a single service in a container" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end
 
 RSpec.describe "running a single nested service in a container" do
@@ -90,6 +98,14 @@ RSpec.describe "running a single nested service in a container" do
   context "threaded container" do
     let(:run_options) {
       { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
     }
 
     include_examples :examples

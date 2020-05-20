@@ -77,6 +77,12 @@ module Pakyow
             stop("TERM")
           end
 
+          def stop(signal)
+            @services.each do |service|
+              stop_service(service, signal)
+            end
+          end
+
           def success?
             @statuses.all?(&:success?)
           end
@@ -85,7 +91,7 @@ module Pakyow
             # Implemented by subclasses.
           end
 
-          private def stop(signal)
+          private def stop_service(service, signal)
             # Implemented by subclasses.
           end
 

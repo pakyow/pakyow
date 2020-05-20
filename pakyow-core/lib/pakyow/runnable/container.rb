@@ -24,8 +24,11 @@ module Pakyow
     #
     #   * `:threaded` - Each service runs in a thread within the current service.
     #
-    # Forked is the default strategy, falling back to Threaded on platforms that don't support fork.
-    # The strategy can be specified explicitly by passing the `:strategy` runtime option.
+    #   * `:hybrid` - Each service runs in its defined strategy, or the best available default.
+    #
+    # Hybrid is the default strategy, where services run in their defined strategy or the best
+    # available (Forked on supported platforms, falling back to Threaded). The container strategy
+    # can be specified explicitly by passing the `:strategy` runtime option.
     #
     # It's expected that only one container is running per process or thread.
     #
@@ -101,6 +104,7 @@ module Pakyow
 
       extend Support::ClassState
       class_state :restartable, default: true, inheritable: true
+      class_state :toplevel_pid, default: ::Process.pid, inheritable: true
 
       include Support::Definable
       include Support::Makeable
@@ -124,7 +128,7 @@ module Pakyow
 
       # Runs the container with options. Supported options include:
       #
-      #   * strategy: `:forked` or `:threaded` (defaults to `:forked`, falling back to `:threaded` on unsupported platforms)
+      #   * strategy: `:forked`, `:threaded`, or `:hybrid` (defaults to `:hybrid`)
       #   * formation: the formation to run (defaults to `Pakyow::Runnable::Formation.all`)
       #   * parent: the parent service or container that this container is running in
       #
@@ -175,14 +179,14 @@ module Pakyow
             end
           end
 
-          if toplevel?
+          if toplevel_pid?
             success?
           else
-            @strategy.finish
+            ::Process.exit(success?)
           end
         end
       rescue SignalException, Interrupt => error
-        raise error unless toplevel?
+        raise error unless toplevel_pid?
       ensure
         stop
         postrun!
@@ -238,6 +242,10 @@ module Pakyow
         @options[:parent].nil?
       end
 
+      private def toplevel_pid?
+        ::Process.pid == self.class.toplevel_pid
+      end
+
       private def expand_formation(all)
         all_count = all.count(:all)
 
@@ -287,7 +295,7 @@ module Pakyow
       end
 
       private def strategy_option(strategy)
-        strategy || self.class.default_strategy
+        strategy || :hybrid
       end
 
       private def formation_option(formation)
@@ -315,15 +323,6 @@ module Pakyow
           # cases elsewhere, such as loading adapters in pakyow/data.
           #
           raise Pakyow::UnknownContainerStrategy.build(error, strategy: strategy)
-        end
-
-        # @api private
-        def default_strategy
-          if ::Process.respond_to?(:fork)
-            :forked
-          else
-            :threaded
-          end
         end
       end
     end

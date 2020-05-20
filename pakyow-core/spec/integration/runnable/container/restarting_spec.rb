@@ -76,6 +76,14 @@ RSpec.describe "restarting runnable containers" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end
 
 RSpec.describe "restarting a service that exits successfully" do
@@ -112,6 +120,14 @@ RSpec.describe "restarting a service that exits successfully" do
   context "threaded container" do
     let(:run_options) {
       { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
     }
 
     include_examples :examples
@@ -159,6 +175,14 @@ RSpec.describe "restarting a failing service" do
   context "threaded container" do
     let(:run_options) {
       { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
     }
 
     include_examples :examples
@@ -218,6 +242,14 @@ RSpec.describe "restarting a failing service alongside a running service" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end
 
 RSpec.describe "running an unrestartable container" do
@@ -260,6 +292,14 @@ RSpec.describe "running an unrestartable container" do
   context "threaded container" do
     let(:run_options) {
       { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
     }
 
     include_examples :examples
@@ -308,6 +348,14 @@ RSpec.describe "running an unrestartable service in a restartable container" do
 
     include_examples :examples
   end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
 end
 
 RSpec.describe "running a restartable service in an unrestartable container" do
@@ -350,6 +398,14 @@ RSpec.describe "running a restartable service in an unrestartable container" do
   context "threaded container" do
     let(:run_options) {
       { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
     }
 
     include_examples :examples

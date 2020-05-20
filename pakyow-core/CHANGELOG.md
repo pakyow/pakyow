@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Introduce the new hybrid container strategy, use by default.**
+
+    *Related links:*
+    - [Pull Request #459][pr-459]
+
   * `fix` **Run processes in a fiber to prevent immediate exits in nested processes.**
 
     *Related links:*
@@ -413,6 +418,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-459]: https://github.com/pakyow/pakyow/pull/459
 [pr-458]: https://github.com/pakyow/pakyow/pull/458
 [pr-457]: https://github.com/pakyow/pakyow/pull/457
 [pr-454]: https://github.com/pakyow/pakyow/pull/454
