@@ -2,6 +2,8 @@
 
 require "pakyow/support/inspectable"
 
+require_relative "../../notifier"
+
 module Pakyow
   module Runnable
     class Container
@@ -16,10 +18,14 @@ module Pakyow
             @statuses = []
             @queue = Queue.new
             @lock = Mutex.new
+            @notifier = nil
           end
 
           def run(container)
             @statuses = []
+
+            @notifier&.stop
+            @notifier = Notifier.new(container: container, &method(:handle_notification).to_proc)
 
             container.formation.each do |service_name, desired_service_count|
               service_instance = container.services(service_name).new(**container.options)
@@ -38,6 +44,7 @@ module Pakyow
                 manage_service(service_instance.dup)
               end
             end
+
           end
 
           def wait(container)
@@ -77,10 +84,16 @@ module Pakyow
             stop("TERM")
           end
 
+          def restart(**payload)
+            @notifier.notify(:restart, **payload)
+          end
+
           def stop(signal)
             @services.each do |service|
               stop_service(service, signal)
             end
+
+            @notifier&.stop
           end
 
           def success?
@@ -163,6 +176,15 @@ module Pakyow
             rescue Interrupt
               service.stop
             end.resume
+          end
+
+          private def handle_notification(event, **payload)
+            case event
+            when :restart
+              payload.delete(:container).performing :restart, **payload do
+                interrupt
+              end
+            end
           end
 
           private def backoff_service(service)

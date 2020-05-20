@@ -935,6 +935,48 @@ RSpec.describe Pakyow do
     end
   end
 
+  describe "::restart?" do
+    include_context "runnable"
+
+    context "environment is running" do
+      before do
+        stub_container_run(:supervisor)
+
+        allow(Pakyow).to receive(:shutdown)
+
+        Pakyow.run
+
+        allow(Pakyow).to receive(:shutdown).and_call_original
+      end
+
+      it "restarts the running container" do
+        expect(container_double).to receive(:restart)
+
+        Pakyow.restart
+      end
+
+      it "passes the env" do
+        expect(container_double).to receive(:restart).with(env: "foo")
+
+        Pakyow.restart(env: "foo")
+      end
+
+      it "passes the current env when not passed" do
+        expect(container_double).to receive(:restart).with(env: Pakyow.env)
+
+        Pakyow.restart
+      end
+    end
+
+    context "environment is not running" do
+      it "does not restart" do
+        expect(container_double).not_to receive(:restart)
+
+        Pakyow.restart
+      end
+    end
+  end
+
   describe "::loaded?" do
     context "environment is loaded" do
       before do

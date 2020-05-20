@@ -34,6 +34,10 @@ RSpec.describe Pakyow::Runnable::Container do
       @calls << :terminate
     end
 
+    def restart(**payload)
+      @calls << :restart
+    end
+
     def success?
       @calls << :success
 
@@ -415,10 +419,10 @@ RSpec.describe Pakyow::Runnable::Container do
         @thread.kill
       end
 
-      it "interrupts the strategy" do
-        expect(strategy).to receive(:interrupt).twice
+      it "restarts the strategy" do
+        expect(strategy).to receive(:restart).with(foo: "bar")
 
-        instance.restart
+        instance.restart(foo: "bar")
       end
     end
 

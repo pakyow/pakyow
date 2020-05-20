@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support container restarts from child processes.**
+
+    *Related links:*
+    - [Pull Request #460][pr-460]
+
   * `chg` **Introduce the new hybrid container strategy, use by default.**
 
     *Related links:*
@@ -418,6 +423,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-460]: https://github.com/pakyow/pakyow/pull/460
 [pr-459]: https://github.com/pakyow/pakyow/pull/459
 [pr-458]: https://github.com/pakyow/pakyow/pull/458
 [pr-457]: https://github.com/pakyow/pakyow/pull/457

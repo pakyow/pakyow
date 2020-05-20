@@ -411,3 +411,103 @@ RSpec.describe "running a restartable service in an unrestartable container" do
     include_examples :examples
   end
 end
+
+RSpec.describe "restarting runnable containers from other processes" do
+  include_context "runnable container"
+
+  shared_examples :examples do
+    before do
+      definitions
+    end
+
+    let(:definitions) {
+      @message = "foo"
+
+      local = self
+
+      container.service :foo do
+        define_method :perform do
+          message = local.message.dup
+
+          loop do
+            sleep 0.1
+
+            local.write_to_parent(message)
+          end
+        end
+      end
+
+      container.service :bar, restartable: false do
+        define_method :perform do
+          sleep 0.15
+          local.container_instance.restart
+        end
+      end
+    }
+
+    attr_reader :message
+
+    it "restarts the container" do
+      run_container do |instance|
+        sleep 0.15
+        @message = "bar"
+        wait_for length: 9, timeout: 1 do |result|
+          expect(result.scan(/foo/).count).to eq(1)
+          expect(result.scan(/bar/).count).to eq(2)
+        end
+      end
+    end
+
+    context "container defines an on restart hook" do
+      let(:definitions) {
+        @message = "foo"
+
+        local = self
+
+        container.on :restart, exec: false do |**payload|
+          @payload = payload
+        end
+
+        container.service :foo, restartable: false do
+          define_method :perform do
+            local.container_instance.restart(foo: "bar")
+          end
+        end
+      }
+
+      attr_reader :payload
+
+      it "calls the hook with provided options" do
+        run_container do |instance|
+          sleep 0.1
+
+          expect(@payload).to eq(foo: "bar")
+        end
+      end
+    end
+  end
+
+  context "forked container" do
+    let(:run_options) {
+      { strategy: :forked }
+    }
+
+    include_examples :examples
+  end
+
+  context "threaded container" do
+    let(:run_options) {
+      { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+end

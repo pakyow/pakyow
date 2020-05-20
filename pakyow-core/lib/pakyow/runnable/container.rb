@@ -3,6 +3,7 @@
 require "pakyow/support/class_state"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/definable"
+require "pakyow/support/hookable"
 require "pakyow/support/inspectable"
 require "pakyow/support/makeable"
 
@@ -114,6 +115,9 @@ module Pakyow
 
       definable :service, Service
 
+      include Support::Hookable
+      events :restart
+
       attr_reader :options
 
       # @api private
@@ -194,9 +198,9 @@ module Pakyow
 
       # Restarts the container.
       #
-      def restart
+      def restart(**payload)
         if running? && restartable?
-          @strategy.interrupt
+          @strategy.restart(**payload)
         end
       end
 
