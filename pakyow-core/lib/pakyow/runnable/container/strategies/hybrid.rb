@@ -22,10 +22,8 @@ module Pakyow
             end
           end
 
-          private def stop(signal)
-            @services.each do |service|
-              service_strategy(service).send(:stop_service, service, signal)
-            end
+          private def stop_service(service, signal)
+            service_strategy(service).send(:stop_service, service, signal)
           end
 
           private def service_failed!(service)
