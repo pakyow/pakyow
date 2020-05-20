@@ -20,7 +20,7 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        class_state :__running, default: false, reader: false
+        class_state :__running_container, default: nil, reader: false
 
         definable :container, Runnable::Container
 
@@ -174,7 +174,6 @@ module Pakyow
                 config: config.runnable,
                 env: env,
               ) do |container|
-                @__running = true
                 @__running_container = container
                 yield container if block_given?
               end
@@ -199,7 +198,7 @@ module Pakyow
         # Returns true if the environment is running.
         #
         def running?
-          @__running == true
+          !@__running_container.nil? && @__running_container.running?
         end
 
         # Shutdown the environment.
@@ -210,10 +209,6 @@ module Pakyow
               # Make sure the container is stopped.
               #
               @__running_container.stop
-
-              # Finally, update our internal state.
-              #
-              @__running = false
             end
           end
 

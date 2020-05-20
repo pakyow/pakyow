@@ -91,7 +91,7 @@ RSpec.shared_context "runnable" do
   }
 
   let(:container_double) {
-    instance_double(Pakyow::Runnable::Container, options: {}, stop: nil, success?: true)
+    instance_double(Pakyow::Runnable::Container, options: {}, stop: nil, success?: true, running?: false)
   }
 
   def stub_container_run(container)

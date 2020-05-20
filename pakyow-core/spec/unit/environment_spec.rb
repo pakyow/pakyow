@@ -772,7 +772,7 @@ RSpec.describe Pakyow do
           formation: formation,
           config: Pakyow.config.runnable,
           env: :test
-        ).and_yield(instance_double(Pakyow::Container, stop: nil, success?: true))
+        ).and_yield(instance_double(Pakyow::Container, stop: nil, success?: true, running?: true))
 
         Pakyow.run(env: :test, formation: formation)
       end
@@ -869,6 +869,8 @@ RSpec.describe Pakyow do
 
     describe "idempotence" do
       before do
+        allow(container_double).to receive(:running?).and_return(true)
+
         stub_container_run(:supervisor)
 
         allow(Pakyow).to receive(:shutdown)
@@ -890,6 +892,12 @@ RSpec.describe Pakyow do
 
       before do
         stub_container_run(:supervisor)
+
+        allow(container_double).to receive(:running?).and_return(true)
+
+        allow(container_double).to receive(:stop) do
+          allow(container_double).to receive(:running?).and_return(false)
+        end
 
         allow(Pakyow).to receive(:shutdown)
 
@@ -944,6 +952,8 @@ RSpec.describe Pakyow do
     context "environment is running" do
       before do
         stub_container_run(:supervisor)
+
+        allow(container_double).to receive(:running?).and_return(true)
 
         allow(Pakyow).to receive(:shutdown)
 
@@ -1041,9 +1051,13 @@ RSpec.describe Pakyow do
       before do
         stub_container_run(:supervisor)
 
+        allow(container_double).to receive(:running?).and_return(true)
+
         allow(Pakyow).to receive(:shutdown)
 
         Pakyow.run
+
+        allow(Pakyow).to receive(:shutdown).and_call_original
       end
 
       it "returns true" do
