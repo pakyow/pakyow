@@ -220,9 +220,9 @@ module Pakyow
 
         # Restart the environment.
         #
-        def restart
+        def restart(env: Pakyow.env)
           if running?
-            @container.restart
+            @__running_container.restart(env: env)
           end
         end
 
