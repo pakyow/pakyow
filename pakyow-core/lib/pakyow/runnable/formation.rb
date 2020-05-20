@@ -5,7 +5,6 @@ require "pakyow/support/inspectable"
 module Pakyow
   module Runnable
     class Formation
-      require_relative "formation/all"
       require_relative "formation/parser"
 
       class << self
@@ -35,6 +34,10 @@ module Pakyow
 
       include Support::Inspectable
       inspectable :@container, :@services, :@formations
+
+      # Define this after inspectable so that it correctly inherits class-level state.
+      #
+      require_relative "formation/all"
 
       attr_reader :container
 
