@@ -17,14 +17,16 @@ RSpec.describe Pakyow::Loader do
 
   describe "#call" do
     before do
-      allow(File).to receive(:read).and_return(
-        <<~CODE
-          controller :foo do
-            default do; end
-          end
-        CODE
-      )
+      allow(File).to receive(:read).and_return(code)
     end
+
+    let(:code) {
+      <<~CODE
+        controller :foo do
+          default do; end
+        end
+      CODE
+    }
 
     context "target is a class" do
       before do
@@ -107,6 +109,96 @@ RSpec.describe Pakyow::Loader do
         }.to raise_error(ArgumentError) do |error|
           expect(error.message).to eq("expected `#{object}' to be a class or module")
         end
+      end
+    end
+
+    context "code has a magic comment" do
+      let(:code) {
+        <<~CODE
+          # frozen_string_literal: true
+
+          controller :foo do
+            default do; end
+          end
+        CODE
+      }
+
+      before do
+        stub_const "MyApp", target
+      end
+
+      let(:target) {
+        Class.new
+      }
+
+      it "evals expectedly" do
+        expect(instance).to receive(:eval) do |code, binding, path, lineno|
+          expect(code).to eq(
+            <<~CODE
+              # frozen_string_literal: true
+
+              class MyApp
+                controller :foo do
+                  default do; end
+                end
+              end
+            CODE
+          )
+
+          expect(binding).to be(TOPLEVEL_BINDING)
+          expect(path).to be(path)
+          expect(lineno).to eq(0)
+        end
+
+        instance.call(target)
+      end
+    end
+
+    context "code has a magic comment after a blank line" do
+      let(:code) {
+        <<~CODE
+
+
+
+          # frozen_string_literal: true
+
+          controller :foo do
+            default do; end
+          end
+        CODE
+      }
+
+      before do
+        stub_const "MyApp", target
+      end
+
+      let(:target) {
+        Class.new
+      }
+
+      it "evals expectedly" do
+        expect(instance).to receive(:eval) do |code, binding, path, lineno|
+          expect(code).to eq(
+            <<~CODE
+
+
+
+              # frozen_string_literal: true
+
+              class MyApp
+                controller :foo do
+                  default do; end
+                end
+              end
+            CODE
+          )
+
+          expect(binding).to be(TOPLEVEL_BINDING)
+          expect(path).to be(path)
+          expect(lineno).to eq(0)
+        end
+
+        instance.call(target)
       end
     end
   end
