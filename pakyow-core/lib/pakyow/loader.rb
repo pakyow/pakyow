@@ -48,6 +48,8 @@ module Pakyow
         raise ArgumentError, "cannot load `#{@path}' on unnamed target (`#{target}')"
       end
 
+      comments, uncommented_code = split_comments(code)
+
       # While we could just class_eval the code onto the target, this will break if the code uses
       # a refinement. Building up the code like below provides the lexical scope needed for things
       # like refinements to work correctly.
@@ -55,14 +57,14 @@ module Pakyow
       code_to_load = case class_or_module
       when Class
         <<~CODE
-          class #{class_or_module}
-          #{indent(code.strip)}
+          #{comments}class #{class_or_module}
+          #{indent(uncommented_code.strip)}
           end
         CODE
       when Module
         <<~CODE
-          module #{class_or_module}
-          #{indent(code.strip)}
+          #{comments}module #{class_or_module}
+          #{indent(uncommented_code.strip)}
           end
         CODE
       end
@@ -76,6 +78,30 @@ module Pakyow
 
     private def indent(code)
       code.split("\n").map { |line| "  #{line}" }.join("\n")
+    end
+
+    private def split_comments(code)
+      line_number = first_nonblank_or_commented_line_number(code)
+
+      if line_number == 1
+        return nil, code
+      else
+        lines = code.each_line.to_a
+
+        return lines[0...(line_number - 1)].join, lines[(line_number - 1)..-1].join
+      end
+    end
+
+    private def first_nonblank_or_commented_line_number(code)
+      code.each_line.each_with_index do |line, index|
+        line.strip!
+
+        unless line.empty? || line[0] == "#"
+          return index + 1
+        end
+      end
+
+      nil
     end
   end
 end

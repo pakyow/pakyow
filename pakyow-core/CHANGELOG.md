@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Handle magic comments in the loader.**
+
+    *Related links:*
+    - [Pull Request #461][pr-461]
+
   * `chg` **Support container restarts from child processes.**
 
     *Related links:*
@@ -423,6 +428,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-461]: https://github.com/pakyow/pakyow/pull/461
 [pr-460]: https://github.com/pakyow/pakyow/pull/460
 [pr-459]: https://github.com/pakyow/pakyow/pull/459
 [pr-458]: https://github.com/pakyow/pakyow/pull/458
