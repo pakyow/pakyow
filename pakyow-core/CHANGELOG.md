@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Correctly restart services when the container restarts.**
+
+    *Related links:*
+    - [Pull Request #462][pr-462]
+
   * `fix` **Handle magic comments in the loader.**
 
     *Related links:*
@@ -428,6 +433,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-462]: https://github.com/pakyow/pakyow/pull/462
 [pr-461]: https://github.com/pakyow/pakyow/pull/461
 [pr-460]: https://github.com/pakyow/pakyow/pull/460
 [pr-459]: https://github.com/pakyow/pakyow/pull/459
