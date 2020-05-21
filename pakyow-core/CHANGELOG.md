@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Filewatcher` for reacting to changes in the filesystem.**
+
   * `fix` **Fix service limits when count equals limit.**
 
     *Related links:*
