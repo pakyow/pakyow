@@ -8,7 +8,10 @@ module Pakyow
 
         apply_extension do
           handle Exception do |error|
-            unless error.is_a?(SignalException)
+            case error
+            when SignalException
+              raise error
+            else
               handle_error(EnvironmentError.build(error))
             end
           end

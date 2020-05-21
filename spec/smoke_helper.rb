@@ -113,7 +113,7 @@ RSpec.configure do |config|
     defined?(@server)
   end
 
-  def shutdown(signal = "TERM")
+  def shutdown(signal = "INT")
     if booted?
       Process.kill(signal, @server)
 
