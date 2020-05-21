@@ -35,7 +35,9 @@ module Pakyow
           end
 
           private def invoke_service(service)
-            service_strategy(service).send(:invoke_service, service)
+            service_strategy(service).send(:invoke_service, service) do
+              yield
+            end
           end
 
           private def service_strategy(service)
