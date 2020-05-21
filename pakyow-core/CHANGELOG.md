@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Yield before running the container strategy.**
+
+    *Related links:*
+    - [Pull Request #463][pr-463]
+
   * `fix` **Correctly restart services when the container restarts.**
 
     *Related links:*
@@ -433,6 +438,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-463]: https://github.com/pakyow/pakyow/pull/463
 [pr-462]: https://github.com/pakyow/pakyow/pull/462
 [pr-461]: https://github.com/pakyow/pakyow/pull/461
 [pr-460]: https://github.com/pakyow/pakyow/pull/460

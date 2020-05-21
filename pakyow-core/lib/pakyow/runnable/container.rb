@@ -173,9 +173,10 @@ module Pakyow
             @strategy.terminate
           end
 
+          yield self if block_given?
+
           while running?
             @strategy.run(self)
-            yield self if block_given?
             @strategy.wait(self)
 
             unless restartable?

@@ -127,7 +127,13 @@ RSpec.describe Pakyow::Runnable::Container do
     it "yields self" do
       expect { |block|
         instance.run(&block)
-      }.to yield_successive_args(instance, instance, instance)
+      }.to yield_with_args(instance)
+    end
+
+    it "yields before running the strategy" do
+      instance.run do
+        expect(strategy.calls.count(:run)).to eq(0)
+      end
     end
 
     it "waits on the strategy" do
