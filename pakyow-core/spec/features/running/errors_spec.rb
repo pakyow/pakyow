@@ -125,6 +125,24 @@ RSpec.describe "handling errors when running" do
     end
   end
 
+  # Not finding a way to run this case without stopping rspec, but leaving it here for later.
+  #
+  context "system exit is encountered" do
+    before do
+      allow(Pakyow).to receive(:load).and_raise(error)
+    end
+
+    let(:error) {
+      SystemExit.new
+    }
+
+    xit "does not rescue the environment" do
+      expect(Pakyow).to receive(:rescue!).at_least(:once).and_call_original
+
+      Pakyow.run(env: :test)
+    end
+  end
+
   describe "handling custom errors" do
     before do
       class SomeError < StandardError; end
