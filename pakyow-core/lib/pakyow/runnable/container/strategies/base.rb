@@ -129,7 +129,7 @@ module Pakyow
           private def manage_service(service)
             update_service_metadata(service)
 
-            register_service_reference(service, invoke_service(service))
+            register_service_reference(service, invoke_service(service) { run_service(service) })
           end
 
           private def update_service_metadata(service)

@@ -20,7 +20,7 @@ module Pakyow
 
           private def invoke_service(service)
             Thread.new do
-              run_service(service)
+              yield
             end
           end
 

@@ -34,7 +34,7 @@ module Pakyow
 
           private def invoke_service(service)
             ::Process.fork do
-              run_service(service)
+              yield
             end
           end
         end

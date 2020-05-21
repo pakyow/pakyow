@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Yield after invoking a service in a container strategy.**
+
+    *Related links:*
+    - [Pull Request #465][pr-465]
+
   * `fix` **Don't rescue signal exceptions.**
 
     *Related links:*
@@ -443,6 +448,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-465]: https://github.com/pakyow/pakyow/pull/465
 [pr-464]: https://github.com/pakyow/pakyow/pull/464
 [pr-463]: https://github.com/pakyow/pakyow/pull/463
 [pr-462]: https://github.com/pakyow/pakyow/pull/462
