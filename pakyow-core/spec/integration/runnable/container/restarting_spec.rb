@@ -315,7 +315,7 @@ RSpec.describe "running an unrestartable service in a restartable container" do
 
       container.service :foo, restartable: false do
         define_method :perform do
-          local.write_to_parent("foo")
+          local.write_to_parent(options[:message])
         end
       end
 
@@ -326,10 +326,24 @@ RSpec.describe "running an unrestartable service in a restartable container" do
       end
     end
 
+    let(:run_options) {
+      { message: "foo" }
+    }
+
     it "only runs the service once" do
       run_container(timeout: 0.1)
 
       expect(read_from_child).to eq("foo")
+    end
+
+    it "restarts the service along with the container" do
+      run_container(timeout: 0.2) do |instance|
+        sleep 0.1
+        instance.options[:message] = "bar"
+        instance.restart
+      end
+
+      expect(read_from_child).to eq("foobar")
     end
   end
 

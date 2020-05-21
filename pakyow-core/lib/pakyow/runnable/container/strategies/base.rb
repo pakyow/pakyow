@@ -19,6 +19,7 @@ module Pakyow
             @queue = Queue.new
             @lock = Mutex.new
             @notifier = nil
+            @stopping = false
           end
 
           def run(container)
@@ -44,7 +45,6 @@ module Pakyow
                 manage_service(service_instance.dup)
               end
             end
-
           end
 
           def wait(container)
@@ -62,7 +62,7 @@ module Pakyow
                     @services.delete(service)
                   end
 
-                  if container.running? && service.restartable?
+                  if !stopping? && container.running? && service.restartable?
                     if service.status.success?
                       manage_service(service)
                     else
@@ -89,11 +89,17 @@ module Pakyow
           end
 
           def stop(signal)
+            @stopping = true
+
             @services.each do |service|
               stop_service(service, signal)
             end
 
             @notifier&.stop
+          end
+
+          def stopping?
+            @stopping == true
           end
 
           def success?
@@ -176,6 +182,7 @@ module Pakyow
             rescue Interrupt
               service.stop
             end.resume
+          rescue Interrupt
           end
 
           private def handle_notification(event, **payload)
