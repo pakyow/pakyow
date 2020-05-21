@@ -8,6 +8,7 @@ RSpec.shared_examples "service error handling" do
       expect(Pakyow).not_to receive(:rescue!)
 
       service.new(**options).perform
+    rescue SignalException
     end
   end
 

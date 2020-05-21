@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't rescue signal exceptions.**
+
+    *Related links:*
+    - [Pull Request #464][pr-464]
+
   * `fix` **Yield before running the container strategy.**
 
     *Related links:*
@@ -438,6 +443,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-464]: https://github.com/pakyow/pakyow/pull/464
 [pr-463]: https://github.com/pakyow/pakyow/pull/463
 [pr-462]: https://github.com/pakyow/pakyow/pull/462
 [pr-461]: https://github.com/pakyow/pakyow/pull/461
