@@ -754,6 +754,7 @@ RSpec.describe Pakyow do
       stub_container_run(:supervisor)
 
       expect(Pakyow.container(:supervisor)).to receive(:run).with(
+        strategy: :hybrid,
         formation: Pakyow.config.runnable.formation,
         config: Pakyow.config.runnable,
         env: :test
@@ -767,6 +768,7 @@ RSpec.describe Pakyow do
         formation = Pakyow::Runnable::Formation.all(42)
 
         expect(Pakyow.container(:supervisor)).to receive(:run).with(
+          strategy: :hybrid,
           formation: formation,
           config: Pakyow.config.runnable,
           env: :test
@@ -785,6 +787,7 @@ RSpec.describe Pakyow do
         }
 
         expect(Pakyow.container(:environment)).to receive(:run).with(
+          strategy: :hybrid,
           formation: formation,
           config: Pakyow.config.runnable,
           env: :test
