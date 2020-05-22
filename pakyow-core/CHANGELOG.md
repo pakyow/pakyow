@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Run Pakyow with a strategy.**
+
+    *Related links:*
+    - [Pull Request #466][pr-466]
+
   * `chg` **Yield after invoking a service in a container strategy.**
 
     *Related links:*
@@ -448,6 +453,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-466]: https://github.com/pakyow/pakyow/pull/466
 [pr-465]: https://github.com/pakyow/pakyow/pull/465
 [pr-464]: https://github.com/pakyow/pakyow/pull/464
 [pr-463]: https://github.com/pakyow/pakyow/pull/463

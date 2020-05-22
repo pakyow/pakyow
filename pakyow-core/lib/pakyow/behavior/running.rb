@@ -160,14 +160,16 @@ module Pakyow
         #
         # @param env [Symbol] the environment to run
         # @param formation [Hash] the formation to run
+        # @param strategy [Symbol] the strategy to run
         #
-        def run(env: nil, formation: nil)
+        def run(env: nil, formation: nil, strategy: :hybrid)
           unless running?
             formation ||= config.runnable.formation
             validate_formation!(formation)
 
             performing :run do
               top_level_container(formation).run(
+                strategy: strategy,
                 formation: formation,
                 config: config.runnable,
                 env: env,
