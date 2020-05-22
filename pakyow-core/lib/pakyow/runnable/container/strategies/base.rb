@@ -33,7 +33,7 @@ module Pakyow
               desired_service_count ||= (service_instance.count || 1)
               service_limit = service_instance.limit
 
-              service_count = if service_limit.nil? || service_instance.limit > desired_service_count
+              service_count = if service_limit.nil? || service_instance.limit >= desired_service_count
                 desired_service_count
               else
                 Pakyow.logger.warn "attempted to run service `#{container.class.object_name.name}.#{service_name}' #{desired_service_count} times, but was limited to #{service_limit}"

@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Fix service limits when count equals limit.**
+
+    *Related links:*
+    - [Pull Request #467][pr-467]
+
   * `chg` **Run Pakyow with a strategy.**
 
     *Related links:*
@@ -453,6 +458,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-467]: https://github.com/pakyow/pakyow/pull/467
 [pr-466]: https://github.com/pakyow/pakyow/pull/466
 [pr-465]: https://github.com/pakyow/pakyow/pull/465
 [pr-464]: https://github.com/pakyow/pakyow/pull/464
