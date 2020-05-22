@@ -14,7 +14,7 @@ RSpec.describe "cli: boot" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mBoot the project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow boot\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env                \e[33mThe environment to run this command under\e[0m\n      --host=host              \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port              \e[33mThe port the server runs on (default: 3000)\e[0m\n  -f, --formation=formation    \e[33mThe formation to boot (default: all)\e[0m\n      --standalone             \e[33mDisable automatic reloading of changes\e[0m\n")
+      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mBoot the project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow boot\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env                \e[33mThe environment to run this command under\e[0m\n      --host=host              \e[33mThe host the server runs on (default: localhost)\e[0m\n  -p, --port=port              \e[33mThe port the server runs on (default: 3000)\e[0m\n  -f, --formation=formation    \e[33mThe formation to boot (default: all)\e[0m\n      --standalone             \n")
     end
   end
 

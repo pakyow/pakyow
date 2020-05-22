@@ -166,6 +166,14 @@ module Pakyow
         end
       end
     end
+
+    configurable :watcher do
+      setting :enabled, true
+
+      setting :count do
+        config.runnable.watcher.enabled ? 1 : 0
+      end
+    end
   end
 
   configurable :server do

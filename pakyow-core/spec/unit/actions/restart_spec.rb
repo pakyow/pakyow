@@ -34,17 +34,8 @@ RSpec.describe Pakyow::Actions::Restart do
       "POST"
     end
 
-    it "makes a tmp dir if it doesn't exist" do
-      expect(FileUtils).to receive(:mkdir_p).with("./tmp")
-      call
-    end
-
-    it "makes writes restart.txt with the mode name" do
-      file_double = double(:file)
-      expect(file_double).to receive(:write).with("prototype")
-      expect(File).to receive(:open).with("./tmp/restart.txt", "w+") do |&block|
-        block.call(file_double)
-      end
+    it "tells pakyow to restart" do
+      expect(Pakyow).to receive(:restart).with(env: "prototype")
 
       call
     end
@@ -65,9 +56,8 @@ RSpec.describe Pakyow::Actions::Restart do
     end
 
     it "does not restart" do
-      expect(FileUtils).not_to receive(:mkdir_p)
-      expect(File).not_to receive(:open)
-      expect(connection).not_to receive(:halt)
+      expect(Pakyow).not_to receive(:restart)
+
       call
     end
   end
@@ -82,9 +72,8 @@ RSpec.describe Pakyow::Actions::Restart do
     end
 
     it "does not restart" do
-      expect(FileUtils).not_to receive(:mkdir_p)
-      expect(File).not_to receive(:open)
-      expect(connection).not_to receive(:halt)
+      expect(Pakyow).not_to receive(:restart)
+
       call
     end
   end
@@ -99,9 +88,8 @@ RSpec.describe Pakyow::Actions::Restart do
     end
 
     it "does not restart" do
-      expect(FileUtils).not_to receive(:mkdir_p)
-      expect(File).not_to receive(:open)
-      expect(connection).not_to receive(:halt)
+      expect(Pakyow).not_to receive(:restart)
+
       call
     end
   end

@@ -73,15 +73,6 @@ RSpec.shared_context "runnable" do
     end
   end
 
-  before do
-    Pakyow.singleton_class.define_method :deep_freeze do; end
-  end
-
-  after do
-    Pakyow.singleton_class.remove_method(:deep_freeze)
-  rescue NameError
-  end
-
   let(:runnable_mode) {
     :multi_service
   }

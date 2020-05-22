@@ -25,6 +25,10 @@ module Pakyow
         definable :container, Runnable::Container
 
         container :supervisor do
+          on :restart do |env:|
+            options[:env] = env if env
+          end
+
           # Boots and deep freezes the environment, then runs the environment container.
           #
           service :environment do

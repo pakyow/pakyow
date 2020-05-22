@@ -14,7 +14,6 @@ require_relative "application/behavior/frameworks"
 require_relative "application/behavior/helpers"
 require_relative "application/behavior/operations"
 require_relative "application/behavior/rescuing"
-require_relative "application/behavior/restarting"
 
 require_relative "handleable/behavior/statuses"
 
@@ -87,7 +86,6 @@ module Pakyow
     include Application::Behavior::Helpers
     include Application::Behavior::Operations
     include Application::Behavior::Rescuing
-    include Application::Behavior::Restarting
 
     include Handleable::Behavior::Statuses
 

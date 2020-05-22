@@ -103,6 +103,8 @@ RSpec.configure do |config|
     end
 
     @defined_constants = Module.constants.dup
+
+    Pakyow.singleton_class.define_method :deep_freeze do; end
   end
 
   config.after do
@@ -179,6 +181,11 @@ RSpec.configure do |config|
     if ENV["RSS"]
       GC.start
       puts "rss: #{rss} live objects (#{GC.stat[:heap_live_slots]})"
+    end
+
+    begin
+      Pakyow.singleton_class.remove_method(:deep_freeze)
+    rescue NameError
     end
   end
 
