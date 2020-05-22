@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Relocate external asset fetching to an environment service.**
+
   * `chg` **Refactor Babel to be a `Pakyow::Assets::Script`.**
 
     *Related links:*
