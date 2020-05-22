@@ -53,12 +53,6 @@ module Pakyow
           apply_extension do
             class_state :__ui_modes, default: {}, inheritable: true
 
-            after "load" do
-              ([:html] + processors.each.map(&:extensions).flatten).uniq.each do |extension|
-                config.process.watched_paths << File.join(config.presenter.path, "**/*.#{extension}")
-              end
-            end
-
             isolate ModeCallContext
 
             after "load" do
