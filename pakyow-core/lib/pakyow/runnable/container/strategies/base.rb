@@ -156,21 +156,21 @@ module Pakyow
           end
 
           private def run_service(service)
-            Signal.trap(:HUP) do
-              if container.restartable?
-                raise Restart
-              end
-            end
-
-            Signal.trap(:INT) do
-              raise Interrupt
-            end
-
-            Signal.trap(:TERM) do
-              raise Terminate
-            end
-
             Fiber.new do
+              Signal.trap(:HUP) do
+                if container.restartable?
+                  raise Restart
+                end
+              end
+
+              Signal.trap(:INT) do
+                raise Interrupt
+              end
+
+              Signal.trap(:TERM) do
+                raise Terminate
+              end
+
               Pakyow.async do
                 service.run
               rescue => error
@@ -178,10 +178,14 @@ module Pakyow
 
                 service_failed!(service)
               end
+
+              service.stop
+            rescue Terminate
+            rescue Interrupt
+              service.stop
             end.resume
-          rescue Terminate
           rescue Interrupt
-            service.stop
+            # Catch interrupts that occur before the fiber runs.
           end
 
           private def handle_notification(event, **payload)
