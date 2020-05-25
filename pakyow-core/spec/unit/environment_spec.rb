@@ -74,10 +74,10 @@ RSpec.describe Pakyow do
     end
 
     context "environment loader does not exist" do
-      describe "bundler setup" do
+      describe "bundler reset" do
         before do
-          allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/setup") do
-            load "pakyow/integrations/bundler/setup.rb"
+          allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/reset") do
+            load "pakyow/integrations/bundler/reset.rb"
           end
         end
 
@@ -87,7 +87,7 @@ RSpec.describe Pakyow do
           end
 
           it "sets up bundler" do
-            expect(TOPLEVEL_BINDING.receiver).to receive(:require).with("bundler/setup")
+            expect(Bundler).to receive(:reset!)
             Pakyow.load
           end
         end
@@ -102,9 +102,46 @@ RSpec.describe Pakyow do
             Object.const_set(:Bundler, @const)
           end
 
-          it "does not setup bundler" do
-            expect(TOPLEVEL_BINDING.receiver).to_not receive(:require).with("bundler/setup")
+          it "does not fail" do
+            expect {
+              Pakyow.load
+            }.not_to raise_error
+          end
+        end
+      end
+
+      describe "bundler setup" do
+        before do
+          allow(Pakyow).to receive(:require).with("pakyow/integrations/bundler/setup") do
+            load "pakyow/integrations/bundler/setup.rb"
+          end
+        end
+
+        context "bundler is available" do
+          before do
+            expect(defined?(Bundler)).to eq("constant")
+          end
+
+          it "sets up bundler" do
+            expect(Bundler).to receive(:setup).with(:default, :development)
             Pakyow.load
+          end
+        end
+
+        context "bundler is not available" do
+          before do
+            @const = Bundler
+            Object.send(:remove_const, :Bundler)
+          end
+
+          after do
+            Object.const_set(:Bundler, @const)
+          end
+
+          it "does not fail" do
+            expect {
+              Pakyow.load
+            }.not_to raise_error
           end
         end
       end

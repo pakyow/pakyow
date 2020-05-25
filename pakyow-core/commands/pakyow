@@ -4,11 +4,11 @@
 begin
   require "pakyow/support/system"
 
-  # Setup Bundler automatically if it isn't available and we're within a project that supports it.
+  # Require Bundler automatically if it isn't available and we're within a project that supports it.
   #
   if !defined?(Bundler) && Pakyow::Support::System.gemfile?
     begin
-      require "bundler/setup"
+      require "bundler"
     rescue LoadError
       # Bundler isn't installed.
     end

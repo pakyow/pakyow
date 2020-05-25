@@ -3,7 +3,5 @@
 # Requires bundle/setup.
 #
 if defined?(Bundler)
-  Bundler.reset!
-
-  require "bundler/setup"
+  Bundler.setup :default, Pakyow.env?(:prototype) ? :development : Pakyow.env
 end

@@ -418,6 +418,7 @@ module Pakyow
         if File.exist?(config.loader_path + ".rb")
           require config.loader_path
         else
+          require "pakyow/integrations/bundler/reset"
           require "pakyow/integrations/bundler/setup"
           require "pakyow/integrations/bootsnap"
 

@@ -2,38 +2,20 @@ require "smoke_helper"
 
 RSpec.describe "restarting a project", smoke: true do
   before do
-    # Disable external asset fetching.
-    # TODO: Remove this once we no longer restart when externals are fetched.
-    #
-    project_path.join("config/application.rb").open("w+") do |file|
-      file.write <<~SOURCE
-        Pakyow.app :smoke_test do
-          configure do
-            config.assets.externals.fetch = false
-          end
-        end
-      SOURCE
-    end
-
     boot
   end
 
   context "page is added" do
     it "restarts" do
-      # We have to sleep here, or filewatcher doesn't get initialized in time.
-      # TODO: See if this can go away once we own file watching.
-      #
-      sleep 1
-
       project_path.join("frontend/pages/index.html").open("w+") do |file|
         file.write <<~SOURCE
           hello web
         SOURCE
       end
 
-      # wait for the process to restart
+      # Give the watcher time to notice the change.
       #
-      sleep 5
+      sleep 0.5
 
       response = HTTP.get("http://localhost:#{port}")
 

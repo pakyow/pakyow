@@ -105,6 +105,8 @@ RSpec.configure do |config|
     @defined_constants = Module.constants.dup
 
     Pakyow.singleton_class.define_method :deep_freeze do; end
+
+    allow(Bundler).to receive(:reset!)
   end
 
   config.after do
