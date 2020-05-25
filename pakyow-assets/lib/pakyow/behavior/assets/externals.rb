@@ -22,10 +22,11 @@ module Pakyow
 
             def perform
               ensure_booted do
-                Pakyow.apps.each do |app|
-                  next unless app.class.includes_framework?(:assets)
-                  next unless app.config.assets.externals.fetch
-
+                Pakyow.apps.reject { |app|
+                  app.rescued?
+                }.select { |app|
+                  app.class.includes_framework?(:assets) && app.config.assets.externals.fetch
+                }.each do |app|
                   fetch!(app)
 
                   app.plugs.each do |plug|
