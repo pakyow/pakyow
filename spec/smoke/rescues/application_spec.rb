@@ -3,6 +3,10 @@ require "smoke_helper"
 RSpec.describe "rescuing the application", smoke: true do
   context "error occurs before setup" do
     before do
+      File.open(project_path.join("Gemfile"), "a") do |file|
+        file.write("\ngem \"sqlite3\"")
+      end
+
       File.open(project_path.join("config/application.rb"), "w+") do |file|
         file.write <<~SOURCE
           Pakyow.app :smoke_test do
