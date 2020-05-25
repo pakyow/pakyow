@@ -6,6 +6,10 @@ RSpec.describe "precompiling assets for a path", smoke: true do
   include_examples "precompile"
 
   before do
+    File.open(project_path.join("Gemfile"), "a") do |file|
+      file.write("\ngem \"sqlite3\"")
+    end
+
     cli_run "assets:precompile -a smoke_test -e production"
   end
 

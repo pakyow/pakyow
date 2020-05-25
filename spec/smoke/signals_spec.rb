@@ -53,9 +53,9 @@ RSpec.describe "signaling a running project", smoke: true do
             end
           SOURCE
         end
-
-        shutdown("HUP")
       end
+
+      shutdown("HUP")
     end
 
     it "reloads" do

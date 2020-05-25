@@ -15,6 +15,10 @@ RSpec.describe "prelaunching the environment", smoke: true do
   end
 
   before do
+    File.open(project_path.join("Gemfile"), "a") do |file|
+      file.write("\ngem \"sqlite3\"")
+    end
+
     cli_run "prelaunch -e production"
   end
 end
