@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Relocate external asset fetching to an environment service.**
+
+    *Related links:*
+    - [Pull Request #468][pr-468]
+
   * `chg` **Refactor Babel to be a `Pakyow::Assets::Script`.**
 
     *Related links:*
@@ -30,6 +35,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-468]: https://github.com/pakyow/pakyow/pull/468/commits
 [pr-438]: https://github.com/pakyow/pakyow/pull/438/commits
 [pr-437]: https://github.com/pakyow/pakyow/pull/437/commits
 [pr-376]: https://github.com/pakyow/pakyow/pull/376/commits

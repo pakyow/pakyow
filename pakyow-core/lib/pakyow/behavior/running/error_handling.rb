@@ -9,6 +9,7 @@ module Pakyow
         apply_extension do
           handle Exception do |error|
             case error
+            when SystemExit
             when SignalException
               raise error
             else

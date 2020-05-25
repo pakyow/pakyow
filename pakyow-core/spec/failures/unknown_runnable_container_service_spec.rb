@@ -16,6 +16,7 @@ RSpec.describe "running a runnable container with a formation referencing an unk
           Try using one of these available services:
 
             - :server
+            - :watcher
         MESSAGE
       )
     end

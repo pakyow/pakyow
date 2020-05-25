@@ -10,34 +10,20 @@ RSpec.describe "respawning a project", smoke: true do
       SOURCE
     end
 
-    # Disable external asset fetching.
-    # TODO: Remove this once we no longer restart when externals are fetched.
-    #
-    File.open(project_path.join("config/application.rb"), "w+") do |file|
-      file.write <<~SOURCE
-        Pakyow.app :smoke_test do
-          configure do
-            config.assets.externals.fetch = false
-          end
-        end
-      SOURCE
-    end
-
     boot
   end
 
   context "gem is added" do
     it "respawns" do
-      # We have to sleep here, or filewatcher doesn't get initialized in time.
-      # TODO: See if this can go away once we own file watching.
+      # Give the filewatcher time to start.
       #
-      sleep 1
+      sleep 5
 
       File.open(project_path.join("Gemfile"), "a") do |file|
         file.write("\ngem \"pakyow-markdown\"")
       end
 
-      # Wait for the process to respawn.
+      # Give bundler time to install.
       #
       sleep 10
 

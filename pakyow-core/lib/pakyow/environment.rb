@@ -166,6 +166,14 @@ module Pakyow
         end
       end
     end
+
+    configurable :watcher do
+      setting :enabled, true
+
+      setting :count do
+        config.runnable.watcher.enabled ? 1 : 0
+      end
+    end
   end
 
   configurable :server do
@@ -410,6 +418,7 @@ module Pakyow
         if File.exist?(config.loader_path + ".rb")
           require config.loader_path
         else
+          require "pakyow/integrations/bundler/reset"
           require "pakyow/integrations/bundler/setup"
           require "pakyow/integrations/bootsnap"
 

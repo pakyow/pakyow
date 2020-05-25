@@ -31,13 +31,13 @@ RSpec.describe "pakyow command" do
       before do
         allow(self).to receive(:require).with("pakyow/support/system")
         allow(self).to receive(:require).with("pakyow/cli")
-        allow(self).to receive(:require).with("bundler/setup")
+        allow(self).to receive(:require).with("bundler")
 
         allow(Pakyow::Support::System).to receive(:gemfile?).and_return(true)
       end
 
       it "sets up bundler" do
-        expect(self).to receive(:require).with("bundler/setup")
+        expect(self).to receive(:require).with("bundler")
         run_command
       end
 
@@ -48,7 +48,7 @@ RSpec.describe "pakyow command" do
 
       context "bundler isn't available" do
         before do
-          allow(self).to receive(:require).with("bundler/setup").and_raise(LoadError)
+          allow(self).to receive(:require).with("bundler").and_raise(LoadError)
         end
 
         it "does not error" do
@@ -71,7 +71,7 @@ RSpec.describe "pakyow command" do
       end
 
       it "does not setup bundler" do
-        expect(self).not_to receive(:require).with("bundler/setup")
+        expect(self).not_to receive(:require).with("bundler")
         run_command
       end
 

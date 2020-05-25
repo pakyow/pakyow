@@ -49,7 +49,6 @@ module Pakyow
         require_relative "../application/behavior/presenter/initializing"
         require_relative "../application/behavior/presenter/modes"
         require_relative "../application/behavior/presenter/versions"
-        require_relative "../application/behavior/presenter/watching"
 
         require_relative "../application/actions/presenter/auto_render"
         require_relative "../application/helpers/presenter/rendering"
@@ -202,7 +201,6 @@ module Pakyow
           include Application::Behavior::Presenter::Exposures
           include Application::Behavior::Presenter::Modes
           include Application::Behavior::Presenter::Versions
-          include Application::Behavior::Presenter::Watching
 
           def self.view_info_for_path(path)
             path = String.collapse_path(path)

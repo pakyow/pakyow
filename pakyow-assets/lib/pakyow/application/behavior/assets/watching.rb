@@ -12,11 +12,9 @@ module Pakyow
           apply_extension do
             after "configure" do
               config.assets.extensions.each do |extension|
-                config.process.watched_paths << File.join(config.presenter.path, "**/*#{extension}")
-
-                # Exclude vendored assets.
+                # Ignore vendored assets.
                 #
-                config.process.excluded_paths << File.join(config.assets.externals.path, "*#{extension}")
+                Pakyow.ignore(File.join(config.assets.externals.path, "*#{extension}"))
               end
             end
           end

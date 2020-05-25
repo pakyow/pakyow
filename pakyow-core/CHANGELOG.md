@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Filewatcher` for reacting to changes in the filesystem.**
+
+    *Related links:*
+    - [Pull Request #468][pr-468]
+
   * `fix` **Fix service limits when count equals limit.**
 
     *Related links:*
@@ -458,6 +463,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-468]: https://github.com/pakyow/pakyow/pull/468
 [pr-467]: https://github.com/pakyow/pakyow/pull/467
 [pr-466]: https://github.com/pakyow/pakyow/pull/466
 [pr-465]: https://github.com/pakyow/pakyow/pull/465

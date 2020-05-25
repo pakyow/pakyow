@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/cli/runner"
+require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
 module Pakyow
@@ -9,38 +11,6 @@ module Pakyow
 
       apply_extension do
         on "run" do
-          @respawn = false
-
-          # Other processes (e.g. apps) can touch this file to respawn the process.
-          #
-          respawn_path = File.join(config.root, "tmp/respawn.txt")
-          watch respawn_path do
-            environment = File.read(respawn_path)
-
-            ignore_changes do
-              File.open(respawn_path, "w") do |file|
-                file.truncate(0)
-              end
-            end
-
-            respawn(environment)
-          end
-
-          # Other processes (e.g. apps) can touch this file to restart the server.
-          #
-          restart_path = File.join(config.root, "tmp/restart.txt")
-          watch restart_path do
-            environment = File.read(restart_path)
-
-            ignore_changes do
-              File.open(restart_path, "w") do |file|
-                file.truncate(0)
-              end
-            end
-
-            restart(environment)
-          end
-
           # Automatically bundle.
           #
           watch File.join(config.root, "Gemfile") do
@@ -49,38 +19,25 @@ module Pakyow
             end
           end
 
-          # Respawn when the bundle changes.
+          # Watch all files for changes.
           #
-          watch File.join(config.root, "Gemfile.lock") do
-            respawn
-          end
+          watch File.join(config.root, "**", "*")
 
-          # Respawn when something about the environment changes.
+          # Restart when any file changes.
           #
-          watch "#{Pakyow.config.environment_path}.rb" do
-            respawn
+          changed snapshot: true do
+            restart
           end
         end
       end
 
       class_methods do
-        def respawn(environment = nil)
-          shutdown
-
-          # Replace the master process with a copy of itself.
-          #
-          exec respawn_command(environment)
+        def respawn(env: Pakyow.env)
+          restart(env: env)
         end
 
-        private def respawn_command(environment)
-          command = "PW_RESPAWN=true PW_PROXY_PORT=#{@proxy_port} #{$0} #{ARGV.join(" ")}"
-
-          unless environment.nil? || environment.empty?
-            command = command + " -e #{environment.strip.to_sym}"
-          end
-
-          command
-        end
+        extend Support::Deprecatable
+        deprecate :respawn, solution: "prefer `Pakyow.restart'"
       end
     end
   end

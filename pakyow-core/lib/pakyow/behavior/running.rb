@@ -4,7 +4,6 @@ require "async/reactor"
 require "async/io/shared_endpoint"
 require "async/http/endpoint"
 
-require "pakyow/support/deep_freeze"
 require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
@@ -12,6 +11,7 @@ require_relative "../errors"
 require_relative "../server"
 require_relative "../runnable/container"
 
+require_relative "running/ensure_booted"
 require_relative "running/error_handling"
 
 module Pakyow
@@ -20,17 +20,20 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        class_state :__running, default: false, reader: false
+        class_state :__running_container, default: nil, reader: false
 
         definable :container, Runnable::Container
 
         container :supervisor do
+          on :restart do |env:|
+            options[:env] = env if env
+          end
+
           # Boots and deep freezes the environment, then runs the environment container.
           #
           service :environment do
+            include EnsureBooted
             include ErrorHandling
-
-            using Support::DeepFreeze
 
             class << self
               def prerun(options)
@@ -48,18 +51,12 @@ module Pakyow
 
             def perform
               handling do
-                Pakyow.boot(env: options[:env])
+                ensure_booted do
+                  GC.start
 
-                Pakyow.deprecator.ignore do
-                  if Pakyow.config.freeze_on_boot
-                    Pakyow.deep_freeze
-                  end
+                  Pakyow.container(:environment).run(parent: self, **options)
                 end
-
-                GC.start
               end
-
-              Pakyow.container(:environment).run(parent: self, **options)
             end
           end
         end
@@ -68,9 +65,8 @@ module Pakyow
           # Boots the environment (if necessary), then runs the server.
           #
           service :server do
+            include EnsureBooted
             include ErrorHandling
-
-            using Support::DeepFreeze
 
             class << self
               def prerun(options)
@@ -113,23 +109,15 @@ module Pakyow
 
             def perform
               handling do
-                unless Pakyow.booted?
-                  Pakyow.boot(env: options[:env])
-
-                  Pakyow.deprecator.ignore do
-                    if Pakyow.config.freeze_on_boot
-                      Pakyow.deep_freeze
-                    end
-                  end
+                ensure_booted do
+                  Server.run(
+                    Pakyow,
+                    endpoint: options[:endpoint],
+                    protocol: options[:protocol],
+                    scheme: options[:config].server.scheme
+                  )
                 end
               end
-
-              Server.run(
-                Pakyow,
-                endpoint: options[:endpoint],
-                protocol: options[:protocol],
-                scheme: options[:config].server.scheme
-              )
             end
 
             def shutdown
@@ -174,7 +162,6 @@ module Pakyow
                 config: config.runnable,
                 env: env,
               ) do |container|
-                @__running = true
                 @__running_container = container
                 yield container if block_given?
               end
@@ -199,7 +186,7 @@ module Pakyow
         # Returns true if the environment is running.
         #
         def running?
-          @__running == true
+          !@__running_container.nil? && @__running_container.running?
         end
 
         # Shutdown the environment.
@@ -210,10 +197,6 @@ module Pakyow
               # Make sure the container is stopped.
               #
               @__running_container.stop
-
-              # Finally, update our internal state.
-              #
-              @__running = false
             end
           end
 

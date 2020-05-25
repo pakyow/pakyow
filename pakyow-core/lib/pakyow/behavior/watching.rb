@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-require "filewatcher"
 
+require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
+
+require_relative "../filewatcher"
+require_relative "running/ensure_booted"
 
 module Pakyow
   module Behavior
@@ -12,69 +15,83 @@ module Pakyow
       extend Support::Extension
 
       apply_extension do
-        class_state :on_change_matchers, default: {}
-        class_state :watched_paths, default: []
+        class_state :__filewatcher_changes, default: {}
+        class_state :__filewatcher_ignores, default: []
+        class_state :__filewatcher_watches, default: []
 
-        extend Support::DeepFreeze
-        insulate :filewatcher, :filewatcher_thread
+        # Watches the filesystem, reacting to any changes.
+        #
+        container(:environment).service :watcher, restartable: false, limit: 1 do
+          include Running::EnsureBooted
 
-        on "run", priority: :low do
-          @filewatcher = Filewatcher.new(
-            @watched_paths.map { |path|
-              File.expand_path(path)
-            }
-          )
+          def initialize(*)
+            @filewatcher = Filewatcher.new
 
-          @filewatcher_thread = Thread.new do
-            @filewatcher.watch(&method(:watch_callback))
+            super
           end
-        end
 
-        on "shutdown" do
-          @filewatcher&.stop
+          def count
+            options[:config].watcher.count
+          end
+
+          def perform
+            ensure_booted do
+              Pakyow.__filewatcher_changes.each do |matcher, blocks|
+                blocks.each do |options|
+                  @filewatcher.callback(matcher, snapshot: options[:snapshot], &options[:block])
+                end
+              end
+
+              Pakyow.__filewatcher_ignores.each do |path|
+                @filewatcher.ignore(path)
+              end
+
+              Pakyow.__filewatcher_watches.each do |path|
+                @filewatcher.watch(path)
+              end
+            end
+
+            @filewatcher.perform
+          end
+
+          def shutdown
+            @filewatcher.stop
+
+            # Wait on the filewatcher to fully stop.
+            #
+            sleep @filewatcher.interval
+          end
         end
       end
 
       class_methods do
         # Register a callback to be called when a file changes.
         #
-        def on_change(matcher, &block)
-          (@on_change_matchers[matcher] ||= []) << block
+        def changed(matcher = nil, snapshot: false, &block)
+          (__filewatcher_changes[matcher] ||= []) << { block: block, snapshot: snapshot }
         end
+
+        def on_change(matcher = nil, &block)
+          change(matcher, &block)
+        end
+
+        extend Support::Deprecatable
+        deprecate :on_change, solution: "prefer `changed'"
 
         # Register one or more path for changes.
         #
         def watch(*paths, &block)
-          @watched_paths.concat(paths).uniq!
-
-          if block
-            paths.each do |path|
-              on_change(File.expand_path(path), &block)
-            end
+          paths.each do |path|
+            __filewatcher_watches << path
+            changed(path, &block) if block
           end
         end
 
-        # Yields while ignoring changes to watched files.
+        # Ignore one or more paths when watching for changes.
         #
-        def ignore_changes
-          @filewatcher.pause; yield
-        ensure
-          @filewatcher.resume
-        end
-
-        # @api private
-        def change_callbacks(path)
-          @on_change_matchers.each_with_object([]) { |(matcher, blocks), matched_blocks|
-            if matcher.match?(path)
-              matched_blocks.concat(blocks)
-            end
-          }
-        end
-
-        # @api private
-        def watch_callback(path, _event)
-          change_callbacks(path).each do |callback|
-            instance_exec(&callback)
+        def ignore(*paths)
+          paths.each do |path|
+            __filewatcher_ignores << path
           end
         end
       end

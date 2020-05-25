@@ -29,7 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "bundler", "~> 2.1"
   spec.add_dependency "console", "~> 1.8"
   spec.add_dependency "dry-types", "~> 1.4"
-  spec.add_dependency "filewatcher", "~> 1.1"
   spec.add_dependency "method_source", "~> 1.0"
   spec.add_dependency "mini_mime", "~> 1.0"
   spec.add_dependency "multipart-parser", "~> 0.1.1"

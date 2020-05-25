@@ -44,29 +44,6 @@ module Pakyow
                 ]
               end
             end
-
-            after "boot", "fetch.assets.externals" do
-              assets_config = if is_a?(Plugin)
-                parent.config.assets
-              else
-                config.assets
-              end
-
-              if assets_config.externals.fetch
-                fetched = false
-
-                config.assets.externals.scripts.each do |external_script|
-                  unless external_script.exist?
-                    external_script.fetch!
-                    fetched = true
-                  end
-                end
-
-                if fetched
-                  self.class.touch_restart
-                end
-              end
-            end
           end
         end
       end
