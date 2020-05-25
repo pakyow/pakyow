@@ -6,6 +6,10 @@ RSpec.describe "using the filewatcher" do
     File.expand_path("../tmp", __FILE__)
   }
 
+  let(:test_path) {
+    File.expand_path("../tmp-test", __FILE__)
+  }
+
   let(:filewatcher) {
     Pakyow::Filewatcher.new
   }
@@ -16,19 +20,50 @@ RSpec.describe "using the filewatcher" do
 
   before do
     FileUtils.mkdir_p(path)
+    FileUtils.mkdir_p(test_path)
   end
 
   after do
     FileUtils.rm_r(path)
+    FileUtils.rm_r(test_path)
   end
 
-  def perform
-    Async::Reactor.run do |task|
-      filewatcher.perform
-      yield task if block_given?
-      task.sleep(filewatcher.interval)
-      filewatcher.stop
+  def perform(expected = 0)
+    test_calls = []
+
+    filewatcher.watch(test_path)
+    filewatcher.callback do |path, event|
+      test_calls << [path, event]
     end
+
+    thread = Thread.new do
+      filewatcher.perform
+    end
+
+    Timeout.timeout(10) do
+      until test_calls.count > 0
+        FileUtils.touch(File.join(test_path, "test.txt"))
+        sleep(0.25)
+      end
+
+      sleep(0.25)
+
+      calls.clear
+
+      yield if block_given?
+
+      if expected > 0
+        until calls.count >= expected
+          sleep(0.25)
+        end
+      else
+        sleep(1)
+      end
+    end
+
+    filewatcher.stop
+    sleep 0.25
+    thread.kill; thread.join
   end
 
   describe "watching a pattern" do
@@ -57,7 +92,7 @@ RSpec.describe "using the filewatcher" do
 
       context "nothing changes" do
         it "does not call the callback" do
-          perform
+          perform(0)
 
           expect(calls).to be_empty
         end
@@ -65,7 +100,7 @@ RSpec.describe "using the filewatcher" do
 
       context "file matching the pattern is added" do
         it "calls the callback with expected arguments" do
-          perform do
+          perform(1) do
             FileUtils.touch(matching_path)
           end
 
@@ -143,11 +178,11 @@ RSpec.describe "using the filewatcher" do
     context "multiple callbacks are defined" do
       before do
         filewatcher.callback do |path, event|
-          calls << [:cb1, path, event]
+          calls << [path, event, :cb1]
         end
 
         filewatcher.callback do |path, event|
-          calls << [:cb2, path, event]
+          calls << [path, event, :cb2]
         end
       end
 
@@ -158,8 +193,8 @@ RSpec.describe "using the filewatcher" do
           end
 
           expect(calls).to eq([
-            [:cb1, matching_path, :added],
-            [:cb2, matching_path, :added]
+            [matching_path, :added, :cb1],
+            [matching_path, :added, :cb2]
           ])
         end
       end
@@ -474,7 +509,7 @@ RSpec.describe "using the filewatcher" do
       perform do |task|
         filewatcher.watch(pattern)
         # We still have to sleep to give the next tick a chance to complete.
-        task.sleep(filewatcher.interval)
+        sleep(filewatcher.interval)
         FileUtils.touch(matching_path)
       end
 
@@ -547,7 +582,7 @@ RSpec.describe "using the filewatcher" do
     }
 
     it "calls the callback once with the snapshot" do
-      perform do
+      perform(1) do
         FileUtils.touch(matching_path_1)
         FileUtils.touch(matching_path_2)
         FileUtils.touch(matching_path_3)
@@ -555,8 +590,6 @@ RSpec.describe "using the filewatcher" do
 
       expect(calls.count).to eq(1)
       expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Snapshot)
-
-      expect(calls[0].each_changed_path.to_a.count).to eq(3)
       expect(calls[0].each_changed_path.to_a).to include(matching_path_1)
       expect(calls[0].each_changed_path.to_a).to include(matching_path_2)
       expect(calls[0].each_changed_path.to_a).to include(matching_path_3)
