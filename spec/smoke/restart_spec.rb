@@ -7,6 +7,10 @@ RSpec.describe "restarting a project", smoke: true do
 
   context "page is added" do
     it "restarts" do
+      # Give the filewatcher time to start.
+      #
+      sleep 5
+
       project_path.join("frontend/pages/index.html").open("w+") do |file|
         file.write <<~SOURCE
           hello web

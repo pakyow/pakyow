@@ -15,6 +15,10 @@ RSpec.describe "respawning a project", smoke: true do
 
   context "gem is added" do
     it "respawns" do
+      # Give the filewatcher time to start.
+      #
+      sleep 5
+
       File.open(project_path.join("Gemfile"), "a") do |file|
         file.write("\ngem \"pakyow-markdown\"")
       end
