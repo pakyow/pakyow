@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Handle boot errors in services so that the environment or application is correctly rescued.**
+
   * `add` **Introduce `Pakyow::Filewatcher` for reacting to changes in the filesystem.**
 
     *Related links:*

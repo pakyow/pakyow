@@ -12,7 +12,6 @@ require_relative "../server"
 require_relative "../runnable/container"
 
 require_relative "running/ensure_booted"
-require_relative "running/error_handling"
 
 module Pakyow
   module Behavior
@@ -33,7 +32,6 @@ module Pakyow
           #
           service :environment do
             include EnsureBooted
-            include ErrorHandling
 
             class << self
               def prerun(options)
@@ -50,12 +48,10 @@ module Pakyow
             end
 
             def perform
-              handling do
-                ensure_booted do
-                  GC.start
+              ensure_booted do
+                GC.start
 
-                  Pakyow.container(:environment).run(parent: self, **options)
-                end
+                Pakyow.container(:environment).run(parent: self, **options)
               end
             end
           end
@@ -66,7 +62,6 @@ module Pakyow
           #
           service :server do
             include EnsureBooted
-            include ErrorHandling
 
             class << self
               def prerun(options)
@@ -108,15 +103,13 @@ module Pakyow
             end
 
             def perform
-              handling do
-                ensure_booted do
-                  Server.run(
-                    Pakyow,
-                    endpoint: options[:endpoint],
-                    protocol: options[:protocol],
-                    scheme: options[:config].server.scheme
-                  )
-                end
+              ensure_booted do
+                Server.run(
+                  Pakyow,
+                  endpoint: options[:endpoint],
+                  protocol: options[:protocol],
+                  scheme: options[:config].server.scheme
+                )
               end
             end
 

@@ -9,6 +9,10 @@ RSpec.describe "handling errors when running" do
     :single_service
   }
 
+  let(:formation) {
+    "supervisor.environment.server=1"
+  }
+
   context "an application fails to run" do
     before do
       Pakyow.app :test_1 do
@@ -24,19 +28,19 @@ RSpec.describe "handling errors when running" do
     it "rescues the failed application" do
       expect(Pakyow.app(:test_1)).to receive(:rescue!).and_call_original
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
     end
 
     it "continues running other applications" do
       expect(Pakyow.app(:test_2)).not_to receive(:rescue!)
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
     end
 
     it "does not rescue the environment" do
       expect(Pakyow).not_to receive(:rescue!)
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
     end
   end
 
@@ -58,7 +62,7 @@ RSpec.describe "handling errors when running" do
     it "rescues the environment" do
       expect(Pakyow).to receive(:rescue!).at_least(:once).and_call_original
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
 
       expect(Pakyow.error).to be_instance_of(Pakyow::EnvironmentError)
       expect(Pakyow.error.cause).to be(error)
@@ -77,7 +81,7 @@ RSpec.describe "handling errors when running" do
     it "rescues the environment" do
       expect(Pakyow).to receive(:rescue!).at_least(:once).and_call_original
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
 
       expect(Pakyow.error).to be_instance_of(Pakyow::EnvironmentError)
       expect(Pakyow.error.cause).to be(error)
@@ -100,7 +104,7 @@ RSpec.describe "handling errors when running" do
     it "rescues the environment" do
       expect(Pakyow).to receive(:rescue!).at_least(:once).and_call_original
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
 
       expect(Pakyow.error).to be_instance_of(Pakyow::EnvironmentError)
       expect(Pakyow.error.cause).to be(error)
@@ -121,7 +125,7 @@ RSpec.describe "handling errors when running" do
     xit "does not rescue the environment" do
       expect(Pakyow).to receive(:rescue!).at_least(:once).and_call_original
 
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
     end
   end
 
@@ -158,7 +162,7 @@ RSpec.describe "handling errors when running" do
     attr_accessor :handled
 
     it "handles" do
-      Pakyow.run
+      Pakyow.run(formation: Pakyow::Runnable::Formation.parse(formation))
 
       expect(@handled).to be(true)
     end
