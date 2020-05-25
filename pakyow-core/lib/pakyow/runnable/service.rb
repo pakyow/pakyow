@@ -211,6 +211,13 @@ module Pakyow
       end
 
       class << self
+        def run(**options)
+          instance = new(**options)
+          instance.run
+        ensure
+          instance.stop
+        end
+
         def prerun(options)
           # implemented by subclasses
         end
