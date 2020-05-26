@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Handle boot errors in services so that the environment or application is correctly rescued.**
+
+    *Related links:*
+    - [Pull Request #469][pr-469]
+
   * `add` **Introduce `Pakyow::Filewatcher` for reacting to changes in the filesystem.**
 
     *Related links:*
@@ -463,6 +468,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-469]: https://github.com/pakyow/pakyow/pull/469
 [pr-468]: https://github.com/pakyow/pakyow/pull/468
 [pr-467]: https://github.com/pakyow/pakyow/pull/467
 [pr-466]: https://github.com/pakyow/pakyow/pull/466
