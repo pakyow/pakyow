@@ -1,0 +1,18 @@
+  [31m›[0m [3;34mfoo[0m is not a known command
+
+[1mUSAGE[0m
+  $ pakyow [COMMAND]
+
+[1mCOMMANDS[0m
+  boot                   [33mBoot the project[0m
+  help                   [33mGet help for the command line interface[0m
+  info                   [33mShow details about the current project[0m
+  info:endpoints         [33mShow defined endpoints for an app[0m
+  irb                    [33mStart an interactive session[0m
+  prelaunch              [33mRun all phases of the prelaunch sequence[0m
+  prelaunch:build        [33mRun the build phase of the prelaunch sequence[0m
+  prelaunch:release      [33mRun the release phase of the prelaunch sequence[0m
+  prototype              [33mBoot the prototype[0m
+  test:pass_app          [33mTest passing the application[0m
+  test:pass_arg_opt_flg  [33mTest arguments + options[0m
+  test:pass_env          [33mTest passing the environment[0m

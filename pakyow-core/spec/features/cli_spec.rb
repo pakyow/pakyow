@@ -14,23 +14,10 @@ RSpec.describe "command line interface" do
   end
 
   shared_examples :help do
-    it "prints usage instructions" do
-      expect(output).to include("\e[1mUSAGE\e[0m\n")
-      expect(output).to include("  $ pakyow [COMMAND]\n")
-    end
-
-    it "prints known commands" do
-      expect(output).to include("\e[1mCOMMANDS\e[0m\n")
-      expect(output).to include("  boot                   \e[33mBoot the project\e[0m\n")
-      expect(output).to include("  help                   \e[33mGet help for the command line interface\e[0m\n")
-      expect(output).to include("  prelaunch              \e[33mRun all phases of the prelaunch sequence\e[0m\n")
-      expect(output).to include("  prelaunch:build        \e[33mRun the build phase of the prelaunch sequence\e[0m\n")
-      expect(output).to include("  prelaunch:release      \e[33mRun the release phase of the prelaunch sequence\e[0m\n")
-      expect(output).to include("  info                   \e[33mShow details about the current project\e[0m\n")
-      expect(output).to include("  irb                    \e[33mStart an interactive session\e[0m\n")
-      expect(output).to include("  test:pass_app          \e[33mTest passing the application\e[0m\n")
-      expect(output).to include("  test:pass_arg_opt_flg  \e[33mTest arguments + options\e[0m\n")
-      expect(output).to include("  test:pass_env          \e[33mTest passing the environment\e[0m\n")
+    it "prints the expected output" do
+      cached_expectation "cli/help/#{command}-#{argv}" do
+        output
+      end
     end
   end
 
@@ -49,26 +36,10 @@ RSpec.describe "command line interface" do
       "test:pass_arg_opt_flg"
     end
 
-    it "prints usage instructions" do
-      expect(output).to include("\e[1mUSAGE\e[0m\n")
-      expect(output).to include("  $ pakyow test:pass_arg_opt_flg [FOO] --baz=baz\n")
-    end
-
-    it "prints arguments" do
-      expect(output).to include("\e[1mARGUMENTS\e[0m\n")
-      expect(output).to include("  FOO  \e[33mFoo arg\e[0m\e[31m (required)\e[0m\n")
-      expect(output).to include("  BAR  \e[33mBar arg\e[0m\n")
-    end
-
-    it "prints options" do
-      expect(output).to include("\e[1mOPTIONS\e[0m\n")
-      expect(output).to include("  -b, --baz=baz  \e[33mBaz arg\e[0m\e[31m (required)\e[0m\n")
-      expect(output).to include("  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
-      expect(output).to include("  -q, --qux=qux  \e[33mQux arg (default: qux)\e[0m\n")
-    end
-
-    it "prints flags" do
-      expect(output).to include("      --meh      \e[33mMeh flag\e[0m\n")
+    it "prints the expected output" do
+      cached_expectation "cli/command-help/#{command}-#{argv}" do
+        output
+      end
     end
   end
 

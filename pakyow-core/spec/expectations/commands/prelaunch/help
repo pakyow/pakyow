@@ -1,0 +1,7 @@
+[34;1mRun all phases of the prelaunch sequence[0m
+
+[1mUSAGE[0m
+  $ pakyow prelaunch
+
+[1mOPTIONS[0m
+  -e, --env=env  [33mThe environment to run this command under[0m

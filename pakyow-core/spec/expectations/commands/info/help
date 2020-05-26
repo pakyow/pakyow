@@ -1,0 +1,7 @@
+[34;1mShow details about the current project[0m
+
+[1mUSAGE[0m
+  $ pakyow info
+
+[1mOPTIONS[0m
+  -e, --env=env  [33mThe environment to run this command under[0m

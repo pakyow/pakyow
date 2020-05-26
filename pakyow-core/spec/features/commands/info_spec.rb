@@ -18,13 +18,17 @@ RSpec.describe "cli: info" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mShow details about the current project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow info\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
+      cached_expectation "commands/info/help" do
+        run_command(command, help: true, project: true)
+      end
     end
   end
 
   describe "running" do
     it "shows project info" do
-      expect(run_command(command, project: true)).to eq("\e[1mLIBRARY VERSIONS\e[0m\n  Ruby          v#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL} (#{RUBY_PLATFORM})\n  Pakyow        v#{Pakyow::VERSION}\n\n\e[1mTestFoo::Application [:test_foo]\e[0m\n  Mount path    /\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n\n\e[1mTestBar::Application [:test_bar]\e[0m\n  Mount path    /bar\n  Frameworks    #{frameworks}\n  App root      #{File.expand_path("../../", command_dir) + "/pakyow-core"}\n")
+      cached_expectation "commands/info/project" do
+        run_command(command, project: true)
+      end
     end
 
     it "needs more specific tests"

@@ -57,7 +57,9 @@ RSpec.describe "cli: info:endpoints" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true)).to eq("\e[34;1mShow defined endpoints for an app\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow info:endpoints\n\n\e[1mOPTIONS\e[0m\n  -a, --app=app  \e[33mThe app to run the command on\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
+      cached_expectation "commands/info/endpoints/help" do
+        run_command(command, help: true, project: true)
+      end
     end
   end
 

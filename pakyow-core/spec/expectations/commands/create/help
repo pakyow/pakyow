@@ -1,0 +1,11 @@
+[34;1mCreate a new project[0m
+
+[1mUSAGE[0m
+  $ pakyow create [PATH]
+
+[1mARGUMENTS[0m
+  PATH  [33mWhere to create the project[0m[31m (required)[0m
+
+[1mOPTIONS[0m
+  -e, --env=env            [33mThe environment to run this command under[0m
+  -t, --template=template  [33mThe template to create the project from (default: default)[0m

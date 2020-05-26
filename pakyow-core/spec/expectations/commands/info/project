@@ -1,0 +1,13 @@
+[1mLIBRARY VERSIONS[0m
+  Ruby          v2.6.5-p114 (x86_64-darwin19)
+  Pakyow        v1.1.0
+
+[1mTestFoo::Application [:test_foo][0m
+  Mount path    /
+  Frameworks    []
+  App root      /Users/bryanp/Code/Pakyow/pakyow/pakyow-core
+
+[1mTestBar::Application [:test_bar][0m
+  Mount path    /bar
+  Frameworks    []
+  App root      /Users/bryanp/Code/Pakyow/pakyow/pakyow-core
