@@ -13,6 +13,15 @@ require "pakyow/data"
 require_relative "../../spec/helpers/command_helpers"
 require_relative "../../spec/helpers/database_helpers"
 require_relative "../../spec/helpers/mock_handler"
+require_relative "../../spec/helpers/cached_expectation"
+
+module ExpectationCache
+  extend RSpec::SharedContext
+
+  let(:expectations_cache_path) {
+    Pathname.new(File.expand_path("../expectations", __FILE__))
+  }
+end
 
 RSpec.configure do |config|
   if ENV.key?("CI")
@@ -126,6 +135,8 @@ RSpec.configure do |config|
   end
 
   config.include CommandHelpers
+  config.include CachedExpectation
+  config.include ExpectationCache
 end
 
 require_relative "../../spec/context/cli_context"

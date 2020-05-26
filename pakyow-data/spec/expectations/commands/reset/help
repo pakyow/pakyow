@@ -1,0 +1,10 @@
+[34;1mReset a database[0m
+
+[1mUSAGE[0m
+  $ pakyow db:reset
+
+[1mOPTIONS[0m
+  -e, --env=env                [33mThe environment to run this command under[0m
+      --adapter=adapter        [33mThe database adapter (default: sql)[0m
+  -c, --connection=connection  [33mThe database connection (default: default)[0m
+      --debug                  [33mShow low-level debugging information[0m
