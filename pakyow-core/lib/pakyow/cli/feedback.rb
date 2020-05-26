@@ -61,8 +61,6 @@ module Pakyow
           "--#{key}=#{key}"
         }.join(" ")
 
-        # text = String.new
-
         if describe
           puts Support::CLI.style.blue.bold(command.description)
         end
@@ -81,6 +79,8 @@ module Pakyow
 
           longest_length = command.arguments.keys.map(&:to_s).max_by(&:length).length
           command.arguments.each_pair do |key, argument|
+            next if argument[:description].nil? || argument[:description].empty?
+
             description = Support::CLI.style.yellow(argument[:description])
             description += Support::CLI.style.red(" (required)") if argument[:required]
             puts "  #{key.upcase}".ljust(longest_length + 4) + description
@@ -100,6 +100,8 @@ module Pakyow
 
           longest_length = options.keys.map(&:to_s).max_by(&:length).length
           options.each_pair do |key, option|
+            next if option[:description].nil? || option[:description].empty?
+
             description = option[:description]
 
             if !command.flag?(key) && default = option[:default]
