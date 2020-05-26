@@ -4,5 +4,6 @@
   $ pakyow info:endpoints
 
 [1mOPTIONS[0m
-  -a, --app=app  [33mThe app to run the command on[0m
-  -e, --env=env  [33mThe environment to run this command under[0m
+  -a, --app=app      [33mThe app to run the command on[0m
+  -e, --env=env      [33mThe environment to run this command under[0m
+      --debug        [33mShow low-level debugging information[0m

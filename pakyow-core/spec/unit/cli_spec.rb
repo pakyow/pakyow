@@ -89,7 +89,7 @@ RSpec.describe Pakyow::CLI do
       end
 
       it "does not raise the error" do
-        expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
+        allow(Pakyow).to receive(:load).and_raise(RuntimeError)
 
         expect {
           Pakyow::CLI.run([], output: output)
@@ -103,7 +103,7 @@ RSpec.describe Pakyow::CLI do
       end
 
       it "raises the error" do
-        expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
+        allow(Pakyow).to receive(:load).and_raise(RuntimeError)
 
         expect {
           Pakyow::CLI.run([], output: output)
@@ -127,7 +127,7 @@ RSpec.describe Pakyow::CLI do
 
       context "command fails" do
         before do
-          expect(Pakyow::CLI::Parsers::Global).to receive(:new).and_raise(RuntimeError)
+          allow(Pakyow).to receive(:load).and_raise(RuntimeError)
         end
 
         it "indicates failure" do

@@ -4,4 +4,5 @@
   $ pakyow info
 
 [1mOPTIONS[0m
-  -e, --env=env  [33mThe environment to run this command under[0m
+  -e, --env=env      [33mThe environment to run this command under[0m
+      --debug        [33mShow low-level debugging information[0m
