@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Hide CLI arguments, flags, and options without descriptions.**
+
+    *Related links:*
+    - [Pull Request #470][pr-470]
+
   * `fix` **Handle boot errors in services so that the environment or application is correctly rescued.**
 
     *Related links:*
@@ -468,6 +473,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-470]: https://github.com/pakyow/pakyow/pull/470
 [pr-469]: https://github.com/pakyow/pakyow/pull/469
 [pr-468]: https://github.com/pakyow/pakyow/pull/468
 [pr-467]: https://github.com/pakyow/pakyow/pull/467
