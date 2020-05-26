@@ -13,6 +13,15 @@ require "pakyow/assets/babel"
 
 require_relative "../../spec/helpers/command_helpers"
 require_relative "../../spec/helpers/mock_handler"
+require_relative "../../spec/helpers/cached_expectation"
+
+module ExpectationCache
+  extend RSpec::SharedContext
+
+  let(:expectations_cache_path) {
+    Pathname.new(File.expand_path("../expectations", __FILE__))
+  }
+end
 
 $latest_pakyow_js = "1.1.0-alpha.2"
 
@@ -45,6 +54,8 @@ RSpec.configure do |spec_config|
   end
 
   spec_config.include CommandHelpers
+  spec_config.include CachedExpectation
+  spec_config.include ExpectationCache
 end
 
 require_relative "../../spec/context/app_context"
