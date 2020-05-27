@@ -1,0 +1,15 @@
+[34;1mTest arguments + options[0m
+
+[1mUSAGE[0m
+  $ pakyow test:pass_arg_opt_flg [FOO] --baz=baz
+
+[1mARGUMENTS[0m
+  FOO  [33mFoo arg[0m[31m (required)[0m
+  BAR  [33mBar arg[0m
+
+[1mOPTIONS[0m
+  -e, --env=env      [33mThe environment to run this command under[0m
+  -b, --baz=baz      [33mBaz arg[0m[31m (required)[0m
+  -q, --qux=qux      [33mQux arg (default: qux)[0m
+      --meh          [33mMeh flag[0m
+      --debug        [33mShow low-level debugging information[0m

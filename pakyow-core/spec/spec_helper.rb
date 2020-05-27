@@ -13,10 +13,21 @@ require "pakyow/environment"
 require_relative "../../spec/helpers/mock_handler"
 require_relative "../../spec/helpers/output_helpers"
 require_relative "../../spec/helpers/command_helpers"
+require_relative "../../spec/helpers/cached_expectation"
+
+module ExpectationCache
+  extend RSpec::SharedContext
+
+  let(:expectations_cache_path) {
+    Pathname.new(File.expand_path("../expectations", __FILE__))
+  }
+end
 
 RSpec.configure do |config|
   config.include OutputHelpers
   config.include CommandHelpers
+  config.include CachedExpectation
+  config.include ExpectationCache
 end
 
 require_relative "../../spec/context/app_context"

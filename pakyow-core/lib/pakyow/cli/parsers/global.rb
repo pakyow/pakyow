@@ -45,6 +45,10 @@ module Pakyow
               opts.on("-h", "--help") do
                 options[:help] = true
               end
+
+              opts.on("--debug") do
+                options[:debug] = true
+              end
             end
           end
 

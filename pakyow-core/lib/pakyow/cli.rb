@@ -37,11 +37,11 @@ module Pakyow
 
         cli = new(feedback: Feedback.new(output))
 
-        cli.handling do
-          parser = Parsers::Global.new(argv)
-          command = parser.command
-          options = parser.options
+        parser = Parsers::Global.new(argv)
+        command = parser.command
+        options = parser.options
 
+        cli.handling(debug: options[:debug]) do
           case command
           when "prototype"
             options[:env] = :prototype
@@ -72,7 +72,7 @@ module Pakyow
       end
 
       private def run_cli_command(cli, command, options, argv)
-        cli.with(command) do |callable_command|
+        cli.with(command, debug: options[:debug]) do |callable_command|
           unless options[:help]
             parser = Parsers::Command.new(callable_command, argv)
             options = options.merge(parser.options)
@@ -99,17 +99,21 @@ module Pakyow
       @feedback = feedback
     end
 
-    def with(command)
-      handling(find_callable_command(command)) do |callable_command|
+    def with(command, debug: false)
+      handling(find_callable_command(command), debug: debug) do |callable_command|
         yield callable_command
       end
     end
 
-    def handling(command = nil)
+    def handling(command = nil, debug: false)
       yield command
     rescue StandardError => error
       if @feedback.tty?
         @feedback.error(error)
+
+        if debug
+          @feedback.backtrace(error)
+        end
 
         if command
           @feedback.usage(command, describe: false)
@@ -124,7 +128,7 @@ module Pakyow
     end
 
     def call(command, **options)
-      with(command) do |callable_command|
+      with(command, debug: options[:debug]) do |callable_command|
         # TODO: Once `Pakyow::Task` is removed, always pass `cli` as an option.
         #
         if callable_command.cli?

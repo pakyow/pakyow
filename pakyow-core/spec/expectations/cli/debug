@@ -1,0 +1,43 @@
+  [31m›[0m something went wrong
+
+    [37;41;1m ERROR                                                            debug_spec.rb [0m
+    
+      [31m›[0m[90m something went wrong[0m
+    
+    [30;47;1m DETAILS                                                                        [0m
+    
+    [90m  [3;34mRuntimeError[0m occurred on line [3;34m5[0m of [3;34mspec/features/cli/debug_spec.rb[0m[90m:
+      
+          5|›         raise RuntimeError, "something went wrong"[0m
+    
+    [30;47;1m BACKTRACE                                                                      [0m
+    
+    spec/features/cli/debug_spec.rb:5:in `block (4 levels) in <top (required)>'
+    lib/pakyow/operation.rb:50:in `block in perform'
+    lib/pakyow/operation.rb:49:in `perform'
+    lib/pakyow/command.rb:99:in `block (2 levels) in <class:Command>'
+    lib/pakyow/command.rb:218:in `call'
+    lib/pakyow/cli.rb:222:in `call_command'
+    lib/pakyow/cli.rb:148:in `block in call'
+    lib/pakyow/cli.rb:104:in `block in with'
+    lib/pakyow/cli.rb:109:in `handling'
+    lib/pakyow/cli.rb:103:in `with'
+    lib/pakyow/cli.rb:131:in `call'
+    lib/pakyow/cli.rb:85:in `block in run_cli_command'
+    lib/pakyow/cli.rb:104:in `block in with'
+    lib/pakyow/cli.rb:109:in `handling'
+    lib/pakyow/cli.rb:103:in `with'
+    lib/pakyow/cli.rb:75:in `run_cli_command'
+    lib/pakyow/cli.rb:60:in `block in run'
+    lib/pakyow/cli.rb:109:in `handling'
+    lib/pakyow/cli.rb:44:in `run'
+    spec/features/cli/debug_spec.rb:23:in `block (2 levels) in <top (required)>'
+    spec/features/cli/debug_spec.rb:29:in `block (3 levels) in <top (required)>'
+    spec/features/cli/debug_spec.rb:28:in `block (2 levels) in <top (required)>'
+
+[1mUSAGE[0m
+  $ pakyow failed
+
+[1mOPTIONS[0m
+  -e, --env=env      [33mThe environment to run this command under[0m
+      --debug        [33mShow low-level debugging information[0m

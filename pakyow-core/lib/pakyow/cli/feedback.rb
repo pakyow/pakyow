@@ -23,6 +23,17 @@ module Pakyow
         puts "  #{Support::CLI.style.red("›")} #{Error::CLIFormatter.format(error.to_s)}"
       end
 
+      def backtrace(error)
+        unless error.is_a?(Error)
+          error = Error.build(error)
+        end
+
+        puts
+        Error::CLIFormatter.new(error).to_s.each_line do |line|
+          puts "    #{line}"
+        end
+      end
+
       def warn(warning)
         puts "  #{Support::CLI.style.yellow("›")} #{warning}"
       end

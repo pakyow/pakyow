@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support a global `--debug` CLI flag.**
+
+    *Related links:*
+    - [Pull Request #471][pr-471]
+
   * `chg` **Hide CLI arguments, flags, and options without descriptions.**
 
     *Related links:*
@@ -473,6 +478,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-471]: https://github.com/pakyow/pakyow/pull/471
 [pr-470]: https://github.com/pakyow/pakyow/pull/470
 [pr-469]: https://github.com/pakyow/pakyow/pull/469
 [pr-468]: https://github.com/pakyow/pakyow/pull/468

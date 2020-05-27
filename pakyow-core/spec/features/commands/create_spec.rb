@@ -17,7 +17,9 @@ RSpec.describe "cli: create" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true)).to eq("\e[34;1mCreate a new project\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow create [PATH]\n\n\e[1mARGUMENTS\e[0m\n  PATH  \e[33mWhere to create the project\e[0m\e[31m (required)\e[0m\n\n\e[1mOPTIONS\e[0m\n  -e, --env=env            \e[33mThe environment to run this command under\e[0m\n  -t, --template=template  \e[33mThe template to create the project from (default: default)\e[0m\n")
+      cached_expectation "commands/create/help" do
+        run_command(command, help: true)
+      end
     end
   end
 

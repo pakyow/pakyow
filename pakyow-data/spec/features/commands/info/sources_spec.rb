@@ -44,13 +44,17 @@ RSpec.describe "cli: info:sources" do
 
   describe "help" do
     it "is helpful" do
-      expect(run_command(command, help: true, project: true, cleanup: false)).to eq("\e[34;1mShow defined sources for an app\e[0m\n\n\e[1mUSAGE\e[0m\n  $ pakyow info:sources\n\n\e[1mOPTIONS\e[0m\n  -a, --app=app  \e[33mThe app to run the command on\e[0m\n  -e, --env=env  \e[33mThe environment to run this command under\e[0m\n")
+      cached_expectation "commands/info/sources/help" do
+        run_command(command, help: true, project: true, cleanup: false)
+      end
     end
   end
 
   describe "running" do
     it "shows sources info" do
-      expect(run_command(command, project: true, cleanup: false)).to eq("\e[1m:comments\e[0m \e[34mpakyow/framework\e[0m\n  belongs_to :post\n\n  attribute :body, :string\n  attribute :created_at, :datetime\n  attribute :id, :bignum\n  attribute :post_id, :bignum\n  attribute :updated_at, :datetime\n\n\e[1m:posts\e[0m /posts.rb:23\n  has_many :comments\n\n  attribute :body, :string\n  attribute :created_at, :datetime\n  attribute :id, :bignum\n  attribute :title, :string\n  attribute :updated_at, :datetime\n\n")
+      cached_expectation "commands/info/sources/default" do
+        run_command(command, project: true, cleanup: false)
+      end
     end
 
     it "needs more specific tests"

@@ -1,0 +1,18 @@
+[1m:comments[0m [34mpakyow/framework[0m
+  belongs_to :post
+
+  attribute :body, :string
+  attribute :created_at, :datetime
+  attribute :id, :bignum
+  attribute :post_id, :bignum
+  attribute :updated_at, :datetime
+
+[1m:posts[0m /posts.rb:23
+  has_many :comments
+
+  attribute :body, :string
+  attribute :created_at, :datetime
+  attribute :id, :bignum
+  attribute :title, :string
+  attribute :updated_at, :datetime
+

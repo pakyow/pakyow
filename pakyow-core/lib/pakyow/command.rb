@@ -83,7 +83,10 @@ module Pakyow
 
       verify do
         optional :env
+        optional :debug
       end
+
+      flag :debug, "Show low-level debugging information"
 
       rake_args = [:values]
       rake_args = if dependent

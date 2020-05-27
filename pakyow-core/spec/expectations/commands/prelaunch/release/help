@@ -1,0 +1,8 @@
+[34;1mRun the release phase of the prelaunch sequence[0m
+
+[1mUSAGE[0m
+  $ pakyow prelaunch:release
+
+[1mOPTIONS[0m
+  -e, --env=env      [33mThe environment to run this command under[0m
+      --debug        [33mShow low-level debugging information[0m
