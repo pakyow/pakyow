@@ -84,9 +84,11 @@ module Pakyow
       verify do
         optional :env
         optional :debug
+        optional :config
       end
 
       flag :debug, "Show low-level debugging information"
+      option :config, "Path to the environment config file", default: Pathname.new(Pakyow.config.environment_path).relative_path_from(Pathname.new(Dir.pwd))
 
       rake_args = [:values]
       rake_args = if dependent

@@ -34,12 +34,16 @@ module Pakyow
 
           parse_with_unknown_args!(argv) do
             OptionParser.new do |opts|
-              opts.on("-eENV", "--env=ENV") do |e|
-                options[:env] = e
+              opts.on("-eENV", "--env=ENV") do |value|
+                options[:env] = value
               end
 
-              opts.on("-aAPP", "--app=APP") do |a|
-                options[:app] = a
+              opts.on("-aAPP", "--app=APP") do |value|
+                options[:app] = value
+              end
+
+              opts.on("-cCONFIG", "--config=CONFIG") do |value|
+                options[:config] = value
               end
 
               opts.on("-h", "--help") do

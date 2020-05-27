@@ -7,4 +7,5 @@
   -e, --env=env                [33mThe environment to run this command under[0m
       --adapter=adapter        [33mThe database adapter (default: sql)[0m
   -c, --connection=connection  [33mThe database connection (default: default)[0m
+  -c, --config=config          [33mPath to the environment config file (default: config/environment)[0m
       --debug                  [33mShow low-level debugging information[0m
