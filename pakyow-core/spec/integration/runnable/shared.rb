@@ -40,10 +40,10 @@ RSpec.shared_context "runnable container" do
   def run_container(container = self.container, timeout: nil, **options)
     final_options = run_options.merge(options)
 
-    @container_instance = container.new
+    @container_instance = container.new(**final_options)
 
     thread = Thread.new {
-      @container_instance.run(**final_options)
+      @container_instance.run
     }
 
     yield @container_instance if block_given?

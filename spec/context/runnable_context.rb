@@ -13,8 +13,8 @@ RSpec.shared_context "runnable" do
       # depend on actual running services.
       #
       Pakyow.containers.each do |container|
-        allow(container).to receive(:new).and_wrap_original do |original, *args, &block|
-          instance = original.call(*args, &block)
+        allow(container).to receive(:new).and_wrap_original do |original, *args, **kwargs, &block|
+          instance = container.allocate
 
           allow(container).to receive(:load_strategy).and_wrap_original do |method, *args|
             method.call(*args).tap do |strategy|
@@ -31,6 +31,7 @@ RSpec.shared_context "runnable" do
             end
           end
 
+          instance.send(:initialize, *args, **kwargs, &block)
           instance
         end
       end
@@ -44,12 +45,12 @@ RSpec.shared_context "runnable" do
       # Run each container as normal, but within a thread so that it doesn't block the tests.
       #
       Pakyow.containers.each do |container|
-        allow(container).to receive(:new).and_wrap_original do |original, *args, &block|
-          instance = original.call(*args, &block)
+        allow(container).to receive(:new).and_wrap_original do |original, *args, **kwargs, &block|
+          instance = original.call(*args, **kwargs, &block)
 
-          allow(instance).to receive(:run).and_wrap_original do |original, *args, **kwargs, &block|
+          allow(instance).to receive(:run).and_wrap_original do |original, &block|
             container_thread = Thread.new {
-              original.call(*args, **kwargs, &block)
+              original.call(&block)
             }
 
             @container_threads << container_thread
