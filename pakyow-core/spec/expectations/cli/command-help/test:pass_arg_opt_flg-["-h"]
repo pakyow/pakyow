@@ -8,8 +8,9 @@
   BAR  [33mBar arg[0m
 
 [1mOPTIONS[0m
-  -e, --env=env      [33mThe environment to run this command under[0m
-  -b, --baz=baz      [33mBaz arg[0m[31m (required)[0m
-  -q, --qux=qux      [33mQux arg (default: qux)[0m
-      --meh          [33mMeh flag[0m
-      --debug        [33mShow low-level debugging information[0m
+  -e, --env=env        [33mThe environment to run this command under[0m
+  -b, --baz=baz        [33mBaz arg[0m[31m (required)[0m
+  -q, --qux=qux        [33mQux arg (default: qux)[0m
+  -c, --config=config  [33mPath to the environment config file (default: ../../../config/environment)[0m
+      --meh            [33mMeh flag[0m
+      --debug          [33mShow low-level debugging information[0m

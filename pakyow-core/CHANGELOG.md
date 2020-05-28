@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support a global `--config` CLI option.**
+
+    *Related links:*
+    - [Pull Request #472][pr-472]
+
   * `add` **Support a global `--debug` CLI flag.**
 
     *Related links:*
@@ -478,6 +483,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-472]: https://github.com/pakyow/pakyow/pull/472
 [pr-471]: https://github.com/pakyow/pakyow/pull/471
 [pr-470]: https://github.com/pakyow/pakyow/pull/470
 [pr-469]: https://github.com/pakyow/pakyow/pull/469

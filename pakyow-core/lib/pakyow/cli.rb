@@ -41,6 +41,10 @@ module Pakyow
         command = parser.command
         options = parser.options
 
+        if options[:config]
+          Pakyow.config.environment_path = options[:config]
+        end
+
         cli.handling(debug: options[:debug]) do
           case command
           when "prototype"
