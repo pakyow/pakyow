@@ -264,7 +264,7 @@ module Pakyow
           @route.pipeline.call(self, connection)
         rescue => error
           connection.error = error
-          Pakyow.houston(error)
+
           raise error
         end
 
