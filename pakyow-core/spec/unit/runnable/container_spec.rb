@@ -69,6 +69,7 @@ RSpec.describe Pakyow::Runnable::Container do
 
   after do
     instance.stop
+  rescue
   end
 
   let(:strategy) {
@@ -76,7 +77,7 @@ RSpec.describe Pakyow::Runnable::Container do
   }
 
   let(:instance) {
-    @instance || container.new
+    @instance || container.new(**options)
   }
 
   let(:container) {
@@ -103,17 +104,17 @@ RSpec.describe Pakyow::Runnable::Container do
     }
 
     it "runs an instance with the given options, passing the block" do
-      allow(container).to receive(:new).and_wrap_original do |original, *args, &block|
-        @instance = original.call(*args, &block)
+      allow(container).to receive(:new).and_wrap_original do |original, *args, **kwargs, &block|
+        @instance = original.call(*args, **kwargs, &block)
 
-        expect(@instance).to receive(:run).with(**options) do |&block|
+        expect(@instance).to receive(:run) do |&block|
           expect(block.call).to eq("block")
         end
 
         @instance
       end
 
-      container.run(**options, &block)
+      container.run(&block)
     end
   end
 
@@ -167,7 +168,7 @@ RSpec.describe Pakyow::Runnable::Container do
         }
 
         it "runs the passed strategy" do
-          instance.run(**options)
+          instance.run
 
           expect(Pakyow::Runnable::Container::Strategies::Threaded).to have_received(:new)
         end
@@ -198,7 +199,7 @@ RSpec.describe Pakyow::Runnable::Container do
           }
 
           it "only runs once" do
-            instance.run(**options)
+            instance.run
 
             expect(strategy.calls).to eq([:run, :wait, :interrupt, :success])
           end
@@ -222,7 +223,7 @@ RSpec.describe Pakyow::Runnable::Container do
           }
 
           it "only runs once" do
-            instance.run(**options)
+            instance.run
 
             expect(strategy.calls).to eq([:run, :wait, :interrupt, :success])
           end
@@ -243,7 +244,7 @@ RSpec.describe Pakyow::Runnable::Container do
         context "container is top level" do
           it "does not raise" do
             expect {
-              instance.run(**options)
+              instance.run
             }.not_to raise_error
           end
         end
@@ -253,7 +254,7 @@ RSpec.describe Pakyow::Runnable::Container do
 
           it "raises" do
             expect {
-              instance.run(**options)
+              instance.run
             }.to raise_error(error)
           end
         end
@@ -267,7 +268,7 @@ RSpec.describe Pakyow::Runnable::Container do
         context "container is top level" do
           it "does not raise" do
             expect {
-              instance.run(**options)
+              instance.run
             }.not_to raise_error
           end
         end
@@ -277,7 +278,7 @@ RSpec.describe Pakyow::Runnable::Container do
 
           it "raises" do
             expect {
-              instance.run(**options)
+              instance.run
             }.to raise_error(error)
           end
         end
@@ -291,7 +292,7 @@ RSpec.describe Pakyow::Runnable::Container do
         context "container is top level" do
           it "raises" do
             expect {
-              instance.run(**options)
+              instance.run
             }.to raise_error(error)
           end
         end
@@ -301,7 +302,7 @@ RSpec.describe Pakyow::Runnable::Container do
 
           it "raises" do
             expect {
-              instance.run(**options)
+              instance.run
             }.to raise_error(error)
           end
         end
@@ -397,11 +398,15 @@ RSpec.describe Pakyow::Runnable::Container do
     end
 
     describe "running an unknown service" do
+      let(:options) {
+        { formation: Pakyow::Runnable::Formation.build { |formation| formation.run(:foo, 1) } }
+      }
+
       it "fails before loading the strategy" do
         expect(container).not_to receive(:load_strategy)
 
         expect {
-          instance.run(formation: Pakyow::Runnable::Formation.build { |formation| formation.run(:foo, 1) })
+          instance.run
         }.to raise_error(Pakyow::UnknownService, "`foo' is not a known service in the `test' container")
       end
     end
@@ -554,14 +559,14 @@ RSpec.describe Pakyow::Runnable::Container do
     it "requires the strategy" do
       expect(container).to receive(:require).with("pakyow/runnable/container/strategies/foo")
 
-      instance.run(**options)
+      instance.run
     end
 
     it "initializes the strategy" do
       expect(Pakyow::Runnable::Container::Strategies).to receive(:const_get).with("Foo").and_return(MockStrategy)
       expect(MockStrategy).to receive(:new).and_call_original
 
-      instance.run(**options)
+      instance.run
     end
 
     context "strategy fails to load" do
@@ -575,7 +580,7 @@ RSpec.describe Pakyow::Runnable::Container do
 
       it "raises an error" do
         expect {
-          instance.run(**options)
+          instance.run
         }.to raise_error(Pakyow::UnknownContainerStrategy, "`foo' is not a known container strategy") do |unknown_container_strategy_error|
           expect(unknown_container_strategy_error.cause).to be(error)
         end

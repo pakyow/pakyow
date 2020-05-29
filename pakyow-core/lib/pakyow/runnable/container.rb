@@ -123,14 +123,7 @@ module Pakyow
       # @api private
       attr_reader :strategy
 
-      def initialize
-        @running = false
-        @options = {}
-        @strategy = nil
-        @__preran = []
-      end
-
-      # Runs the container with options. Supported options include:
+      # Supported options include:
       #
       #   * strategy: `:forked`, `:threaded`, or `:hybrid` (defaults to `:hybrid`)
       #   * formation: the formation to run (defaults to `Pakyow::Runnable::Formation.all`)
@@ -138,14 +131,21 @@ module Pakyow
       #
       # All options are passed through to the `perform` method of each service run within this container.
       #
-      def run(**options)
+      def initialize(**options)
+        @running = nil
+        @options = {}
+        @strategy = nil
+        @__preran = []
+
+        @options = finalize_options(options)
+        validate_formation!
+        @strategy = self.class.load_strategy(options[:strategy])
+      end
+
+      # Runs the container.
+      #
+      def run
         unless running?
-          @options = finalize_options(options)
-
-          validate_formation!
-
-          @strategy = self.class.load_strategy(options[:strategy])
-
           prerun!
 
           @running = true
@@ -218,7 +218,11 @@ module Pakyow
       # Returns true if the container is running or has run successfully.
       #
       def success?
-        @strategy && @strategy.success?
+        if @running.nil?
+          nil
+        else
+          @strategy.success?
+        end
       end
 
       # Returns true if the container is running.
@@ -315,7 +319,7 @@ module Pakyow
 
       class << self
         def run(**options, &block)
-          new.run(**options, &block)
+          new(**options).run(&block)
         end
 
         # @api private
