@@ -312,7 +312,6 @@ module Pakyow
       end
 
       private def traverse_formation(formation)
-        return formation if formation.service?(:all)
         return formation if formation.container == self.class.object_name.name
         formation.formation(self.class.object_name.name) || formation
       end

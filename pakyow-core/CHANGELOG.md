@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Run all parent services when running a nested formation.**
+
   * `chg` **Initialize containers with options instead of passing through `run`.**
 
     *Related links:*

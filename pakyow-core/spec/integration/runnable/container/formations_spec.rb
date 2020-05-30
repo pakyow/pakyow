@@ -197,15 +197,27 @@ RSpec.describe "running a formation container" do
       let(:containers) {
         local = self
 
-        container.service :test2, restartable: false do
+        container.service :foo, restartable: false do
           define_method :perform do
             local.run_container(local.container2, timeout: 0.1, restartable: false, parent: self, **options)
+          end
+        end
+
+        container.service :bar, restartable: false do
+          define_method :perform do
+            local.write_to_parent("bar")
           end
         end
 
         container2.service :baz, restartable: false do
           define_method :perform do
             local.write_to_parent("baz")
+          end
+        end
+
+        container2.service :qux, restartable: false do
+          define_method :perform do
+            local.write_to_parent("qux")
           end
         end
       }
@@ -218,10 +230,12 @@ RSpec.describe "running a formation container" do
         Pakyow::Runnable::Formation.parse("test.test2.baz=3")
       }
 
-      it "runs the expected formation" do
+      it "runs the one nested service along with all services in the parent container" do
         run_container do
-          wait_for length: 9, timeout: 1 do |result|
+          wait_for length: 12, timeout: 1 do |result|
+            expect(result.scan(/bar/).count).to eq(1)
             expect(result.scan(/baz/).count).to eq(3)
+            expect(result.scan(/qux/).count).to eq(0)
           end
         end
       end
