@@ -2,6 +2,9 @@
 
   * `chg` **Run all parent services when running a nested formation.**
 
+    *Related links:*
+    - [Pull Request #474][pr-474]
+
   * `chg` **Initialize containers with options instead of passing through `run`.**
 
     *Related links:*
@@ -490,7 +493,8 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
-[pr-472]: https://github.com/pakyow/pakyow/pull/473
+[pr-474]: https://github.com/pakyow/pakyow/pull/474
+[pr-473]: https://github.com/pakyow/pakyow/pull/473
 [pr-472]: https://github.com/pakyow/pakyow/pull/472
 [pr-471]: https://github.com/pakyow/pakyow/pull/471
 [pr-470]: https://github.com/pakyow/pakyow/pull/470
