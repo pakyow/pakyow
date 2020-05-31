@@ -10,6 +10,8 @@ command :boot, boot: false do
 
   option :formation, "The formation to boot", default: -> { Pakyow.config.runnable.formation }
 
+  option :mounts, "The application(s) to mount", default: -> { Pakyow.config.mounts }
+
   flag :standalone, nil
   extend Pakyow::Support::Deprecatable
   deprecate :standalone
@@ -19,6 +21,13 @@ command :boot, boot: false do
   end
 
   action do
+    Pakyow.config.mounts = case @mounts
+    when String
+      @mounts.split(",").map(&:to_sym)
+    else
+      @mounts
+    end
+
     Pakyow.config.runnable.server.host = @host
     Pakyow.config.runnable.server.port = @port
 

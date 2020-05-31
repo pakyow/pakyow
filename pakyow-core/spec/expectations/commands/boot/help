@@ -8,5 +8,6 @@
       --host=host              [33mThe host the server runs on (default: localhost)[0m
   -p, --port=port              [33mThe port the server runs on (default: 3000)[0m
   -f, --formation=formation    [33mThe formation to boot (default: all)[0m
+  -m, --mounts=mounts          [33mThe application(s) to mount (default: all)[0m
   -c, --config=config          [33mPath to the environment config file (default: config/environment)[0m
       --debug                  [33mShow low-level debugging information[0m

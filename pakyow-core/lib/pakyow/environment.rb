@@ -129,6 +129,10 @@ module Pakyow
     File.join(config.root, "config/loader")
   end
 
+  setting :mounts do
+    :all
+  end
+
   defaults :test do
     setting :exit_on_boot_failure, false
   end
@@ -487,7 +491,7 @@ module Pakyow
           # Setup each app.
           #
           load_apps_common
-          @__mounts.keys.uniq.each do |app|
+          mounts.keys.uniq.each do |app|
             setups = @__setups[app]
             if setups.nil? || setups.empty?
               app.setup
@@ -498,7 +502,7 @@ module Pakyow
             end
           end
 
-          @apps = @__mounts.map { |app, options|
+          @apps = mounts.map { |app, options|
             app.new(mount_path: options[:path])
           }
 
@@ -612,12 +616,18 @@ module Pakyow
     end
     deprecate :load_apps
 
-    private
-
-    def load_apps_common
+    private def load_apps_common
       if File.exist?(File.join(config.root, "config/application.rb"))
         require File.join(config.root, "config/application")
       end
+    end
+
+    # Returns applications eligble to be mounted, based on `config.mounts`.
+    #
+    private def mounts
+      @__mounts.keep_if { |app|
+        config.mounts == :all || config.mounts.include?(app.config.name)
+      }
     end
   end
 

@@ -68,5 +68,17 @@ RSpec.describe "cli: boot" do
         run_command(command, formation: formation_string, project: true)
       end
     end
+
+    describe "booting with specific mounts" do
+      before do
+        allow(Pakyow).to receive(:run)
+      end
+
+      it "sets the mounts option on the environment" do
+        run_command(command, mounts: "foo,bar,baz", project: true)
+
+        expect(Pakyow.config.mounts).to eq([:foo, :bar, :baz])
+      end
+    end
   end
 end
