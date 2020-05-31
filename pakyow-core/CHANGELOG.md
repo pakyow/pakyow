@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Run async reactors with the default or given logger.**
+
+    *Related links:*
+    - [Pull Request #475][pr-475]
+
   * `chg` **Run all parent services when running a nested formation.**
 
     *Related links:*
@@ -493,6 +498,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-475]: https://github.com/pakyow/pakyow/pull/475
 [pr-474]: https://github.com/pakyow/pakyow/pull/474
 [pr-473]: https://github.com/pakyow/pakyow/pull/473
 [pr-472]: https://github.com/pakyow/pakyow/pull/472

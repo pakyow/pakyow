@@ -683,6 +683,37 @@ RSpec.describe Pakyow do
     end
   end
 
+  describe "::async" do
+    before do
+      allow(Async::Reactor).to receive(:run).and_return(async_context)
+      allow(Pakyow).to receive(:logger).and_return(default_logger)
+    end
+
+    let(:async_context) {
+      double(:async_context)
+    }
+
+    let(:default_logger) {
+      double(:default_logger)
+    }
+
+    it "returns an async reactor with the default logger" do
+      expect(Async::Reactor).to receive(:run).with(logger: default_logger).and_return(async_context)
+      expect(Pakyow.async).to be(async_context)
+    end
+
+    context "passed a logger" do
+      let(:logger) {
+        double(:logger)
+      }
+
+      it "returns an async reactor with the given logger" do
+        expect(Async::Reactor).to receive(:run).with(logger: logger).and_return(async_context)
+        expect(Pakyow.async(logger: logger)).to be(async_context)
+      end
+    end
+  end
+
   describe "default actions" do
     it "includes log" do
       expect(Pakyow.__pipeline.actions.find { |action| action.name == :log }).to_not be_nil

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "async"
-Async.logger.warn!
 
 require "pakyow/support/core_refinements/array/ensurable"
 
@@ -589,9 +588,8 @@ module Pakyow
       env == name.to_sym
     end
 
-    def async(&block)
-      # @__reactor.async(&block)
-      Async::Reactor.run(&block)
+    def async(logger: self.logger, &block)
+      Async::Reactor.run(logger: logger, &block)
     end
 
     def call(input)
