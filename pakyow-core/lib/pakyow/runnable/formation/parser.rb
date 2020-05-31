@@ -64,7 +64,7 @@ module Pakyow
               formation << nested_formation
 
               unless formation.service?(nested_formation.container)
-                formation.run(nested_formation.container)
+                formation.run(:all)
               end
             end
           end

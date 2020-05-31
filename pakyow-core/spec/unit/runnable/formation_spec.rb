@@ -123,9 +123,9 @@ RSpec.describe Pakyow::Runnable::Formation do
         expect(parsed.container).to eq(:supervisor)
       end
 
-      it "sets the services" do
+      it "runs all parent services" do
         service, count = parsed.each.to_a[0]
-        expect(service).to eq(:environment)
+        expect(service).to eq(:all)
         expect(count).to eq(nil)
       end
 
@@ -508,7 +508,7 @@ RSpec.describe Pakyow::Runnable::Formation do
 
     describe "the returned string" do
       it "is parsable" do
-        expect(described_class.parse(subject.to_s).to_s).to eq("toplevel.foo=1,toplevel.bar=2,toplevel.nested_1,toplevel.nested_2,nested_1.foo=3,nested_2.deeply_nested,deeply_nested.baz,deeply_nested.qux=5")
+        expect(described_class.parse(subject.to_s).to_s).to eq("toplevel.foo=1,toplevel.bar=2,toplevel.all,nested_1.foo=3,nested_2.all,deeply_nested.baz,deeply_nested.qux=5")
       end
     end
   end
