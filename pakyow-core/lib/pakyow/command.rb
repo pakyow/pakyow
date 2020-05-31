@@ -3,6 +3,7 @@
 require "rake"
 
 require "pakyow/support/class_state"
+require "pakyow/support/deep_freeze"
 require "pakyow/support/hookable"
 require "pakyow/support/makeable"
 
@@ -67,6 +68,9 @@ module Pakyow
     class_state :flags, default: {}, inheritable: true
     class_state :aliases, default: {}, inheritable: true
     class_state :__prelaunch_block, default: nil, inheritable: true
+
+    extend Support::DeepFreeze
+    insulate :rake
 
     after "make" do
       if cli?
