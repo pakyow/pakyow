@@ -27,7 +27,7 @@ module Pakyow
           command.call(**values)
         }
 
-        on "load" do
+        after "configure" do
           load_commands
         end
 
