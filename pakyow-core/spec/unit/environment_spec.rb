@@ -400,8 +400,8 @@ RSpec.describe Pakyow do
   describe "::setup" do
     it "calls hooks" do
       expect(Pakyow).to receive(:performing).with(:setup).and_call_original
+      expect(Pakyow).to receive(:performing).with(:load).and_call_original
       expect(Pakyow).to receive(:performing).with(:configure)
-      expect(Pakyow).to receive(:performing).with(:load)
       Pakyow.setup
     end
 

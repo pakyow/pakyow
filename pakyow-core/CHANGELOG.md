@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Configure the environment within its load phase.**
+
+    *Related links:*
+    - [Pull Request #477][pr-477]
+
   * `add` **Specify mounted applications through the boot command.**
 
     *Related links:*
@@ -503,6 +508,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-477]: https://github.com/pakyow/pakyow/pull/477
 [pr-476]: https://github.com/pakyow/pakyow/pull/476
 [pr-475]: https://github.com/pakyow/pakyow/pull/475
 [pr-474]: https://github.com/pakyow/pakyow/pull/474
