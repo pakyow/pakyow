@@ -38,6 +38,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "channel" do
+      it "has a default value" do
+        expect(Pakyow.config.channel).to eq(:default)
+      end
+    end
+
     describe "secrets" do
       it "has a default value" do
         expect(Pakyow.config.secrets).to eq(["pakyow"])

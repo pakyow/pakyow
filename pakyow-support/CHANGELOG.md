@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Support::Releasable`.**
+
+    *Related links:*
+    - [Pull Request #478][pr-478]
+
   * `chg` **Allow configurable instances to be extended.**
 
     *Related links:*
@@ -303,6 +308,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-456]: https://github.com/pakyow/pakyow/pull/456
 [pr-455]: https://github.com/pakyow/pakyow/pull/455
 [pr-452]: https://github.com/pakyow/pakyow/pull/452

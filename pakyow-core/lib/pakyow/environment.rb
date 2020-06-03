@@ -21,6 +21,7 @@ require_relative "behavior/erroring"
 require_relative "behavior/initializers"
 require_relative "behavior/input_parsing"
 require_relative "behavior/plugins"
+require_relative "behavior/release_channels"
 require_relative "behavior/rescuing"
 require_relative "behavior/silencing"
 require_relative "behavior/tasks"
@@ -109,6 +110,7 @@ module Pakyow
   setting :exit_on_boot_failure, false
   setting :timezone, :utc
   setting :secrets, ["pakyow"]
+  setting :channel, :default
 
   require "pakyow/connection"
   setting :connection_class, Connection
@@ -319,6 +321,7 @@ module Pakyow
   include Behavior::Initializers
   include Behavior::InputParsing
   include Behavior::Plugins
+  include Behavior::ReleaseChannels
   include Behavior::Rescuing
   include Behavior::Silencing
   include Behavior::Tasks
