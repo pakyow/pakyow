@@ -133,4 +133,22 @@ module Pakyow
       default: "`{strategy}' is not a known container strategy"
     }.freeze
   end
+
+  class UnknownReleaseChannel < Error
+    class_state :messages, default: {
+      default: "`{channel}' is not a known release channel"
+    }.freeze
+
+    def contextual_message
+      release_channels = @context.release_channels.each_with_object(String.new) do |channel, release_channels_message|
+        release_channels_message << "  - #{channel.inspect}\n"
+      end
+
+      <<~MESSAGE
+        Try using one of these available release channels:
+
+        #{release_channels}
+      MESSAGE
+    end
+  end
 end

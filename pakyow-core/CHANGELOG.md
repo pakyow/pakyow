@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce release channels for safely defining pre-production behavior.**
+
+    *Related links:*
+    - [Pull Request #478][pr-478]
+
   * `chg` **Configure the environment within its load phase.**
 
     *Related links:*
@@ -508,6 +513,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-477]: https://github.com/pakyow/pakyow/pull/477
 [pr-476]: https://github.com/pakyow/pakyow/pull/476
 [pr-475]: https://github.com/pakyow/pakyow/pull/475
