@@ -5,6 +5,7 @@
 
 [1mCOMMANDS[0m
   boot                   [33mBoot the project[0m
+  create:application     [33mCreate a new application in the current project[0m
   help                   [33mGet help for the command line interface[0m
   info                   [33mShow details about the current project[0m
   info:endpoints         [33mShow defined endpoints for an app[0m

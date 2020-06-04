@@ -21,6 +21,7 @@ require_relative "behavior/erroring"
 require_relative "behavior/generators"
 require_relative "behavior/initializers"
 require_relative "behavior/input_parsing"
+require_relative "behavior/multiapp"
 require_relative "behavior/plugins"
 require_relative "behavior/release_channels"
 require_relative "behavior/rescuing"
@@ -324,6 +325,7 @@ module Pakyow
   include Behavior::Generators
   include Behavior::Initializers
   include Behavior::InputParsing
+  include Behavior::Multiapp
   include Behavior::Plugins
   include Behavior::ReleaseChannels
   include Behavior::Rescuing
