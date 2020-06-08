@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support `extends` in definable objects.**
+
+    *Related links:*
+    - [Pull Request #479][pr-479]
+
   * `add` **Introduce `Pakyow::Support::Releasable`.**
 
     *Related links:*
@@ -308,6 +313,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-479]: https://github.com/pakyow/pakyow/pull/479
 [pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-456]: https://github.com/pakyow/pakyow/pull/456
 [pr-455]: https://github.com/pakyow/pakyow/pull/455
