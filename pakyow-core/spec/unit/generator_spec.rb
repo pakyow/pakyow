@@ -61,6 +61,28 @@ RSpec.describe Pakyow::Generator do
         expect($generate_hook_calls[1]).to be(:after)
       end
     end
+
+    describe "actions" do
+      before do
+        local = self
+
+        described_class.action do
+          local.calls << :action
+        end
+
+        allow_any_instance_of(Pakyow::Generator::File).to receive(:generate)
+      end
+
+      let(:calls) {
+        []
+      }
+
+      it "calls actions" do
+        instance.generate(destination_path, options)
+
+        expect(calls).to eq([:action])
+      end
+    end
   end
 
   describe "#run" do

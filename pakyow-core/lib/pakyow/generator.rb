@@ -27,6 +27,8 @@ module Pakyow
     include Support::Hookable
     events :generate
 
+    include Support::Pipeline
+
     attr_reader :files
 
     def initialize(source_path)
@@ -37,14 +39,24 @@ module Pakyow
       }
     end
 
-    def generate(destination_path, options)
-      @destination_path = destination_path
+    def generate(destination_path, **options)
+      call(destination_path, **options)
+    end
+
+    def run(command, message:)
+      Support::CLI::Runner.new(message: message).run(
+        "cd #{@destination_path} && #{command}"
+      )
+    end
+
+    private def call(destination_path, **options)
+      @destination_path = Pathname.new(destination_path)
 
       performing :generate do
-        FileUtils.mkdir_p(destination_path)
+        FileUtils.mkdir_p(@destination_path)
 
         @files.each do |file|
-          file.generate(destination_path, options)
+          file.generate(@destination_path, **options)
         end
       end
     end
