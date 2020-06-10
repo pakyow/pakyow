@@ -28,7 +28,7 @@ command :create, global: true do
     end
 
     generator.new(
-      File.expand_path("../../generators/project/#{template}", __FILE__)
+      File.expand_path("../../generatable/project/#{template}", __FILE__)
     ).generate(
       @path,
       project_name: project_name,
