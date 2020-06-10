@@ -32,9 +32,7 @@ module Pakyow
     attr_reader :files
 
     def initialize(source_path)
-      @files = Dir.glob(::File.join(source_path, "**/*")).reject { |path|
-        ::File.directory?(path)
-      }.map { |path|
+      @files = Pathname.new(source_path).glob("**/*").reject(&:directory?).map { |path|
         File.new(path, source_path, context: self)
       }
     end
@@ -75,13 +73,13 @@ module Pakyow
       attr_accessor :path, :logical_path, :content, :context
 
       def initialize(path, source_path, context: self)
-        @path, @context = path, context
+        @path, @context = Pathname.new(path), context
 
         @logical_path = Pathname.new(path).relative_path_from(
           Pathname.new(source_path)
-        ).to_s
+        )
 
-        @content = ::File.read(@path)
+        @content = @path.read
       end
 
       def generate(destination_path, options)
@@ -95,18 +93,18 @@ module Pakyow
 
         # Build the generated file path.
         #
-        destination_path_for_file = ::File.join(destination_path, @logical_path)
+        destination_path_for_file = Pathname.new(destination_path).join(@logical_path)
 
         # Make sure the directory exists.
         #
-        FileUtils.mkdir_p(::File.dirname(destination_path_for_file))
+        FileUtils.mkdir_p(destination_path_for_file.dirname)
 
         # Skip keep files.
         #
-        unless ::File.basename(@logical_path) == "keep"
+        unless @logical_path.basename.to_s == "keep"
           # Write the file.
           #
-          ::File.open(destination_path_for_file, "w+") do |file|
+          destination_path_for_file.open("w+") do |file|
             file.write(@content)
           end
         end
@@ -120,10 +118,11 @@ module Pakyow
       action :populate_path
 
       def process_erb(file)
-        if ::File.extname(file.logical_path) == ".erb"
+        if file.logical_path.extname == ".erb"
           file.logical_path = ::File.join(
             ::File.dirname(file.logical_path),
-            ::File.basename(file.logical_path, ".erb")
+          file.logical_path = file.logical_path.dirname.join(
+            file.logical_path.basename(".erb")
           )
 
           erb = if RUBY_VERSION.start_with?("2.5")
@@ -141,9 +140,11 @@ module Pakyow
       PATH_VAR_REGEX = /%([^}]*)%/
 
       def populate_path(file)
-        file.logical_path.scan(PATH_VAR_REGEX).each do |match|
-          file.logical_path.gsub!("%#{match[0]}%", file.context.send(match[0].to_sym))
+        logical_string_path = file.logical_path.to_s
+        logical_string_path.scan(PATH_VAR_REGEX).each do |match|
+          logical_string_path.gsub!("%#{match[0]}%", file.context.send(match[0].to_sym))
         end
+        file.logical_path = Pathname.new(logical_string_path)
       end
     end
   end

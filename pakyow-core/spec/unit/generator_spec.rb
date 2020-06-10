@@ -34,7 +34,7 @@ RSpec.describe Pakyow::Generator do
       expect(instance.files.length).to eq(5)
 
       instance.files.each do |file|
-        expect(file).to receive(:generate).with(destination_path, options)
+        expect(file).to receive(:generate).with(Pathname.new(destination_path), options)
       end
 
       instance.generate(destination_path, options)
