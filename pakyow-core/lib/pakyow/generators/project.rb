@@ -16,15 +16,11 @@ generator :project do
     end
   end
 
-  # TODO: Can this be private?
-  #
   private def generating_locally?
     local_pakyow = Gem::Specification.sort_by { |g| [g.name.downcase, g.version] }.group_by(&:name).detect { |k, _| k == "pakyow" }
     !local_pakyow || local_pakyow.last.last.version < Gem::Version.new(Pakyow::VERSION)
   end
 
-  # TODO: Can this be private?
-  #
   private def generate_secret
     SecureRandom.hex(64)
   end

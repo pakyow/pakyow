@@ -5,6 +5,8 @@
     *Related links:*
     - [Pull Request #483][pr-483]
 
+  * `fix` **Resolve several issues with shared context in generators.**
+
   * `chg` **Turn generators into pipelines.**
 
   * `chg` **Define generators as state on the environment.**
