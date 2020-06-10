@@ -5,6 +5,8 @@
     *Related links:*
     - [Pull Request #483][pr-483]
 
+  * `chg` **Define generators as state on the environment.**
+
   * `chg` **Load commands after load instead of after configure.**
 
     *Related links:*

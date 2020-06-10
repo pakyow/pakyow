@@ -1,27 +1,17 @@
 # frozen_string_literal: true
 
-require_relative "../../generator"
-require_relative "../project"
+generator :project, :example, extends: :project do
+  def initialize(source_path)
+    @default_generator = Generators::Project.new(
+      ::File.expand_path("../../../generators/project/default", __FILE__)
+    )
 
-module Pakyow
-  # @api private
-  module Generators
-    class Project
-      class Example < Generator
-        def initialize(source_path)
-          @default_generator = Project.new(
-            ::File.expand_path("../default", __FILE__)
-          )
+    super
+  end
 
-          super
-        end
+  def generate(*args)
+    @default_generator.generate(*args)
 
-        def generate(*args)
-          @default_generator.generate(*args)
-
-          super
-        end
-      end
-    end
+    super
   end
 end

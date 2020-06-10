@@ -18,6 +18,7 @@ require_relative "behavior/commands"
 require_relative "behavior/deprecations"
 require_relative "behavior/dispatching"
 require_relative "behavior/erroring"
+require_relative "behavior/generators"
 require_relative "behavior/initializers"
 require_relative "behavior/input_parsing"
 require_relative "behavior/plugins"
@@ -318,6 +319,7 @@ module Pakyow
   include Behavior::Commands
   include Behavior::Dispatching
   include Behavior::Erroring
+  include Behavior::Generators
   include Behavior::Initializers
   include Behavior::InputParsing
   include Behavior::Plugins

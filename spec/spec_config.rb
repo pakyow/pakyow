@@ -178,6 +178,10 @@ RSpec.configure do |config|
       remove_constants(["Commands"], Pakyow, false)
     end
 
+    if defined?(Pakyow::Generators)
+      remove_constants(["Generators"], Pakyow, false)
+    end
+
     Thread.current[:pakyow_logger] = nil
 
     if ENV["RSS"]
