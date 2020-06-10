@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Load commands after load instead of after configure.**
+
+    *Related links:*
+    - [Pull Request #480][pr-480]
+
   * `add` **Introduce release channels for safely defining pre-production behavior.**
 
     *Related links:*
@@ -513,6 +518,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-480]: https://github.com/pakyow/pakyow/pull/480
 [pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-477]: https://github.com/pakyow/pakyow/pull/477
 [pr-476]: https://github.com/pakyow/pakyow/pull/476
