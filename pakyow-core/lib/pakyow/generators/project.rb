@@ -4,6 +4,8 @@ require "bundler"
 require "securerandom"
 
 generator :project do
+  source_path File.expand_path("../../generatable/project/default", __FILE__)
+
   action :bundle do
     Bundler.with_original_env do
       run "bundle install --binstubs", message: "Bundling dependencies"

@@ -5,6 +5,8 @@
     *Related links:*
     - [Pull Request #483][pr-483]
 
+  * `chg` **Allow generators to define their own source paths.**
+
   * `fix` **Resolve several issues with shared context in generators.**
 
   * `chg` **Turn generators into pipelines.**

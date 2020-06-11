@@ -4,6 +4,7 @@ require "fileutils"
 require "pathname"
 
 require "pakyow/support/cli/runner"
+require "pakyow/support/class_state"
 require "pakyow/support/hookable"
 
 require "pakyow/support/pipeline"
@@ -17,6 +18,9 @@ module Pakyow
 
     include Helpers
 
+    extend Support::ClassState
+    class_state :__source_paths, default: [], inheritable: true
+
     include Support::Hookable
     events :generate
 
@@ -24,16 +28,32 @@ module Pakyow
 
     attr_reader :files
 
-    def initialize(source_path)
-      source_path = Pathname.new(source_path)
+    # Define a source path for the generator.
+    #
+    def self.source_path(source_path)
+      (__source_paths << Pathname.new(source_path)).uniq!
+    end
 
-      @files = source_path.glob("**/*").reject(&:directory?).map { |path|
-        File.new(path, source_path)
+    # Run the generator with its defined source paths.
+    #
+    def self.generate(destination_path, **options)
+      new(*__source_paths).generate(destination_path, **options)
+    end
+
+    def initialize(*source_paths)
+      @files = source_paths.flat_map { |source_path|
+        source_path = Pathname.new(source_path)
+
+        files = source_path.glob("**/*").reject(&:directory?).map { |path|
+          File.new(path, source_path)
+        }
+
+        if source_path.file?
+          files << File.new(source_path, source_path.dirname)
+        end
+
+        files
       }
-
-      if source_path.file?
-        @files << File.new(source_path, source_path.dirname)
-      end
     end
 
     def call(destination_path, **options)

@@ -27,13 +27,7 @@ command :create, global: true do
       Pakyow.generator(:project, template.to_sym)
     end
 
-    generator.new(
-      File.expand_path("../../generatable/project/#{template}", __FILE__)
-    ).generate(
-      @path,
-      project_name: project_name,
-      human_project_name: human_project_name
-    )
+    generator.generate(@path, project_name: project_name, human_project_name: human_project_name)
 
     require "pakyow/support/cli/style"
     @cli.feedback.puts <<~OUTPUT
