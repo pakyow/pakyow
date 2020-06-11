@@ -47,8 +47,12 @@ module Pakyow
 
         # Define an object.
         #
-        def define(*namespace, priority: :default, **opts, &block)
-          if @object.name.nil?
+        def define(*namespace, priority: :default, extends: @object, **opts, &block)
+          unless object_to_extend = resolve_to_constant(extends)
+            raise NameError, "cannot extend unknown object: #{extends.inspect}"
+          end
+
+          if object_to_extend.name.nil?
             opts[:set_const] = false
           end
 
@@ -63,8 +67,19 @@ module Pakyow
 
             found
           else
-            defined = @object.make(*object_type_namespace, *namespace, object_name, **opts, &block)
+            defined = object_to_extend.make(*object_type_namespace, *namespace, object_name, **opts, &block)
             register(object_name, defined, priority: priority)
+          end
+        end
+
+        private def resolve_to_constant(value)
+          case value
+          when Symbol
+            find(value)
+          when Array
+            find(*value)
+          else
+            value
           end
         end
 
