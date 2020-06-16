@@ -17,8 +17,6 @@ command :create, global: true do
     project_name.gsub!("  ", " ")
     project_name.gsub!(" ", "_")
 
-    human_project_name = Pakyow::Support.inflector.humanize(project_name)
-
     template = @template.downcase.strip
     generator = case template
     when "default"
@@ -27,7 +25,7 @@ command :create, global: true do
       Pakyow.generator(:project, template.to_sym)
     end
 
-    generator.generate(@path, project_name: project_name, human_project_name: human_project_name)
+    generator.generate(@path, name: project_name)
 
     require "pakyow/support/cli/style"
     @cli.feedback.puts <<~OUTPUT

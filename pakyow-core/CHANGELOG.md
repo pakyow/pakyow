@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Generate projects and applications with separate generators.**
+
+    *Related links:*
+    - [Pull Request #484][pr-484]
+
   * `fix` **Prevent deep freeze error when running formations.**
 
     *Related links:*
@@ -558,6 +563,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-484]: https://github.com/pakyow/pakyow/pull/484
 [pr-488]: https://github.com/pakyow/pakyow/pull/488
 [pr-487]: https://github.com/pakyow/pakyow/pull/487
 [pr-486]: https://github.com/pakyow/pakyow/pull/486
