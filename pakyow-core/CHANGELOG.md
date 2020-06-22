@@ -5,6 +5,26 @@
     *Related links:*
     - [Pull Request #483][pr-483]
 
+  * `chg` **Allow generators to define their own source paths.**
+
+    *Related links:*
+    - [Pull Request #481][pr-481]
+
+  * `fix` **Resolve several issues with shared context in generators.**
+
+    *Related links:*
+    - [Pull Request #481][pr-481]
+
+  * `chg` **Turn generators into operations.**
+
+    *Related links:*
+    - [Pull Request #481][pr-481]
+
+  * `chg` **Define generators as state on the environment.**
+
+    *Related links:*
+    - [Pull Request #481][pr-481]
+
   * `chg` **Load commands after load instead of after configure.**
 
     *Related links:*
@@ -524,6 +544,7 @@
     - [Pull Request #338][pr-338]
 
 [pr-483]: https://github.com/pakyow/pakyow/pull/483
+[pr-481]: https://github.com/pakyow/pakyow/pull/481
 [pr-480]: https://github.com/pakyow/pakyow/pull/480
 [pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-477]: https://github.com/pakyow/pakyow/pull/477

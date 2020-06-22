@@ -22,22 +22,12 @@ command :create, global: true do
     template = @template.downcase.strip
     generator = case template
     when "default"
-      require_relative "../generators/project"
-      Pakyow::Generators::Project.new(
-        File.expand_path("../../generators/project/default", __FILE__)
-      )
+      Pakyow.generator(:project)
     else
-      require_relative "../generators/project/#{template}"
-      Pakyow::Generators::Project.const_get(Pakyow::Support.inflector.classify(template)).new(
-        File.expand_path("../../generators/project/#{template}", __FILE__)
-      )
+      Pakyow.generator(:project, template.to_sym)
     end
 
-    generator.generate(
-      @path,
-      project_name: project_name,
-      human_project_name: human_project_name
-    )
+    generator.generate(@path, project_name: project_name, human_project_name: human_project_name)
 
     require "pakyow/support/cli/style"
     @cli.feedback.puts <<~OUTPUT

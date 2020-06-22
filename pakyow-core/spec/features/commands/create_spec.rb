@@ -1,6 +1,4 @@
 require "pakyow/cli"
-require "pakyow/generator"
-require "pakyow/generators/project"
 
 require_relative "./create/shared/default_structure"
 
@@ -9,6 +7,8 @@ RSpec.describe "cli: create" do
 
   before do
     allow(Bundler).to receive(:with_original_env)
+
+    Pakyow.load(env: :test)
   end
 
   let :command do
