@@ -45,9 +45,9 @@ module Pakyow
       end
     end
 
-    def perform
+    def perform(*args, **kwargs)
       handling do
-        call(self)
+        call(*args, **kwargs); self
       end
     end
 

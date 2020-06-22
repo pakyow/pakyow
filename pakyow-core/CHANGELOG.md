@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Pass arguments through operations.**
+
+    *Related links:*
+    - [Pull Request #483][pr-483]
+
   * `chg` **Load commands after load instead of after configure.**
 
     *Related links:*
@@ -518,6 +523,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-483]: https://github.com/pakyow/pakyow/pull/483
 [pr-480]: https://github.com/pakyow/pakyow/pull/480
 [pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-477]: https://github.com/pakyow/pakyow/pull/477
