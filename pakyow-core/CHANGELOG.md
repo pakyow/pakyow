@@ -15,7 +15,7 @@
     *Related links:*
     - [Pull Request #481][pr-481]
 
-  * `chg` **Turn generators into pipelines.**
+  * `chg` **Turn generators into operations.**
 
     *Related links:*
     - [Pull Request #481][pr-481]

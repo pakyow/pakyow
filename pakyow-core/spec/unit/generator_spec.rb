@@ -12,17 +12,21 @@ RSpec.describe Pakyow::Generator do
   end
 
   let :generator_class do
-    described_class
+    Class.new(described_class)
   end
 
   let :instance do
-    generator_class.new(source_path)
+    generator_class.new(source_path, **options)
   end
+
+  let(:options) {
+    {}
+  }
 
   describe "#initialize" do
     it "initializes with a path" do
       expect {
-        described_class.new(source_path)
+        generator_class.new(source_path)
       }.to_not raise_error
     end
   end
@@ -38,7 +42,7 @@ RSpec.describe Pakyow::Generator do
       expect(instance.files.length).to eq(5)
 
       instance.files.each do |file|
-        expect(file).to receive(:generate).with(Pathname.new(destination_path), context: instance_of(described_class))
+        expect(file).to receive(:generate).with(Pathname.new(destination_path), context: instance_of(generator_class))
       end
 
       instance.generate(destination_path, options)
@@ -48,11 +52,11 @@ RSpec.describe Pakyow::Generator do
       before do
         $generate_hook_calls = []
 
-        described_class.before "generate" do
+        generator_class.before "generate" do
           $generate_hook_calls << :before
         end
 
-        described_class.after "generate" do
+        generator_class.after "generate" do
           $generate_hook_calls << :after
         end
 
@@ -70,7 +74,7 @@ RSpec.describe Pakyow::Generator do
       before do
         local = self
 
-        described_class.action do
+        generator_class.action do
           local.calls << :action
         end
 
@@ -94,16 +98,34 @@ RSpec.describe Pakyow::Generator do
       instance_double(Pakyow::Support::CLI::Runner)
     end
 
-    it "runs the command in context of the destination" do
-      instance.instance_variable_set(:@destination_path, "dest")
+    before do
+      generator_class.action do
+        run "ls", message: "foo"
+      end
 
+      allow_any_instance_of(Pakyow::Generator::File).to receive(:generate)
+    end
+
+    it "runs the command in context of the destination" do
       expect(Pakyow::Support::CLI::Runner).to receive(:new).with(message: "foo").and_return(
         runner_double
       )
 
-      expect(runner_double).to receive(:run).with("cd dest && ls")
+      expect(runner_double).to receive(:run).with("cd #{destination_path} && ls")
 
-      instance.run("ls", message: "foo")
+      instance.generate(destination_path)
+    end
+
+    context "run is called out of context of perform" do
+      it "runs the command in context of the current directory" do
+        expect(Pakyow::Support::CLI::Runner).to receive(:new).with(message: "foo").and_return(
+          runner_double
+        )
+
+        expect(runner_double).to receive(:run).with("cd . && ls")
+
+        instance.run("ls", message: "foo")
+      end
     end
   end
 
@@ -119,16 +141,12 @@ RSpec.describe Pakyow::Generator do
     before do
       cleanup
 
-      instance.generate(destination_path, **options)
+      instance.generate(destination_path)
     end
 
     after do
       cleanup
     end
-
-    let(:options) {
-      {}
-    }
 
     def cleanup
       if File.exist?(destination_path)

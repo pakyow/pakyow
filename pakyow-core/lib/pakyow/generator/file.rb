@@ -22,7 +22,7 @@ module Pakyow
         )
       end
 
-      def generate(destination_path, context: self)
+      def generate(destination, context: self)
         generatable_path = Processor.reduce_path(populate_path(@logical_path, context: context))
 
         # Process the file.
@@ -31,18 +31,18 @@ module Pakyow
 
         # Build the generated file path.
         #
-        destination_path_for_file = Pathname.new(destination_path).join(generatable_path)
+        destination_for_file = Pathname.new(destination).join(generatable_path)
 
         # Make sure the directory exists.
         #
-        FileUtils.mkdir_p(destination_path_for_file.dirname)
+        FileUtils.mkdir_p(destination_for_file.dirname)
 
         # Skip keep files.
         #
         unless generatable_path.basename.to_s == "keep"
           # Write the file.
           #
-          destination_path_for_file.open("w+") do |file|
+          destination_for_file.open("w+") do |file|
             file.write(processed_content)
           end
         end

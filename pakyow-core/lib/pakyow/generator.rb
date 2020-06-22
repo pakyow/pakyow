@@ -7,12 +7,12 @@ require "pakyow/support/cli/runner"
 require "pakyow/support/class_state"
 require "pakyow/support/hookable"
 
-require "pakyow/support/pipeline"
+require_relative "operation"
 
 module Pakyow
   # Base class for generators.
   #
-  class Generator
+  class Generator < Operation
     require_relative "generator/file"
     require_relative "generator/helpers"
 
@@ -24,8 +24,6 @@ module Pakyow
     include Support::Hookable
     events :generate
 
-    include Support::Pipeline
-
     attr_reader :files
 
     # Define a source path for the generator.
@@ -36,11 +34,11 @@ module Pakyow
 
     # Run the generator with its defined source paths.
     #
-    def self.generate(destination_path, **options)
-      new(*__source_paths).generate(destination_path, **options)
+    def self.generate(destination, **options)
+      new(*__source_paths, **options).generate(destination)
     end
 
-    def initialize(*source_paths)
+    def initialize(*source_paths, **options)
       @files = source_paths.flat_map { |source_path|
         source_path = Pathname.new(source_path)
 
@@ -54,36 +52,38 @@ module Pakyow
 
         files
       }
+
+      super(**options)
     end
 
-    def call(destination_path, **options)
-      dup._generate(destination_path, **options)
+    def perform(destination, *, **)
+      destination = Pathname.new(destination)
+      Thread.current[threadlocal_key(:destination)] = destination
+
+      performing :generate do
+        FileUtils.mkdir_p(destination)
+
+        @files.each do |file|
+          file.generate(destination, context: self)
+        end
+
+        super
+      ensure
+        Thread.current[threadlocal_key(:destination)] = nil
+      end
     end
-    alias generate call
+    alias generate perform
 
     def run(command, message:)
+      destination = Thread.current[threadlocal_key(:destination)] || "."
+
       Support::CLI::Runner.new(message: message).run(
-        "cd #{@destination_path} && #{command}"
+        "cd #{destination} && #{command}"
       )
     end
 
-    # @api private
-    def _generate(destination_path, **options)
-      @destination_path = Pathname.new(destination_path)
-
-      options.each do |key, value|
-        instance_variable_set(:"@#{key}", value)
-      end
-
-      performing :generate do
-        FileUtils.mkdir_p(@destination_path)
-
-        @files.each do |file|
-          file.generate(@destination_path, context: self)
-        end
-
-        @__pipeline.call(self, destination_path, **options)
-      end
+    private def threadlocal_key(name)
+      :"__pw_#{object_id}_#{name}"
     end
   end
 end
