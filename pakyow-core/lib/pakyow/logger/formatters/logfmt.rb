@@ -19,7 +19,8 @@ module Pakyow
         UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
 
         def serialize(message)
-          first = true
+          string = String.new
+
           message.each_pair do |key, value|
             value = case value
             when Array
@@ -32,17 +33,10 @@ module Pakyow
               value = value.dump
             end
 
-            unless first
-              @output.call(" ")
-            end
-
-            @output.call(key)
-            @output.call("=")
-            @output.call(value)
-            first = false
+            string << key.to_s << "=" << value << " "
           end
 
-          @output.call("\n")
+          @output.call(string.rstrip << "\n")
         end
       end
     end
