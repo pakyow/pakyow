@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Don't sync logger destinations in production.**
+
+    *Related links:*
+    - [Pull Request #487][pr-487]
+
   * `chg` **Output logfmt events in a single write.**
 
     *Related links:*
@@ -548,6 +553,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-487]: https://github.com/pakyow/pakyow/pull/487
 [pr-486]: https://github.com/pakyow/pakyow/pull/486
 [pr-483]: https://github.com/pakyow/pakyow/pull/483
 [pr-481]: https://github.com/pakyow/pakyow/pull/481
