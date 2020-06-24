@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Only yield from ensure boot when the environment has booted successfully.**
+
+    *Related links:*
+    - [Pull Request #485][pr-485]
+
   * `chg` **Pass arguments through operations.**
 
     *Related links:*

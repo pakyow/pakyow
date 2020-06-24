@@ -18,9 +18,13 @@ module Pakyow
         # Call from a service to ensure that the environment has booted. Yields when booted.
         #
         private def ensure_booted
-          unless Pakyow.booted? || Pakyow.rescued?
+          if Pakyow.booted?
+            yield unless Pakyow.rescued?
+          elsif !Pakyow.rescued?
             handling do
               Pakyow.boot(env: options[:env])
+
+              yield
 
               Pakyow.deprecator.ignore do
                 if Pakyow.config.freeze_on_boot
@@ -29,8 +33,6 @@ module Pakyow
               end
             end
           end
-        ensure
-          yield
         end
       end
     end
