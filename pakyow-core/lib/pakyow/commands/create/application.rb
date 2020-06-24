@@ -10,6 +10,8 @@ command :create, :application do
   option :template, "The template to create the application from", default: "default"
 
   action :relocate_default_application do
+    next if default_app.nil?
+
     if default_application_config_file_path.exist?
       verify_path_within_root!(default_multiapp_application_config_path)
       FileUtils.mkdir_p(default_multiapp_application_config_path)
@@ -29,6 +31,19 @@ command :create, :application do
       relocate(default_application_backend_path, default_multiapp_application_backend_path)
       FileUtils.rm_r(default_application_backend_path)
     end
+  end
+
+  action :generate_application do
+    template = @template.downcase.strip
+    generator = case template
+    when "default"
+      Pakyow.generator(:application)
+    else
+      Pakyow.generator(:application, template.to_sym)
+    end
+
+    generatable_name = Generator::generatable_name(@name)
+    generator.generate(multiapp_path.join(generatable_name), name: generatable_name)
   end
 
   private def root_path
