@@ -155,12 +155,6 @@ RSpec.describe "environment.server service" do
         instance.perform
       end
 
-      it "does not deep freeze the environment" do
-        expect(Pakyow).not_to receive(:deep_freeze)
-
-        instance.perform
-      end
-
       it "runs the server" do
         expect(Pakyow::Server).to receive(:run).with(
           Pakyow,
@@ -168,6 +162,18 @@ RSpec.describe "environment.server service" do
           protocol: protocol,
           scheme: scheme
         )
+
+        instance.perform
+      end
+    end
+
+    context "environment is already frozen" do
+      before do
+        allow(Pakyow).to receive(:frozen?).and_return(true)
+      end
+
+      it "does not deep freeze the environment" do
+        expect(Pakyow).not_to receive(:deep_freeze)
 
         instance.perform
       end

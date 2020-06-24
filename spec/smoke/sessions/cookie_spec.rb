@@ -7,12 +7,12 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
 
   let(:get_response) {
     HTTP.get("http://localhost:#{port}/session/get", headers: {
-      "cookie" => "pakyow.session=#{extract_session(set_response)}"
+      "cookie" => "smoke_test.session=#{extract_session(set_response)}"
     })
   }
 
   def extract_session(response)
-    response.headers["Set-Cookie"].split("pakyow.session=", 2)[1].split(";", 2)[0]
+    response.headers["Set-Cookie"].split("smoke_test.session=", 2)[1].split(";", 2)[0]
   end
 
   describe "setting and getting a session" do
@@ -39,7 +39,7 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
     end
 
     it "sets the session" do
-      expect(set_response.headers["Set-Cookie"]).to start_with("pakyow.session=")
+      expect(set_response.headers["Set-Cookie"]).to start_with("smoke_test.session=")
       expect(set_response.headers["Set-Cookie"]).to end_with("; path=/; HttpOnly")
     end
 
@@ -82,13 +82,13 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
 
     let(:chg_response) {
       HTTP.put("http://localhost:#{port}/session/chg", headers: {
-        "cookie" => "pakyow.session=#{extract_session(set_response)}"
+        "cookie" => "smoke_test.session=#{extract_session(set_response)}"
       })
     }
 
     let(:get_response_2) {
       HTTP.get("http://localhost:#{port}/session/get", headers: {
-        "cookie" => "pakyow.session=#{extract_session(chg_response)}"
+        "cookie" => "smoke_test.session=#{extract_session(chg_response)}"
       })
     }
 
@@ -126,13 +126,13 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
 
     let(:del_response) {
       HTTP.delete("http://localhost:#{port}/session/del", headers: {
-        "cookie" => "pakyow.session=#{extract_session(set_response)}"
+        "cookie" => "smoke_test.session=#{extract_session(set_response)}"
       })
     }
 
     let(:get_response_2) {
       HTTP.get("http://localhost:#{port}/session/get", headers: {
-        "cookie" => "pakyow.session=#{extract_session(del_response)}"
+        "cookie" => "smoke_test.session=#{extract_session(del_response)}"
       })
     }
 

@@ -21,7 +21,13 @@ module Pakyow
           unless Pakyow.booted? || Pakyow.rescued?
             handling do
               Pakyow.boot(env: options[:env])
-
+            end
+          end
+        ensure
+          begin
+            yield
+          ensure
+            unless Pakyow.frozen?
               Pakyow.deprecator.ignore do
                 if Pakyow.config.freeze_on_boot
                   Pakyow.deep_freeze
@@ -29,8 +35,6 @@ module Pakyow
               end
             end
           end
-        ensure
-          yield
         end
       end
     end
