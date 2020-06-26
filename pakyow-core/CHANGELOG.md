@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Prevent deep freeze error when running formations.**
+
+    *Related links:*
+    - [Pull Request #488][pr-488]
+
   * `chg` **Don't sync logger destinations in production.**
 
     *Related links:*
@@ -553,6 +558,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-488]: https://github.com/pakyow/pakyow/pull/488
 [pr-487]: https://github.com/pakyow/pakyow/pull/487
 [pr-486]: https://github.com/pakyow/pakyow/pull/486
 [pr-483]: https://github.com/pakyow/pakyow/pull/483
