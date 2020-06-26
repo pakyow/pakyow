@@ -245,6 +245,8 @@ module Pakyow
     end
 
     defaults :production do
+      setting :sync, false
+
       setting :level do
         if config.logger.enabled
           :info

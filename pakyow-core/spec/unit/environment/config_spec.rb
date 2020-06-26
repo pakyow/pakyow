@@ -183,6 +183,16 @@ RSpec.describe Pakyow do
       it "has a default value" do
         expect(Pakyow.config.logger.sync).to eq(true)
       end
+
+      context "in production" do
+        before do
+          Pakyow.configure!(:production)
+        end
+
+        it "defaults to false" do
+          expect(Pakyow.config.logger.sync).to eq(false)
+        end
+      end
     end
 
     describe "logger.enabled" do
