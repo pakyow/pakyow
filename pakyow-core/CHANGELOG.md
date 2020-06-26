@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Output logfmt events in a single write.**
+
+    *Related links:*
+    - [Pull Request #486][pr-486]
+
   * `chg` **Pass arguments through operations.**
 
     *Related links:*
@@ -543,6 +548,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-486]: https://github.com/pakyow/pakyow/pull/486
 [pr-483]: https://github.com/pakyow/pakyow/pull/483
 [pr-481]: https://github.com/pakyow/pakyow/pull/481
 [pr-480]: https://github.com/pakyow/pakyow/pull/480
