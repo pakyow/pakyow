@@ -429,7 +429,7 @@ module Pakyow
 
         performing :load do
           if File.exist?(config.loader_path + ".rb")
-            require config.loader_path
+            Kernel.load config.loader_path + ".rb"
           else
             require "pakyow/integrations/bundler/reset"
             require "pakyow/integrations/bundler/setup"
@@ -439,7 +439,7 @@ module Pakyow
             require "pakyow/integrations/dotenv"
 
             if File.exist?(config.environment_path + ".rb")
-              require config.environment_path
+              Kernel.load config.environment_path + ".rb"
             end
           end
 
@@ -627,7 +627,7 @@ module Pakyow
 
     private def load_apps_common
       if File.exist?(File.join(config.root, "config/application.rb"))
-        require File.join(config.root, "config/application")
+        Kernel.load File.join(config.root, "config/application.rb")
       end
     end
 

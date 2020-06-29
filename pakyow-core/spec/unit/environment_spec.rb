@@ -57,6 +57,7 @@ RSpec.describe Pakyow do
   describe "::load" do
     before do
       allow(Pakyow).to receive(:load).and_call_original
+      allow(Kernel).to receive(:load)
       allow(Pakyow).to receive(:require)
       allow(Pakyow).to receive(:performing).and_call_original
     end
@@ -325,7 +326,7 @@ RSpec.describe Pakyow do
         end
 
         it "requires the environment" do
-          expect(Pakyow).to receive(:require).with(Pakyow.config.environment_path)
+          expect(Kernel).to receive(:load).with(Pakyow.config.environment_path + ".rb")
           Pakyow.load
         end
       end
@@ -337,7 +338,7 @@ RSpec.describe Pakyow do
       end
 
       it "requires the loader" do
-        expect(Pakyow).to receive(:require).with(Pakyow.config.loader_path)
+        expect(Kernel).to receive(:load).with(Pakyow.config.loader_path + ".rb")
         Pakyow.load
       end
 
@@ -362,7 +363,7 @@ RSpec.describe Pakyow do
       end
 
       it "does not require the environment" do
-        expect(Pakyow).to_not receive(:require).with(Pakyow.config.environment_path)
+        expect(Kernel).to_not receive(:load).with(Pakyow.config.environment_path + "rb")
         Pakyow.load
       end
 
@@ -499,7 +500,7 @@ RSpec.describe Pakyow do
       end
 
       it "requires the application" do
-        expect(Pakyow).to receive(:require).with(File.join(Pakyow.config.root, "config/application")) do; end
+        expect(Kernel).to receive(:load).with(File.join(Pakyow.config.root, "config/application.rb")) do; end
 
         Pakyow.setup
       end
