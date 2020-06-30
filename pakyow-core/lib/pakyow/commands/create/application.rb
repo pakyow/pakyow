@@ -7,6 +7,7 @@ command :create, :application do
   required :cli
 
   argument :name, "The application name", required: true
+  option :path, "The mount path for the created application", default: "/"
   option :template, "The template to create the application from", default: "default"
 
   action :relocate_default_application do
@@ -43,7 +44,7 @@ command :create, :application do
     end
 
     generatable_name = Generator::generatable_name(@name)
-    generator.generate(multiapp_path.join(generatable_name), name: generatable_name)
+    generator.generate(multiapp_path.join(generatable_name), name: generatable_name, path: @path)
   end
 
   private def root_path

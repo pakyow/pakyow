@@ -116,5 +116,29 @@ RSpec.describe "cli: create:application" do
         }
       end
     end
+
+    context "specifying a path" do
+      before do
+        run_command("create", path: command_dir, cleanup: false) do
+          expect(File.exist?(File.join(command_dir, "config/environment.rb"))).to be(true)
+
+          Pakyow.setup(env: :test)
+
+          run_command(command, project: true, name: "foo", path: "/foo", cleanup: false)
+        end
+      end
+
+      after do
+        cleanup_after_command
+      end
+
+      it "generates the application at the correct path" do
+        expect(File.read(File.join(command_dir, "apps/foo/config/application.rb"))).to include_sans_whitespace(
+          <<~CODE
+            Pakyow.app :foo, path: "/foo" do
+          CODE
+        )
+      end
+    end
   end
 end

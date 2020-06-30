@@ -3,6 +3,9 @@
 require "pakyow/support/inflector"
 
 generator :application do
+  required :name
+  optional :path, default: "/"
+
   source_path File.expand_path("../../generatable/application/default", __FILE__)
 
   action :update_assets do
