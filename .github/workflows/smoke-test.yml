@@ -44,14 +44,18 @@ jobs:
           - 2.7.1
 
         test:
+          - assets
           - content_length
           - cookies
           - create_application
           - frozen
           - head
           - prelaunch
+          - presenting
+          - public
           - respawn
           - restart
+          - routing
           - signals
           - startup
           - assets/fetch
