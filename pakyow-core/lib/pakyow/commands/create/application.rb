@@ -75,7 +75,7 @@ command :create, :application do
   end
 
   private def default_multiapp_application_initializers_path
-    default_multiapp_application_config_path.join("initializers")
+    default_multiapp_application_config_path.join("initializers/application")
   end
 
   private def default_multiapp_application_backend_path

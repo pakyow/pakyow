@@ -46,6 +46,7 @@ jobs:
         test:
           - content_length
           - cookies
+          - create_application
           - frozen
           - head
           - prelaunch

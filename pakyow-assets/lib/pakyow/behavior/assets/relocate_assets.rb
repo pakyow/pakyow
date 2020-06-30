@@ -21,6 +21,13 @@ module Pakyow
                   relocate(default_application_assets_path, default_multiapp_application_assets_path)
                   FileUtils.rm_r(default_application_assets_path)
                 end
+
+                if default_application_public_path.exist?
+                  verify_path_within_root!(default_application_public_path)
+                  FileUtils.mkdir_p(default_multiapp_application_public_path)
+                  relocate(default_application_public_path, default_multiapp_application_public_path)
+                  FileUtils.rm_r(default_application_public_path)
+                end
               end
 
               private def default_application_assets_path
@@ -29,6 +36,14 @@ module Pakyow
 
               private def default_multiapp_application_assets_path
                 default_multiapp_application_path.join(default_application_assets_path.relative_path_from(root_path))
+              end
+
+              private def default_application_public_path
+                Pathname.new(File.expand_path(default_app.config.assets.public_path))
+              end
+
+              private def default_multiapp_application_public_path
+                default_multiapp_application_path.join(default_application_public_path.relative_path_from(root_path))
               end
             end
           end
