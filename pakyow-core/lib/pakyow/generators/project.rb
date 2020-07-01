@@ -4,6 +4,12 @@ require "bundler"
 require "securerandom"
 
 generator :project do
+  def initialize(*, **options)
+    @__options = options
+
+    super
+  end
+
   source_path File.expand_path("../../generatable/project/default", __FILE__)
 
   action :bundle do
@@ -12,9 +18,11 @@ generator :project do
     end
   end
 
-  action :update_assets do
-    Bundler.with_original_env do
-      run "bundle exec pakyow assets:update", message: "Updating external assets"
+  action :generate_application do |destination_path|
+    generator_namespace = self.class.object_name.parts - Pakyow.generator(:project).object_name.parts
+
+    if application_generator = Pakyow.generator(:application, *generator_namespace)
+      application_generator.generate(destination_path, **@__options)
     end
   end
 

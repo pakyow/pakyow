@@ -31,6 +31,7 @@ RSpec.describe "cli: create" do
     before do
       allow(Bundler).to receive(:with_original_env)
       allow_any_instance_of(Pakyow::Generators::Project).to receive(:run)
+      allow_any_instance_of(Pakyow::Generators::Application).to receive(:run)
     end
 
     it "creates a project at the given path" do
@@ -55,8 +56,8 @@ RSpec.describe "cli: create" do
     end
 
     it "updates external assets" do
-      expect_any_instance_of(Pakyow::Generators::Project).to receive(:run).at_least(:once).with(
-        "bundle exec pakyow assets:update",
+      expect_any_instance_of(Pakyow::Generators::Application).to receive(:run).at_least(:once).with(
+        "bundle exec pakyow assets:update -a app",
         message: "Updating external assets"
       )
 
