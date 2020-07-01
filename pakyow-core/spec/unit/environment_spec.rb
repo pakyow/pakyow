@@ -517,6 +517,24 @@ RSpec.describe Pakyow do
 
         Pakyow.setup
       end
+
+      context "specific apps are mounted" do
+        before do
+          Pakyow.config.mounts = [:bar]
+        end
+
+        it "requires each mounted application" do
+          expect(Kernel).to receive(:load).with(File.join(Pakyow.config.root, "apps/bar/config/application.rb")) do; end
+
+          Pakyow.setup
+        end
+
+        it "does not require applications that are not mounted" do
+          expect(Kernel).not_to receive(:load).with(File.join(Pakyow.config.root, "apps/foo/config/application.rb")) do; end
+
+          Pakyow.setup
+        end
+      end
     end
 
     context "something goes wrong" do

@@ -22,6 +22,8 @@ module Pakyow
             if multiapp?
               Dir.glob(File.join(config.multiapp_path, "*")).select { |path|
                 File.directory?(path)
+              }.select { |path|
+                config.mounts == :all || config.mounts.include?(File.basename(path).to_sym)
               }.map { |path|
                 File.join(path, "config/application.rb")
               }.select { |path|
