@@ -26,6 +26,13 @@ command :create, :application do
       FileUtils.rm_r(default_application_initializers_path)
     end
 
+    if default_application_lib_path.exist?
+      verify_path_within_root!(default_multiapp_application_lib_path)
+      FileUtils.mkdir_p(default_multiapp_application_lib_path)
+      relocate(default_application_lib_path, default_multiapp_application_lib_path)
+      FileUtils.rm_r(default_application_lib_path)
+    end
+
     if default_application_backend_path.exist?
       verify_path_within_root!(default_multiapp_application_backend_path)
       FileUtils.mkdir_p(default_multiapp_application_backend_path)
@@ -63,6 +70,10 @@ command :create, :application do
     root_path.join("config/initializers/application")
   end
 
+  private def default_application_lib_path
+    Pathname.new(File.expand_path(default_app.config.lib))
+  end
+
   private def default_application_backend_path
     Pathname.new(File.expand_path(default_app.config.src))
   end
@@ -77,6 +88,10 @@ command :create, :application do
 
   private def default_multiapp_application_initializers_path
     default_multiapp_application_config_path.join("initializers/application")
+  end
+
+  private def default_multiapp_application_lib_path
+    default_multiapp_application_path.join(default_application_lib_path.relative_path_from(root_path))
   end
 
   private def default_multiapp_application_backend_path
