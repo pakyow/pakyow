@@ -325,7 +325,6 @@ module Pakyow
   include Behavior::Generators
   include Behavior::Initializers
   include Behavior::InputParsing
-  include Behavior::Multiapp
   include Behavior::Plugins
   include Behavior::ReleaseChannels
   include Behavior::Rescuing
@@ -626,8 +625,10 @@ module Pakyow
     deprecate :load_apps
 
     private def load_apps_common
-      if File.exist?(File.join(config.root, "config/application.rb"))
-        Kernel.load File.join(config.root, "config/application.rb")
+      application_path = File.join(config.root, "config/application.rb")
+
+      if File.exist?(application_path)
+        Kernel.load(application_path)
       end
     end
 
@@ -641,4 +642,5 @@ module Pakyow
   end
 
   include Behavior::Deprecations
+  include Behavior::Multiapp
 end

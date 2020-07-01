@@ -16,6 +16,24 @@ module Pakyow
         setting :multiapp_path do
           File.join(config.root, "apps")
         end
+
+        singleton_class.prepend Module.new {
+          private def load_apps_common
+            if multiapp?
+              Dir.glob(File.join(config.multiapp_path, "*")).select { |path|
+                File.directory?(path)
+              }.map { |path|
+                File.join(path, "config/application.rb")
+              }.select { |path|
+                File.exist?(path)
+              }.sort.each do |path|
+                Kernel.load(path)
+              end
+            else
+              super
+            end
+          end
+        }
       end
 
       class_methods do

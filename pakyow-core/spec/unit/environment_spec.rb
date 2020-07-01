@@ -506,6 +506,19 @@ RSpec.describe Pakyow do
       end
     end
 
+    context "environment is multiapp" do
+      before do
+        Pakyow.config.root = File.expand_path("../support/environments/multiapp", __FILE__)
+      end
+
+      it "requires each application" do
+        expect(Kernel).to receive(:load).with(File.join(Pakyow.config.root, "apps/bar/config/application.rb")) do; end
+        expect(Kernel).to receive(:load).with(File.join(Pakyow.config.root, "apps/foo/config/application.rb")) do; end
+
+        Pakyow.setup
+      end
+    end
+
     context "something goes wrong" do
       before do
         local = self
@@ -1137,6 +1150,38 @@ RSpec.describe Pakyow do
     context "environment is not running" do
       it "returns false" do
         expect(Pakyow.running?).to be(false)
+      end
+    end
+  end
+
+  describe "::multiapp?" do
+    context "in a default project" do
+      before do
+        Pakyow.config.root = File.expand_path("../support/environments/default", __FILE__)
+      end
+
+      it "returns false" do
+        expect(Pakyow.multiapp?).to be(false)
+      end
+    end
+
+    context "in a multiapp project" do
+      before do
+        Pakyow.config.root = File.expand_path("../support/environments/multiapp", __FILE__)
+      end
+
+      it "returns true" do
+        expect(Pakyow.multiapp?).to be(true)
+      end
+
+      context "multiapp path is configured differently" do
+        before do
+          Pakyow.config.multiapp_path = File.join(Pakyow.config.root, "aaapppsss")
+        end
+
+        it "returns false" do
+          expect(Pakyow.multiapp?).to be(false)
+        end
       end
     end
   end

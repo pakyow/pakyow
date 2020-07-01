@@ -3,7 +3,7 @@ require "smoke_helper"
 RSpec.describe "creating an application in an existing project", smoke: true do
   before do
     setup_default_application
-    cli_run "create:application foo"
+    cli_run "create:application foo --path /foo"
     setup_created_application; boot
   end
 
@@ -23,6 +23,15 @@ RSpec.describe "creating an application in an existing project", smoke: true do
           end
         end
       SOURCE
+    end
+  end
+
+  describe "the new application" do
+    it "responds to a request" do
+      response = HTTP.get("http://localhost:#{port}/foo")
+
+      expect(response.status).to eq(200)
+      expect(response.body.to_s).to eq("foo")
     end
   end
 
@@ -82,7 +91,12 @@ RSpec.describe "creating an application in an existing project", smoke: true do
     end
 
     describe "the relocated application" do
-      it "responds to a request"
+      it "responds to a request" do
+        response = HTTP.get("http://localhost:#{port}/")
+
+        expect(response.status).to eq(200)
+        expect(response.body.to_s).to eq("smoke-test")
+      end
     end
 
     context "non-standard paths" do
@@ -128,16 +142,13 @@ RSpec.describe "creating an application in an existing project", smoke: true do
       end
 
       describe "the relocated application" do
-        it "responds to a request"
+        it "responds to a request" do
+          response = HTTP.get("http://localhost:#{port}/")
+
+          expect(response.status).to eq(200)
+          expect(response.body.to_s).to eq("smoke-test")
+        end
       end
-    end
-  end
-
-  describe "the new application" do
-    xit "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}/foo")
-
-      expect(response.status).to eq(200)
     end
   end
 end

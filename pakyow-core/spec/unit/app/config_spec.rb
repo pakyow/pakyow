@@ -23,6 +23,22 @@ RSpec.describe Pakyow::Application do
       it "has a default value" do
         expect(app.config.root).to eq(File.expand_path("."))
       end
+
+      context "environment is multiapp" do
+        before do
+          Pakyow.config.root = File.expand_path("../../support/environments/multiapp", __FILE__)
+
+          expect(Pakyow.multiapp?).to be(true)
+        end
+
+        let(:app) {
+          Pakyow.app(:test)
+        }
+
+        it "has a default value" do
+          expect(app.config.root).to eq(File.join(Pakyow.config.root, "apps/test"))
+        end
+      end
     end
 
     describe "app.src" do
