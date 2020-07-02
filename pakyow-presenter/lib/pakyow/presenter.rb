@@ -2,3 +2,9 @@
 
 require_relative "presenter/errors"
 require_relative "presenter/framework"
+
+require_relative "behavior/presenter/relocate_frontend"
+
+module Pakyow
+  include Behavior::Presenter::RelocateFrontend
+end

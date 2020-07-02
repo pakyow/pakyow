@@ -6,6 +6,7 @@ require "pathname"
 require "pakyow/support/cli/runner"
 require "pakyow/support/class_state"
 require "pakyow/support/hookable"
+require "pakyow/support/inflector"
 
 require_relative "operation"
 
@@ -36,6 +37,12 @@ module Pakyow
     #
     def self.generate(destination, **options)
       new(*__source_paths, **options).generate(destination)
+    end
+
+    # Returns a normalized name suitable for generation.
+    #
+    def self.generatable_name(value)
+      Support.inflector.underscore(value.downcase).gsub("  ", " ").gsub(" ", "_")
     end
 
     def initialize(*source_paths, **options)
@@ -74,11 +81,9 @@ module Pakyow
     end
     alias generate perform
 
-    def run(command, message:)
-      destination = Thread.current[threadlocal_key(:destination)] || "."
-
+    def run(command, message:, from: Thread.current[threadlocal_key(:destination)] || ".")
       Support::CLI::Runner.new(message: message).run(
-        "cd #{destination} && #{command}"
+        "cd #{from} && #{command}"
       )
     end
 

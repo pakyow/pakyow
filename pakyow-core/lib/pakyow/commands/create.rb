@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../generator"
+
 command :create, global: true do
   describe "Create a new project"
   required :cli
@@ -8,15 +10,6 @@ command :create, global: true do
   option :template, "The template to create the project from", default: "default"
 
   action do
-    require "pakyow/support/inflector"
-
-    project_name = Pakyow::Support.inflector.underscore(
-      File.basename(@path).downcase
-    )
-
-    project_name.gsub!("  ", " ")
-    project_name.gsub!(" ", "_")
-
     template = @template.downcase.strip
     generator = case template
     when "default"
@@ -25,7 +18,7 @@ command :create, global: true do
       Pakyow.generator(:project, template.to_sym)
     end
 
-    generator.generate(@path, name: project_name)
+    generator.generate(@path, name: Generator::generatable_name(File.basename(@path)))
 
     require "pakyow/support/cli/style"
     @cli.feedback.puts <<~OUTPUT

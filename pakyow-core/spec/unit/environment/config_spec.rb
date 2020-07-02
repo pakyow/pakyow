@@ -89,6 +89,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "multiapp_path" do
+      it "has a default value" do
+        expect(Pakyow.config.multiapp_path).to eq(File.join(Pakyow.config.root, "apps"))
+      end
+    end
+
     describe "server.port" do
       it "has a default value" do
         expect(Pakyow.config.server.port).to eq(3000)

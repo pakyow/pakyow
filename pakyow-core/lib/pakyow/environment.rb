@@ -21,6 +21,7 @@ require_relative "behavior/erroring"
 require_relative "behavior/generators"
 require_relative "behavior/initializers"
 require_relative "behavior/input_parsing"
+require_relative "behavior/multiapp"
 require_relative "behavior/plugins"
 require_relative "behavior/release_channels"
 require_relative "behavior/rescuing"
@@ -427,7 +428,7 @@ module Pakyow
 
         performing :load do
           if File.exist?(config.loader_path + ".rb")
-            require config.loader_path
+            Kernel.load config.loader_path + ".rb"
           else
             require "pakyow/integrations/bundler/reset"
             require "pakyow/integrations/bundler/setup"
@@ -437,7 +438,7 @@ module Pakyow
             require "pakyow/integrations/dotenv"
 
             if File.exist?(config.environment_path + ".rb")
-              require config.environment_path
+              Kernel.load config.environment_path + ".rb"
             end
           end
 
@@ -624,8 +625,10 @@ module Pakyow
     deprecate :load_apps
 
     private def load_apps_common
-      if File.exist?(File.join(config.root, "config/application.rb"))
-        require File.join(config.root, "config/application")
+      application_path = File.join(config.root, "config/application.rb")
+
+      if File.exist?(application_path)
+        Kernel.load(application_path)
       end
     end
 
@@ -639,4 +642,5 @@ module Pakyow
   end
 
   include Behavior::Deprecations
+  include Behavior::Multiapp
 end

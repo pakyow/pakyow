@@ -21,6 +21,7 @@ require_relative "application/behavior/rescuing"
 require_relative "application/behavior/initializers"
 require_relative "application/behavior/plugins"
 require_relative "application/behavior/operations"
+require_relative "application/behavior/multiapp"
 
 require_relative "application/actions/missing"
 
@@ -166,6 +167,7 @@ module Pakyow
     include Behavior::Initializers
     include Behavior::Plugins
     include Behavior::Operations
+    include Behavior::Multiapp
 
     include Handleable::Behavior::Statuses
 

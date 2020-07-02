@@ -1,0 +1,14 @@
+[34;1mCreate a new application in the current project[0m
+
+[1mUSAGE[0m
+  $ pakyow create:application [NAME]
+
+[1mARGUMENTS[0m
+  NAME  [33mThe application name[0m[31m (required)[0m
+
+[1mOPTIONS[0m
+  -e, --env=env            [33mThe environment to run this command under[0m
+  -p, --path=path          [33mThe mount path for the created application (default: /)[0m
+  -t, --template=template  [33mThe template to create the application from (default: default)[0m
+  -c, --config=config      [33mPath to the environment config file (default: config/environment)[0m
+      --debug              [33mShow low-level debugging information[0m
