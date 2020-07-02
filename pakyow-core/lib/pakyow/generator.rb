@@ -81,11 +81,9 @@ module Pakyow
     end
     alias generate perform
 
-    def run(command, message:)
-      destination = Thread.current[threadlocal_key(:destination)] || "."
-
+    def run(command, message:, from: Thread.current[threadlocal_key(:destination)] || ".")
       Support::CLI::Runner.new(message: message).run(
-        "cd #{destination} && #{command}"
+        "cd #{from} && #{command}"
       )
     end
 

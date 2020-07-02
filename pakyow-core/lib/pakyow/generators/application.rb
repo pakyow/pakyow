@@ -10,7 +10,7 @@ generator :application do
 
   action :update_assets do
     Bundler.with_original_env do
-      run "bundle exec pakyow assets:update -a #{name}", message: "Updating external assets"
+      run "bundle exec pakyow assets:update -a #{name}", message: "Updating external assets", from: Pakyow.config.root
     end
   end
 

@@ -33,6 +33,10 @@ RSpec.describe "creating an application in an existing project", smoke: true do
       expect(response.status).to eq(200)
       expect(response.body.to_s).to eq("foo")
     end
+
+    it "has vendored assets" do
+      expect(Dir.glob(project_path.join("apps/foo/frontend/assets/packs/vendor/*"))).not_to be_empty
+    end
   end
 
   describe "relocating the default application" do
