@@ -82,7 +82,9 @@ RSpec.shared_context "runnable container" do
         result << child_socket.recv(4096)
       end
 
-      yield result[0...length], Time.now - start
+      if block_given?
+        yield result[0...length], Time.now - start
+      end
     end
   end
 
