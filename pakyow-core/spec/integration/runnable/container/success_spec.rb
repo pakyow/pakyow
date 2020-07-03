@@ -104,7 +104,7 @@ RSpec.describe "determining container success" do
       }
 
       it "appears successful" do
-        run_container timeout: 1
+        run_container timeout: 3
 
         expect(@container_instance.success?).to be(true)
       end
