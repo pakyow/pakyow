@@ -3,6 +3,11 @@
 require "pakyow/support/deep_dup"
 require "pakyow/support/core_refinements/string/normalization"
 
+require_relative "front_matter_parser"
+require_relative "views/layout"
+require_relative "views/page"
+require_relative "views/partial"
+
 module Pakyow
   module Presenter
     class Templates

@@ -2,6 +2,8 @@
 
 require "yaml"
 
+require_relative "../view"
+
 module Pakyow
   module Presenter
     module Views
