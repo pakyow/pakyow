@@ -17,12 +17,16 @@ RSpec.describe "determining container success" do
             # noop
           end
         end
-
-        run_container(timeout: 0.25)
       end
 
       it "appears successful" do
-        expect(@container_instance.success?).to be(true)
+        run_container timeout: 1 do |container|
+          # Give the container time to update its internal state.
+          #
+          sleep 0.5
+
+          expect(container.success?).to be(true)
+        end
       end
     end
 
@@ -42,9 +46,9 @@ RSpec.describe "determining container success" do
       end
 
       it "appears unsuccessful" do
-        run_container do
+        run_container do |container|
           wait_for length: 6, timeout: 1 do |result|
-            expect(@container_instance.success?).to be(false)
+            expect(container.success?).to be(false)
           end
         end
       end
@@ -72,9 +76,9 @@ RSpec.describe "determining container success" do
       end
 
       it "appears unsuccessful" do
-        run_container do
+        run_container do |container|
           wait_for length: 6, timeout: 1 do |result|
-            expect(@container_instance.success?).to be(false)
+            expect(container.success?).to be(false)
           end
         end
       end
@@ -86,9 +90,7 @@ RSpec.describe "determining container success" do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.run_container(local.container2, restartable: false, parent: self) do
-              local.wait_for length: 3, timeout: 1
-            end
+            local.run_container(local.container2, restartable: false, parent: self)
           end
         end
 
@@ -104,9 +106,15 @@ RSpec.describe "determining container success" do
       }
 
       it "appears successful" do
-        run_container timeout: 3
+        run_container do |container|
+          wait_for length: 3, timeout: 1 do
+            # Give the container time to update its internal state.
+            #
+            sleep 0.5
 
-        expect(@container_instance.success?).to be(true)
+            expect(container.success?).to be(true)
+          end
+        end
       end
     end
 
@@ -136,9 +144,9 @@ RSpec.describe "determining container success" do
       }
 
       it "appears unsuccessful" do
-        run_container do
+        run_container do |container|
           wait_for length: 6, timeout: 1 do |result|
-            expect(@container_instance.success?).to be(false)
+            expect(container.success?).to be(false)
           end
         end
       end
@@ -176,9 +184,9 @@ RSpec.describe "determining container success" do
       }
 
       it "appears unsuccessful" do
-        run_container do
+        run_container do |container|
           wait_for length: 6, timeout: 1 do |result|
-            expect(@container_instance.success?).to be(false)
+            expect(container.success?).to be(false)
           end
         end
       end

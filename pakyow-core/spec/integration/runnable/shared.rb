@@ -40,16 +40,16 @@ RSpec.shared_context "runnable container" do
   def run_container(container = self.container, timeout: nil, **options)
     final_options = run_options.merge(options)
 
-    @container_instance = container.new(**final_options)
+    container_instance = container.new(**final_options)
 
     thread = Thread.new {
-      @container_instance.run
+      container_instance.run
     }
 
-    yield @container_instance if block_given?
+    yield container_instance if block_given?
     sleep timeout if timeout
 
-    @container_instance.stop
+    container_instance.stop
 
     begin
       with_timeout 1 do
@@ -59,7 +59,7 @@ RSpec.shared_context "runnable container" do
       thread.kill
     end
   rescue Timeout::Error => error
-    @container_instance.stop
+    container_instance.stop
     thread.kill; raise error
   end
 
