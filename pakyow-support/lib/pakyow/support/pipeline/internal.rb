@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../deep_freeze"
+require_relative "../thread_localizer"
 
 module Pakyow
   module Support
@@ -89,7 +90,7 @@ module Pakyow
         end
 
         private def call_actions(actions, context, *args, **kwargs)
-          Thread.current[:__pw_pipeline] ||= object_id
+          ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] ||= object_id
 
           value = nil
           finished = false
@@ -103,15 +104,15 @@ module Pakyow
           unless finished
             value = halted
 
-            unless Thread.current[:__pw_pipeline] == object_id
+            unless ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] == object_id
               throw :halt, value
             end
           end
 
           value
         ensure
-          if Thread.current[:__pw_pipeline] == object_id
-            Thread.current[:__pw_pipeline] = nil
+          if ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] == object_id
+            ThreadLocalizer.thread_localized_store.delete(:__pw_pipeline_object_id)
           end
         end
 
