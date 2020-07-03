@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `ThreadLocalizer` for managing thread localized instance state.**
+
   * `add` **Support halting and rejecting from the pipeline.**
 
   * `chg` **Return the last pipeline action's return value.**
