@@ -5,21 +5,20 @@ require "pakyow/support/deprecatable"
 require "pakyow/support/handleable"
 require "pakyow/support/makeable"
 require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
+require "pakyow/support/thread_localizer"
 
 require_relative "behavior/verification"
 
 module Pakyow
   class Operation
+    extend Support::Deprecatable
+
     include Support::Handleable
     include Support::Makeable
-
     include Support::Pipeline
-    include Support::Pipeline::Object
+    include Support::ThreadLocalizer
 
     include Behavior::Verification
-
-    extend Support::Deprecatable
 
     attr_reader :__values
 
@@ -43,12 +42,22 @@ module Pakyow
           end
         end
       end
+
+      @__latest_result = nil
     end
 
     def perform(*args, **kwargs)
       handling do
-        call(*args, **kwargs); self
+        result = call(*args, **kwargs)
+        thread_localize(:result, result)
+        @__latest_result ||= result
       end
+
+      self
+    end
+
+    def result
+      thread_localized(:result, @__latest_result)
     end
 
     def method_missing(name, *args, &block)
