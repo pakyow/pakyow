@@ -7,7 +7,7 @@ module Pakyow
     module ThreadLocalizer
       class Store
         extend Forwardable
-        def_delegators :@state, :[], :[]=, :fetch, :delete
+        def_delegators :@state, :[], :[]=, :fetch, :delete, :clear
 
         def initialize
           @state = {}
