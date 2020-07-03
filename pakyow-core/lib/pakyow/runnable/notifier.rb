@@ -24,6 +24,7 @@ module Pakyow
       def stop
         @running = false
         @child.close
+        @thread.kill
       end
 
       private def run
@@ -33,6 +34,8 @@ module Pakyow
 
             @callback.call(message[:event], message[:payload].merge(@callback_options))
           end
+        ensure
+          @parent.close
         end
       end
 
