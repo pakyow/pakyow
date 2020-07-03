@@ -35,12 +35,11 @@ RSpec.shared_context "runnable container" do
     read_from_child
   }
 
-  attr_reader :container_instance
-
   def run_container(container = self.container, timeout: nil, **options)
     final_options = run_options.merge(options)
 
     container_instance = container.new(**final_options)
+    container_instance.options[:container_instance] = container_instance
 
     thread = Thread.new {
       container_instance.run

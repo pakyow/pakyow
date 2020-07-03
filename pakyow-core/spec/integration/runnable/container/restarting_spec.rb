@@ -264,8 +264,6 @@ RSpec.describe "running an unrestartable container" do
           local.write_to_parent("foo")
         end
       end
-
-      run_container(timeout: 0.1)
     end
 
     let(:container_options) {
@@ -273,11 +271,15 @@ RSpec.describe "running an unrestartable container" do
     }
 
     it "does not restart" do
-      expect(read_from_child).to eq("foo")
+      run_container timeout: 0.1 do
+        expect(read_from_child).to eq("foo")
+      end
     end
 
     it "appears stopped" do
-      expect(container_instance.running?).to eq(false)
+      run_container timeout: 0.1 do |container|
+        expect(container.running?).to eq(false)
+      end
     end
   end
 
@@ -454,7 +456,7 @@ RSpec.describe "restarting runnable containers from other processes" do
       container.service :bar, restartable: false do
         define_method :perform do
           sleep 0.15
-          local.container_instance.restart
+          options[:container_instance].restart
         end
       end
     }
@@ -462,7 +464,7 @@ RSpec.describe "restarting runnable containers from other processes" do
     attr_reader :message
 
     it "restarts the container" do
-      run_container do |instance|
+      run_container do
         sleep 0.15
         @message = "bar"
         wait_for length: 9, timeout: 1 do |result|
@@ -484,7 +486,7 @@ RSpec.describe "restarting runnable containers from other processes" do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.container_instance.restart(foo: "bar")
+            options[:container_instance].restart(foo: "bar")
           end
         end
       }
@@ -492,7 +494,7 @@ RSpec.describe "restarting runnable containers from other processes" do
       attr_reader :payload
 
       it "calls the hook with provided options" do
-        run_container do |instance|
+        run_container do
           sleep 0.1
 
           expect(@payload).to eq(foo: "bar")
