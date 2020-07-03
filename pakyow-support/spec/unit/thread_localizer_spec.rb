@@ -83,4 +83,16 @@ RSpec.describe Pakyow::Support::ThreadLocalizer do
       end
     end
   end
+
+  describe "#delete_thread_localized" do
+    before do
+      instance.thread_localize(:foo, :bar)
+    end
+
+    it "deletes the localized value" do
+      instance.delete_thread_localized(:foo)
+
+      expect(instance.thread_localized(:foo)).to be(nil)
+    end
+  end
 end

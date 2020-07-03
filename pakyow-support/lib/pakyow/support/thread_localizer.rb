@@ -29,6 +29,12 @@ module Pakyow
         ThreadLocalizer.thread_localized_store.fetch(key, fallback)
       end
 
+      # Deletes the localized value for `key`.
+      #
+      def delete_thread_localized(key)
+        ThreadLocalizer.thread_localized_store.delete(thread_local_key(key))
+      end
+
       private def thread_local_key(name)
         :"__pw_#{object_id}_#{name}"
       end
