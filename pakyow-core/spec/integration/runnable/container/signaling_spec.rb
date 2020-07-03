@@ -89,7 +89,9 @@ RSpec.describe "signaling runnable containers" do
 
       it "restarts the container" do
         run_then_kill do
-          expect(result).to eq("bar: performbar: stopbar: perform")
+          wait_for length: 33, timeout: 1 do |result|
+            expect(result).to eq("bar: performbar: stopbar: perform")
+          end
         end
       end
     end

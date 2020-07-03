@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Stop container notifiers more cleanly.**
+
+    *Related links:*
+    - [Pull Request #492][pr-492]
+
   * `add` **Generate new applications, converting existing projects to multiapp environments.**
 
     *Related links:*
@@ -568,6 +573,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-492]: https://github.com/pakyow/pakyow/pull/492
 [pr-490]: https://github.com/pakyow/pakyow/pull/490
 [pr-484]: https://github.com/pakyow/pakyow/pull/484
 [pr-488]: https://github.com/pakyow/pakyow/pull/488

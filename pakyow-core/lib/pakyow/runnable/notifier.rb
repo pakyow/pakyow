@@ -10,6 +10,7 @@ module Pakyow
         @callback_options, @callback = callback_options, callback
         @child, @parent = Socket.pair(:UNIX, :DGRAM, 0)
         @thread = nil
+        @running = true
 
         run
       end
@@ -21,20 +22,22 @@ module Pakyow
       end
 
       def stop
-        @parent.close
+        @running = false
         @child.close
-        @thread&.kill
       end
 
       private def run
         @thread = Thread.new do
-          while message = @parent.recv(4096)
+          while running? && message = @parent.recv(4096)
             message = Marshal.load(message)
 
             @callback.call(message[:event], message[:payload].merge(@callback_options))
           end
-        rescue IOError
         end
+      end
+
+      private def running?
+        @running == true
       end
     end
   end

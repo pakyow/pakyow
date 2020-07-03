@@ -28,47 +28,29 @@ RSpec.describe "determining container success" do
 
     context "service failed" do
       before do
+        local = self
+
         container.service :foo, restartable: false do
           define_method :perform do
             fail
+          ensure
+            local.write_to_parent("failed")
           end
         end
 
         allow(Pakyow.logger).to receive(:houston)
-
-        run_container(timeout: 0.1)
       end
 
       it "appears unsuccessful" do
-        expect(@container_instance.success?).to be(false)
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(@container_instance.success?).to be(false)
+          end
+        end
       end
     end
 
     context "one service succeeded but another failed" do
-      before do
-        container.service :foo, restartable: false do
-          define_method :perform do
-            # noop
-          end
-        end
-
-        container.service :foo, restartable: false do
-          define_method :perform do
-            fail
-          end
-        end
-
-        allow(Pakyow.logger).to receive(:houston)
-
-        run_container(timeout: 0.1)
-      end
-
-      it "appears unsuccessful" do
-        expect(@container_instance.success?).to be(false)
-      end
-    end
-
-    context "nested service succeeded" do
       before do
         local = self
 
@@ -78,13 +60,43 @@ RSpec.describe "determining container success" do
           end
         end
 
-        container2.service :bar, restartable: false do
+        container.service :foo, restartable: false do
           define_method :perform do
-            # noop
+            fail
+          ensure
+            local.write_to_parent("failed")
           end
         end
 
-        run_container(timeout: 0.1)
+        allow(Pakyow.logger).to receive(:houston)
+      end
+
+      it "appears unsuccessful" do
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(@container_instance.success?).to be(false)
+          end
+        end
+      end
+    end
+
+    context "nested service succeeded" do
+      before do
+        local = self
+
+        container.service :foo, restartable: false do
+          define_method :perform do
+            local.run_container(local.container2, restartable: false, parent: self) do
+              local.wait_for length: 3, timeout: 1
+            end
+          end
+        end
+
+        container2.service :bar, restartable: false do
+          define_method :perform do
+            local.write_to_parent("bar")
+          end
+        end
       end
 
       let(:container2) {
@@ -92,6 +104,8 @@ RSpec.describe "determining container success" do
       }
 
       it "appears successful" do
+        run_container timeout: 1
+
         expect(@container_instance.success?).to be(true)
       end
     end
@@ -109,12 +123,12 @@ RSpec.describe "determining container success" do
         container2.service :bar, restartable: false do
           define_method :perform do
             fail
+          ensure
+            local.write_to_parent("failed")
           end
         end
 
         allow(Pakyow.logger).to receive(:houston)
-
-        run_container(timeout: 0.2, restartable: false)
       end
 
       let(:container2) {
@@ -122,7 +136,11 @@ RSpec.describe "determining container success" do
       }
 
       it "appears unsuccessful" do
-        expect(@container_instance.success?).to be(false)
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(@container_instance.success?).to be(false)
+          end
+        end
       end
     end
 
@@ -145,12 +163,12 @@ RSpec.describe "determining container success" do
         container2.service :baz, restartable: false do
           define_method :perform do
             fail
+          ensure
+            local.write_to_parent("failed")
           end
         end
 
         allow(Pakyow.logger).to receive(:houston)
-
-        run_container(timeout: 0.2, restartable: false)
       end
 
       let(:container2) {
@@ -158,7 +176,11 @@ RSpec.describe "determining container success" do
       }
 
       it "appears unsuccessful" do
-        expect(@container_instance.success?).to be(false)
+        run_container do
+          wait_for length: 6, timeout: 1 do |result|
+            expect(@container_instance.success?).to be(false)
+          end
+        end
       end
     end
   end
