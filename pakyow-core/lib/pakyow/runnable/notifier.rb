@@ -34,6 +34,7 @@ module Pakyow
 
             @callback.call(message[:event], message[:payload].merge(@callback_options))
           end
+        rescue Errno::ECONNRESET
         ensure
           @parent.close
         end
