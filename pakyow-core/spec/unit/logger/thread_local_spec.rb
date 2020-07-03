@@ -27,7 +27,7 @@ RSpec.describe Pakyow::Logger::ThreadLocal do
       it "defaults to :pakyow_logger" do
         instance.set :foo
 
-        expect(Thread.current[:pakyow_logger]).to be(:foo)
+        expect(instance.thread_localized(:logger_thread_local_pakyow_logger)).to be(:foo)
       end
     end
   end
