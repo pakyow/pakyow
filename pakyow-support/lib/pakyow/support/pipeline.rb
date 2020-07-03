@@ -6,44 +6,30 @@ require_relative "extension"
 
 module Pakyow
   module Support
-    # Provides pipeline behavior. Pipeline objects can define actions to be called in order on an
-    # instance of the pipelined object. Each action can act on the object passed to it. Any action
-    # can halt the pipeline, causing the result to be immediately returned without calling other
-    # actions. Objects passed through the pipeline should include {Pipeline::Object}.
-    #
-    # See {Pakyow::Application} and {Pakyow::Routing::Controller} for more examples.
+    # Pipelines define actions that are performed in order on an instance of the pipelined object.
+    # Each action can act on the arguments passed to it. Any action can halt the pipeline, causing
+    # the result to be immediately returned without calling other actions.
     #
     # @example
     #   class Application
     #     include Pakyow::Support::Pipeline
     #
-    #     action :foo
-    #     action :bar
-    #
-    #     def foo(result)
+    #     action :foo do |result|
     #       result << "foo"
     #     end
     #
-    #     def bar(result)
+    #     action :bar do |result|
     #       result << "bar"
+    #
+    #       halt result
+    #     end
+    #
+    #     action :baz do |result|
+    #       result << "baz"
     #     end
     #   end
     #
-    #   class Result
-    #     include Pakyow::Support::Pipeline::Object
-    #
-    #     attr_reader :results
-    #
-    #     def initialize
-    #       @results = []
-    #     end
-    #
-    #     def <<(result)
-    #       @results << result
-    #     end
-    #   end
-    #
-    #   Application.new.call(Result.new).results
+    #   Application.new.call([])
     #   => ["foo", "bar"]
     #
     module Pipeline
@@ -68,6 +54,14 @@ module Pakyow
         @__pipeline = @__pipeline.dup
 
         super
+      end
+
+      def reject(value = nil)
+        throw :reject, value
+      end
+
+      def halt(value = nil)
+        throw :halt, value
       end
 
       apply_extension do

@@ -29,7 +29,7 @@ RSpec.describe "passing mixed arguments through pipelines" do
   context "action accepts state as well as a required argument and a required keyword argument" do
     shared_examples :common do
       it "accepts expected arguments" do
-        expect(call("foo", bar: "bar").results).to eq(["foo", "bar"])
+        expect(call("foo", bar: "bar")).to eq(["foo", "bar"])
       end
 
       it "fails when no argument is passed" do
@@ -121,11 +121,11 @@ RSpec.describe "passing mixed arguments through pipelines" do
   context "action accepts state as well as an optional argument and a required keyword argument" do
     shared_examples :common do
       it "accepts an argument and keyword argument" do
-        expect(call("foo", bar: "bar").results).to eq(["foo", "bar"])
+        expect(call("foo", bar: "bar")).to eq(["foo", "bar"])
       end
 
       it "accepts just a keyword argument" do
-        expect(call(bar: "bar").results).to eq([nil, "bar"])
+        expect(call(bar: "bar")).to eq([nil, "bar"])
       end
 
       it "fails when no keyword argument is passed" do
@@ -211,23 +211,23 @@ RSpec.describe "passing mixed arguments through pipelines" do
   context "action accepts state as well as a required argument and an optional keyword argument" do
     shared_examples :common do
       it "accepts an argument and keyword argument" do
-        expect(call("foo", bar: "bar").results).to eq(["foo", "bar"])
+        expect(call("foo", bar: "bar")).to eq(["foo", "bar"])
       end
 
       it "accepts just an argument" do
-        expect(call("foo").results).to eq(["foo", nil])
+        expect(call("foo")).to eq(["foo", nil])
       end
 
       it "behaves as expected when no argument is passed" do
         # This is counter-intuitive, but it's how normal methods behave.
         #
-        expect(call(bar: "bar").results).to eq([{ bar: "bar" }, nil])
+        expect(call(bar: "bar")).to eq([{ bar: "bar" }, nil])
       end
 
       it "behaves as expected when no argument is passed" do
         # This is counter-intuitive, but it's the expected behavior.
         #
-        expect(call.results).to eq([{}, nil])
+        expect(call).to eq([{}, nil])
       end
     end
 
@@ -301,19 +301,19 @@ RSpec.describe "passing mixed arguments through pipelines" do
   context "action accepts state as well as an optional argument and an optional keyword argument" do
     shared_examples :common do
       it "accepts an argument and keyword argument" do
-        expect(call("foo", bar: "bar").results).to eq(["foo", "bar"])
+        expect(call("foo", bar: "bar")).to eq(["foo", "bar"])
       end
 
       it "accepts just an argument" do
-        expect(call("foo").results).to eq(["foo", nil])
+        expect(call("foo")).to eq(["foo", nil])
       end
 
       it "behaves as expected when no argument is passed" do
-        expect(call(bar: "bar").results).to eq([nil, "bar"])
+        expect(call(bar: "bar")).to eq([nil, "bar"])
       end
 
       it "behaves as expected when no argument is passed" do
-        expect(call.results).to eq([nil, nil])
+        expect(call).to eq([nil, nil])
       end
     end
 

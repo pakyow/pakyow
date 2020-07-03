@@ -26,8 +26,8 @@ RSpec.describe "calling a pipeline within another pipeline" do
       Class.new {
         include Pakyow::Support::Pipeline
 
-        action do
-          throw :halt
+        action do |result|
+          throw :halt, result
         end
       }
     }

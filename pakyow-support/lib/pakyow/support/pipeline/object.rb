@@ -19,7 +19,8 @@ module Pakyow
         end
 
         def reject
-          throw :reject, @__rejected = true
+          @__rejected = true
+          throw :reject, self
         end
 
         def rejected?
@@ -27,7 +28,8 @@ module Pakyow
         end
 
         def halt
-          throw :halt, @__halted = true
+          @__halted = true
+          throw :halt, self
         end
 
         def halted?

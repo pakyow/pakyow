@@ -39,7 +39,7 @@ RSpec.describe "defining an action on a pipeline instance" do
   end
 
   it "calls the pipeline" do
-    expect(instance.call(result.new).results).to eq(["foo", "bar"])
+    expect(instance.call(result.new)).to eq(["foo", "bar"])
   end
 
   describe "duping the instance" do
@@ -54,8 +54,8 @@ RSpec.describe "defining an action on a pipeline instance" do
     end
 
     it "maintains its own pipeline" do
-      expect(instance.call(result.new).results).to eq(["foo", "bar"])
-      expect(duped.call(result.new).results).to eq(["foo", "bar", "baz"])
+      expect(instance.call(result.new)).to eq(["foo", "bar"])
+      expect(duped.call(result.new)).to eq(["foo", "bar", "baz"])
     end
   end
 end

@@ -43,7 +43,8 @@ RSpec.describe "calling a pipeline without a pipeline object" do
     }
 
     it "calls the pipeline" do
-      expect(instance.call).to be(nil)
+      instance.call
+
       expect(instance.results[0]).to eq(["foo", nil])
       expect(instance.results[1]).to eq(["bar", nil])
     end
@@ -57,7 +58,7 @@ RSpec.describe "calling a pipeline without a pipeline object" do
         action :foo do |result|
           result << "foo"
 
-          throw :halt
+          throw :halt, result
         end
 
         action :bar do |result|

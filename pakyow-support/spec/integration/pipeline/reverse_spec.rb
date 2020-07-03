@@ -36,6 +36,6 @@ RSpec.describe "calling a pipeline in reverse" do
   end
 
   it "calls the pipeline" do
-    expect(pipelined.new.rcall(result.new).results).to eq(["bar", "foo"])
+    expect(pipelined.new.rcall(result.new)).to eq(["bar", "foo"])
   end
 end

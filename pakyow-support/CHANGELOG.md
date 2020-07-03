@@ -1,5 +1,9 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Support halting and rejecting from the pipeline.**
+
+  * `chg` **Return the last pipeline action's return value.**
+
   * `add` **Support `extends` in definable objects.**
 
     *Related links:*
