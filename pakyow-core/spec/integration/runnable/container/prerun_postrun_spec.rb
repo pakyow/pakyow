@@ -194,7 +194,7 @@ RSpec.describe "handling prerun and postrun work in nested services" do
         end
 
         define_method :perform do
-          local.run_container(local.container2, timeout: 0.1, parent: self)
+          local.run_container(local.container2, timeout: 1, parent: self)
         end
       end
 
@@ -216,7 +216,7 @@ RSpec.describe "handling prerun and postrun work in nested services" do
     }
 
     let(:container2) {
-      Pakyow::Runnable::Container.make(:test2)
+      Pakyow::Runnable::Container.make(:test2, **container_options)
     }
 
     it "only calls prerun and postrun for toplevel services" do

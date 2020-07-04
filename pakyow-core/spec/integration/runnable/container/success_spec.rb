@@ -102,7 +102,7 @@ RSpec.describe "determining container success" do
       end
 
       let(:container2) {
-        Pakyow::Runnable::Container.make(:test2)
+        Pakyow::Runnable::Container.make(:test2, **container_options)
       }
 
       it "appears successful" do
@@ -140,7 +140,7 @@ RSpec.describe "determining container success" do
       end
 
       let(:container2) {
-        Pakyow::Runnable::Container.make(:test2)
+        Pakyow::Runnable::Container.make(:test2, **container_options)
       }
 
       it "appears unsuccessful" do
@@ -180,7 +180,7 @@ RSpec.describe "determining container success" do
       end
 
       let(:container2) {
-        Pakyow::Runnable::Container.make(:test2)
+        Pakyow::Runnable::Container.make(:test2, **container_options)
       }
 
       it "appears unsuccessful" do

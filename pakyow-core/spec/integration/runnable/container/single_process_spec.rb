@@ -75,7 +75,7 @@ RSpec.describe "running a single nested service in a container" do
     end
 
     let(:container2) {
-      Pakyow::Runnable::Container.make(:test2)
+      Pakyow::Runnable::Container.make(:test2, **container_options)
     }
 
     it "runs the nested service until the top-level container is stopped" do

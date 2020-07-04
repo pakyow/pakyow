@@ -36,7 +36,7 @@ RSpec.describe "signaling runnable containers" do
   end
 
   let(:container2) {
-    Pakyow::Runnable::Container.make(:test2)
+    Pakyow::Runnable::Container.make(:test2, **container_options)
   }
 
   def run_then_kill

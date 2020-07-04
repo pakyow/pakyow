@@ -169,7 +169,7 @@ RSpec.describe "running a formation container" do
       }
 
       let(:container2) {
-        Pakyow::Runnable::Container.make(:test2)
+        Pakyow::Runnable::Container.make(:test2, **container_options)
       }
 
       let(:formation) {
@@ -223,7 +223,7 @@ RSpec.describe "running a formation container" do
       }
 
       let(:container2) {
-        Pakyow::Runnable::Container.make(:test2)
+        Pakyow::Runnable::Container.make(:test2, **container_options)
       }
 
       let(:formation) {
