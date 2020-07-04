@@ -18,7 +18,9 @@ module Pakyow
 
         ThreadLocalizer.thread_localized_store[key] = value
 
-        ObjectSpace.define_finalizer(self, ThreadLocalizer.cleanup_thread_localized(key))
+        unless frozen?
+          ObjectSpace.define_finalizer(self, ThreadLocalizer.cleanup_thread_localized(key))
+        end
       end
 
       # Returns the localized value for `key`, or `fallback`.
