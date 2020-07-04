@@ -1,3 +1,6 @@
+require "pakyow/presenter/significant_nodes"
+require "pakyow/presenter/view"
+
 RSpec.describe "empty binding scope that has no props" do
   let :view do
     Pakyow::Presenter::View.new(
