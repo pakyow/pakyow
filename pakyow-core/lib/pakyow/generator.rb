@@ -65,7 +65,8 @@ module Pakyow
 
     def perform(destination, *, **)
       destination = Pathname.new(destination)
-      Thread.current[threadlocal_key(:destination)] = destination
+
+      thread_localize(:destination, destination)
 
       performing :generate do
         FileUtils.mkdir_p(destination)
@@ -76,19 +77,15 @@ module Pakyow
 
         super
       ensure
-        Thread.current[threadlocal_key(:destination)] = nil
+        delete_thread_localized(:destination)
       end
     end
     alias generate perform
 
-    def run(command, message:, from: Thread.current[threadlocal_key(:destination)] || ".")
+    def run(command, message:, from: thread_localized(:destination, "."))
       Support::CLI::Runner.new(message: message).run(
         "cd #{from} && #{command}"
       )
-    end
-
-    private def threadlocal_key(name)
-      :"__pw_#{object_id}_#{name}"
     end
   end
 end

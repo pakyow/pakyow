@@ -29,7 +29,7 @@ RSpec.describe "passing keyword arguments through pipelines" do
   context "action accepts state as well as a required keyword argument" do
     shared_examples :common do
       it "accepts keyword arguments" do
-        expect(call(foo: "foo").results).to eq(["foo"])
+        expect(call(foo: "foo")).to eq(["foo"])
       end
 
       it "fails when no arguments are passed" do
@@ -105,7 +105,7 @@ RSpec.describe "passing keyword arguments through pipelines" do
   context "action accepts state as well as an optional keyword argument" do
     shared_examples :common do
       it "accepts keyword arguments" do
-        expect(call(foo: "foo").results).to eq(["foo"])
+        expect(call(foo: "foo")).to eq(["foo"])
       end
 
       it "does not fail when no arguments are passed" do
@@ -361,7 +361,7 @@ RSpec.describe "passing keyword arguments through pipelines" do
   context "action accepts state as the only argument" do
     shared_examples :common do
       it "does not pass arguments" do
-        expect(call.results).to eq([])
+        expect(call).to eq(nil)
       end
 
       it "does not fail when passing keyword arguments" do
@@ -429,7 +429,7 @@ RSpec.describe "passing keyword arguments through pipelines" do
   context "action does not accept any arguments" do
     shared_examples :common do
       it "does not pass arguments" do
-        expect(call.results).to eq([])
+        expect(call).to eq(nil)
       end
 
       it "does not fail when passing keyword arguments" do

@@ -37,7 +37,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar"])
     end
 
     describe "call context" do
@@ -53,7 +53,7 @@ RSpec.describe "pipelines" do
       end
 
       it "calls the action in context of the pipelined instance" do
-        pipelined.new.call(result.new).results.each do |result|
+        pipelined.new.call(result.new).each do |result|
           expect(result).to be_instance_of(pipelined)
         end
       end
@@ -72,7 +72,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
 
     describe "call context" do
@@ -87,7 +87,7 @@ RSpec.describe "pipelines" do
       end
 
       it "calls the action in context of the pipelined instance" do
-        pipelined.new.call(result.new).results.each do |result|
+        pipelined.new.call(result.new).each do |result|
           expect(result).to be_instance_of(pipelined)
         end
       end
@@ -106,7 +106,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
 
     describe "call context" do
@@ -121,7 +121,7 @@ RSpec.describe "pipelines" do
       end
 
       it "calls the action in context of the pipelined instance" do
-        pipelined.new.call(result.new).results.each do |result|
+        pipelined.new.call(result.new).each do |result|
           expect(result).to be_instance_of(pipelined)
         end
       end
@@ -142,7 +142,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
 
     context "action is defined with options" do
@@ -163,7 +163,7 @@ RSpec.describe "pipelines" do
       end
 
       it "passes the options to the instance" do
-        expect(pipelined.new.call(result.new).results).to eq(["option"])
+        expect(pipelined.new.call(result.new)).to eq(["option"])
       end
     end
 
@@ -176,6 +176,7 @@ RSpec.describe "pipelines" do
             def call(result)
               result << @foo
               @foo = :foo
+              result
             end
           }
         end
@@ -208,7 +209,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
 
     context "action is defined with options" do
@@ -229,7 +230,7 @@ RSpec.describe "pipelines" do
       end
 
       it "passes the options to the instance" do
-        expect(pipelined.new.call(result.new).results).to eq(["option"])
+        expect(pipelined.new.call(result.new)).to eq(["option"])
       end
     end
 
@@ -250,7 +251,7 @@ RSpec.describe "pipelines" do
       end
 
       it "calls the pipeline" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo"])
+        expect(pipelined.new.call(result.new)).to eq(["foo"])
       end
     end
   end
@@ -267,7 +268,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
   end
 
@@ -283,7 +284,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
   end
 
@@ -301,7 +302,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
   end
 
@@ -319,7 +320,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
   end
 
@@ -350,8 +351,8 @@ RSpec.describe "pipelines" do
 
     it "calls the pipeline" do
       instance = pipelined.new
-      instance.call(result.new)
-      expect(instance.results).to eq(["foo", "bar"])
+
+      expect(instance.call(result.new)).to eq(["foo", "bar"])
     end
   end
 
@@ -369,7 +370,7 @@ RSpec.describe "pipelines" do
         end
 
         def bar(result)
-          result.halt
+          halt result
         end
 
         def baz(result)
@@ -408,7 +409,7 @@ RSpec.describe "pipelines" do
     end
 
     it "skips to the next action" do
-      expect(pipelined.new.call(result.new).results).to eq(["bar", "baz"])
+      expect(pipelined.new.call(result.new)).to eq(["bar", "baz"])
     end
   end
 
@@ -438,7 +439,7 @@ RSpec.describe "pipelines" do
     end
 
     it "wraps the next actions" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar1", "baz", "bar2"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar1", "baz", "bar2"])
     end
 
     context "action does not accept an argument" do
@@ -475,8 +476,8 @@ RSpec.describe "pipelines" do
 
       it "wraps the next actions" do
         instance = pipelined.new
-        instance.call(result.new)
-        expect(instance.results).to eq(["foo", "bar1", "baz", "bar2"])
+
+        expect(instance.call(result.new)).to eq(["foo", "bar1", "baz", "bar2"])
       end
     end
   end
@@ -509,7 +510,7 @@ RSpec.describe "pipelines" do
     end
 
     it "wraps the next actions" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar1", "baz", "bar2"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar1", "baz", "bar2"])
     end
   end
 
@@ -541,7 +542,7 @@ RSpec.describe "pipelines" do
     end
 
     it "wraps the next actions" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar1", "baz", "bar2"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar1", "baz", "bar2"])
     end
   end
 
@@ -567,10 +568,10 @@ RSpec.describe "pipelines" do
     end
 
     it "replaces the actions of the current pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
 
       pipelined.use_pipeline :bar
-      expect(pipelined.new.call(result.new).results).to eq(["bar"])
+      expect(pipelined.new.call(result.new)).to eq(["bar"])
     end
   end
 
@@ -596,10 +597,10 @@ RSpec.describe "pipelines" do
     end
 
     it "includes the actions into the current pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
 
       pipelined.include_pipeline :bar
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar"])
     end
   end
 
@@ -626,10 +627,10 @@ RSpec.describe "pipelines" do
     end
 
     it "excludes the actions from the current pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar"])
 
       pipelined.exclude_pipeline :bar
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
   end
 
@@ -678,12 +679,12 @@ RSpec.describe "pipelines" do
       end
 
       before do
-        expect(pipelined.new.call(result.new).results).to eq(["current"])
+        expect(pipelined.new.call(result.new)).to eq(["current"])
       end
 
       it "replaces the actions of the current pipeline" do
         pipelined.use_pipeline pipeline_module
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz", "qux", "unnamed"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "bar", "baz", "qux", "unnamed"])
       end
 
       describe "using a pipeline module in two different classes" do
@@ -701,10 +702,10 @@ RSpec.describe "pipelines" do
 
         it "works for both pipelines objects" do
           pipelined.use_pipeline pipeline_module
-          expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz", "qux", "unnamed"])
+          expect(pipelined.new.call(result.new)).to eq(["foo", "bar", "baz", "qux", "unnamed"])
 
           pipelined_2.use_pipeline pipeline_module
-          expect(pipelined_2.new.call(result.new).results).to eq(["foo", "bar", "baz", "qux", "unnamed"])
+          expect(pipelined_2.new.call(result.new)).to eq(["foo", "bar", "baz", "qux", "unnamed"])
         end
       end
     end
@@ -723,10 +724,10 @@ RSpec.describe "pipelines" do
       end
 
       it "includes the actions into the current pipeline" do
-        expect(pipelined.new.call(result.new).results).to eq(["current"])
+        expect(pipelined.new.call(result.new)).to eq(["current"])
 
         pipelined.include_pipeline pipeline_module
-        expect(pipelined.new.call(result.new).results).to eq(["current", "foo", "bar", "baz", "qux", "unnamed"])
+        expect(pipelined.new.call(result.new)).to eq(["current", "foo", "bar", "baz", "qux", "unnamed"])
       end
     end
 
@@ -744,11 +745,11 @@ RSpec.describe "pipelines" do
       end
 
       it "excludes the actions from the current pipeline" do
-        expect(pipelined.new.call(result.new).results).to eq(["current"])
+        expect(pipelined.new.call(result.new)).to eq(["current"])
 
         pipelined.include_pipeline pipeline_module
         pipelined.exclude_pipeline pipeline_module
-        expect(pipelined.new.call(result.new).results).to eq(["current"])
+        expect(pipelined.new.call(result.new)).to eq(["current"])
       end
     end
 
@@ -795,7 +796,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action after" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "baz", "bar"])
       end
     end
 
@@ -823,7 +824,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action after" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "baz", "bar"])
       end
     end
 
@@ -847,7 +848,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action after" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "baz", "bar"])
       end
     end
 
@@ -871,7 +872,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action at the end" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "bar", "baz"])
       end
     end
   end
@@ -897,7 +898,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action before" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "baz", "bar"])
       end
     end
 
@@ -925,7 +926,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action before" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "baz", "bar"])
       end
     end
 
@@ -949,7 +950,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action before" do
-        expect(pipelined.new.call(result.new).results).to eq(["foo", "baz", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["foo", "baz", "bar"])
       end
     end
 
@@ -973,7 +974,7 @@ RSpec.describe "pipelines" do
       end
 
       it "adds the action at the beginning" do
-        expect(pipelined.new.call(result.new).results).to eq(["baz", "foo", "bar"])
+        expect(pipelined.new.call(result.new)).to eq(["baz", "foo", "bar"])
       end
     end
   end
@@ -1004,7 +1005,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "qux"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar", "qux"])
     end
   end
 
@@ -1034,7 +1035,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["bar", "qux"])
+      expect(pipelined.new.call(result.new)).to eq(["bar", "qux"])
     end
   end
 
@@ -1059,13 +1060,13 @@ RSpec.describe "pipelines" do
 
     it "can be called twice on the same instance" do
       pipeline = pipelined.new
-      expect(pipeline.call(result.new).results).to eq(["foo", "bar", "baz"])
-      expect(pipeline.call(result.new).results).to eq(["foo", "bar", "baz"])
+      expect(pipeline.call(result.new)).to eq(["foo", "bar", "baz"])
+      expect(pipeline.call(result.new)).to eq(["foo", "bar", "baz"])
     end
 
     it "can be called on different instances" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar", "baz"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar", "baz"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar", "baz"])
     end
   end
 
@@ -1091,7 +1092,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the pipeline" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo", "bar"])
+      expect(pipelined.new.call(result.new)).to eq(["foo", "bar"])
     end
   end
 
@@ -1115,7 +1116,7 @@ RSpec.describe "pipelines" do
     end
 
     it "does not call the new action" do
-      expect(pipelined.new.call(result.new).results).to eq(["foo"])
+      expect(pipelined.new.call(result.new)).to eq(["foo"])
     end
   end
 
@@ -1145,7 +1146,7 @@ RSpec.describe "pipelines" do
     end
 
     it "calls the new action" do
-      expect(callable.call(result.new).results).to eq(["foo", "bar"])
+      expect(callable.call(result.new)).to eq(["foo", "bar"])
     end
   end
 end

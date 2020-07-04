@@ -2,6 +2,7 @@
 
 require_relative "deprecation"
 require_relative "deprecator/reporters/null"
+require_relative "thread_localizer"
 
 module Pakyow
   module Support
@@ -38,6 +39,8 @@ module Pakyow
     #   end
     #
     class Deprecator
+      include ThreadLocalizer
+
       def initialize(reporter:)
         @reporter = reporter
       end
@@ -84,15 +87,11 @@ module Pakyow
       end
 
       private def reporter
-        Thread.current[thread_local_key] || @reporter
+        thread_localized(:reporter) || @reporter
       end
 
       private def replace(reporter)
-        Thread.current[thread_local_key] = reporter
-      end
-
-      private def thread_local_key
-        @thread_local_key ||= :"pakyow_deprecator_#{object_id}_reporter"
+        thread_localize(:reporter, reporter)
       end
 
       class << self

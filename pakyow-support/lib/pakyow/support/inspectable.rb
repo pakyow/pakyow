@@ -2,6 +2,7 @@
 
 require_relative "class_state"
 require_relative "extension"
+require_relative "thread_localizer"
 
 module Pakyow
   module Support
@@ -113,7 +114,7 @@ module Pakyow
       end
 
       def inspected_objects
-        Thread.current[:inspected_objects] ||= {}
+        ThreadLocalizer.thread_localized_store[:__pw_inspected_objects] ||= {}
       end
 
       def prevent_inspect_recursion

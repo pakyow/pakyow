@@ -182,7 +182,9 @@ RSpec.configure do |config|
       remove_constants(["Generators"], Pakyow, false)
     end
 
-    Thread.current[:pakyow_logger] = nil
+    if defined?(Pakyow::Support::ThreadLocalizer)
+      Pakyow::Support::ThreadLocalizer.thread_localized_store&.clear
+    end
 
     if ENV["RSS"]
       GC.start

@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Expose results from operations.**
+
   * `fix` **Stop container notifiers more cleanly.**
 
     *Related links:*

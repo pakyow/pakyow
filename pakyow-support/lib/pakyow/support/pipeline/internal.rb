@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../deep_freeze"
+require_relative "../thread_localizer"
 
 module Pakyow
   module Support
@@ -89,35 +90,51 @@ module Pakyow
         end
 
         private def call_actions(actions, context, *args, **kwargs)
-          Thread.current[:__pw_pipeline] ||= object_id
+          ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] ||= object_id
 
+          value = nil
           finished = false
 
-          catch :halt do
-            call_each_action(actions, context, *args, **kwargs)
+          halted = catch :halt do
+            value = call_each_action(actions, context, *args, **kwargs)
 
             finished = true
           end
 
-          unless finished || Thread.current[:__pw_pipeline] == object_id
-            throw :halt
+          unless finished
+            value = halted
+
+            unless ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] == object_id
+              throw :halt, value
+            end
           end
 
-          args.first
+          value
         ensure
-          if Thread.current[:__pw_pipeline] == object_id
-            Thread.current[:__pw_pipeline] = nil
+          if ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] == object_id
+            ThreadLocalizer.thread_localized_store.delete(:__pw_pipeline_object_id)
           end
         end
 
         private def call_each_action(actions, context, *args, **kwargs)
+          value = nil
+          finished = false
+
           until actions.empty?
-            catch :reject do
-              actions.shift.call(context, *args, **kwargs) do
+            rejected = catch :reject do
+              value = actions.shift.call(context, *args, **kwargs) do
                 call_each_action(actions, context, *args, **kwargs)
               end
+
+              finished = true
+            end
+
+            unless finished
+              value = rejected
             end
           end
+
+          value
         end
       end
     end

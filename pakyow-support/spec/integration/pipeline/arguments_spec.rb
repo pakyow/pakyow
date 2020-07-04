@@ -25,7 +25,7 @@ RSpec.describe "passing arguments through pipelines" do
   context "action accepts state as well as a required argument" do
     shared_examples :common do
       it "accepts arguments" do
-        expect(call("foo").results).to eq(["foo"])
+        expect(call("foo")).to eq(["foo"])
       end
 
       it "fails when no arguments are passed" do
@@ -63,7 +63,7 @@ RSpec.describe "passing arguments through pipelines" do
       }
 
       it "accepts arguments" do
-        expect(call("foo").results).to eq(["foo"])
+        expect(call("foo")).to eq(["foo"])
       end
 
       it "does not fail when no arguments are passed" do
@@ -109,7 +109,7 @@ RSpec.describe "passing arguments through pipelines" do
   context "action accepts state as well as an optional argument" do
     shared_examples :common do
       it "accepts arguments" do
-        expect(call("foo").results).to eq(["foo"])
+        expect(call("foo")).to eq(["foo"])
       end
 
       it "does not fail when no arguments are passed" do
@@ -185,7 +185,7 @@ RSpec.describe "passing arguments through pipelines" do
   context "action accepts state as the only argument" do
     shared_examples :common do
       it "does not pass arguments" do
-        expect(call.results).to eq([])
+        expect(call).to eq(nil)
       end
 
       it "does not fail when passing arguments" do
@@ -253,7 +253,7 @@ RSpec.describe "passing arguments through pipelines" do
   context "action does not accept any arguments" do
     shared_examples :common do
       it "does not pass arguments" do
-        expect(call.results).to eq([])
+        expect(call).to eq(nil)
       end
 
       it "does not fail when passing arguments" do
