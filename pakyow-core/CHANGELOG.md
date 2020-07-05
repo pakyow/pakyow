@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Fix asset fetching for generated projects.**
+
+    *Related links:*
+    - [Pull Request #494][pr-494]
+
   * `add` **Expose results from operations.**
 
   * `fix` **Stop container notifiers more cleanly.**
@@ -575,6 +580,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-494]: https://github.com/pakyow/pakyow/pull/494
 [pr-492]: https://github.com/pakyow/pakyow/pull/492
 [pr-490]: https://github.com/pakyow/pakyow/pull/490
 [pr-484]: https://github.com/pakyow/pakyow/pull/484

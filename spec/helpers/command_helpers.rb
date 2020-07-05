@@ -14,7 +14,7 @@ module CommandHelpers
 
     output = StringIO.new
     allow(output).to receive(:tty?).and_return(tty)
-    allow(Pakyow::CLI).to receive(:project_context?).and_return(project)
+    allow(Pakyow).to receive(:project?).and_return(project)
     allow(Process).to receive(:exit)
 
     Pakyow.load

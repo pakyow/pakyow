@@ -10,7 +10,17 @@ generator :application do
 
   action :update_assets do
     Bundler.with_original_env do
-      run "bundle exec pakyow assets:update -a #{name}", message: "Updating external assets", from: Pakyow.config.root
+      options = {
+        message: "Updating external assets"
+      }
+
+      if Pakyow.project?
+        # Guarantees that we're running from the project root when generating a nested application.
+        #
+        options[:from] = Pakyow.config.root
+      end
+
+      run "bundle exec pakyow assets:update -a #{name}", **options
     end
   end
 

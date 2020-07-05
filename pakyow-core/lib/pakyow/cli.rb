@@ -70,11 +70,6 @@ module Pakyow
         end
       end
 
-      # @api private
-      def project_context?
-        File.exist?(Pakyow.config.environment_path + ".rb")
-      end
-
       private def run_cli_command(cli, command, options, argv)
         cli.with(command, debug: options[:debug]) do |callable_command|
           unless options[:help]
@@ -171,7 +166,7 @@ module Pakyow
 
     private def commands
       (Pakyow.commands.definitions + Pakyow.tasks).select { |command|
-        (command.global? && !self.class.project_context?) || (!command.global? && self.class.project_context?)
+        (command.global? && !Pakyow.project?) || (!command.global? && Pakyow.project?)
       }
     end
 

@@ -179,7 +179,7 @@ RSpec.describe "command line interface" do
   before do
     define_apps
 
-    allow(Pakyow::CLI).to receive(:project_context?).and_return(project_context)
+    allow(Pakyow).to receive(:project?).and_return(project_context)
 
     # Set the working directory to the supporting app.
     #

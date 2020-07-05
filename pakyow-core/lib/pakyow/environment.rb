@@ -373,6 +373,12 @@ module Pakyow
     #
     attr_reader :env
 
+    # Returns true if the current working directory is a project root.
+    #
+    def project?
+      File.exist?(Pakyow.config.environment_path + ".rb")
+    end
+
     # Global log output.
     #
     # Builds and returns a default global output that's replaced in `setup`.

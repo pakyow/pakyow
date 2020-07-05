@@ -13,7 +13,7 @@ RSpec.describe "booting the environment when running the cli" do
   def run(*command)
     output = StringIO.new
     allow(output).to receive(:tty?).and_return(true)
-    allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
+    allow(Pakyow).to receive(:project?).and_return(true)
     Pakyow::CLI.run(command, output: output)
   end
 

@@ -6,7 +6,7 @@ RSpec.describe "debugging a cli failure" do
       end
     end
 
-    allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
+    allow(Pakyow).to receive(:project?).and_return(true)
   end
 
   let(:command) {
