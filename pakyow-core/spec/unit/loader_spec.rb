@@ -220,7 +220,7 @@ RSpec.describe Pakyow::Loader do
     }
 
     let(:files) {
-      ["foo/one.rb", "foo/two.rb"]
+      ["foo/2.rb", "foo/1.rb"]
     }
 
     let(:directories) {
@@ -236,8 +236,8 @@ RSpec.describe Pakyow::Loader do
     }
 
     it "loads each matching file" do
-      expect(described_class).to receive(:new).with("foo/one.rb").and_return(loader)
-      expect(described_class).to receive(:new).with("foo/two.rb").and_return(loader)
+      expect(described_class).to receive(:new).with("foo/1.rb").ordered.and_return(loader)
+      expect(described_class).to receive(:new).with("foo/2.rb").ordered.and_return(loader)
 
       described_class.load_path(path, target: target)
     end
@@ -255,12 +255,12 @@ RSpec.describe Pakyow::Loader do
       end
 
       let(:files) {
-        ["foo/one.foo", "foo/two.foo"]
+        ["foo/1.foo", "foo/2.foo"]
       }
 
       it "loads each matching file" do
-        expect(described_class).to receive(:new).with("foo/one.foo").and_return(loader)
-        expect(described_class).to receive(:new).with("foo/two.foo").and_return(loader)
+        expect(described_class).to receive(:new).with("foo/1.foo").ordered.and_return(loader)
+        expect(described_class).to receive(:new).with("foo/2.foo").ordered.and_return(loader)
 
         described_class.load_path(path, target: target, pattern: "*.foo")
       end
@@ -277,18 +277,18 @@ RSpec.describe Pakyow::Loader do
       before do
         described_class.load_path(path, target: target)
 
-        files << "foo/three.rb"
+        files.unshift("foo/3.rb")
       end
 
       it "loads files that have not been loaded" do
-        expect(described_class).to receive(:new).with("foo/three.rb").and_return(loader)
+        expect(described_class).to receive(:new).with("foo/3.rb").and_return(loader)
 
         described_class.load_path(path, target: target)
       end
 
       it "does not load files that have been loaded" do
-        expect(described_class).not_to receive(:new).with("foo/one.rb")
-        expect(described_class).not_to receive(:new).with("foo/two.rb")
+        expect(described_class).not_to receive(:new).with("foo/1.rb").ordered
+        expect(described_class).not_to receive(:new).with("foo/2.rb").ordered
 
         described_class.load_path(path, target: target)
       end
@@ -299,9 +299,9 @@ RSpec.describe Pakyow::Loader do
         end
 
         it "loads all files" do
-          expect(described_class).to receive(:new).with("foo/one.rb").and_return(loader)
-          expect(described_class).to receive(:new).with("foo/two.rb").and_return(loader)
-          expect(described_class).to receive(:new).with("foo/three.rb").and_return(loader)
+          expect(described_class).to receive(:new).ordered.with("foo/1.rb").and_return(loader)
+          expect(described_class).to receive(:new).ordered.with("foo/2.rb").and_return(loader)
+          expect(described_class).to receive(:new).ordered.with("foo/3.rb").and_return(loader)
 
           described_class.load_path(path, target: target)
         end
@@ -309,9 +309,9 @@ RSpec.describe Pakyow::Loader do
 
       describe "reloading" do
         it "loads all files" do
-          expect(described_class).to receive(:new).with("foo/one.rb").and_return(loader)
-          expect(described_class).to receive(:new).with("foo/two.rb").and_return(loader)
-          expect(described_class).to receive(:new).with("foo/three.rb").and_return(loader)
+          expect(described_class).to receive(:new).with("foo/1.rb").ordered.and_return(loader)
+          expect(described_class).to receive(:new).with("foo/2.rb").ordered.and_return(loader)
+          expect(described_class).to receive(:new).with("foo/3.rb").ordered.and_return(loader)
 
           described_class.load_path(path, target: target, reload: true)
         end

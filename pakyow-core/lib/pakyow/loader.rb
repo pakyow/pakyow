@@ -13,14 +13,14 @@ module Pakyow
 
     class << self
       def load_path(path, target:, pattern: "*.rb", reload: false)
-        Dir.glob(File.join(path, pattern)).each do |file_path|
+        Dir.glob(File.join(path, pattern)).sort.each do |file_path|
           if reload || !@__loaded_paths.include?(file_path)
             Loader.new(file_path).call(target)
             @__loaded_paths << file_path
           end
         end
 
-        Dir.glob(File.join(path, "*")).select { |each_path|
+        Dir.glob(File.join(path, "*")).sort.select { |each_path|
           File.directory?(each_path)
         }.each do |directory_path|
           load_path(directory_path, target: target, pattern: pattern, reload: reload)
