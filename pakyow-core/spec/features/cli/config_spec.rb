@@ -12,7 +12,7 @@ RSpec.describe "setting the environment config in the cli" do
 
     Pakyow.command :config do; end
     allow(output).to receive(:tty?).and_return(true)
-    allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
+    allow(Pakyow).to receive(:project?).and_return(true)
   end
 
   after do

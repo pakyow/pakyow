@@ -12,7 +12,7 @@ RSpec.describe Pakyow::CLI do
   describe "requiring config/environment.rb" do
     context "within the project folder" do
       before do
-        allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
+        allow(Pakyow).to receive(:project?).and_return(true)
       end
 
       it "loads the environment" do
@@ -24,7 +24,7 @@ RSpec.describe Pakyow::CLI do
 
     context "outside of a project folder" do
       before do
-        allow(Pakyow::CLI).to receive(:project_context?).and_return(false)
+        allow(Pakyow).to receive(:project?).and_return(false)
       end
 
       it "loads the environment" do
@@ -61,7 +61,7 @@ RSpec.describe Pakyow::CLI do
 
     context "within the project folder" do
       before do
-        allow(Pakyow::CLI).to receive(:project_context?).and_return(true)
+        allow(Pakyow).to receive(:project?).and_return(true)
       end
 
       it "only includes project commands" do
@@ -72,7 +72,7 @@ RSpec.describe Pakyow::CLI do
 
     context "outside of a project folder" do
       before do
-        allow(Pakyow::CLI).to receive(:project_context?).and_return(false)
+        allow(Pakyow).to receive(:project?).and_return(false)
       end
 
       it "only includes global commands" do

@@ -58,8 +58,7 @@ RSpec.describe "cli: create" do
     it "updates external assets" do
       expect_any_instance_of(Pakyow::Generators::Application).to receive(:run).at_least(:once).with(
         "bundle exec pakyow assets:update -a app",
-        message: "Updating external assets",
-        from: Dir.pwd
+        message: "Updating external assets"
       )
 
       allow(Bundler).to receive(:with_original_env) do |&block|
