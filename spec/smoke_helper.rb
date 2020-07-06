@@ -54,6 +54,7 @@ RSpec.configure do |config|
   end
 
   config.after do
+    sleep 5
     shutdown if booted?
     Dir.chdir(@original_path)
     FileUtils.rm_r(@working_path)
