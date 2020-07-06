@@ -1,6 +1,7 @@
 require "bundler"
 require "http"
 require "fileutils"
+require "securerandom"
 require "timeout"
 
 require "pakyow/support/system"
@@ -42,12 +43,12 @@ RSpec.configure do |config|
 
   config.before :all do
     @project_name = "smoke-test"
-    @working_path = File.expand_path("../tmp", __FILE__)
-    @project_path = File.join(@working_path, @project_name)
     @original_path = Dir.pwd
   end
 
   config.before do
+    @working_path = File.join(@original_path, "smoke-#{SecureRandom.hex(4)}")
+    @project_path = File.join(@working_path, @project_name)
     Dir.chdir(@original_path)
     create
   end
