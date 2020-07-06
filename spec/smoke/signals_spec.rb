@@ -10,7 +10,7 @@ RSpec.describe "signaling a running project", smoke: true do
 
     it "shuts down" do
       expect {
-        HTTP.head("http://localhost:#{port}/")
+        http.head("http://localhost:#{port}/")
       }.to raise_error(HTTP::ConnectionError)
     end
 
@@ -29,7 +29,7 @@ RSpec.describe "signaling a running project", smoke: true do
 
     it "shuts down" do
       expect {
-        HTTP.head("http://localhost:#{port}/")
+        http.head("http://localhost:#{port}/")
       }.to raise_error(HTTP::ConnectionError)
     end
 
@@ -59,7 +59,7 @@ RSpec.describe "signaling a running project", smoke: true do
     end
 
     it "reloads" do
-      response = HTTP.get("http://localhost:#{port}/")
+      response = http.get("http://localhost:#{port}/")
       expect(response.body.to_s).to eq("foo")
     end
   end

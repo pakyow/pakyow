@@ -18,7 +18,7 @@ RSpec.describe "booting a formation", smoke: true do
   end
 
   it "boots" do
-    response = HTTP.get("http://localhost:#{port}/")
+    response = http.get("http://localhost:#{port}/")
     expect(response.body.to_s).to eq("foo")
   end
 end

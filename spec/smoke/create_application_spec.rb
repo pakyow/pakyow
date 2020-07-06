@@ -28,7 +28,7 @@ RSpec.describe "creating an application in an existing project", smoke: true do
 
   describe "the new application" do
     it "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}/foo")
+      response = http.get("http://localhost:#{port}/foo")
 
       expect(response.status).to eq(200)
       expect(response.body.to_s).to eq("foo")
@@ -113,7 +113,7 @@ RSpec.describe "creating an application in an existing project", smoke: true do
 
     describe "the relocated application" do
       it "responds to a request" do
-        response = HTTP.get("http://localhost:#{port}/")
+        response = http.get("http://localhost:#{port}/")
 
         expect(response.status).to eq(200)
         expect(response.body.to_s).to eq("smoke-test")
@@ -173,7 +173,7 @@ RSpec.describe "creating an application in an existing project", smoke: true do
 
       describe "the relocated application" do
         it "responds to a request" do
-          response = HTTP.get("http://localhost:#{port}/")
+          response = http.get("http://localhost:#{port}/")
 
           expect(response.status).to eq(200)
           expect(response.body.to_s).to eq("smoke-test")

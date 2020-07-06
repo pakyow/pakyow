@@ -26,6 +26,10 @@ module SmokeContext
   let(:project_path) {
     Pathname(@project_path)
   }
+
+  let(:http) {
+    HTTP.timeout(15)
+  }
 end
 
 RSpec.configure do |config|

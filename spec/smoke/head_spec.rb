@@ -18,12 +18,12 @@ RSpec.describe "head requests", smoke: true do
   end
 
   it "sets an empty body" do
-    response = HTTP.head("http://localhost:#{port}/")
+    response = http.head("http://localhost:#{port}/")
     expect(response.body.to_s).to be_empty
   end
 
   it "sets the content-length header" do
-    response = HTTP.head("http://localhost:#{port}/")
+    response = http.head("http://localhost:#{port}/")
     expect(response.headers["Content-Length"].to_i).to eq(3)
   end
 end

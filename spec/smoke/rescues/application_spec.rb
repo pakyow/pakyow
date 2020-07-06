@@ -21,7 +21,7 @@ RSpec.describe "rescuing the application", smoke: true do
     end
 
     let(:response) {
-      HTTP.get("http://localhost:#{port}/")
+      http.get("http://localhost:#{port}/")
     }
 
     context "running in development" do

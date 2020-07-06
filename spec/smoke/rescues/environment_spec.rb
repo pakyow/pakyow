@@ -16,7 +16,7 @@ RSpec.describe "rescuing the environment", smoke: true do
 
     it "fails to boot" do
       expect {
-        HTTP.get("http://localhost:#{port}/")
+        http.get("http://localhost:#{port}/")
       }.to raise_error(HTTP::ConnectionError)
     end
   end
@@ -35,7 +35,7 @@ RSpec.describe "rescuing the environment", smoke: true do
     end
 
     it "responds 500" do
-      response = HTTP.get("http://localhost:#{port}/")
+      response = http.get("http://localhost:#{port}/")
 
       expect(response.status).to eq(500)
     end

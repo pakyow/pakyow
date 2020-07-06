@@ -10,7 +10,7 @@ RSpec.describe "serving public files", smoke: true do
   end
 
   it "responds to a request" do
-    response = HTTP.get("http://localhost:#{port}/robots.txt")
+    response = http.get("http://localhost:#{port}/robots.txt")
 
     expect(response.status).to eq(200)
     expect(response.body.to_s).to include("Allow: /")
@@ -34,7 +34,7 @@ RSpec.describe "serving public files", smoke: true do
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}/robots.txt")
+      response = http.get("http://localhost:#{port}/robots.txt")
 
       expect(response.status).to eq(200)
       expect(response.body.to_s).to include("Allow: /")

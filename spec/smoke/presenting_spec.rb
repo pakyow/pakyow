@@ -25,7 +25,7 @@ RSpec.describe "presenting views", smoke: true do
   }
 
   it "responds to a request" do
-    response = HTTP.get("http://localhost:#{port}")
+    response = http.get("http://localhost:#{port}")
 
     expect(response.status).to eq(200)
     expect(response.body.to_s).to include("presented")
@@ -53,7 +53,7 @@ RSpec.describe "presenting views", smoke: true do
     }
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}")
+      response = http.get("http://localhost:#{port}")
 
       expect(response.status).to eq(200)
       expect(response.body.to_s).to include("presented")

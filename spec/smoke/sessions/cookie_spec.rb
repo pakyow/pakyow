@@ -2,11 +2,11 @@ require "smoke_helper"
 
 RSpec.describe "sessions, with the cookie adapter", smoke: true do
   let(:set_response) {
-    HTTP.put("http://localhost:#{port}/session/set")
+    http.put("http://localhost:#{port}/session/set")
   }
 
   let(:get_response) {
-    HTTP.get("http://localhost:#{port}/session/get", headers: {
+    http.get("http://localhost:#{port}/session/get", headers: {
       "cookie" => "pakyow.session=#{extract_session(set_response)}"
     })
   }
@@ -81,13 +81,13 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
     end
 
     let(:chg_response) {
-      HTTP.put("http://localhost:#{port}/session/chg", headers: {
+      http.put("http://localhost:#{port}/session/chg", headers: {
         "cookie" => "pakyow.session=#{extract_session(set_response)}"
       })
     }
 
     let(:get_response_2) {
-      HTTP.get("http://localhost:#{port}/session/get", headers: {
+      http.get("http://localhost:#{port}/session/get", headers: {
         "cookie" => "pakyow.session=#{extract_session(chg_response)}"
       })
     }
@@ -125,13 +125,13 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
     end
 
     let(:del_response) {
-      HTTP.delete("http://localhost:#{port}/session/del", headers: {
+      http.delete("http://localhost:#{port}/session/del", headers: {
         "cookie" => "pakyow.session=#{extract_session(set_response)}"
       })
     }
 
     let(:get_response_2) {
-      HTTP.get("http://localhost:#{port}/session/get", headers: {
+      http.get("http://localhost:#{port}/session/get", headers: {
         "cookie" => "pakyow.session=#{extract_session(del_response)}"
       })
     }
@@ -161,7 +161,7 @@ RSpec.describe "sessions, with the cookie adapter", smoke: true do
     end
 
     let(:get_response) {
-      HTTP.get("http://localhost:#{port}/session/get", headers: {
+      http.get("http://localhost:#{port}/session/get", headers: {
         "cookie" => "hacked"
       })
     }

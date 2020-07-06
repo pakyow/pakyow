@@ -17,7 +17,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}")
+      response = http.get("http://localhost:#{port}")
 
       # It'll 404 because of the default view missing message. This is fine.
       #
@@ -38,7 +38,7 @@ RSpec.describe "starting up a newly generated project", smoke: true do
     end
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}")
+      response = http.get("http://localhost:#{port}")
 
       # It'll 404 because of the default view missing message. This is fine.
       #

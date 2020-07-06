@@ -27,7 +27,7 @@ RSpec.describe "respawning a project", smoke: true do
       #
       sleep 10
 
-      response = HTTP.get("http://localhost:#{port}")
+      response = http.get("http://localhost:#{port}")
 
       expect(response.status).to eq(200)
       expect(response.body.to_s).to include("<strong>hello web</strong>")

@@ -23,7 +23,7 @@ RSpec.describe "serving assets", smoke: true do
   }
 
   it "responds to a request" do
-    response = HTTP.get("http://localhost:#{port}/assets/styles/default.css")
+    response = http.get("http://localhost:#{port}/assets/styles/default.css")
 
     expect(response.status).to eq(200)
     expect(response.body.to_s).to include("background: purple")
@@ -49,7 +49,7 @@ RSpec.describe "serving assets", smoke: true do
     }
 
     it "responds to a request" do
-      response = HTTP.get("http://localhost:#{port}/assets/styles/default.css")
+      response = http.get("http://localhost:#{port}/assets/styles/default.css")
 
       expect(response.status).to eq(200)
       expect(response.body.to_s).to include("background: purple")

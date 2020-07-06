@@ -21,7 +21,7 @@ RSpec.describe "restarting a project", smoke: true do
       #
       sleep 0.5
 
-      response = HTTP.get("http://localhost:#{port}")
+      response = http.get("http://localhost:#{port}")
 
       expect(response.status).to eq(200)
       expect(response.body.to_s).to include("hello web")

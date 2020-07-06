@@ -18,13 +18,13 @@ RSpec.describe "setting the content length header on the response", smoke: true 
   end
 
   it "is set" do
-    response = HTTP.get("http://localhost:#{port}/")
+    response = http.get("http://localhost:#{port}/")
     expect(response.headers["Content-Length"].to_i).to eq(3)
   end
 
   context "request is head" do
     it "is set" do
-      response = HTTP.head("http://localhost:#{port}/")
+      response = http.head("http://localhost:#{port}/")
       expect(response.headers["Content-Length"].to_i).to eq(3)
     end
   end

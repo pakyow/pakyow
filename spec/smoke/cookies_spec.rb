@@ -29,12 +29,12 @@ RSpec.describe "cookies", smoke: true do
     end
 
     it "sets the cookie with default options" do
-      response = HTTP.put("http://localhost:#{port}/cookies/set")
+      response = http.put("http://localhost:#{port}/cookies/set")
       expect(response.headers["Set-Cookie"]).to eq("foo=bar; path=/")
     end
 
     it "gets the cookie" do
-      response = HTTP.get("http://localhost:#{port}/cookies/get", headers: { "cookie" => "foo=bar" })
+      response = http.get("http://localhost:#{port}/cookies/get", headers: { "cookie" => "foo=bar" })
       expect(response.body.to_s).to eq("bar")
     end
   end
@@ -72,7 +72,7 @@ RSpec.describe "cookies", smoke: true do
     end
 
     it "sets the cookie" do
-      response = HTTP.put("http://localhost:#{port}/cookies/set")
+      response = http.put("http://localhost:#{port}/cookies/set")
       expect(response.headers["Set-Cookie"]).to eq("foo=bar; domain=pakyow.com; path=/; max-age=60; expires=#{(Time.now + 120).httpdate}; Secure; HttpOnly; SameSite=Strict")
     end
   end
@@ -106,13 +106,13 @@ RSpec.describe "cookies", smoke: true do
     end
 
     it "sets each cookie" do
-      response = HTTP.put("http://localhost:#{port}/cookies/set")
+      response = http.put("http://localhost:#{port}/cookies/set")
       expect(response.headers["Set-Cookie"][0]).to eq("foo=bar; path=/")
       expect(response.headers["Set-Cookie"][1]).to eq("bar=baz; path=/")
     end
 
     it "gets each cookie" do
-      response = HTTP.get("http://localhost:#{port}/cookies/get", headers: { "cookie" => "foo=bar; bar=baz" })
+      response = http.get("http://localhost:#{port}/cookies/get", headers: { "cookie" => "foo=bar; bar=baz" })
       expect(response.body.to_s).to eq("barbaz")
     end
   end
@@ -141,7 +141,7 @@ RSpec.describe "cookies", smoke: true do
     end
 
     it "changes the value" do
-      response = HTTP.put("http://localhost:#{port}/cookies/chg", headers: { "cookie" => "foo=foo" })
+      response = http.put("http://localhost:#{port}/cookies/chg", headers: { "cookie" => "foo=foo" })
       expect(response.headers["Set-Cookie"]).to eq("foo=bar; path=/")
     end
   end
@@ -171,12 +171,12 @@ RSpec.describe "cookies", smoke: true do
     end
 
     it "deletes cookies set to nil" do
-      response = HTTP.delete("http://localhost:#{port}/cookies/del", headers: { "cookie" => "foo=foo" })
+      response = http.delete("http://localhost:#{port}/cookies/del", headers: { "cookie" => "foo=foo" })
       expect(response.headers["Set-Cookie"]).to eq("foo=; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT")
     end
 
     it "deletes cookies deleted on the server" do
-      response = HTTP.delete("http://localhost:#{port}/cookies/del", headers: { "cookie" => "bar=bar" })
+      response = http.delete("http://localhost:#{port}/cookies/del", headers: { "cookie" => "bar=bar" })
       expect(response.headers["Set-Cookie"]).to eq("bar=; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT")
     end
   end
