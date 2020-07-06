@@ -1,6 +1,7 @@
 require "bundler"
 require "http"
 require "fileutils"
+require "timeout"
 
 require "pakyow/support/system"
 
@@ -72,39 +73,49 @@ RSpec.configure do |config|
   end
 
   def create
-    @original_path = Dir.pwd
-    FileUtils.mkdir_p(@working_path)
-    Dir.chdir(@working_path)
+    timeout(60) do
+      @original_path = Dir.pwd
+      FileUtils.mkdir_p(@working_path)
+      Dir.chdir(@working_path)
 
-    Bundler.with_original_env do
-      system "pakyow create #{@project_name}"
+      Bundler.with_original_env do
+        system "pakyow create #{@project_name}"
+      end
+
+      Dir.chdir(@project_path)
     end
-
-    Dir.chdir(@project_path)
   end
 
   def boot(environment: self.environment, envars: self.envars, port: self.port, host: self.host, wait: true, formation: nil)
-    Bundler.with_original_env do
-      command = if formation
-        "pakyow boot -e #{environment} -p #{port} --host #{host} -f #{formation}"
-      else
-        "pakyow boot -e #{environment} -p #{port} --host #{host}"
+    timeout(60) do
+      Bundler.with_original_env do
+        command = if formation
+          "pakyow boot -e #{environment} -p #{port} --host #{host} -f #{formation}"
+        else
+          "pakyow boot -e #{environment} -p #{port} --host #{host}"
+        end
+
+        @server = Process.spawn(envars, command)
       end
 
-      @server = Process.spawn(envars, command)
-    end
-
-    if wait
-      wait_for_boot do
-        yield if block_given?
+      if wait
+        wait_for_boot do
+          yield if block_given?
+        end
       end
     end
   end
 
+  def timeout(duration, &block)
+    Timeout::timeout(duration, &block)
+  end
+
   def cli_run(*command, envars: self.envars)
-    Bundler.with_original_env do
-      Process.waitpid(Process.spawn(envars, "pakyow #{command.join(" ")}"))
-      $?
+    timeout(60) do
+      Bundler.with_original_env do
+        Process.waitpid(Process.spawn(envars, "pakyow #{command.join(" ")}"))
+        $?
+      end
     end
   end
 
@@ -124,28 +135,32 @@ RSpec.configure do |config|
   end
 
   def shutdown(signal = "INT")
-    if booted?
-      Process.kill(signal, @server)
+    timeout(60) do
+      if booted?
+        Process.kill(signal, @server)
 
-      unless signal == "HUP"
-        Process.waitpid(@server)
-        remove_instance_variable(:@server)
+        unless signal == "HUP"
+          Process.waitpid(@server)
+          remove_instance_variable(:@server)
+        end
       end
     end
   end
 
   def ensure_bundled(gem_name)
-    gemfile_path = project_path.join("Gemfile")
+    timeout(60) do
+      gemfile_path = project_path.join("Gemfile")
 
-    unless gemfile_path.read.include?(gem_name)
-      gemfile_path.open("a") do |file|
-        file.write <<~SOURCE
-          gem "#{gem_name}"
-        SOURCE
-      end
+      unless gemfile_path.read.include?(gem_name)
+        gemfile_path.open("a") do |file|
+          file.write <<~SOURCE
+            gem "#{gem_name}"
+          SOURCE
+        end
 
-      Bundler.with_original_env do
-        system "bundle install"
+        Bundler.with_original_env do
+          system "bundle install"
+        end
       end
     end
   end
