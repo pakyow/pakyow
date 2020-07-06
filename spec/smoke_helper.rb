@@ -44,9 +44,11 @@ RSpec.configure do |config|
     @project_name = "smoke-test"
     @working_path = File.expand_path("../tmp", __FILE__)
     @project_path = File.join(@working_path, @project_name)
+    @original_path = Dir.pwd
   end
 
   config.before do
+    Dir.chdir(@original_path)
     create
   end
 
@@ -74,7 +76,6 @@ RSpec.configure do |config|
 
   def create
     timeout(60) do
-      @original_path = Dir.pwd
       FileUtils.mkdir_p(@working_path)
       Dir.chdir(@working_path)
 
