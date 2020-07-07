@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Ensure that `Loader` always loads files alphabetically.**
+
+    *Related links:*
+    - [Pull Request #495][pr-495]
+
   * `fix` **Fix asset fetching for generated projects.**
 
     *Related links:*
@@ -580,6 +585,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-495]: https://github.com/pakyow/pakyow/pull/495
 [pr-494]: https://github.com/pakyow/pakyow/pull/494
 [pr-492]: https://github.com/pakyow/pakyow/pull/492
 [pr-490]: https://github.com/pakyow/pakyow/pull/490
