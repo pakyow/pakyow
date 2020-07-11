@@ -1,6 +1,14 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Don't use a service logger for the server service.**
+
+    *Related links:*
+    - [Pull Request #496][pr-496]
+
   * `chg` **Let services define their own loggers.**
+
+    *Related links:*
+    - [Pull Request #496][pr-496]
 
   * `fix` **Ensure that `Loader` always loads files alphabetically.**
 
@@ -587,6 +595,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-496]: https://github.com/pakyow/pakyow/pull/496
 [pr-495]: https://github.com/pakyow/pakyow/pull/495
 [pr-494]: https://github.com/pakyow/pakyow/pull/494
 [pr-492]: https://github.com/pakyow/pakyow/pull/492
