@@ -210,6 +210,12 @@ module Pakyow
         # implemented by subclasses
       end
 
+      # Returns the service logger.
+      #
+      def logger
+        Pakyow.logger
+      end
+
       class << self
         def run(**options)
           instance = new(**options)

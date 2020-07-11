@@ -116,6 +116,12 @@ RSpec.describe "environment.server service" do
     end
   end
 
+  describe "#logger" do
+    it "returns nil" do
+      expect(instance.logger).to be(nil)
+    end
+  end
+
   describe "#perform" do
     before do
       service.prerun(options)

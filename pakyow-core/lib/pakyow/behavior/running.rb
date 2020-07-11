@@ -102,6 +102,10 @@ module Pakyow
               options[:config].server.count
             end
 
+            def logger
+              nil
+            end
+
             def perform
               ensure_booted do
                 Server.run(
