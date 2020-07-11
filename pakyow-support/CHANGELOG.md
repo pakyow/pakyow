@@ -2,6 +2,9 @@
 
   * `add` **Set config settings through environment variables.**
 
+    *Related links:*
+    - [Pull Request #497][pr-497]
+
   * `add` **Introduce `ThreadLocalizer` for managing thread localized instance state.**
 
   * `add` **Support halting and rejecting from the pipeline.**
@@ -321,6 +324,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-497]: https://github.com/pakyow/pakyow/pull/497
 [pr-479]: https://github.com/pakyow/pakyow/pull/479
 [pr-478]: https://github.com/pakyow/pakyow/pull/478
 [pr-456]: https://github.com/pakyow/pakyow/pull/456
