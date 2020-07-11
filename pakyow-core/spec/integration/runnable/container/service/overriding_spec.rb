@@ -203,6 +203,68 @@ RSpec.describe "overriding functionality in process subclasses" do
         end
       end
     end
+
+    describe "logger" do
+      before do
+        definitions
+
+        allow(Pakyow.logger).to receive(:warn)
+      end
+
+      let(:definitions) {
+        local = self
+
+        container.service :foo, restartable: false do
+          define_method :perform do
+            local.write_to_parent(logger.class.name[0])
+          end
+
+          define_method :logger do
+            options[:service_logger]
+          end
+        end
+      }
+
+      let(:container_options) {
+        { restartable: false }
+      }
+
+      let(:run_options) {
+        { service_logger: nil }
+      }
+
+      it "can define its own logger" do
+        run_container do
+          wait_for length: 1, timeout: 1 do |result|
+            expect(result).to eq("N")
+          end
+        end
+      end
+
+      describe "calling super" do
+        let(:definitions) {
+          local = self
+
+          container.service :foo, restartable: false do
+            define_method :perform do
+              local.write_to_parent(logger.class.name[0])
+            end
+
+            define_method :logger do
+              super()
+            end
+          end
+        }
+
+        it "has the default behavior" do
+          run_container do
+            wait_for length: 1, timeout: 1 do |result|
+              expect(result).to eq("P")
+            end
+          end
+        end
+      end
+    end
   end
 
   context "forked container" do

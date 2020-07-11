@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Let services define their own loggers.**
+
   * `fix` **Ensure that `Loader` always loads files alphabetically.**
 
     *Related links:*
