@@ -12,8 +12,8 @@ module Pakyow
 
         attr_reader :name
 
-        def initialize(name:, default:, configurable:, &block)
-          @name, @default, @block, @configurable = name, default, block, configurable
+        def initialize(name:, default:, configurable:, envar_prefix: nil, &block)
+          @name, @default, @block, @configurable, @envar_prefix = name, default, block, configurable, envar_prefix
         end
 
         def initialize_copy(_)
@@ -37,14 +37,16 @@ module Pakyow
         # Sets the current value to `value`.
         #
         def set(value)
-          @value = value
+          @value = value unless envar?
         end
 
         # Returns the current value.
         #
         def value
           unless defined?(@value)
-            @value = if @block
+            @value = if envar?
+              ENV[envar_name]
+            elsif @block
               @configurable.instance_eval(&@block)
             else
               @default
@@ -52,6 +54,14 @@ module Pakyow
           end
 
           @value
+        end
+
+        private def envar?
+          @configurable.envar_prefix && ENV.include?(envar_name)
+        end
+
+        private def envar_name
+          [@configurable.envar_prefix, @envar_prefix, @name.to_s.upcase].compact.join("__")
         end
 
         # @api private

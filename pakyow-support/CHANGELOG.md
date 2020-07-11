@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Set config settings through environment variables.**
+
   * `add` **Introduce `ThreadLocalizer` for managing thread localized instance state.**
 
   * `add` **Support halting and rejecting from the pipeline.**

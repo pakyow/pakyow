@@ -76,6 +76,14 @@ module Pakyow
             super(target, solution: solution)
           end
 
+          def envar_prefix
+            if object_name.name == :config
+              nil
+            else
+              "#{object_name.parts.map { |part| part.to_s.upcase }.join("__")}"
+            end
+          end
+
           private def find_setting(name)
             @__settings[name]
           end
@@ -144,6 +152,10 @@ module Pakyow
 
         def object_name
           self.class.object_name
+        end
+
+        def envar_prefix
+          self.class.envar_prefix
         end
 
         # @api private

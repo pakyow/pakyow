@@ -52,6 +52,31 @@ module Pakyow
     #   instance.config.baz.qux
     #   # => "qux"
     #
+    # = Configuring with environment variables
+    #
+    # Configurable objects can define a prefix that allows for settings to be configured through
+    # environment variables. This behavior can be opted into with the `envar` class method:
+    #
+    #   class ConfigurableObject
+    #     include Pakyow::Support::Configurable
+    #
+    #     envar "MY_NAMESPACE"
+    #
+    #     configurable :foo do
+    #       setting :bar
+    #     end
+    #   end
+    #
+    # Environment variable names should be named with the following convention:
+    #
+    #   * {envar}__GROUP_NAME__SETTING_NAME
+    #
+    # The `foo.bar` setting in the above example can be set with the following environment variable:
+    #
+    #   * MY_NAMESPACE__FOO__BAR
+    #
+    # Environment variables take precedence over any configured value.
+    #
     module Configurable
       extend Extension
 
@@ -60,6 +85,7 @@ module Pakyow
       apply_extension do
         class_state :__config, default: Config.make(:config, context: self, __configurable: self), inheritable: true
         class_state :__config_environments, default: Concurrent::Hash.new, inheritable: true
+        class_state :__config_envar, inheritable: true
       end
 
       class_methods do
@@ -108,6 +134,16 @@ module Pakyow
           end
         end
 
+        # Configures the environment variable prefix.
+        #
+        def envar(prefix)
+          @__config_envar = prefix.to_s.upcase
+        end
+
+        def envar_prefix
+          @__config_envar
+        end
+
         private def each_configurable_environment(environment)
           if global_environment = __config_environments[:__global]
             yield global_environment
@@ -134,6 +170,10 @@ module Pakyow
       end
 
       attr_reader :config
+
+      def envar_prefix
+        self.class.envar_prefix
+      end
     end
   end
 end
