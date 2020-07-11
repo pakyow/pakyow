@@ -107,6 +107,8 @@ module Pakyow
 
   include Support::Configurable
 
+  envar :pwenv
+
   setting :default_env, :development
   setting :freeze_on_boot, true
   setting :exit_on_boot_failure, false
@@ -585,6 +587,8 @@ module Pakyow
         local = self
         require "pakyow/application"
         Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
+          envar "PWAPP__#{app_name.to_s.upcase}"
+
           # Change the name only if it's still the default. It's possible the app has already been
           # defined and we're simply extending it.
           #

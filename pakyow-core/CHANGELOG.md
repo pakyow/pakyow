@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Configure the environment and applications through environment variables.**
+
   * `chg` **Don't use a service logger for the server service.**
 
     *Related links:*
