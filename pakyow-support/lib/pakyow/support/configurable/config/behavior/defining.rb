@@ -68,6 +68,7 @@ module Pakyow
                   name: name,
                   default: default.deep_dup,
                   configurable: __configurable,
+                  envar_prefix: envar_prefix,
                   &block
                 )
 

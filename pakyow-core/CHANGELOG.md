@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Configure the environment and applications through environment variables.**
+
+    *Related links:*
+    - [Pull Request #497][pr-497]
+
   * `chg` **Don't use a service logger for the server service.**
 
     *Related links:*
@@ -595,6 +600,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-497]: https://github.com/pakyow/pakyow/pull/497
 [pr-496]: https://github.com/pakyow/pakyow/pull/496
 [pr-495]: https://github.com/pakyow/pakyow/pull/495
 [pr-494]: https://github.com/pakyow/pakyow/pull/494
