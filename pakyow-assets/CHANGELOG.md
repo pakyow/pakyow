@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Avoid precompiling assets for applications that don't include the assets framework.**
+
+    *Related links:*
+    - [Pull Request #498][pr-498]
+
   * `chg` **Relocate external asset fetching to an environment service.**
 
     *Related links:*
@@ -35,6 +40,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-498]: https://github.com/pakyow/pakyow/pull/498/commits
 [pr-468]: https://github.com/pakyow/pakyow/pull/468/commits
 [pr-438]: https://github.com/pakyow/pakyow/pull/438/commits
 [pr-437]: https://github.com/pakyow/pakyow/pull/437/commits

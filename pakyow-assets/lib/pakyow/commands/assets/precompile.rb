@@ -7,6 +7,8 @@ command :assets, :precompile, prelaunch: :build do
   action do
     require_relative "../../assets/precompiler"
 
-    Pakyow::Assets::Precompiler.new(@app).precompile!
+    if @app.class.includes_framework?(:assets)
+      Pakyow::Assets::Precompiler.new(@app).precompile!
+    end
   end
 end
