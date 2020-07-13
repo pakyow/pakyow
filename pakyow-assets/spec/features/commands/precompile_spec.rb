@@ -14,6 +14,7 @@ RSpec.describe "cli: assets:precompile" do
 
   before do
     require "pakyow/assets/precompiler"
+
     allow(Pakyow::Assets::Precompiler).to receive(:new).and_return(precompiler_instance)
   end
 
@@ -36,6 +37,22 @@ RSpec.describe "cli: assets:precompile" do
       expect(precompiler_instance).to receive(:precompile!)
 
       run_command(command, project: true)
+    end
+  end
+
+  context "application does not include the assets framework" do
+    before do
+      allow(Pakyow::Assets::Precompiler).to receive(:new).and_call_original
+    end
+
+    let(:excluded_frameworks) {
+      %i(assets)
+    }
+
+    it "is skipped" do
+      expect {
+        run_command(command, project: true)
+      }.not_to raise_error
     end
   end
 end
