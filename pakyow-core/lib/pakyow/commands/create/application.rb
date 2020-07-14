@@ -11,7 +11,7 @@ command :create, :application do
   option :template, "The template to create the application from", default: "default"
 
   action :relocate_default_application do
-    next if default_app.nil?
+    next if default_app.nil? || Pakyow.apps.count > 1
 
     if default_application_config_file_path.exist?
       verify_path_within_root!(default_multiapp_application_config_path)

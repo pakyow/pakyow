@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't relocate frontend when the presenter framework is not included.**
+
+    *Related links:*
+    - [Pull Request #502][pr-502]
+
   * `chg` **Render error views when the application is rescued before setup.**
 
     *Related links:*
@@ -16,6 +21,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+[pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-446]: https://github.com/pakyow/pakyow/pull/446
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits
 [ce9a018]: https://github.com/pakyow/pakyow/commit/ce9a0186b70f99aadb173fc37e1d9541ce9834da

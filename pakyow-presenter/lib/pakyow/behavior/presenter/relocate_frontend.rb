@@ -15,6 +15,8 @@ module Pakyow
           after "load.commands" do
             command(:create, :application).class_eval do
               action :relocate_default_application_frontend, after: :relocate_default_application do
+                next if default_app.nil? || Pakyow.apps.count > 1 || !default_app.class.includes_framework?(:presenter)
+
                 if default_application_frontend_path.exist?
                   verify_path_within_root!(default_application_frontend_path)
                   FileUtils.mkdir_p(default_multiapp_application_frontend_path)

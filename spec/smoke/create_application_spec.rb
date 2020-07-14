@@ -182,3 +182,40 @@ RSpec.describe "creating an application in an existing project", smoke: true do
     end
   end
 end
+
+RSpec.describe "creating an application in an existing multiapp project", smoke: true do
+  before do
+    setup_default_application
+    cli_run "create:application foo --path /foo"
+    cli_run "create:application bar --path /bar"
+    setup_created_application; boot
+  end
+
+  def setup_default_application
+    # intentionally blank
+  end
+
+  def setup_created_application
+    root_controller_path = project_path.join("apps/bar/backend/controllers/root.rb")
+    FileUtils.mkdir_p(root_controller_path.dirname)
+
+    File.open(root_controller_path, "w+") do |file|
+      file.write <<~SOURCE
+        controller do
+          default do
+            send "bar"
+          end
+        end
+      SOURCE
+    end
+  end
+
+  describe "the new application" do
+    it "responds to a request" do
+      response = http.get("http://localhost:#{port}/bar")
+
+      expect(response.status).to eq(200)
+      expect(response.body.to_s).to eq("bar")
+    end
+  end
+end
