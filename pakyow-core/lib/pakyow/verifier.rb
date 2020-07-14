@@ -3,6 +3,7 @@
 require "forwardable"
 
 require "pakyow/support/core_refinements/array/ensurable"
+require "pakyow/support/deep_dup"
 
 require_relative "errors"
 require_relative "types"
@@ -12,11 +13,20 @@ require_relative "validations"
 module Pakyow
   class Verifier
     class Result
+      using Support::DeepDup
+
       def initialize
         @errors = {}
         @nested = {}
         @validation = nil
         @defaults = []
+      end
+
+      def initialize_copy(_)
+        @errors = @errors.deep_dup
+        @nested = @nested.deep_dup
+        @defaults = @defaults.dup
+        @validation = nil
       end
 
       def error(key, message)
@@ -87,6 +97,7 @@ module Pakyow
       end
     end
 
+    using Support::DeepDup
     using Support::Refinements::Array::Ensurable
 
     extend Forwardable
@@ -109,6 +120,17 @@ module Pakyow
       if block
         instance_eval(&block)
       end
+    end
+
+    def initialize_copy(_)
+      @types = @types.deep_dup
+      @defaults = @defaults.deep_dup
+      @messages = @messages.deep_dup
+      @required_keys = @required_keys.dup
+      @optional_keys = @optional_keys.dup
+      @allowable_keys = @allowable_keys.dup
+      @verifiers_by_key = @verifiers_by_key.deep_dup
+      @validator = @validator.dup
     end
 
     def required(key, type = nil, message: "is required", &block)

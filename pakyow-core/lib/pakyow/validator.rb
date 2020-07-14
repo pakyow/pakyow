@@ -13,6 +13,10 @@ module Pakyow
         @errors = []
       end
 
+      def initialize_copy(_)
+        @errors = @errors.dup
+      end
+
       def error(validation, options)
         @errors << [validation, options]
       end
@@ -54,6 +58,10 @@ module Pakyow
       if block
         instance_eval(&block)
       end
+    end
+
+    def initialize_copy(_)
+      @validations = @validations.dup
     end
 
     def any?
