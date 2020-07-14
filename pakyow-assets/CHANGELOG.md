@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't relocate assets when the assets framework is not included.**
+
+    *Related links:*
+    - [Pull Request #502][pr-502]
+
   * `fix` **Avoid precompiling assets for applications that don't include the assets framework.**
 
     *Related links:*
@@ -40,6 +45,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-498]: https://github.com/pakyow/pakyow/pull/498/commits
 [pr-468]: https://github.com/pakyow/pakyow/pull/468/commits
 [pr-438]: https://github.com/pakyow/pakyow/pull/438/commits
