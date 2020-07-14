@@ -97,6 +97,11 @@ RSpec.describe Pakyow::Logger do
         instance = described_class.new(type, output: output, level: :internal)
         expect(instance.level).to eq(0)
       end
+
+      it "can be passed as a string" do
+        instance = described_class.new(type, output: output, level: "internal")
+        expect(instance.level).to eq(0)
+      end
     end
   end
 
