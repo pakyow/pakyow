@@ -1,7 +1,7 @@
-RSpec.shared_examples :connection_subdomain do
-  describe "#subdomain" do
+RSpec.shared_examples :connection_subdomains do
+  describe "#subdomains" do
     it "returns the expected value" do
-      expect(connection.subdomain).to eq(subdomain)
+      expect(connection.subdomains).to eq(["www"])
     end
 
     context "multi-level subdomain" do
@@ -10,7 +10,7 @@ RSpec.shared_examples :connection_subdomain do
       }
 
       it "returns the expected value" do
-        expect(connection.subdomain).to eq(subdomain)
+        expect(connection.subdomains).to eq(["dev", "www"])
       end
     end
 
@@ -20,12 +20,12 @@ RSpec.shared_examples :connection_subdomain do
       }
 
       it "returns the expected value" do
-        expect(connection.subdomain(2)).to eq("dev")
+        expect(connection.subdomains(2)).to eq(["dev"])
       end
 
       it "memoizes correctly" do
-        expect(connection.subdomain(2)).to be(connection.subdomain(2))
-        expect(connection.subdomain(2)).not_to eq(connection.subdomain)
+        expect(connection.subdomains(2)).to be(connection.subdomains(2))
+        expect(connection.subdomains(2)).not_to eq(connection.subdomains)
       end
     end
   end
