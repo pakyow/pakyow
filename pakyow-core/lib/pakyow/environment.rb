@@ -601,7 +601,13 @@ module Pakyow
           @__setups[app] ||= []
           @__setups[app] << block if block_given?
 
-          mount(app, at: path) if mount
+          mount_path = if mount
+            path
+          else
+            nil
+          end
+
+          mount(app, at: mount_path)
         end
       end
     end
