@@ -412,7 +412,7 @@ module Pakyow
       unless defined?(@logger)
         require "pakyow/logger/thread_local"
         @logger = Logger::ThreadLocal.new(
-          Logger.new("dflt", output: output, level: :all), key: :pakyow_logger
+          Logger.new("dflt", output: output, level: config.logger.level), key: :pakyow_logger
         )
       end
 

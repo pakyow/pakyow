@@ -8,8 +8,8 @@ RSpec.describe "the environment logger" do
       expect(Pakyow.logger.output).to be(Pakyow.output)
     end
 
-    it "logs all messages" do
-      expect(Pakyow.logger.level).to eq(0)
+    it "logs debug messages" do
+      expect(Pakyow.logger.level).to eq(1)
     end
   end
 
@@ -35,7 +35,7 @@ RSpec.describe "the environment logger" do
     end
 
     it "logs messages of the configured level" do
-      expect(Pakyow.logger.target.level).to eq(7)
+      expect(Pakyow.logger.target.level).to eq(1)
     end
   end
 

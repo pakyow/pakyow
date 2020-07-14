@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Log at the debug level by default.**
+
+    *Related links:*
+    - [Pull Request #501][pr-501]
+
   * `fix` **Allow unmounted applications to be looked up but not receive requests.**
 
     *Related links:*
@@ -610,6 +615,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-501]: https://github.com/pakyow/pakyow/pull/501
 [pr-500]: https://github.com/pakyow/pakyow/pull/500
 [pr-499]: https://github.com/pakyow/pakyow/pull/499
 [pr-497]: https://github.com/pakyow/pakyow/pull/497
