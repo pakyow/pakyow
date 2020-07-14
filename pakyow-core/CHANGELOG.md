@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Create applications correctly in existing multiapp projects.**
+
+    *Related links:*
+    - [Pull Request #502][pr-502]
+
   * `fix` **Support setting the logger level as a string.**
 
     *Related links:*
@@ -620,6 +625,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-501]: https://github.com/pakyow/pakyow/pull/501
 [pr-500]: https://github.com/pakyow/pakyow/pull/500
 [pr-499]: https://github.com/pakyow/pakyow/pull/499
