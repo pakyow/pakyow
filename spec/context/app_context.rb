@@ -63,7 +63,13 @@ RSpec.shared_context "app" do
 
   def setup(env: :test)
     super if defined?(super)
-    Pakyow.mount(app, at: mount_path) if mount_app
+
+    if mount_app
+      Pakyow.mount(app, at: mount_path)
+    else
+      app
+    end
+
     Pakyow.class_eval(&env_def)
     Pakyow.setup(env: env)
   end
