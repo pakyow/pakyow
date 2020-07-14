@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Support setting the logger level as a string.**
+
+    *Related links:*
+    - [Pull Request #501][pr-501]
+
   * `chg` **Log at the debug level by default.**
 
     *Related links:*

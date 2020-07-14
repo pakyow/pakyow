@@ -38,12 +38,12 @@ module Pakyow
       @type, @started_at, @id = type, started_at, id
 
       level = case level
-      when :all
+      when :all, "all"
         0
-      when :off
+      when :off, "off"
         7
-      when Symbol
-        self.class.const_get(:LEVELS)[level]
+      when Symbol, String
+        self.class.const_get(:LEVELS)[level.to_sym]
       else
         level
       end
