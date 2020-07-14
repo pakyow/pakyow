@@ -21,6 +21,7 @@ require_relative "./connection/shared_examples/sleep"
 require_relative "./connection/shared_examples/status"
 require_relative "./connection/shared_examples/stream"
 require_relative "./connection/shared_examples/subdomain"
+require_relative "./connection/shared_examples/subdomains"
 require_relative "./connection/shared_examples/type"
 require_relative "./connection/shared_examples/write"
 
@@ -34,7 +35,7 @@ RSpec.shared_examples :connection do
   end
 
   let :host do
-    "localhost"
+    "localhost.dev"
   end
 
   let :port do
@@ -249,6 +250,7 @@ RSpec.shared_examples :connection do
   it_behaves_like :connection_status
   it_behaves_like :connection_stream
   it_behaves_like :connection_subdomain
+  it_behaves_like :connection_subdomains
   it_behaves_like :connection_type
   it_behaves_like :connection_write
 end

@@ -73,6 +73,8 @@ module Pakyow
       @__original_body = @body
       @params = Pakyow::Connection::Params.new
       @streams = []
+      @subdomain_by_tld_length = {}
+      @subdomains_by_tld_length = {}
 
       @logger = Logger.new(
         :http,
@@ -171,12 +173,20 @@ module Pakyow
       @port
     end
 
-    def subdomain
-      unless instance_variable_defined?(:@subdomain)
-        parse_subdomain
+    def subdomain(tld_length = 1)
+      unless @subdomain_by_tld_length.include?(tld_length)
+        parse_subdomain(tld_length)
       end
 
-      @subdomain
+      @subdomain_by_tld_length[tld_length]
+    end
+
+    def subdomains(tld_length = 1)
+      unless @subdomains_by_tld_length.include?(tld_length)
+        parse_subdomains(tld_length)
+      end
+
+      @subdomains_by_tld_length[tld_length]
     end
 
     def path
@@ -564,11 +574,19 @@ module Pakyow
       @host, @port = authority.to_s.split(":", 2)
     end
 
-    def parse_subdomain
-      @subdomain = if authority.include?(".")
-        authority.split(".", 2)[0]
+    def parse_subdomain(tld_length)
+      @subdomain_by_tld_length[tld_length] = if subdomains(tld_length).any?
+        subdomains(tld_length).join(".")
       else
         nil
+      end
+    end
+
+    def parse_subdomains(tld_length)
+      @subdomains_by_tld_length[tld_length] = if authority.include?(".")
+        authority.split(".")[0..(-(2 + tld_length))]
+      else
+        []
       end
     end
 

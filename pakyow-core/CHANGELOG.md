@@ -1,5 +1,15 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Connection#subdomains` for getting subdomains as an array.**
+
+    *Related links:*
+    - [Pull Request #503][pr-503]
+
+  * `fix` **Return multi-level subdomains from the connection.**
+
+    *Related links:*
+    - [Pull Request #503][pr-503]
+
   * `fix` **Create applications correctly in existing multiapp projects.**
 
     *Related links:*
@@ -625,6 +635,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-503]: https://github.com/pakyow/pakyow/pull/503
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-501]: https://github.com/pakyow/pakyow/pull/501
 [pr-500]: https://github.com/pakyow/pakyow/pull/500
