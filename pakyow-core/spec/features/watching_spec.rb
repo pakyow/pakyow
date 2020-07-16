@@ -153,7 +153,7 @@ RSpec.describe "watching files from the environment" do
         FileUtils.touch(matched_path_2)
       end
 
-      expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Snapshot)
+      expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Diff)
     end
   end
 end

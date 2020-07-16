@@ -556,6 +556,44 @@ RSpec.describe "using the filewatcher" do
     end
   end
 
+  describe "multiple files with only one change" do
+    before do
+      filewatcher.callback do |path, event|
+        calls << [path, event]
+      end
+
+      filewatcher.watch(pattern)
+    end
+
+    let(:pattern) {
+      path
+    }
+
+    let(:matching_path_1) {
+      File.join(path, "foo.txt")
+    }
+
+    let(:matching_path_2) {
+      File.join(path, "bar.txt")
+    }
+
+    let(:matching_path_3) {
+      File.join(path, "baz.txt")
+    }
+
+    it "calls the callback for each changed file" do
+      FileUtils.touch(matching_path_1)
+      FileUtils.touch(matching_path_3)
+
+      perform do
+        FileUtils.touch(matching_path_2)
+      end
+
+      expect(calls.count).to eq(1)
+      expect(calls).to include([matching_path_2, :added])
+    end
+  end
+
   describe "batching changes in a snapshot" do
     before do
       filewatcher.callback(snapshot: true) do |snapshot|
@@ -589,10 +627,26 @@ RSpec.describe "using the filewatcher" do
       end
 
       expect(calls.count).to eq(1)
-      expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Snapshot)
+      expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Diff)
       expect(calls[0].each_changed_path.to_a).to include(matching_path_1)
       expect(calls[0].each_changed_path.to_a).to include(matching_path_2)
       expect(calls[0].each_changed_path.to_a).to include(matching_path_3)
+    end
+
+    context "only one file changes" do
+      it "calls the callback once with the correct snapshot" do
+        FileUtils.touch(matching_path_1)
+        FileUtils.touch(matching_path_3)
+
+        perform(1) do
+          FileUtils.touch(matching_path_2)
+        end
+
+        expect(calls.count).to eq(1)
+        expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Diff)
+        expect(calls[0].each_changed_path.to_a.count).to eq(1)
+        expect(calls[0].each_changed_path.to_a).to include(matching_path_2)
+      end
     end
   end
 

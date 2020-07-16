@@ -50,21 +50,21 @@ module Pakyow
 
       # @api private
       def diff(snapshot)
-        diff = {}
+        diff = Diff.new
 
         each_change do |path, mtime|
           if snapshot.include?(path)
             if snapshot.mtime(path) != mtime
-              diff[path] = :changed
+              diff.changed(path)
             end
           else
-            diff[path] = :removed
+            diff.removed(path)
           end
         end
 
         snapshot.each_change do |path, _mtime|
           unless include?(path)
-            diff[path] = :added
+            diff.added(path)
           end
         end
 

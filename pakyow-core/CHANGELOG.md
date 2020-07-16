@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Pass diffs instead of full snapshots to filewatcher callbacks.**
+
+    *Related links:*
+    - [Pull Request #504][pr-504]
+
   * `add` **Introduce `Connection#subdomains` for getting subdomains as an array.**
 
     *Related links:*
@@ -635,6 +640,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-504]: https://github.com/pakyow/pakyow/pull/504
 [pr-503]: https://github.com/pakyow/pakyow/pull/503
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-501]: https://github.com/pakyow/pakyow/pull/501
