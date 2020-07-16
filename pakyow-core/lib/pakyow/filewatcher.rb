@@ -9,6 +9,7 @@ module Pakyow
   #
   class Filewatcher
     require "pakyow/filewatcher/callback"
+    require "pakyow/filewatcher/diff"
     require "pakyow/filewatcher/snapshot"
     require "pakyow/filewatcher/status"
 
@@ -115,7 +116,7 @@ module Pakyow
 
               # Look for changes.
               #
-              snapshot = detect_changes!(snapshot) do |(path, event), latest|
+              snapshot = detect_changes!(snapshot) do |(path, event), diff|
                 # Double check that we haven't paused or stopped when processing each change.
                 #
                 if @status.running?
@@ -124,7 +125,7 @@ module Pakyow
                       if callback.snapshot?
                         unless called_callbacks.include?(callback)
                           called_callbacks << callback
-                          callback.call(latest)
+                          callback.call(diff)
                         end
                       else
                         callback.call(path, event)
@@ -147,7 +148,8 @@ module Pakyow
     # @api private
     private def detect_changes!(snapshot, &block)
       latest = build_snapshot(snapshot.paths)
-      snapshot.diff(latest).each_pair.each_with_object(latest, &block)
+      diff = snapshot.diff(latest)
+      diff.each_pair.each_with_object(diff, &block)
       latest
     end
   end
