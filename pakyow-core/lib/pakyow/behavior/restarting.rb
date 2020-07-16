@@ -14,8 +14,8 @@ module Pakyow
           # Automatically bundle.
           #
           watch File.join(config.root, "Gemfile") do
-            Bundler.with_original_env do
-              Support::CLI::Runner.new(message: "Bundling").run("bundle install")
+            if CLI.system("bundle install", logger_key: "bndl").success?
+              restart
             end
           end
 
@@ -23,10 +23,16 @@ module Pakyow
           #
           watch File.join(config.root, "**", "*")
 
+          # Ignore the bootsnap cache.
+          #
+          ignore File.join(config.root, "tmp/cache/**/*")
+
           # Restart when any file changes.
           #
-          changed snapshot: true do
-            restart
+          changed snapshot: true do |diff|
+            unless diff.include?(File.join(config.root, "Gemfile")) || diff.include?(File.join(config.root, "Gemfile.lock"))
+              restart
+            end
           end
         end
       end

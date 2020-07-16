@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve automatic bundle install to catch failures, better logging.**
+
+    *Related links:*
+    - [Pull Request #505][pr-505]
+
   * `add` **Introduce `Pakyow::CLI.system` for running system commands.**
 
     *Related links:*
