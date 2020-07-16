@@ -11,6 +11,7 @@ module Pakyow
   # @api private
   class CLI
     require_relative "cli/feedback"
+
     require_relative "cli/parsers/command"
     require_relative "cli/parsers/global"
 
@@ -67,6 +68,28 @@ module Pakyow
 
             cli.help
           end
+        end
+      end
+
+      # Runs a system-level `command` in a clean environment with logging.
+      #
+      def system(*command, logger_key: " cmd")
+        require "tty/command"
+
+        require_relative "cli/system/printer"
+        require_relative "cli/system/result"
+
+        Bundler.with_original_env do
+          tty_result = TTY::Command.new(
+            printer: System::Printer,
+            output: Logger.new(
+              logger_key,
+              output: Pakyow.output,
+              level: Pakyow.config.logger.level
+            )
+          ).run!(command.join(" "))
+
+          System::Result.new(tty_result)
         end
       end
 
