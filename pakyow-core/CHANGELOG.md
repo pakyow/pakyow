@@ -1,5 +1,15 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve automatic bundle install to catch failures, better logging.**
+
+    *Related links:*
+    - [Pull Request #505][pr-505]
+
+  * `add` **Introduce `Pakyow::CLI.system` for running system commands.**
+
+    *Related links:*
+    - [Pull Request #505][pr-505]
+
   * `chg` **Pass diffs instead of full snapshots to filewatcher callbacks.**
 
     *Related links:*
@@ -640,6 +650,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-505]: https://github.com/pakyow/pakyow/pull/505
 [pr-504]: https://github.com/pakyow/pakyow/pull/504
 [pr-503]: https://github.com/pakyow/pakyow/pull/503
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
