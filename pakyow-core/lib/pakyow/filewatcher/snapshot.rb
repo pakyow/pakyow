@@ -73,7 +73,7 @@ module Pakyow
         diff = Diff.new
 
         each_change do |path, mtime|
-          next if ignore?(path)
+          next if ignore?(path) || File.directory?(path)
 
           if snapshot.include?(path)
             if snapshot.mtime(path) != mtime
@@ -85,7 +85,7 @@ module Pakyow
         end
 
         snapshot.each_change do |path, _mtime|
-          next if ignore?(path)
+          next if ignore?(path) || File.directory?(path)
 
           unless include?(path)
             diff.added(path)

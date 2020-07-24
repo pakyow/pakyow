@@ -84,20 +84,19 @@ RSpec.describe "watching files from the environment" do
   end
 
   it "calls the callback when a watched file changes" do
-    run(2) do
+    run(1) do
       FileUtils.touch(changed_path)
     end
 
-    expect(calls).to include([path, :changed])
     expect(calls).to include([changed_path, :added])
   end
 
   it "does not call the callback when an ignored file changes" do
-    run(1) do
+    run do
       FileUtils.touch(ignored_path)
     end
 
-    expect(calls).to include([path, :changed])
+    expect(calls.count).to eq(0)
   end
 
   describe "defining a callback with a matcher" do

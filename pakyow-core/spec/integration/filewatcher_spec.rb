@@ -277,12 +277,12 @@ RSpec.describe "using the filewatcher" do
         File.join(path, "sub")
       }
 
-      it "call the callback for the sub-folder, not the file" do
+      it "does not call the callback for the sub-folder or the file" do
         perform do
           FileUtils.touch(File.join(sub_path, "foo.txt"))
         end
 
-        expect(calls).to eq([[sub_path, :changed]])
+        expect(calls).to eq([])
       end
     end
   end
@@ -447,14 +447,14 @@ RSpec.describe "using the filewatcher" do
       File.join(path, "**", "*")
     }
 
-    it "only calls the callback for changes that are not ignored" do
+    it "does not call the callback for changes that are ignored" do
       perform do
         FileUtils.touch(File.join(ignored_path, "foo.txt"))
         FileUtils.mkdir(File.join(ignored_path, "bar"))
         FileUtils.touch(File.join(ignored_path, "bar/foo.txt"))
       end
 
-      expect(calls).to eq([[ignored_path, :changed]])
+      expect(calls).to eq([])
     end
   end
 
@@ -724,20 +724,20 @@ RSpec.describe "using the filewatcher" do
     end
 
     let(:pattern) {
-      path
+      File.join(path, "**/*")
     }
 
     let(:matching_path) {
       File.join(path, "sub", "foo.txt")
     }
 
-    it "calls the callback for the folder" do
+    it "calls the callback for the file" do
       perform do
         FileUtils.mkdir_p(File.dirname(matching_path))
         FileUtils.touch(matching_path)
       end
 
-      expect(calls).to eq([[File.dirname(matching_path), :added]])
+      expect(calls).to eq([[matching_path, :added]])
     end
   end
 
