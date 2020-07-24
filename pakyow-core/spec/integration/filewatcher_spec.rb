@@ -490,6 +490,70 @@ RSpec.describe "using the filewatcher" do
     end
   end
 
+  describe "ignoring a directory" do
+    before do
+      filewatcher.callback do |path, event|
+        calls << [path, event]
+      end
+
+      filewatcher.ignore(File.join(ignored_path))
+      filewatcher.watch(pattern)
+    end
+
+    let(:ignored_path) {
+      File.join(path)
+    }
+
+    let(:added_path) {
+      File.join(path, "foo.txt")
+    }
+
+    let(:pattern) {
+      File.join(path, "**", "*")
+    }
+
+    it "only calls the callback for changes that are not ignored" do
+      perform do
+        FileUtils.touch(ignored_path)
+        FileUtils.touch(added_path)
+      end
+
+      expect(calls).to eq([[added_path, :added]])
+    end
+  end
+
+  describe "ignoring a regexp" do
+    before do
+      filewatcher.callback do |path, event|
+        calls << [path, event]
+      end
+
+      filewatcher.ignore(/foo/)
+      filewatcher.watch(pattern)
+    end
+
+    let(:ignored_path) {
+      File.join(path, "foo.txt")
+    }
+
+    let(:added_path) {
+      File.join(path, "bar.txt")
+    }
+
+    let(:pattern) {
+      File.join(path, "**", "*")
+    }
+
+    it "only calls the callback for changes that are not ignored" do
+      perform do
+        FileUtils.touch(ignored_path)
+        FileUtils.touch(added_path)
+      end
+
+      expect(calls).to eq([[added_path, :added]])
+    end
+  end
+
   describe "adding a watch after the watcher is running" do
     before do
       filewatcher.callback do |path, event|

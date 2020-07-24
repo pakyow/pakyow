@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve support for ignoring directories in filewatcher, add support for ignoring regular expressions.**
+
+    *Related links:*
+    - [Pull Request #506][pr-506]
+
   * `chg` **Improve automatic bundle install to catch failures, better logging.**
 
     *Related links:*
@@ -650,6 +655,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-506]: https://github.com/pakyow/pakyow/pull/506
 [pr-505]: https://github.com/pakyow/pakyow/pull/505
 [pr-504]: https://github.com/pakyow/pakyow/pull/504
 [pr-503]: https://github.com/pakyow/pakyow/pull/503

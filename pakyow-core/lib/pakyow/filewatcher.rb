@@ -44,7 +44,12 @@ module Pakyow
     # Ignore changes at `path`.
     #
     def ignore(path)
-      path = File.expand_path(path)
+      path = case path
+      when String
+        File.expand_path(path)
+      else
+        path
+      end
 
       @lock.synchronize do
         unless @ignored.include?(path)
@@ -60,7 +65,7 @@ module Pakyow
     #
     def callback(matcher = nil, snapshot: false, &block)
       @lock.synchronize do
-        @callbacks << Callback.new(matcher, snapshot: snapshot, &block)
+        @callbacks << Callback.build(matcher, snapshot: snapshot, &block)
       end
     end
 
@@ -93,7 +98,7 @@ module Pakyow
     # @api private
     private def run
       @status.running! do
-        snapshot = build_snapshot(@watched)
+        snapshot = build_snapshot(@watched, @ignored)
 
         Pakyow.async do |task|
           until @status.stopped?
@@ -102,13 +107,9 @@ module Pakyow
             if @status.running?
               # Rebuild the snapshot if watched paths have changed.
               #
-              unless snapshot.paths == @watched
-                snapshot = build_snapshot(@watched)
+              unless snapshot.paths == @watched && snapshot.ignored == @ignored
+                snapshot = build_snapshot(@watched, @ignored)
               end
-
-              # Always rebuild what we're ignoring to update based on latest @ignored and filesystem.
-              #
-              ignoring = build_snapshot(@ignored)
 
               # Lets us keep track of callbacks that were called in this tick.
               #
@@ -116,12 +117,12 @@ module Pakyow
 
               # Look for changes.
               #
-              snapshot = detect_changes!(snapshot) do |(path, event), diff|
+              snapshot = detect_changes(snapshot) do |(path, event), diff|
                 # Double check that we haven't paused or stopped when processing each change.
                 #
                 if @status.running?
                   @callbacks.each do |callback|
-                    if callback.matches?(path) && !ignoring.include?(path)
+                    if callback.match?(path)
                       if callback.snapshot?
                         unless called_callbacks.include?(callback)
                           called_callbacks << callback
@@ -141,16 +142,18 @@ module Pakyow
     end
 
     # @api private
-    private def build_snapshot(watched)
-      Snapshot.new(*watched)
+    private def build_snapshot(watched_paths, ignored_paths_and_regexps)
+      Snapshot.new(*watched_paths, ignored: ignored_paths_and_regexps)
     end
 
     # @api private
-    private def detect_changes!(snapshot, &block)
-      latest = build_snapshot(snapshot.paths)
-      diff = snapshot.diff(latest)
+    private def detect_changes(current_snapshot, &block)
+      latest_snapshot = build_snapshot(current_snapshot.paths, current_snapshot.ignored)
+
+      diff = current_snapshot.diff(latest_snapshot)
       diff.each_pair.each_with_object(diff, &block)
-      latest
+
+      latest_snapshot
     end
   end
 end
