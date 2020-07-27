@@ -2,6 +2,9 @@
 
   * `chg` **Improve output when fetching external assets.**
 
+    *Related links:*
+    - [Pull Request #508][pr-508]
+
   * `fix` **Don't relocate assets when the assets framework is not included.**
 
     *Related links:*
@@ -47,6 +50,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-502]: https://github.com/pakyow/pakyow/pull/508
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-498]: https://github.com/pakyow/pakyow/pull/498/commits
 [pr-468]: https://github.com/pakyow/pakyow/pull/468/commits
