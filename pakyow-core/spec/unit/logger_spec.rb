@@ -293,4 +293,18 @@ RSpec.describe Pakyow::Logger do
       expect(instance.level).to eq(7)
     end
   end
+
+  describe "::null" do
+    before do
+      allow(described_class).to receive(:new).with(:null, output: instance_of(StringIO), level: :off).and_return(null_logger)
+    end
+
+    let(:null_logger) {
+      instance_double(described_class)
+    }
+
+    it "returns a null logger" do
+      expect(described_class.null).to be(null_logger)
+    end
+  end
 end

@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Logger.null` for creating null loggers.**
+
   * `chg` **Ignore changes to directories in the filewatcher.**
 
     *Related links:*

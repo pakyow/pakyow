@@ -13,6 +13,14 @@ module Pakyow
   # `epilogue` for a connection, as well as a `houston` method for logging errors.
   #
   class Logger < Console::Filter[internal: 0, debug: 1, info: 2, warn: 3, error: 4, fatal: 5, unknown: 6]
+    class << self
+      # Returns a logger that captures no output.
+      #
+      def null
+        new(:null, output: StringIO.new, level: :off)
+      end
+    end
+
     extend Support::Deprecatable
 
     require_relative "logger/colorizer"
