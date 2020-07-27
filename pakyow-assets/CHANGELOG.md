@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve output when fetching external assets.**
+
   * `fix` **Don't relocate assets when the assets framework is not included.**
 
     *Related links:*
