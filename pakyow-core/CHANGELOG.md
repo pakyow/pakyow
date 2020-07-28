@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Load environment and application state in the lexical scope of the defined object.**
+
+    *Related links:*
+    - [Pull Request #508][pr-508]
+
   * `add` **Introduce `Pakyow::Logger.null` for creating null loggers.**
 
     *Related links:*

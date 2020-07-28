@@ -6,6 +6,8 @@ module Pakyow
   # Evals the content of a file into a target.
   #
   class Loader
+    require_relative "loader/context"
+
     extend Support::ClassState
     class_state :__loaded_paths, default: []
 
@@ -37,71 +39,15 @@ module Pakyow
     end
 
     def call(target)
-      class_or_module = case target
-      when Class, Module
-        target
-      else
-        raise ArgumentError, "expected `#{target}' to be a class or module"
-      end
-
       unless target.name
         raise ArgumentError, "cannot load `#{@path}' on unnamed target (`#{target}')"
       end
 
-      comments, uncommented_code = split_comments(code)
-
-      # While we could just class_eval the code onto the target, this will break if the code uses
-      # a refinement. Building up the code like below provides the lexical scope needed for things
-      # like refinements to work correctly.
-      #
-      code_to_load = case class_or_module
-      when Class
-        <<~CODE
-          #{comments}class #{class_or_module}
-          #{indent(uncommented_code.strip)}
-          end
-        CODE
-      when Module
-        <<~CODE
-          #{comments}module #{class_or_module}
-          #{indent(uncommented_code.strip)}
-          end
-        CODE
-      end
-
-      eval code_to_load, TOPLEVEL_BINDING, @path, 0
+      Context.new(target, code, @path).load
     end
 
     private def code
       File.read(@path)
-    end
-
-    private def indent(code)
-      code.split("\n").map { |line| "  #{line}" }.join("\n")
-    end
-
-    private def split_comments(code)
-      line_number = first_nonblank_or_commented_line_number(code)
-
-      if line_number == 1
-        return nil, code
-      else
-        lines = code.each_line.to_a
-
-        return lines[0...(line_number - 1)].join, lines[(line_number - 1)..-1].join
-      end
-    end
-
-    private def first_nonblank_or_commented_line_number(code)
-      code.each_line.each_with_index do |line, index|
-        line.strip!
-
-        unless line.empty? || line[0] == "#"
-          return index + 1
-        end
-      end
-
-      nil
     end
   end
 end

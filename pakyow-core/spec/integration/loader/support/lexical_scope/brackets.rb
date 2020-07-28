@@ -1,0 +1,3 @@
+state(:foo) {
+  FOO = "foo"
+}
