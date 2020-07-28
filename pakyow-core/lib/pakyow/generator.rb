@@ -14,7 +14,7 @@ module Pakyow
   # Base class for generators.
   #
   class Generator < Operation
-    require_relative "generator/file"
+    require_relative "generator/source"
     require_relative "generator/helpers"
 
     include Helpers
@@ -50,11 +50,11 @@ module Pakyow
         source_path = Pathname.new(source_path)
 
         files = source_path.glob("**/*").reject(&:directory?).map { |path|
-          File.new(path, source_path)
+          Source.new(path, source_path)
         }
 
         if source_path.file?
-          files << File.new(source_path, source_path.dirname)
+          files << Source.new(source_path, source_path.dirname)
         end
 
         files
