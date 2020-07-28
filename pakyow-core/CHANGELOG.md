@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce `Pakyow::Logger.null` for creating null loggers.**
+
+    *Related links:*
+    - [Pull Request #508][pr-508]
+
   * `chg` **Ignore changes to directories in the filewatcher.**
 
     *Related links:*
@@ -660,6 +665,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-508]: https://github.com/pakyow/pakyow/pull/508
 [pr-507]: https://github.com/pakyow/pakyow/pull/507
 [pr-506]: https://github.com/pakyow/pakyow/pull/506
 [pr-505]: https://github.com/pakyow/pakyow/pull/505

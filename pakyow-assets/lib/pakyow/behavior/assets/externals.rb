@@ -16,6 +16,7 @@ module Pakyow
 
             def initialize(*)
               @fetched = false
+              @logger = Logger.new(:extl, output: Pakyow.output, level: Pakyow.config.logger.level)
 
               super
             end
@@ -37,16 +38,24 @@ module Pakyow
             end
 
             def shutdown
-              Pakyow.restart if fetched?
+              return unless fetched?
+
+              @logger.info "Update completed"
+
+              Pakyow.restart
             end
 
             private def fetch!(context)
               context.config.assets.externals.scripts.each do |external_script|
                 unless external_script.exist?
+                  @logger.info "[#{context.config.name}] Updating external asset #{external_script.name_with_version}"
+
                   external_script.fetch!
 
                   @fetched = true
                 end
+              rescue StandardError => error
+                Pakyow.houston(error)
               end
             end
 

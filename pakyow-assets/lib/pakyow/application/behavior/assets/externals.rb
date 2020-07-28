@@ -31,6 +31,12 @@ module Pakyow
 
           apply_extension do
             after "configure" do
+              # Ignore vendored assets since we restart manually.
+              #
+              Pakyow.ignore File.join(config.assets.externals.path, "**/*")
+            end
+
+            after "configure" do
               if config.assets.externals.pakyow
                 external_script :pakyow, pakyow_js_version, package: "@pakyow/js", files: [
                   "dist/pakyow.js",
