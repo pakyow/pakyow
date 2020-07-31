@@ -53,22 +53,22 @@ module Pakyow
       end
 
       private def split_comments(code)
-        line_number = first_nonblank_or_commented_line_number(code)
+        lines = code.lines
 
-        if line_number == 1
+        line_number = first_nonblank_or_commented_line_number(lines)
+
+        if lines.empty? || line_number == 1
           return "", code
         else
-          lines = code.each_line.to_a
-
           return lines[0...(line_number - 1)].join, lines[(line_number - 1)..-1].join
         end
       end
 
-      private def first_nonblank_or_commented_line_number(code)
-        code.each_line.each_with_index do |line, index|
-          line.strip!
+      private def first_nonblank_or_commented_line_number(lines)
+        lines.each_with_index do |line, index|
+          clean_line = line.strip
 
-          unless line.empty? || line[0] == "#"
+          unless clean_line.empty? || clean_line[0] == "#"
             return index + 1
           end
         end
