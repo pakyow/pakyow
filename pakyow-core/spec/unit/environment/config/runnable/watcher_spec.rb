@@ -5,6 +5,26 @@ RSpec.describe Pakyow, "config.runnable.watcher" do
     it "has a default value" do
       expect(subject).to be(true)
     end
+
+    context "in production" do
+      before do
+        Pakyow.configure!(:production)
+      end
+
+      it "defaults to false" do
+        expect(subject).to be(false)
+      end
+    end
+
+    context "in ludicrous" do
+      before do
+        Pakyow.configure!(:ludicrous)
+      end
+
+      it "defaults to false" do
+        expect(subject).to be(false)
+      end
+    end
   end
 
   describe "count" do
