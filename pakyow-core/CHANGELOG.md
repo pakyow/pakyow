@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Disable the filewatcher in production and ludicrous modes.**
+
+    *Related links:*
+    - [Pull Request #511][pr-511]
+
   * `fix` **Load empty files without failing.**
 
     *Related links:*
@@ -680,6 +685,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-511]: https://github.com/pakyow/pakyow/pull/511
 [pr-510]: https://github.com/pakyow/pakyow/pull/510
 [pr-509]: https://github.com/pakyow/pakyow/pull/509
 [pr-508]: https://github.com/pakyow/pakyow/pull/508

@@ -182,6 +182,14 @@ module Pakyow
       setting :count do
         config.runnable.watcher.enabled ? 1 : 0
       end
+
+      defaults :production do
+        setting :enabled, false
+      end
+
+      defaults :ludicrous do
+        setting :enabled, false
+      end
     end
   end
 
