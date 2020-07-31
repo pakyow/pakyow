@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Load empty files without failing.**
+
+    *Related links:*
+    - [Pull Request #510][pr-510]
+
   * `chg` **Rename `Pakyow::Generator::File` to `Pakyow::Generator::Source` to prevent common namespace collisions.**
 
     *Related links:*
@@ -675,6 +680,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-510]: https://github.com/pakyow/pakyow/pull/510
 [pr-509]: https://github.com/pakyow/pakyow/pull/509
 [pr-508]: https://github.com/pakyow/pakyow/pull/508
 [pr-507]: https://github.com/pakyow/pakyow/pull/507
