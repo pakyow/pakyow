@@ -25,18 +25,22 @@ module Pakyow
         local_path = @path
 
         @target.public_send(name, *args) do
-          code_to_eval = case self
-          when Class
-            <<~CODE
-              #{local_comments}class #{self}#{inner_source}end
-            CODE
-          when Module
-            <<~CODE
-              #{local_comments}module #{self}#{inner_source}end
-            CODE
-          end
+          if self.name
+            code_to_eval = case self
+            when Class
+              <<~CODE
+                #{local_comments}class #{self}#{inner_source}end
+              CODE
+            when Module
+              <<~CODE
+                #{local_comments}module #{self}#{inner_source}end
+              CODE
+            end
 
-          eval(code_to_eval, binding, local_path, 1)
+            eval(code_to_eval, binding, local_path, 1)
+          else
+            class_eval(&block)
+          end
         end
       end
 

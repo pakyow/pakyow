@@ -48,4 +48,36 @@ RSpec.describe "loading definable state" do
       }.to raise_error(SyntaxError)
     end
   end
+
+  describe "unnamed definition" do
+    let(:loader_path) {
+      File.expand_path("../support/definable_state/unnamed.rb", __FILE__)
+    }
+
+    it "defines correctly" do
+      expect(target.state.definitions[0].ancestors).to include(state_class)
+    end
+  end
+
+  describe "unnamed target" do
+    let(:target) {
+      Class.new(super())
+    }
+
+    let(:autoload) {
+      false
+    }
+
+    let(:loader_path) {
+      File.expand_path("../support/definable_state/simple.rb", __FILE__)
+    }
+
+    it "raises an error" do
+      expect {
+        loader.call(target)
+      }.to raise_error(ArgumentError) do |error|
+        expect(error.message).to include("on unnamed target (`#{target}')")
+      end
+    end
+  end
 end
