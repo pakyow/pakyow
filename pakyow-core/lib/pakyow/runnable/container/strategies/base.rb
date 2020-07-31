@@ -28,7 +28,7 @@ module Pakyow
             @notifier&.stop
             @notifier = Notifier.new(container: container, &method(:handle_notification).to_proc)
 
-            container.formation.each.map {|service_name, desired_service_count|
+            container.formation.each.map { |service_name, desired_service_count|
               service_instance = container.services(service_name).new(**container.options)
               desired_service_count ||= (service_instance.count || 1)
               service_limit = service_instance.limit
