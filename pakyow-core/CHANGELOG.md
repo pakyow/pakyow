@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Introduce `Pakyow.config.impolite` for controlling intro/goodbye logging.**
+
+    *Related links:*
+    - [Pull Request #512][pr-512]
+
   * `chg` **Disable the filewatcher in production and ludicrous modes.**
 
     *Related links:*
@@ -685,6 +690,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-512]: https://github.com/pakyow/pakyow/pull/512
 [pr-511]: https://github.com/pakyow/pakyow/pull/511
 [pr-510]: https://github.com/pakyow/pakyow/pull/510
 [pr-509]: https://github.com/pakyow/pakyow/pull/509

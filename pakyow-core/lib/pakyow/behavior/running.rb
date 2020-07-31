@@ -76,12 +76,14 @@ module Pakyow
                 options[:endpoint] = bound_endpoint
                 options[:protocol] = endpoint.protocol
 
-                Pakyow.logger << running_text(
-                  env: options[:env],
-                  scheme: options[:config].server.scheme,
-                  host: options[:config].server.host,
-                  port: options[:config].server.port
-                )
+                if Pakyow.config.polite
+                  Pakyow.logger << running_text(
+                    env: options[:env],
+                    scheme: options[:config].server.scheme,
+                    host: options[:config].server.host,
+                    port: options[:config].server.port
+                  )
+                end
               end
 
               def postrun(options)
@@ -92,9 +94,13 @@ module Pakyow
                 text = String.new("Pakyow › #{env.to_s.capitalize}")
                 text << " › #{scheme}://#{host}:#{port}"
 
-                Support::CLI.style.blue.bold(
+                if $stdout.tty?
+                  Support::CLI.style.blue.bold(
+                    text
+                  ) + Support::CLI.style.italic("\nUse Ctrl-C to shut down the environment.")
+                else
                   text
-                ) + Support::CLI.style.italic("\nUse Ctrl-C to shut down the environment.")
+                end
               end
             end
 
@@ -172,7 +178,9 @@ module Pakyow
               puts
             end
 
-            Pakyow.logger << "Goodbye"
+            if config.polite
+              Pakyow.logger << "Goodbye"
+            end
 
             ::Process.exit(@__running_container.success?)
           end

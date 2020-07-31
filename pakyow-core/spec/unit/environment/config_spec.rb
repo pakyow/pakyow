@@ -95,6 +95,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "polite" do
+      it "has a default value" do
+        expect(Pakyow.config.polite).to be(true)
+      end
+    end
+
     describe "server.port" do
       it "has a default value" do
         expect(Pakyow.config.server.port).to eq(3000)
