@@ -76,12 +76,14 @@ module Pakyow
                 options[:endpoint] = bound_endpoint
                 options[:protocol] = endpoint.protocol
 
-                Pakyow.logger << running_text(
-                  env: options[:env],
-                  scheme: options[:config].server.scheme,
-                  host: options[:config].server.host,
-                  port: options[:config].server.port
-                )
+                if Pakyow.config.polite
+                  Pakyow.logger << running_text(
+                    env: options[:env],
+                    scheme: options[:config].server.scheme,
+                    host: options[:config].server.host,
+                    port: options[:config].server.port
+                  )
+                end
               end
 
               def postrun(options)
@@ -176,7 +178,9 @@ module Pakyow
               puts
             end
 
-            Pakyow.logger << "Goodbye"
+            if config.polite
+              Pakyow.logger << "Goodbye"
+            end
 
             ::Process.exit(@__running_container.success?)
           end

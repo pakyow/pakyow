@@ -108,6 +108,18 @@ RSpec.describe "environment.server service" do
         service.prerun(options)
       end
     end
+
+    context "environment is impolite" do
+      before do
+        Pakyow.config.polite = false
+      end
+
+      it "logs simpler running text" do
+        expect(Pakyow.logger).not_to receive(:<<)
+
+        service.prerun(options)
+      end
+    end
   end
 
   describe "::postrun" do

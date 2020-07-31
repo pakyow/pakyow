@@ -115,6 +115,7 @@ module Pakyow
   setting :timezone, :utc
   setting :secrets, ["pakyow"]
   setting :channel, :default
+  setting :polite, true
 
   require "pakyow/connection"
   setting :connection_class, Connection

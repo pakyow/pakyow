@@ -943,6 +943,18 @@ RSpec.describe Pakyow do
           allow(instance).to receive(:success?).and_return(:status)
         end
       end
+
+      context "environment is impolite" do
+        before do
+          Pakyow.config.polite = false
+        end
+
+        it "does not say goodbye" do
+          expect(Pakyow.logger).not_to receive(:<<)
+
+          Pakyow.run
+        end
+      end
     end
 
     context "container never starts" do
