@@ -105,6 +105,12 @@ module Pakyow
             end
 
             def count
+              handling do
+                # Load first so that the count is correctly configured.
+                #
+                Pakyow.load(env: options[:env])
+              end
+
               options[:config].server.count
             end
 

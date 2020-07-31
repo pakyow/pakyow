@@ -138,6 +138,12 @@ RSpec.describe "environment.server service" do
     it "returns the configured count" do
       expect(instance.count).to eq(count)
     end
+
+    it "loads the environment" do
+      expect(Pakyow).to receive(:load).with(env: "development")
+
+      instance.count
+    end
   end
 
   describe "#logger" do
