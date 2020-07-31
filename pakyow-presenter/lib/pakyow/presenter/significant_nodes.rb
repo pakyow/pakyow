@@ -4,6 +4,7 @@ require "string_doc"
 
 require_relative "presenters/endpoint"
 require_relative "presenters/form"
+require_relative "views/form"
 
 module Pakyow
   module Presenter

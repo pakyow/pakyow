@@ -1,0 +1,2 @@
+state :foo do
+end

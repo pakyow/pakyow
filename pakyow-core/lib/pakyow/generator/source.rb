@@ -6,7 +6,7 @@ require "pathname"
 module Pakyow
   class Generator
     # @api private
-    class File
+    class Source
       require_relative "helpers"
       require_relative "processor"
 

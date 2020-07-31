@@ -1,5 +1,15 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Rename `Pakyow::Generator::File` to `Pakyow::Generator::Source` to prevent common namespace collisions.**
+
+    *Related links:*
+    - [Pull Request #509][pr-509]
+
+  * `chg` **Load environment and application state in the lexical scope of the defined object.**
+
+    *Related links:*
+    - [Pull Request #509][pr-509]
+
   * `add` **Introduce `Pakyow::Logger.null` for creating null loggers.**
 
     *Related links:*
@@ -665,6 +675,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-509]: https://github.com/pakyow/pakyow/pull/509
 [pr-508]: https://github.com/pakyow/pakyow/pull/508
 [pr-507]: https://github.com/pakyow/pakyow/pull/507
 [pr-506]: https://github.com/pakyow/pakyow/pull/506

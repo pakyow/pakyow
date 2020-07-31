@@ -60,7 +60,7 @@ RSpec.describe Pakyow::Generator do
           $generate_hook_calls << :after
         end
 
-        allow_any_instance_of(Pakyow::Generator::File).to receive(:generate)
+        allow_any_instance_of(Pakyow::Generator::Source).to receive(:generate)
       end
 
       it "invokes the hooks" do
@@ -78,7 +78,7 @@ RSpec.describe Pakyow::Generator do
           local.calls << :action
         end
 
-        allow_any_instance_of(Pakyow::Generator::File).to receive(:generate)
+        allow_any_instance_of(Pakyow::Generator::Source).to receive(:generate)
       end
 
       let(:calls) {
@@ -103,7 +103,7 @@ RSpec.describe Pakyow::Generator do
         run "ls", message: "foo"
       end
 
-      allow_any_instance_of(Pakyow::Generator::File).to receive(:generate)
+      allow_any_instance_of(Pakyow::Generator::Source).to receive(:generate)
     end
 
     it "runs the command in context of the destination" do
