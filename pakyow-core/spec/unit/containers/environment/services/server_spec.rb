@@ -96,6 +96,18 @@ RSpec.describe "environment.server service" do
 
       service.prerun(options)
     end
+
+    context "stdout is not a tty" do
+      before do
+        allow($stdout).to receive(:tty?).and_return(false)
+      end
+
+      it "logs simpler running text" do
+        expect(Pakyow.logger).to receive(:<<).with("Pakyow › Development › https://localhost:3000")
+
+        service.prerun(options)
+      end
+    end
   end
 
   describe "::postrun" do

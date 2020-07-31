@@ -92,9 +92,13 @@ module Pakyow
                 text = String.new("Pakyow › #{env.to_s.capitalize}")
                 text << " › #{scheme}://#{host}:#{port}"
 
-                Support::CLI.style.blue.bold(
+                if $stdout.tty?
+                  Support::CLI.style.blue.bold(
+                    text
+                  ) + Support::CLI.style.italic("\nUse Ctrl-C to shut down the environment.")
+                else
                   text
-                ) + Support::CLI.style.italic("\nUse Ctrl-C to shut down the environment.")
+                end
               end
             end
 
