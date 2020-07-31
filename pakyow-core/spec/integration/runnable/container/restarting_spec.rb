@@ -339,13 +339,18 @@ RSpec.describe "running an unrestartable service in a restartable container" do
     end
 
     it "restarts the service along with the container" do
-      run_container(timeout: 0.2) do |instance|
-        sleep 0.1
+      run_container do |instance|
+        wait_for length: 3, timeout: 1 do |result|
+          expect(result).to eq("foo")
+        end
+
         instance.options[:message] = "bar"
         instance.restart
-      end
 
-      expect(read_from_child).to eq("foobar")
+        wait_for length: 3, timeout: 1 do |result|
+          expect(result).to eq("bar")
+        end
+      end
     end
   end
 
