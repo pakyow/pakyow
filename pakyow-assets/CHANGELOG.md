@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Update mini_racer to v0.3 for improved compatibility with containers.**
+
+    *Related links:*
+    - [Pull Request #514][pr-514]
+
   * `chg` **Improve output when fetching external assets.**
 
     *Related links:*
@@ -50,7 +55,8 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
-[pr-502]: https://github.com/pakyow/pakyow/pull/508
+[pr-514]: https://github.com/pakyow/pakyow/pull/514
+[pr-508]: https://github.com/pakyow/pakyow/pull/508
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-498]: https://github.com/pakyow/pakyow/pull/498/commits
 [pr-468]: https://github.com/pakyow/pakyow/pull/468/commits
