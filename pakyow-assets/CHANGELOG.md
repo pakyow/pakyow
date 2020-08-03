@@ -1,3 +1,12 @@
+# v1.0.6
+
+  * `chg` **Update mini_racer to v0.3 for improved compatibility with containers.**
+
+     *Related links:*
+     - [Pull Request #514][pr-514]
+
+[pr-514]: https://github.com/pakyow/pakyow/pull/514/
+
 # v1.0.5
 
   * `fix` **Download external asset content in full.**
