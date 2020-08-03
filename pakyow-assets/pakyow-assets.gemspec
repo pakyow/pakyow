@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "async-http", "~> 0.52.3"
   spec.add_dependency "mini_mime", "~> 1.0"
-  spec.add_dependency "mini_racer", "~> 0.2.11"
+  spec.add_dependency "mini_racer", "~> 0.3.1"
   spec.add_dependency "sassc", "~> 2.3"
   spec.add_dependency "source_map", "~> 3.0"
 end
