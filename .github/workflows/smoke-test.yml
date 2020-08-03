@@ -1,6 +1,9 @@
 name: Smoke Test
 
 on:
+  pull_request:
+    branches:
+    - master
   push:
   repository_dispatch:
 

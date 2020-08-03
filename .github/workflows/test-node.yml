@@ -1,6 +1,9 @@
 name: Test Node
 
 on:
+  pull_request:
+    branches:
+    - master
   push:
   repository_dispatch:
 
