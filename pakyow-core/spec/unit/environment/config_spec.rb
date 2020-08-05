@@ -95,6 +95,18 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "common_path" do
+      it "has a default value" do
+        expect(Pakyow.config.common_path).to eq(File.join(Pakyow.config.root, "common"))
+      end
+    end
+
+    describe "common_src" do
+      it "has a default value" do
+        expect(Pakyow.config.common_src).to eq(File.join(Pakyow.config.root, "common/backend"))
+      end
+    end
+
     describe "polite" do
       it "has a default value" do
         expect(Pakyow.config.polite).to be(true)

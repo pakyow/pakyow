@@ -16,6 +16,14 @@ module Pakyow
               Pakyow.config.root
             end
           end
+
+          before "load" do
+            next unless Pakyow.multiapp?
+
+            config.aspects.each do |aspect|
+              load_aspect(aspect, path: File.join(Pakyow.config.common_src, aspect.to_s))
+            end
+          end
         end
       end
     end

@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Load backend aspects from the common folder.**
+
   * `fix` **Load the environment before determining the server service count.**
 
     *Related links:*
