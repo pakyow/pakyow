@@ -35,4 +35,10 @@ RSpec.describe "presenter config" do
       expect(config.features.streaming).to be(false)
     end
   end
+
+  describe "common_frontend_path" do
+    it "has a default value" do
+      expect(Pakyow.config.common_frontend_path).to eq(File.join(Pakyow.config.common_path, "frontend"))
+    end
+  end
 end

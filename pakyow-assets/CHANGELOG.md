@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Share common assets and asset packs with each application.**
+
+    *Related links:*
+    - [Pull Request #515][pr-515]
+
   * `chg` **Update mini_racer to v0.3 for improved compatibility with containers.**
 
     *Related links:*
@@ -55,6 +60,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-514]: https://github.com/pakyow/pakyow/pull/514
 [pr-508]: https://github.com/pakyow/pakyow/pull/508
 [pr-502]: https://github.com/pakyow/pakyow/pull/502

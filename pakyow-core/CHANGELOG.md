@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Load backend aspects from the common folder.**
+
+    *Related links:*
+    - [Pull Request #515][pr-515]
+
   * `fix` **Load the environment before determining the server service count.**
 
     *Related links:*
@@ -695,6 +700,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-513]: https://github.com/pakyow/pakyow/pull/513
 [pr-512]: https://github.com/pakyow/pakyow/pull/512
 [pr-511]: https://github.com/pakyow/pakyow/pull/511

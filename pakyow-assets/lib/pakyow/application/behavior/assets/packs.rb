@@ -89,13 +89,16 @@ module Pakyow
                 layout_pack = isolated(:Pack).new(:"layouts/#{layout_name}", config.assets)
                 register_pack_with_view(layout_pack, layout)
 
-                Pathname.glob(File.join(template_store.layouts_path, "#{layout_name}.*")) do |potential_asset_path|
-                  next if template_store.template?(potential_asset_path)
-                  layout_pack << isolated(:Asset).new_from_path(
-                    potential_asset_path,
-                    config: config.assets,
-                    related: assets.each.to_a
-                  )
+                template_store.layout_paths.each do |layouts_path|
+                  Pathname.glob(File.join(layouts_path, "#{layout_name}.*")) do |potential_asset_path|
+                    next if template_store.template?(potential_asset_path)
+
+                    layout_pack << isolated(:Asset).new_from_path(
+                      potential_asset_path,
+                      config: config.assets,
+                      related: assets.each.to_a
+                    )
+                  end
                 end
 
                 packs << layout_pack.finalize

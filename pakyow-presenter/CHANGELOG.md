@@ -1,5 +1,15 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Share common view templates with each application.**
+
+    *Related links:*
+    - [Pull Request #515][pr-515]
+
+  * `chg` **Configure presenter template stores with multiple paths.**
+
+    *Related links:*
+    - [Pull Request #515][pr-515]
+
   * `fix` **Don't relocate frontend when the presenter framework is not included.**
 
     *Related links:*
@@ -21,6 +31,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+[pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-446]: https://github.com/pakyow/pakyow/pull/446
 [pr-297]: https://github.com/pakyow/pakyow/pull/297/commits

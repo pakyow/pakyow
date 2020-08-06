@@ -13,11 +13,31 @@ module Pakyow
 
           apply_extension do
             if ancestors.include?(Plugin)
-              after "load" do
+              after "load", "load.presenter" do
                 load_frontend
               end
             else
               after "load", "load.presenter" do
+                templates_config = {
+                  paths: {
+                    layouts: [
+                      "layouts"
+                    ],
+                    pages: [
+                      "pages"
+                    ],
+                    partials: [
+                      "includes"
+                    ]
+                  }
+                }
+
+                if Pakyow.multiapp?
+                  templates_config.dig(:paths, :layouts) << Pathname.new(Pakyow.config.common_frontend_path).join("layouts")
+                  templates_config.dig(:paths, :pages) << Pathname.new(Pakyow.config.common_frontend_path).join("pages")
+                  templates_config.dig(:paths, :partials) << Pathname.new(Pakyow.config.common_frontend_path).join("includes")
+                end
+
                 templates << Pakyow::Presenter::Templates.new(
                   :default,
                   config.presenter.path,
@@ -25,14 +45,15 @@ module Pakyow
                     processors.each.map { |processor|
                       processor.new(self)
                     }
-                  )
+                  ),
+                  config: templates_config
                 )
               end
             end
 
             # Build presenter classes for compound components.
             #
-            after "load" do
+            after "load.presenter" do
               templates.each do |template_definitions|
                 template_definitions.each do |template|
                   template.object.each_significant_node(:component, descend: true) do |node|

@@ -17,6 +17,14 @@ module Pakyow
           File.join(config.root, "apps")
         end
 
+        setting :common_path do
+          File.join(config.root, "common")
+        end
+
+        setting :common_src do
+          File.join(config.common_path, "backend")
+        end
+
         singleton_class.prepend Module.new {
           private def load_apps_common
             if multiapp?
