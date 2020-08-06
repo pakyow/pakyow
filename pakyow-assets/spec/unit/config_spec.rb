@@ -174,4 +174,16 @@ RSpec.describe "assets config" do
       expect(config.version).to eq("digest")
     end
   end
+
+  describe "common_assets_path" do
+    it "has a default value" do
+      expect(Pakyow.config.common_assets_path).to eq(File.join(Pakyow.config.common_frontend_path, "assets"))
+    end
+  end
+
+  describe "common_asset_packs_path" do
+    it "has a default value" do
+      expect(Pakyow.config.common_asset_packs_path).to eq(File.join(Pakyow.config.common_frontend_path, "assets/packs"))
+    end
+  end
 end

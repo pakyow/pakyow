@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Share common assets and asset packs with each application.**
+
   * `chg` **Update mini_racer to v0.3 for improved compatibility with containers.**
 
     *Related links:*
