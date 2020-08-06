@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Share common view templates with each application.**
+
   * `chg` **Configure presenter template stores with multiple paths.**
 
   * `fix` **Don't relocate frontend when the presenter framework is not included.**
