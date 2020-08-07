@@ -10,7 +10,7 @@ module Pakyow
       apply_extension do
         on "configure" do
           Dir.glob(File.join(Pakyow.config.root, "config/initializers/environment/**/*.rb")).each do |initializer|
-            require initializer
+            class_eval(File.read(initializer), initializer)
           end
         end
       end
