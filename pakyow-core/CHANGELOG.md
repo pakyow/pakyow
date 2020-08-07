@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Evalulate environment initializers in context of the environment.**
+
+    *Related links:*
+    - [Pull Request #516][pr-516]
+
   * `add` **Load backend aspects from the common folder.**
 
     *Related links:*
@@ -700,6 +705,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-516]: https://github.com/pakyow/pakyow/pull/516
 [pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-513]: https://github.com/pakyow/pakyow/pull/513
 [pr-512]: https://github.com/pakyow/pakyow/pull/512

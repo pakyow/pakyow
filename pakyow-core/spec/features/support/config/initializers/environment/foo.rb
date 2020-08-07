@@ -1,0 +1,2 @@
+def self.foo
+end

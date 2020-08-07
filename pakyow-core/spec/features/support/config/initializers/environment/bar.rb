@@ -1,0 +1,2 @@
+def self.bar
+end
