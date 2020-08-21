@@ -17,28 +17,26 @@ module Pakyow
       apply_extension do
         class_state :input_parsers, default: {}
 
-        on "configure" do
-          Pakyow.parse_input "application/x-www-form-urlencoded" do |input, connection|
-            connection.params.parse(input.read)
-          end
+        Pakyow.parse_input "application/x-www-form-urlencoded" do |input, connection|
+          connection.params.parse(input.read)
+        end
 
-          Pakyow.parse_input "multipart/form-data" do |input, connection|
-            Connection::MultipartParser.new(
-              connection.params, boundary: connection.type_params[:boundary]
-            ).parse(input)
-          end
+        Pakyow.parse_input "multipart/form-data" do |input, connection|
+          Connection::MultipartParser.new(
+            connection.params, boundary: connection.type_params[:boundary]
+          ).parse(input)
+        end
 
-          Pakyow.parse_input "application/json", rewindable: true do |input, connection|
-            values = JSON.parse(input.read)
+        Pakyow.parse_input "application/json", rewindable: true do |input, connection|
+          values = JSON.parse(input.read)
 
-            if values.is_a?(Hash)
-              values.deep_indifferentize.each do |key, value|
-                connection.params.add(key, value)
-              end
+          if values.is_a?(Hash)
+            values.deep_indifferentize.each do |key, value|
+              connection.params.add(key, value)
             end
-
-            values
           end
+
+          values
         end
       end
 
