@@ -334,6 +334,7 @@ RSpec.describe Pakyow do
 
     context "environment loader exists" do
       before do
+        allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with(Pakyow.config.loader_path + ".rb").and_return(true)
       end
 

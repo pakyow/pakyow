@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support `./common/lib` for multiapp projects.**
+
+    *Related links:*
+    - [Pull Request #518][pr-518]
+
   * `chg` **Define input parsers inline instead of on configure.**
 
     *Related links:*
@@ -710,6 +715,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-518]: https://github.com/pakyow/pakyow/pull/518
 [pr-517]: https://github.com/pakyow/pakyow/pull/517
 [pr-516]: https://github.com/pakyow/pakyow/pull/516
 [pr-515]: https://github.com/pakyow/pakyow/pull/515

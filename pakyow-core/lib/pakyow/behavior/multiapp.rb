@@ -21,8 +21,18 @@ module Pakyow
           File.join(config.root, "common")
         end
 
+        setting :common_lib do
+          File.join(config.common_path, "lib")
+        end
+
         setting :common_src do
           File.join(config.common_path, "backend")
+        end
+
+        after "configure" do
+          next unless Pakyow.multiapp?
+
+          $LOAD_PATH.unshift(config.common_lib)
         end
 
         singleton_class.prepend Module.new {
