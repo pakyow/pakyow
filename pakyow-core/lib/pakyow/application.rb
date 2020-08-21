@@ -144,6 +144,8 @@ module Pakyow
       File.join(config.src, "lib")
     end
 
+    config.deprecate :lib
+
     configurable :tasks do
       setting :prelaunch, []
 
@@ -201,7 +203,15 @@ module Pakyow
             end
 
             performing :load do
-              $LOAD_PATH.unshift(config.lib)
+              lib_path = Pakyow.deprecator.ignore do
+                config.lib
+              end
+
+              if File.exist?(lib_path)
+                Pakyow.deprecated "application lib", solution: "use the environment lib"
+              end
+
+              $LOAD_PATH.unshift(lib_path)
             end
 
             config.version = Support::PathVersion.build(config.src)

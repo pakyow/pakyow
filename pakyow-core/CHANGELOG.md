@@ -627,6 +627,11 @@
 
 ## Deprecations
 
+  * `./backend/lib` is deprecated in favor of `./lib`.
+
+    *Related links:*
+    - [Pull Request #519][pr-519]
+
   * `Pakyow::ProcessManager` is deprecated in favor of `Pakyow::Runnable::Container`.
 
     *Related links:*
