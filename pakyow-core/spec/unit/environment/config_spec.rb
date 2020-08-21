@@ -107,6 +107,12 @@ RSpec.describe Pakyow do
       end
     end
 
+    describe "common_lib" do
+      it "has a default value" do
+        expect(Pakyow.config.common_lib).to eq(File.join(Pakyow.config.root, "common/lib"))
+      end
+    end
+
     describe "polite" do
       it "has a default value" do
         expect(Pakyow.config.polite).to be(true)
