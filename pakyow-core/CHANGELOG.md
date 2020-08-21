@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Define input parsers inline instead of on configure.**
+
+    *Related links:*
+    - [Pull Request #517][pr-517]
+
   * `fix` **Evalulate environment initializers in context of the environment.**
 
     *Related links:*
@@ -705,6 +710,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-517]: https://github.com/pakyow/pakyow/pull/517
 [pr-516]: https://github.com/pakyow/pakyow/pull/516
 [pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-513]: https://github.com/pakyow/pakyow/pull/513
