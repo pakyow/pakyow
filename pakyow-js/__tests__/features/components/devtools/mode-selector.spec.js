@@ -20,11 +20,10 @@ describe("devtools:mode-selector", () => {
       pw.Component.init(document.querySelector("html"));
     });
 
-    test("updates the document location", () => {
-      document.location.assign = jest.fn();
+    test("updates the window location", () => {
       pw.Component.instances[0].node.value = "two";
       pw.Component.instances[0].node.dispatchEvent(new Event("change"));
-      expect(document.location.assign).toHaveBeenCalledWith("/?modes[]=two");
+      expect(window.location.assign).toHaveBeenCalledWith("/?modes[]=two");
     });
   });
 });

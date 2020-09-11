@@ -269,7 +269,7 @@ describe("stickyness after transitioning a component to a new state", () => {
     beforeEach(() => {
       calls = [];
 
-      document.location.hash = btoa("foo.3:state2;baz:state3");
+      window.location.hash = btoa("foo.3:state2;baz:state3");
 
       document.querySelector("html").innerHTML = `
         <head>
@@ -290,7 +290,7 @@ describe("stickyness after transitioning a component to a new state", () => {
     });
 
     test("does not update the document hash", () => {
-      expect(atob(document.location.hash.substr(1))).toEqual("foo.3:state2;baz:state3")
+      expect(atob(window.location.hash.substr(1))).toEqual("foo.3:state2;baz:state3")
     });
   });
 });

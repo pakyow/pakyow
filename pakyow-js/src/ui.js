@@ -26,7 +26,7 @@ export default class {
     if (currentNavigator) {
       currentNavigator.visit(url, xhr);
     } else {
-      document.location = url;
+      window.location = url;
     }
   }
 
