@@ -57,6 +57,8 @@ RSpec.shared_context "runnable container" do
     rescue Timeout::Error
       thread.kill
     end
+
+    container_instance
   rescue Timeout::Error => error
     container_instance.stop
     thread.kill; raise error
