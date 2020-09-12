@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "rescuing the environment", smoke: true do
+RSpec.describe "rescuing the environment", :repeatable, smoke: true do
   context "error occurs before load" do
     before do
       File.open(project_path.join("config/environment.rb"), "w+") do |file|

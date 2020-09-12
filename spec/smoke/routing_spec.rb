@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "routing requests", smoke: true do
+RSpec.describe "routing requests", :repeatable, smoke: true do
   before do
     setup; boot
   end

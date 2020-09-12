@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "restarting a project", smoke: true do
+RSpec.describe "restarting a project", :repeatable, smoke: true do
   before do
     boot
   end

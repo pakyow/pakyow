@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "serving public files", smoke: true do
+RSpec.describe "serving public files", :repeatable, smoke: true do
   before do
     setup; boot
   end

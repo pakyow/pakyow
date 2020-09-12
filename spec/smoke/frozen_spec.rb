@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "changing application state at runtime", smoke: true do
+RSpec.describe "changing application state at runtime", :repeatable, smoke: true do
   before do
     File.open(project_path.join("config/application.rb"), "w+") do |file|
       file.write <<~SOURCE

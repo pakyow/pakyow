@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "respawning a project", smoke: true do
+RSpec.describe "respawning a project", :repeatable, smoke: true do
   context "gem is added" do
     before do
       # Add the markdown page.

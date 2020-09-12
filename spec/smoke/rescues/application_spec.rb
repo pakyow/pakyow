@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "rescuing the application", smoke: true do
+RSpec.describe "rescuing the application", :repeatable, smoke: true do
   context "error occurs before setup" do
     before do
       File.open(project_path.join("Gemfile"), "a") do |file|

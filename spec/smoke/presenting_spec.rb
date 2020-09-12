@@ -4,7 +4,7 @@
 
 require "smoke_helper"
 
-RSpec.describe "presenting views", smoke: true do
+RSpec.describe "presenting views", :repeatable, smoke: true do
   before do
     setup; boot
   end

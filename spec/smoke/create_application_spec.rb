@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "creating an application in an existing project", smoke: true do
+RSpec.describe "creating an application in an existing project", :repeatable, smoke: true do
   before do
     setup_default_application
     cli_run "create:application foo --path /foo"
@@ -183,7 +183,7 @@ RSpec.describe "creating an application in an existing project", smoke: true do
   end
 end
 
-RSpec.describe "creating an application in an existing multiapp project", smoke: true do
+RSpec.describe "creating an application in an existing multiapp project", :repeatable, smoke: true do
   before do
     setup_default_application
     cli_run "create:application foo --path /foo"

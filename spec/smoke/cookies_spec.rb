@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "cookies", smoke: true do
+RSpec.describe "cookies", :repeatable, smoke: true do
   describe "setting and getting a cookie" do
     before do
       File.open(project_path.join("config/application.rb"), "w+") do |file|

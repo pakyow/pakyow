@@ -2,7 +2,7 @@ require "smoke_helper"
 
 require_relative "../shared/precompile"
 
-RSpec.describe "prelaunching the build phase", smoke: true do
+RSpec.describe "prelaunching the build phase", :repeatable, smoke: true do
   include_examples "precompile"
 
   before do

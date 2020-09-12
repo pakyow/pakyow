@@ -2,7 +2,7 @@ require "smoke_helper"
 
 require_relative "../shared/precompile"
 
-RSpec.describe "precompiling assets for a path", smoke: true do
+RSpec.describe "precompiling assets for a path", :repeatable, smoke: true do
   include_examples "precompile"
 
   before do

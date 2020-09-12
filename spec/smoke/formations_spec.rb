@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "booting a formation", smoke: true do
+RSpec.describe "booting a formation", :repeatable, smoke: true do
   before do
     File.open(project_path.join("config/application.rb"), "w+") do |file|
       file.write <<~SOURCE

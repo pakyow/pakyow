@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "sessions, with the cookie adapter", smoke: true do
+RSpec.describe "sessions, with the cookie adapter", :repeatable, smoke: true do
   let(:set_response) {
     http.put("http://localhost:#{port}/session/set")
   }

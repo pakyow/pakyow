@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "updating external assets", smoke: true do
+RSpec.describe "updating external assets", :repeatable, smoke: true do
   before do
     project_path.join("config/application.rb").open("w+") do |file|
       file.write <<~SOURCE
