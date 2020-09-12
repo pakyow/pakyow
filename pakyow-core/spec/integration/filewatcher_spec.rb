@@ -1,7 +1,7 @@
 require "fileutils"
 require "pakyow/filewatcher"
 
-RSpec.describe "using the filewatcher" do
+RSpec.describe "using the filewatcher", :repeatable do
   let(:path) {
     File.expand_path("../tmp", __FILE__)
   }

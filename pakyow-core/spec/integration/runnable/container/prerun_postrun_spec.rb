@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "handling prerun and postrun work" do
+RSpec.describe "handling prerun and postrun work", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -163,7 +163,7 @@ RSpec.describe "handling prerun and postrun work" do
   end
 end
 
-RSpec.describe "handling prerun and postrun work in nested services" do
+RSpec.describe "handling prerun and postrun work in nested services", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

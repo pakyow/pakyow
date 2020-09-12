@@ -26,6 +26,16 @@ RSpec.configure do |config|
     config.filter_run_excluding benchmark: true
   end
 
+  if ENV.key?("CI")
+    require "rspec/repeat"
+
+    config.include RSpec::Repeat
+
+    config.around :each, :repeatable do |example|
+      repeat example, 10.times, verbose: true
+    end
+  end
+
   def rss
    `ps -eo pid,rss | grep #{Process.pid} | awk '{print $2}'`.to_i
   end

@@ -1,6 +1,6 @@
 require_relative "../../shared"
 
-RSpec.describe "overriding functionality in process subclasses" do
+RSpec.describe "overriding functionality in process subclasses", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

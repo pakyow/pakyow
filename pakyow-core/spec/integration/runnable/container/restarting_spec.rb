@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "restarting runnable containers" do
+RSpec.describe "restarting runnable containers", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -81,7 +81,7 @@ RSpec.describe "restarting runnable containers" do
   end
 end
 
-RSpec.describe "restarting a service that exits successfully" do
+RSpec.describe "restarting a service that exits successfully", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -129,7 +129,7 @@ RSpec.describe "restarting a service that exits successfully" do
   end
 end
 
-RSpec.describe "restarting a failing service" do
+RSpec.describe "restarting a failing service", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -184,7 +184,7 @@ RSpec.describe "restarting a failing service" do
   end
 end
 
-RSpec.describe "restarting a failing service alongside a running service" do
+RSpec.describe "restarting a failing service alongside a running service", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -247,7 +247,7 @@ RSpec.describe "restarting a failing service alongside a running service" do
   end
 end
 
-RSpec.describe "running an unrestartable container" do
+RSpec.describe "running an unrestartable container", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -303,7 +303,7 @@ RSpec.describe "running an unrestartable container" do
   end
 end
 
-RSpec.describe "running an unrestartable service in a restartable container" do
+RSpec.describe "running an unrestartable service in a restartable container", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -376,7 +376,7 @@ RSpec.describe "running an unrestartable service in a restartable container" do
   end
 end
 
-RSpec.describe "running a restartable service in an unrestartable container" do
+RSpec.describe "running a restartable service in an unrestartable container", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -430,7 +430,7 @@ RSpec.describe "running a restartable service in an unrestartable container" do
   end
 end
 
-RSpec.describe "restarting runnable containers from other processes" do
+RSpec.describe "restarting runnable containers from other processes", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

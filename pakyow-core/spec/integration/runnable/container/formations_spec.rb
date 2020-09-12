@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "running a formation container" do
+RSpec.describe "running a formation container", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
