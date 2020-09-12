@@ -23,8 +23,6 @@ RSpec.describe "serving assets", :repeatable, smoke: true do
   }
 
   it "responds to a request" do
-    fail
-
     response = http.get("http://localhost:#{port}/assets/styles/default.css")
 
     expect(response.status).to eq(200)
