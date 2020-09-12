@@ -23,9 +23,9 @@ pw.define("devtools", {
     this.listen("pw:socket:connected", () => {
       if (this.state === "restarting") {
         if (this.switchToEnvironment() === "prototype") {
-          document.location.assign(this.config.viewPath);
+          window.location.assign(this.config.viewPath);
         } else {
-          document.location.assign(
+          window.location.assign(
             window.localStorage.getItem(
               `pw:devtools-view-path-mapping:${this.config.viewPath}`
              )
@@ -55,7 +55,7 @@ pw.define("devtools:environment", {
 pw.define("devtools:mode-selector", {
   constructor() {
     this.node.addEventListener("change", () => {
-      document.location.assign(window.location.pathname + '?modes[]=' + this.node.value);
+      window.location.assign(window.location.pathname + '?modes[]=' + this.node.value);
     });
   }
 });
@@ -63,7 +63,7 @@ pw.define("devtools:mode-selector", {
 pw.define("devtools:reloader", {
   constructor() {
     this.listen("pw:ui:stale", function () {
-      document.location.reload();
+      window.location.reload();
     });
   }
 });

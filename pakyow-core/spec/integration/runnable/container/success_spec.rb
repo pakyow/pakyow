@@ -2,7 +2,7 @@ require_relative "../shared"
 
 # TODO: Rename to status spec?
 #
-RSpec.describe "determining container success" do
+RSpec.describe "determining container success", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

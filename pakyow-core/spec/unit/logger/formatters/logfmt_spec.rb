@@ -59,7 +59,7 @@ RSpec.describe Pakyow::Logger::Formatters::Logfmt do
     )
   end
 
-  it "formats a hash message" do
+  it "formats a hash message", :restartable do
     formatter.call(event(foo: "bar"), severity: level)
 
     expect(entry).to eq(

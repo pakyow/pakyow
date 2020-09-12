@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "fetching external assets on boot", smoke: true do
+RSpec.describe "fetching external assets on boot", :repeatable, smoke: true do
   before do
     project_path.join("config/application.rb").open("w+") do |file|
       file.write <<~SOURCE

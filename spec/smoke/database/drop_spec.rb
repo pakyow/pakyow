@@ -1,7 +1,7 @@
 require "smoke_helper"
 require_relative "../../helpers/database_helpers"
 
-RSpec.describe "dropping a database", smoke: true do
+RSpec.describe "dropping a database", :repeatable, smoke: true do
   include DatabaseHelpers
 
   before do

@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "signaling a running project", smoke: true do
+RSpec.describe "signaling a running project", :repeatable, smoke: true do
   context "INT" do
     before do
       boot do

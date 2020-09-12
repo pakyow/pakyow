@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "signaling runnable containers" do
+RSpec.describe "signaling runnable containers", :repeatable do
   include_context "runnable container"
 
   # We can only test forked here because threaded services run in this process.

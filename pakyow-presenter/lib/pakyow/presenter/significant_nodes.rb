@@ -2,6 +2,7 @@
 
 require "string_doc"
 
+require_relative "component"
 require_relative "presenters/endpoint"
 require_relative "presenters/form"
 require_relative "views/form"

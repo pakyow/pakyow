@@ -3,7 +3,7 @@ require "smoke_helper"
 require_relative "./shared/migrate"
 require_relative "./shared/precompile"
 
-RSpec.describe "prelaunching the environment", smoke: true do
+RSpec.describe "prelaunching the environment", :repeatable, smoke: true do
   include_examples "migrate"
   include_examples "precompile" do
     let :envars do

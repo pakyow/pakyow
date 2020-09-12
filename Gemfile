@@ -30,6 +30,7 @@ group :test do
 
   gem "rspec", "~> 3.9"
   gem "rspec-benchmark", "~> 0.6"
+  gem "rspec-repeat", "~> 1.0"
 
   gem "warning", "~> 1.0"
 

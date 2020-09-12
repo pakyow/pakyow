@@ -2,7 +2,7 @@ require "smoke_helper"
 
 require_relative "../shared/migrate"
 
-RSpec.describe "migrating a database", smoke: true do
+RSpec.describe "migrating a database", :repeatable, smoke: true do
   include_examples "migrate"
 
   before do

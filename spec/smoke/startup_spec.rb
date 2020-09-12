@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "starting up a newly generated project", smoke: true do
+RSpec.describe "starting up a newly generated project", :repeatable, smoke: true do
   before do
     File.open(project_path.join("Gemfile"), "a") do |file|
       file.write("\ngem \"sqlite3\"")

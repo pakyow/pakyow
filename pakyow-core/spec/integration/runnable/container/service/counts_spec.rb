@@ -1,6 +1,6 @@
 require_relative "../../shared"
 
-RSpec.describe "defining the number of services" do
+RSpec.describe "defining the number of services", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

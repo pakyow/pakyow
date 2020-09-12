@@ -1,6 +1,6 @@
 require_relative "../../shared"
 
-RSpec.describe "defining the service logger" do
+RSpec.describe "defining the service logger", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

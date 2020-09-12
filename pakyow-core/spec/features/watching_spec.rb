@@ -1,6 +1,6 @@
 require "fileutils"
 
-RSpec.describe "watching files from the environment" do
+RSpec.describe "watching files from the environment", :restartable do
   before do
     allow(Pakyow).to receive(:restart)
   end

@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "running a single service in a container" do
+RSpec.describe "running a single service in a container", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -50,7 +50,7 @@ RSpec.describe "running a single service in a container" do
   end
 end
 
-RSpec.describe "running a single nested service in a container" do
+RSpec.describe "running a single nested service in a container", :repeatable do
   include_context "runnable container"
 
   shared_examples :examples do

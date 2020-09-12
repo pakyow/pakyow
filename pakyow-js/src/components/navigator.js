@@ -7,7 +7,7 @@ pw.define("navigator", {
     }
 
     this.initialState = window.history.state || {
-      url: document.location.href,
+      url: window.location.href,
       scrollX: window.pageXOffset,
       scrollY: window.pageYOffset
     };
@@ -78,7 +78,7 @@ pw.define("navigator", {
 
       return true;
     } else {
-      document.location = url;
+      window.location = url;
     }
   },
 

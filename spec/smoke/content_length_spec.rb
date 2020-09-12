@@ -1,6 +1,6 @@
 require "smoke_helper"
 
-RSpec.describe "setting the content length header on the response", smoke: true do
+RSpec.describe "setting the content length header on the response", :repeatable, smoke: true do
   before do
     File.open(project_path.join("config/application.rb"), "w+") do |file|
       file.write <<~SOURCE

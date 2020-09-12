@@ -17,10 +17,9 @@ describe("devtools:reloader", () => {
       pw.Component.init(document.querySelector("html"));
     });
 
-    test("reloads the document location", () => {
-      let spy = jest.spyOn(document.location, "reload").mockImplementation(() => {});
+    test("reloads the window location", () => {
       pw.broadcast("pw:ui:stale");
-      expect(spy).toHaveBeenCalled();
+      expect(window.location.reload).toHaveBeenCalled();
     });
   });
 });

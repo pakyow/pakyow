@@ -1,6 +1,6 @@
 require_relative "../../shared"
 
-RSpec.describe "defining the service strategy" do
+RSpec.describe "defining the service strategy", :repeatable do
   include_context "runnable container"
 
   before do

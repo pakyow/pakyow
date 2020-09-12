@@ -1,5 +1,5 @@
 function mockFunctions() {
-  const original = require.requireActual('../../../src/index');
+  const original = jest.requireActual('../../../src/index');
   return {
     ...original,
     send: jest.fn().mockImplementation((url, options) => {
@@ -39,7 +39,7 @@ describe("devtools", () => {
         pw.Component.init(document.querySelector("html"));
         expect(spy).toHaveBeenCalledWith(
           "pw:devtools-view-path-mapping:/foo",
-          "http://localhost/"
+          "http://pakyow.local/"
         );
       });
     });
@@ -185,9 +185,9 @@ describe("devtools", () => {
         });
 
         test("sets the document location to the view path", () => {
-          document.location.assign = jest.fn();
+          window.location.assign = jest.fn();
           pw.broadcast("pw:socket:connected", { config: {} });
-          expect(document.location.assign).toHaveBeenCalledWith("/foo");
+          expect(window.location.assign).toHaveBeenCalledWith("/foo");
         });
       });
 
@@ -210,9 +210,9 @@ describe("devtools", () => {
         });
 
         test("sets the document location to the mapping for the view path", () => {
-          document.location.assign = jest.fn();
+          window.location.assign = jest.fn();
           pw.broadcast("pw:socket:connected", { config: {} });
-          expect(document.location.assign).toHaveBeenCalledWith("/foo/bar");
+          expect(window.location.assign).toHaveBeenCalledWith("/foo/bar");
         });
       });
     });
