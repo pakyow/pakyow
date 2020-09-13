@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "deprecator"
+require_relative "system"
 
 module Pakyow
   module Support
@@ -60,8 +61,14 @@ module Pakyow
       end
 
       private def build_deprecated_initializer(target, solution:)
+        method_signature = if System.ruby_version < "2.7.0"
+          "*"
+        else
+          "*, **"
+        end
+
         deprecation_module.module_eval <<~CODE
-          def initialize(*)
+          def initialize(#{method_signature})
             Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
             super
@@ -70,14 +77,20 @@ module Pakyow
       end
 
       private def build_deprecated_extender_includer(target, solution:)
+        method_signature = if System.ruby_version < "2.7.0"
+          "*"
+        else
+          "*, **"
+        end
+
         deprecation_module.module_eval <<~CODE
-          def extended(*)
+          def extended(#{method_signature})
             Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
             super
           end
 
-          def included(*)
+          def included(#{method_signature})
             Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
             super
@@ -92,8 +105,14 @@ module Pakyow
           raise RuntimeError, "could not find method `#{target}' to deprecate"
         end
 
+        method_signature = if System.ruby_version < "2.7.0"
+          "*"
+        else
+          "*, **"
+        end
+
         deprecation_module.module_eval <<~CODE
-          def #{target}(*)
+          def #{target}(#{method_signature})
             Deprecator.global.deprecated(*deprecated_method_reference(#{target.inspect}), solution: #{solution.inspect})
 
             super

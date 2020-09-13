@@ -7,9 +7,17 @@ module Pakyow
       #
       # @api private
       class Global < Deprecator
-        def initialize(*)
-          super
+        if System.ruby_version < "2.7.0"
+          def initialize(*)
+            super; __common_global_deprecator_initialize
+          end
+        else
+          def initialize(*, **)
+            super; __common_global_deprecator_initialize
+          end
+        end
 
+        private def __common_global_deprecator_initialize
           @forwards = []
         end
 

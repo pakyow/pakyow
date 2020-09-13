@@ -50,9 +50,11 @@ RSpec.describe Pakyow::Support::Makeable do
       end
 
       it "uses isolable" do
-        expect(object).to receive(:isolate).with(object, as: :foo, context: Object, namespace: []).and_call_original
+        ignore_warnings do
+          expect(object).to receive(:isolate).with(object, as: :foo, context: Object, namespace: []).and_call_original
 
-        result
+          result
+        end
       end
 
       context "block is passed" do
@@ -273,6 +275,8 @@ RSpec.describe Pakyow::Support::Makeable do
         end
 
         before do
+          @called_before, @called_after = nil
+
           local = self
 
           object.before "make" do
@@ -317,6 +321,8 @@ RSpec.describe Pakyow::Support::Makeable do
 
         describe "accessing class level instance state in a before make hook" do
           before do
+            @some_key = nil
+
             local = self
 
             object.before "make" do

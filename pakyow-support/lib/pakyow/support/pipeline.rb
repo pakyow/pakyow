@@ -3,6 +3,7 @@
 require_relative "class_state"
 require_relative "deprecator"
 require_relative "extension"
+require_relative "system"
 
 module Pakyow
   module Support
@@ -78,10 +79,18 @@ module Pakyow
       end
 
       prepend_methods do
-        def initialize(*)
-          @__pipeline = self.class.__pipeline.dup
+        if System.ruby_version < "2.7.0"
+          def initialize(*)
+            __common_pipeline_initialize; super
+          end
+        else
+          def initialize(*, **)
+            __common_pipeline_initialize; super
+          end
+        end
 
-          super
+        private def __common_pipeline_initialize
+          @__pipeline = self.class.__pipeline.dup
         end
       end
 
@@ -142,8 +151,8 @@ module Pakyow
       common_methods do
         # Defines an action on the current pipeline.
         #
-        def action(action = nil, *options, before: nil, after: nil, &block)
-          @__pipeline.action(action, *options, before: before, after: after, &block)
+        def action(action = nil, *args, before: nil, after: nil, **kwargs, &block)
+          @__pipeline.action(action, *args, before: before, after: after, **kwargs, &block)
         end
 
         # Calls the pipeline with any given arguments.

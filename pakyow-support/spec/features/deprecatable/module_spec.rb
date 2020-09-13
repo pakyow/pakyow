@@ -43,7 +43,6 @@ RSpec.describe "deprecating a module" do
 
   context "module already has an included method" do
     let(:deprecatable) {
-      local = self
       super().tap do |deprecatable|
         deprecatable.module_eval do
           def self.included(base)
@@ -74,7 +73,6 @@ RSpec.describe "deprecating a module" do
 
   context "module already has an extended method" do
     let(:deprecatable) {
-      local = self
       super().tap do |deprecatable|
         deprecatable.module_eval do
           def self.extended(base)

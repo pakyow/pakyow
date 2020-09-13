@@ -173,6 +173,10 @@ RSpec.describe "pipelines" do
           include Pakyow::Support::Pipeline
 
           action Class.new {
+            def initialize
+              @foo = nil
+            end
+
             def call(result)
               result << @foo
               @foo = :foo
@@ -759,6 +763,10 @@ RSpec.describe "pipelines" do
           extend Pakyow::Support::Pipeline
         end
       }
+
+      before do
+        allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
+      end
 
       it "is deprecated" do
         expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(

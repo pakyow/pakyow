@@ -34,7 +34,9 @@ RSpec.describe "passing mixed arguments through pipelines" do
 
       it "fails when no argument is passed" do
         expect {
-          call(bar: "bar")
+          ignore_warnings do
+            call(bar: "bar")
+          end
         }.to raise_error(ArgumentError)
       end
 
@@ -46,7 +48,9 @@ RSpec.describe "passing mixed arguments through pipelines" do
 
       it "fails when no arguments are passed" do
         expect {
-          call
+          ignore_warnings do
+            call
+          end
         }.to raise_error(ArgumentError)
       end
     end
@@ -221,13 +225,17 @@ RSpec.describe "passing mixed arguments through pipelines" do
       it "behaves as expected when no argument is passed" do
         # This is counter-intuitive, but it's how normal methods behave.
         #
-        expect(call(bar: "bar")).to eq([{ bar: "bar" }, nil])
+        ignore_warnings do
+          expect(call(bar: "bar")).to eq([{ bar: "bar" }, nil])
+        end
       end
 
       it "behaves as expected when no argument is passed" do
         # This is counter-intuitive, but it's the expected behavior.
         #
-        expect(call).to eq([{}, nil])
+        ignore_warnings do
+          expect(call).to eq([{}, nil])
+        end
       end
     end
 

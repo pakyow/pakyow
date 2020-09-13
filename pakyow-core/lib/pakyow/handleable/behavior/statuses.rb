@@ -25,12 +25,12 @@ module Pakyow
             end
 
             if code = Connection::Statuses.code(as)
-              super(event) do |event, *args, **kwargs|
+              super(event) do |super_event, *args, **kwargs|
                 connection = kwargs[:connection]
                 connection&.status = code
 
                 if block
-                  instance_exec(event, *args, **kwargs, &block)
+                  instance_exec(super_event, *args, **kwargs, &block)
                 end
 
                 trigger code, *args, **kwargs

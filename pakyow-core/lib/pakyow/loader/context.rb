@@ -14,7 +14,7 @@ module Pakyow
         eval(@uncommented_code, binding, @path, @comments.lines.count + 1)
       end
 
-      def method_missing(name, *args, &block)
+      def method_missing(name, *args, **kwargs, &block)
         inner_source = if block
           inner_source(block.source)
         else
@@ -24,7 +24,7 @@ module Pakyow
         local_comments = @comments
         local_path = @path
 
-        @target.public_send(name, *args) do
+        @target.public_send(name, *args, **kwargs) do
           if self.name
             code_to_eval = case self
             when Class

@@ -11,18 +11,22 @@ RSpec.describe "deprecating a class" do
 
   before do
     allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
-
-    deprecatable.class_eval do
-      deprecate
-    end
   end
 
   it "does not report the deprecation immediately" do
+    deprecatable.class_eval do
+      deprecate
+    end
+
     expect(Pakyow::Support::Deprecator.global).not_to have_received(:deprecated)
   end
 
   context "class is initialized" do
     before do
+      deprecatable.class_eval do
+        deprecate
+      end
+
       deprecatable.new
     end
 
@@ -32,6 +36,12 @@ RSpec.describe "deprecating a class" do
   end
 
   context "deprecated class has an initializer" do
+    before do
+      deprecatable.class_eval do
+        deprecate
+      end
+    end
+
     let(:deprecatable) {
       super().tap do |deprecatable|
         deprecatable.class_eval do

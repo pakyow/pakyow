@@ -2,8 +2,6 @@ require "pakyow/support/extension"
 
 RSpec.describe "defining common prepend methods in an extension" do
   let(:extension) {
-    local = self
-
     Module.new {
       extend Pakyow::Support::Extension
 

@@ -2,6 +2,7 @@
 
 require_relative "class_state"
 require_relative "extension"
+require_relative "system"
 
 module Pakyow
   module Support
@@ -112,10 +113,10 @@ module Pakyow
         #
         # @param event [Symbol] The name of the event.
         #
-        def performing(event, *args)
-          call_hooks(:before, event, *args)
+        def performing(event, *args, **kwargs)
+          call_hooks(:before, event, *args, **kwargs)
           value = yield
-          call_hooks(:after, event, *args)
+          call_hooks(:after, event, *args, **kwargs)
           value
         end
 
@@ -124,12 +125,12 @@ module Pakyow
         # @param type [Symbol] The type of event (e.g. before / after).
         # @param event [Symbol] The name of the event.
         #
-        def call_hooks(type, event, *args)
+        def call_hooks(type, event, *args, **kwargs)
           hooks(type, event).each do |hook|
             if hook[:exec]
-              instance_exec(*args, &hook[:block])
+              instance_exec(*args, **kwargs, &hook[:block])
             else
-              hook[:block].call(*args)
+              hook[:block].call(*args, **kwargs)
             end
           end
         end
