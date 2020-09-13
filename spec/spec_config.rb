@@ -114,6 +114,10 @@ RSpec.configure do |config|
 
     @defined_constants = Module.constants.dup
 
+    if Pakyow.respond_to?(:deep_freeze)
+      Pakyow.singleton_class.remove_method :deep_freeze
+    end
+
     Pakyow.singleton_class.define_method :deep_freeze do; end
 
     allow(Bundler).to receive(:reset!)
@@ -269,6 +273,10 @@ RSpec.configure do |config|
       end
     end
   end
+
+  def ignore_warnings(&block)
+    $warnings.ignore(&block)
+  end
 end
 
 RSpec::Matchers.define :eq_sans_whitespace do |expected|
@@ -287,26 +295,68 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
-
 require "warning"
-warnings = []
-pakyow_path = File.expand_path("../../", __FILE__)
-Warning.process do |warning|
-  if warning.start_with?(pakyow_path) && !warning.include?("_spec.rb") && !warning.include?("spec/")
-    warnings << warning.gsub(/^#{pakyow_path}\//, "")
+
+module Pakyow
+  module Support
+    # This will eventually make its way into an official warning collector in `pakyow/support`.
+    #
+    class Warnings
+      attr_reader :warnings
+
+      def initialize
+        @warnings = []
+        @ignoring = false
+
+        Warning.process do |warning|
+          next if ignoring?
+
+          warnings << warning
+        end
+      end
+
+      def ignore
+        @ignoring = true
+
+        yield
+      ensure
+        @ignoring = false
+      end
+
+      def ignoring?
+        @ignoring == true
+      end
+    end
   end
 end
 
+$warnings = Pakyow::Support::Warnings.new
+
+require "pakyow/support/system"
+ruby_gem_path = Pakyow::Support::System.ruby_gem_path.to_s
+pakyow_path = File.expand_path("../../", __FILE__)
 $toplevel_pid ||= Process.pid
 
 at_exit do
-  if warnings.any? && Process.pid == $toplevel_pid && !ENV.key?("CI") && ENV["WARN"] != "false"
+  if Process.pid == $toplevel_pid && !ENV.key?("CI") && ENV["WARN"] != "false"
     require "pakyow/support/cli/style"
-    puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
-    warnings.take(1_000).each do |warning|
-      puts Pakyow::Support::CLI.style.yellow("  › ") + warning.strip
+
+    filtered_warnings = $warnings.warnings.take(1_000).reject { |warning|
+      warning.start_with?(ruby_gem_path)
+    }
+
+    if filtered_warnings.any?
+      puts Pakyow::Support::CLI.style.yellow "#{filtered_warnings.count} warnings were generated:"
+
+      filtered_warnings.each do |warning|
+        warning = warning.gsub(/^#{pakyow_path}\//, "")
+        warning = warning.strip
+
+        puts Pakyow::Support::CLI.style.yellow("  › ") + warning
+      end
+
+      puts
     end
-    puts
   end
 rescue Interrupt
 end
