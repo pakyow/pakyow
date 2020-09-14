@@ -19,7 +19,7 @@ RSpec.describe "restarting runnable containers", :repeatable do
     end
 
     def restart(instance)
-      sleep 0.15
+      sleep 1
       @message = "bar"
       instance.restart
     end
@@ -29,10 +29,13 @@ RSpec.describe "restarting runnable containers", :repeatable do
     context "container is restartable" do
       it "restarts the container" do
         run_container do |instance|
+          wait_for length: 3, timeout: 1 do |result|
+            expect(result.scan(/foo/).count).to eq(1)
+          end
+
           restart(instance)
 
-          wait_for length: 6, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(1)
+          wait_for length: 3, timeout: 1 do |result|
             expect(result.scan(/bar/).count).to eq(1)
           end
         end
