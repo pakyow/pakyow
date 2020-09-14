@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't register multiple deprecators with the global deprecator.**
+
+    *Related links:*
+    - [Pull Request #523][pr-523]
+
   * `chg` **Support `./common/lib` for multiapp projects.**
 
     *Related links:*
@@ -720,6 +725,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-523]: https://github.com/pakyow/pakyow/pull/523
 [pr-518]: https://github.com/pakyow/pakyow/pull/518
 [pr-517]: https://github.com/pakyow/pakyow/pull/517
 [pr-516]: https://github.com/pakyow/pakyow/pull/516

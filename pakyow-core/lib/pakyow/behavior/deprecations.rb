@@ -104,11 +104,9 @@ module Pakyow
         end
 
         after "setup" do
-          @deprecator = setup_deprecator(config.deprecator.reporter)
-
-          unless @deprecator.equal?(Support::Deprecator.global)
-            Support::Deprecator.global >> @deprecator
-          end
+          # Ensure that the deprecator is defined.
+          #
+          deprecator
         end
       end
     end
