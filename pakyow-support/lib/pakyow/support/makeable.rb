@@ -68,34 +68,41 @@ module Pakyow
         # @param kwargs [Hash] Additional keys/values to set as instance variables on the new object.
         #
         def make(*namespace, object_name, set_const: true, context: nil, **kwargs, &block)
-          object = isolate(
-            self,
-            as: object_name,
-            namespace: namespace,
-            context: context || (set_const ? TOPLEVEL_BINDING.receiver.class : nil)
-          ) do
-            if block_given?
-              instance_variable_set(:@source_location, block.source_location)
+          context ||= set_const ? TOPLEVEL_BINDING.receiver.class : nil
+
+          if isolated?(object_name, namespace: namespace, context: context)
+            object = isolated(object_name, namespace: namespace, context: context)
+
+            define_class_level_state(object, **kwargs)
+            extend_with_block(object, &block)
+
+            object
+          else
+            object = isolate(
+              self,
+              as: object_name,
+              namespace: namespace,
+              context: context
+            ) do
+              if block_given?
+                instance_variable_set(:@source_location, block.source_location)
+              end
+
+              define_class_level_state(self, **kwargs)
+
+              if ancestors.include?(Hookable)
+                call_hooks(:before, :make)
+              end
+
+              extend_with_block(self, &block)
             end
 
-            kwargs.each do |arg, value|
-              instance_variable_set(:"@#{arg}", value)
+            if object.ancestors.include?(Hookable)
+              object.call_hooks(:after, :make)
             end
 
-            if ancestors.include?(Hookable)
-              call_hooks(:before, :make)
-            end
-
-            if block_given?
-              class_exec(&block)
-            end
+            object
           end
-
-          if object.ancestors.include?(Hookable)
-            object.call_hooks(:after, :make)
-          end
-
-          object
         end
 
         # @api private
@@ -103,6 +110,18 @@ module Pakyow
 
         private def type_of_self?(object)
           object.ancestors.include?(ancestors[1])
+        end
+
+        private def define_class_level_state(object, **kwargs)
+          kwargs.each do |arg, value|
+            object.instance_variable_set(:"@#{arg}", value)
+          end
+        end
+
+        private def extend_with_block(object, &block)
+          if block_given?
+            object.class_exec(&block)
+          end
         end
       end
 

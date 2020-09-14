@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Handle makeable object redefinition more elegantly.**
+
+    *Related links:*
+    - [Pull Request #522][pr-522]
+
   * `fix` **Fix several edge-cases around isolable constant definition / lookup.**
 
     *Related links:*
@@ -329,6 +334,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-522]: https://github.com/pakyow/pakyow/pull/522
 [pr-521]: https://github.com/pakyow/pakyow/pull/521
 [pr-497]: https://github.com/pakyow/pakyow/pull/497
 [pr-479]: https://github.com/pakyow/pakyow/pull/479
