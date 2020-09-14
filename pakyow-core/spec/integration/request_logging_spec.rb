@@ -1,6 +1,6 @@
 require "pakyow/logger/destination"
 
-RSpec.describe "request logging" do
+RSpec.describe "request logging", :repeatable do
   let :logger do
     Pakyow::Logger.new(:http, output: Pakyow.output, level: Pakyow.config.logger.level)
   end
