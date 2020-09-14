@@ -126,6 +126,8 @@ module Pakyow
 
         private def constant_defined_on_target?(constant, target)
           !target.nil? && target.const_defined?(constant, false)
+        rescue NameError
+          false
         end
 
         private def resolve_isolation_target(namespace, context)

@@ -192,6 +192,57 @@ RSpec.describe Pakyow::Support::Makeable do
           result
         end
       end
+
+      describe "defining the same object twice" do
+        let(:initial) {
+          object.make(*namespaces, name, foo: :bar, &block)
+        }
+
+        let(:redefinition) {
+          object.make(*namespaces, name, foo: :baz) do
+            @bar = :baz
+          end
+        }
+
+        let(:object) {
+          Class.new do
+            include Pakyow::Support::Hookable
+            include Pakyow::Support::Makeable
+          end
+        }
+
+        let(:hook_calls) {
+          { before: [], after: [] }
+        }
+
+        before do
+          local = self
+
+          object.before "make" do
+            local.hook_calls[:before] << :called
+          end
+
+          object.after "make" do
+            local.hook_calls[:after] << :called
+          end
+
+          initial
+        end
+
+        it "sets the given instance variables" do
+          expect(redefinition.instance_variable_get(:@foo)).to eq(:baz)
+        end
+
+        it "evals the block on the existing object" do
+          expect(redefinition.instance_variable_get(:@bar)).to eq(:baz)
+        end
+
+        it "does not invoke the make hooks multiple times" do
+          redefinition
+          expect(hook_calls[:before].count).to eq(1)
+          expect(hook_calls[:after].count).to eq(1)
+        end
+      end
     end
   end
 
