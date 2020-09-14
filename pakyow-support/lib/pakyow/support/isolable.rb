@@ -43,6 +43,8 @@ module Pakyow
       extend Extension
 
       class_methods do
+        attr_reader :object_name
+
         # Isolates `object_to_isolate` within `self` or `context`, evaluating the given block in context.
         #
         def isolate(object_to_isolate, as: default_omitted = true, namespace: [], context: isolable_context, &block)
@@ -61,10 +63,10 @@ module Pakyow
           end
 
           isolated_object = if isolated_object_name && context
-            isolation_target = ensure_isolatable_namespace(*isolated_object_name.namespace.parts).inject(context) { |target_for_part, object_name_part|
+            isolation_target = ensure_isolable_namespace(*isolated_object_name.namespace.parts).inject(context) { |target_for_part, object_name_part|
               constant_name = Support.inflector.camelize(object_name_part.to_s)
 
-              unless target_for_part.const_defined?(constant_name, false)
+              unless constant_defined_on_target?(constant_name, target_for_part)
                 target_for_part.const_set(constant_name, Module.new)
               end
 
@@ -73,7 +75,7 @@ module Pakyow
 
             isolated_constant_name = Support.inflector.demodulize(isolated_object_name.constant)
 
-            if isolation_target.const_defined?(isolated_constant_name, false)
+            if constant_defined_on_target?(isolated_constant_name, isolation_target)
               isolation_target.const_get(isolated_constant_name)
             else
               newly_isolated_object = define_isolated_object(object_to_isolate)
@@ -96,23 +98,19 @@ module Pakyow
         # Returns true if `class_name` is isolated within `self` or `context`.
         #
         def isolated?(class_name, namespace: [], context: isolable_context)
-          isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
-            target_for_part.const_get(Support.inflector.camelize(object_name_part.to_s))
-          }
+          class_name = ensure_isolable_class_name(class_name)
+          isolation_target = resolve_isolation_target(namespace, context)
 
-          isolation_target.const_defined?(Support.inflector.camelize(class_name.to_s), false)
+          constant_defined_on_target?(class_name, isolation_target)
         end
 
         # Returns the isolated class for `class_name`, evaluating the given block in context.
         #
         def isolated(class_name, namespace: [], context: isolable_context, &block)
-          class_name = Support.inflector.camelize(class_name.to_s)
+          class_name = ensure_isolable_class_name(class_name)
+          isolation_target = resolve_isolation_target(namespace, context)
 
-          isolation_target = ensure_isolatable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
-            target_for_part.const_get(Support.inflector.camelize(object_name_part.to_s))
-          }
-
-          if isolated?(class_name, context: isolation_target)
+          if isolation_target && isolated?(class_name, context: isolation_target)
             isolation_target.const_get(class_name).tap do |isolated_class|
               isolated_class.class_eval(&block) if block_given?
             end
@@ -121,8 +119,25 @@ module Pakyow
           end
         end
 
+        # @api public
         private def isolable_context
           self
+        end
+
+        private def constant_defined_on_target?(constant, target)
+          !target.nil? && target.const_defined?(constant, false)
+        end
+
+        private def resolve_isolation_target(namespace, context)
+          ensure_isolable_namespace(*namespace).inject(context) { |target_for_part, object_name_part|
+            constant = ensure_isolable_class_name(object_name_part)
+
+            if constant_defined_on_target?(constant, target_for_part)
+              target_for_part.const_get(constant)
+            else
+              nil
+            end
+          }
         end
 
         private def build_isolable_object_name(*namespace, object_name)
@@ -191,7 +206,11 @@ module Pakyow
           object
         end
 
-        private def ensure_isolatable_namespace(*namespace)
+        private def ensure_isolable_class_name(class_name)
+          Support.inflector.camelize(class_name.to_s)
+        end
+
+        private def ensure_isolable_namespace(*namespace)
           if namespace.first.is_a?(ObjectNamespace)
             namespace.first.parts
           else

@@ -7,6 +7,14 @@ module Pakyow
     # An object namespace, typically used indirectly via {ObjectName}.
     #
     class ObjectNamespace
+      class << self
+        # Creates a namespaced object name.
+        #
+        def build(*namespaces)
+          new(*namespaces)
+        end
+      end
+
       attr_reader :namespaces, :constant, :path
 
       def initialize(*namespaces)

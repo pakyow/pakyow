@@ -309,8 +309,10 @@ module Pakyow
     end
 
     class << self
+      # Isolates defined state in a sibling namespace rather than within `Application`.
+      #
       private def isolable_context
-        object_name && object_name.namespace.parts.any? ? Kernel.const_get(object_name.namespace.constant) : self
+        object_name && object_name.namespace.parts.any? ? Kernel.const_get(object_name.namespace.constant) : super
       end
     end
   end
