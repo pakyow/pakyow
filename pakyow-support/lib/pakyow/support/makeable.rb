@@ -58,7 +58,7 @@ module Pakyow
       include_dependency Isolable
 
       class_methods do
-        attr_reader :source_location, :object_name
+        attr_reader :source_location
 
         # Make a copy of `self` named `object_name`.
         #

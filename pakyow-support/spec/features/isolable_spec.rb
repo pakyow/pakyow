@@ -39,7 +39,7 @@ RSpec.describe "isolating objects" do
 
       let(:existing_object) {
         Module.new do
-          def self.is_existing_object?
+          def self.existing_object?
             true
           end
         end
@@ -48,7 +48,7 @@ RSpec.describe "isolating objects" do
       it "does not redefine the object" do
         isolable.isolate(State)
 
-        expect(IsolableObject::State.is_existing_object?).to be(true)
+        expect(IsolableObject::State.existing_object?).to be(true)
       end
     end
 
@@ -333,6 +333,202 @@ RSpec.describe "isolating objects" do
       context "given name is oddly constructed" do
         it "creates a camelized class name" do
           expect(isolable.isolate(State, as: "/foo/bar-baz")).to be(IsolableObject::Foo::BarBaz)
+        end
+      end
+    end
+
+    describe "all the ways to get an isolated object" do
+      context "with an object name" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:foo)
+        }
+
+        context "isolated object exists" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :foo)
+          }
+
+          it "returns the isolated object" do
+            expect(isolable.isolated(object_name)).to be(isolated)
+          end
+        end
+
+        context "isolated object does not exist" do
+          it "returns nil" do
+            expect(isolable.isolated(object_name)).to be(nil)
+          end
+        end
+      end
+
+      context "with a namespaced object name" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:foo, :bar, :baz)
+        }
+
+        context "isolated object exists" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :baz, namespace: [:foo, :bar])
+          }
+
+          it "returns the isolated object" do
+            expect(isolable.isolated(object_name)).to be(isolated)
+          end
+        end
+
+        context "isolated object does not exist" do
+          it "returns nil" do
+            expect(isolable.isolated(object_name)).to be(nil)
+          end
+        end
+      end
+
+      context "with an object name and an object namespace" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:baz)
+        }
+
+        let(:object_namespace) {
+          Pakyow::Support::ObjectNamespace.build(:foo, :bar)
+        }
+
+        context "isolated object exists" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :baz, namespace: [:foo, :bar])
+          }
+
+          it "returns the isolated object" do
+            expect(isolable.isolated(object_name, namespace: object_namespace)).to be(isolated)
+          end
+        end
+
+        context "isolated object does not exist" do
+          it "returns nil" do
+            expect(isolable.isolated(object_name, namespace: object_namespace)).to be(nil)
+          end
+        end
+      end
+
+      context "with a namespaced object name and an object namespace" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:baz, :qux)
+        }
+
+        let(:object_namespace) {
+          Pakyow::Support::ObjectNamespace.build(:foo, :bar)
+        }
+
+        context "isolated object exists" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :qux, namespace: [:foo, :bar, :baz])
+          }
+
+          it "returns the isolated object" do
+            expect(isolable.isolated(object_name, namespace: object_namespace)).to be(isolated)
+          end
+        end
+
+        context "isolated object does not exist" do
+          it "returns nil" do
+            expect(isolable.isolated(object_name, namespace: object_namespace)).to be(nil)
+          end
+        end
+      end
+    end
+
+    describe "all the ways to check for an isolated object" do
+      context "with an object name" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:foo)
+        }
+
+        context "object is isolated" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :foo)
+          }
+
+          it "returns true" do
+            expect(isolable.isolated?(object_name)).to be(true)
+          end
+        end
+
+        context "object is not isolated" do
+          it "returns false" do
+            expect(isolable.isolated?(object_name)).to be(false)
+          end
+        end
+      end
+
+      context "with a namespaced object name" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:foo, :bar, :baz)
+        }
+
+        context "object is isolated" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :baz, namespace: [:foo, :bar])
+          }
+
+          it "returns true" do
+            expect(isolable.isolated?(object_name)).to be(true)
+          end
+        end
+
+        context "object is not isolated" do
+          it "returns false" do
+            expect(isolable.isolated?(object_name)).to be(false)
+          end
+        end
+      end
+
+      context "with an object name and an object namespace" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:baz)
+        }
+
+        let(:object_namespace) {
+          Pakyow::Support::ObjectNamespace.build(:foo, :bar)
+        }
+
+        context "isolated object exists" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :baz, namespace: [:foo, :bar])
+          }
+
+          it "returns true" do
+            expect(isolable.isolated?(object_name, namespace: object_namespace)).to be(true)
+          end
+        end
+
+        context "isolated object does not exist" do
+          it "returns false" do
+            expect(isolable.isolated?(object_name, namespace: object_namespace)).to be(false)
+          end
+        end
+      end
+
+      context "with a namespaced object name and an object namespace" do
+        let(:object_name) {
+          Pakyow::Support::ObjectName.build(:baz, :qux)
+        }
+
+        let(:object_namespace) {
+          Pakyow::Support::ObjectNamespace.build(:foo, :bar)
+        }
+
+        context "isolated object exists" do
+          let!(:isolated) {
+            isolable.isolate(State, as: :qux, namespace: [:foo, :bar, :baz])
+          }
+
+          it "returns true" do
+            expect(isolable.isolated?(object_name, namespace: object_namespace)).to be(true)
+          end
+        end
+
+        context "isolated object does not exist" do
+          it "returns false" do
+            expect(isolable.isolated?(object_name, namespace: object_namespace)).to be(false)
+          end
         end
       end
     end
