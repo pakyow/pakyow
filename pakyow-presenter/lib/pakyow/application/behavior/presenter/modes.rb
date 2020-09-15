@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/system"
 
 module Pakyow
   class Application
@@ -39,14 +40,22 @@ module Pakyow
           end
 
           prepend_methods do
-            def initialize(*)
+            if Support::System.ruby_version < "2.7.0"
+              def initialize(*)
+                __common_presenter_modes_initialize; super
+              end
+            else
+              def initialize(*, **)
+                __common_presenter_modes_initialize; super
+              end
+            end
+
+            private def __common_presenter_modes_initialize
               @__ui_modes = Hash[
                 self.class.__ui_modes.map { |name, block|
                   [name, wrap_mode_block(block)]
                 }
               ]
-
-              super
             end
           end
 

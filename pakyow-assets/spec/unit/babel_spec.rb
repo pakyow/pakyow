@@ -19,7 +19,9 @@ RSpec.describe Pakyow::Assets::Babel do
         "code", foo: "bar"
       )
 
-      described_class.transform("code", foo: "bar")
+      Pakyow::Support::Deprecator.global.ignore do
+        described_class.transform("code", foo: "bar")
+      end
     end
   end
 end

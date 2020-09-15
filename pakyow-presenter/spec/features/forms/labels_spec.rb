@@ -12,11 +12,11 @@ RSpec.describe "connecting labels to fields" do
   end
 
   let :input_id do
-    @body.match(/id=\"([^\""]*)\"/).to_a[1]
+    @body.match(/id=\"([^\"]*)\"/).to_a[1]
   end
 
   let :label_for do
-    @body.match(/for=\"([^\""]*)\"/).to_a[1]
+    @body.match(/for=\"([^\"]*)\"/).to_a[1]
   end
 
   it "gives the related input a unique id" do

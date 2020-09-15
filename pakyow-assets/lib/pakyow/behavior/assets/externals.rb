@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/extension"
+require "pakyow/support/system"
 
 require "pakyow/behavior/running/ensure_booted"
 
@@ -14,11 +15,19 @@ module Pakyow
           container(:environment).service(:externals, restartable: false, limit: 1) do
             include Running::EnsureBooted
 
-            def initialize(*)
+            if Support::System.ruby_version < "2.7.0"
+              def initialize(*)
+                __common_assets_externals_initialize; super
+              end
+            else
+              def initialize(*, **)
+                __common_assets_externals_initialize; super
+              end
+            end
+
+            private def __common_assets_externals_initialize
               @fetched = false
               @logger = Logger.new(:extl, output: Pakyow.output, level: Pakyow.config.logger.level)
-
-              super
             end
 
             def perform

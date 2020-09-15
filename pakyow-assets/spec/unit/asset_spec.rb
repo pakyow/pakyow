@@ -30,6 +30,7 @@ RSpec.describe Pakyow::Assets::Asset do
     end
 
     it "only loads once" do
+      allow(instance).to receive(:freeze)
       expect(instance).to receive(:process).once.and_call_original
       instance.read
       instance.read

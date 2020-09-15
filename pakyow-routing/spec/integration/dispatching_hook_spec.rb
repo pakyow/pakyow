@@ -1,6 +1,10 @@
 RSpec.describe "hooking into controller dispatch" do
   include_context "app"
 
+  before do
+    @called = nil
+  end
+
   context "request is halted" do
     let :app_def do
       local = self

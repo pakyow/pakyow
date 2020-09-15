@@ -40,8 +40,8 @@ module Pakyow
 
         FileUtils.mkdir_p(File.dirname(compile_path))
 
-        asset_content = asset.each.each_with_object(String.new) { |asset, content|
-          content << asset
+        asset_content = asset.each.each_with_object(String.new) { |each_asset, content|
+          content << each_asset
         }
 
         File.open(compile_path, "w+") do |file|

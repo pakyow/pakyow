@@ -53,8 +53,8 @@ module Pakyow
         end
       end
 
-      def did_mutate(source_name, changed_values = nil, result_source = nil)
-        @executor.post(source_name, changed_values, result_source, Pakyow.logger.target) do |source_name, changed_values, result_source, logger|
+      def did_mutate(given_source_name, given_changed_values = nil, given_result_source = nil)
+        @executor.post(given_source_name, given_changed_values, given_result_source, Pakyow.logger.target) do |source_name, changed_values, result_source, logger|
           logger.internal {
             "[Pakyow::Data::Subscribers] did mutate #{source_name}"
           }

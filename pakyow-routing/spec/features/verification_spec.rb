@@ -5,8 +5,6 @@ RSpec.shared_context "verification helpers" do
 end
 
 RSpec.shared_examples "verification" do
-  include_context "verification helpers"
-
   describe "sanitization" do
     let(:verify_def) {
       Proc.new {
@@ -98,8 +96,6 @@ RSpec.shared_examples "verification" do
 end
 
 RSpec.shared_examples "nested verification" do
-  include_context "verification helpers"
-
   describe "sanitization" do
     let(:verify_def) {
       Proc.new {
@@ -245,6 +241,7 @@ end
 
 RSpec.describe "verifying all routes in a controller" do
   include_context "app"
+  include_context "verification helpers"
 
   let(:app_def) {
     local = self
@@ -267,6 +264,7 @@ end
 
 RSpec.describe "verifying a specific route in a controller" do
   include_context "app"
+  include_context "verification helpers"
 
   let(:app_def) {
     local = self
@@ -289,6 +287,7 @@ end
 
 RSpec.describe "verifying inside of a route" do
   include_context "app"
+  include_context "verification helpers"
 
   let(:app_def) {
     local = self

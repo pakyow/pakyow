@@ -50,8 +50,8 @@ RSpec.describe "copying a node that has future transforms" do
       meta_node
     end
 
-    node.transform do |node|
-      node.attributes[:class] = "red"; node
+    node.transform do |transformable_node|
+      transformable_node.attributes[:class] = "red"; transformable_node
     end
 
     doc
@@ -135,12 +135,12 @@ RSpec.describe "copying a node that has future transforms" do
         meta_node
       end
 
-      node.transform do |node|
-        if node.find_significant_nodes_with_name(:binding, :title)[0].text == "bar"
-          node.attributes[:class] = "red"
+      node.transform do |transformable_node|
+        if transformable_node.find_significant_nodes_with_name(:binding, :title)[0].text == "bar"
+          transformable_node.attributes[:class] = "red"
         end
 
-        node
+        transformable_node
       end
 
       doc
