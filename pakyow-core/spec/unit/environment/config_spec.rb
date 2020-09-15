@@ -14,7 +14,9 @@ RSpec.describe Pakyow do
 
     describe "exit_on_boot_failure" do
       it "has a default value" do
-        expect(Pakyow.config.exit_on_boot_failure).to eq(false)
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.exit_on_boot_failure).to eq(false)
+        end
       end
 
       it "is deprecated" do
@@ -121,7 +123,9 @@ RSpec.describe Pakyow do
 
     describe "server.port" do
       it "has a default value" do
-        expect(Pakyow.config.server.port).to eq(3000)
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.server.port).to eq(3000)
+        end
       end
 
       it "is deprecated" do
@@ -133,15 +137,19 @@ RSpec.describe Pakyow do
       end
 
       it "sets runnable.server.port" do
-        Pakyow.config.server.port = 42
+        Pakyow::Support::Deprecator.global.ignore do
+          Pakyow.config.server.port = 42
 
-        expect(Pakyow.config.runnable.server.port).to eq(42)
+          expect(Pakyow.config.runnable.server.port).to eq(42)
+        end
       end
     end
 
     describe "server.host" do
       it "has a default value" do
-        expect(Pakyow.config.server.host).to eq("localhost")
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.server.host).to eq("localhost")
+        end
       end
 
       it "is deprecated" do
@@ -153,15 +161,19 @@ RSpec.describe Pakyow do
       end
 
       it "sets runnable.server.host" do
-        Pakyow.config.server.host = "pakyow.com"
+        Pakyow::Support::Deprecator.global.ignore do
+          Pakyow.config.server.host = "pakyow.com"
 
-        expect(Pakyow.config.runnable.server.host).to eq("pakyow.com")
+          expect(Pakyow.config.runnable.server.host).to eq("pakyow.com")
+        end
       end
     end
 
     describe "server.count" do
       it "has a default value" do
-        expect(Pakyow.config.server.count).to eq(1)
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.server.count).to eq(1)
+        end
       end
 
       it "is deprecated" do
@@ -173,15 +185,19 @@ RSpec.describe Pakyow do
       end
 
       it "sets runnable.server.count" do
-        Pakyow.config.server.count = 42
+        Pakyow::Support::Deprecator.global.ignore do
+          Pakyow.config.server.count = 42
 
-        expect(Pakyow.config.runnable.server.count).to eq(42)
+          expect(Pakyow.config.runnable.server.count).to eq(42)
+        end
       end
     end
 
     describe "server.proxy" do
       it "has a default value" do
-        expect(Pakyow.config.server.proxy).to eq(true)
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.server.proxy).to eq(true)
+        end
       end
 
       it "is deprecated" do
@@ -198,7 +214,9 @@ RSpec.describe Pakyow do
         end
 
         it "defaults to false" do
-          expect(Pakyow.config.server.proxy).to eq(false)
+          Pakyow::Support::Deprecator.global.ignore do
+            expect(Pakyow.config.server.proxy).to eq(false)
+          end
         end
       end
     end
@@ -360,13 +378,17 @@ RSpec.describe Pakyow do
 
     describe "tasks.paths" do
       it "has a default value" do
-        expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../../lib/pakyow/tasks", __FILE__)])
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.tasks.paths).to eq(["./tasks", File.expand_path("../../../../lib/pakyow/tasks", __FILE__)])
+        end
       end
     end
 
     describe "tasks.prelaunch" do
       it "has a default value" do
-        expect(Pakyow.config.tasks.prelaunch).to eq([])
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(Pakyow.config.tasks.prelaunch).to eq([])
+        end
       end
     end
 

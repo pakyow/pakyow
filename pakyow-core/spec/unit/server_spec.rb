@@ -29,7 +29,9 @@ RSpec.describe Pakyow::Server do
     it "initializes" do
       expect(described_class).to receive(:new).with(context, endpoint: endpoint, protocol: protocol, scheme: scheme).and_call_original
 
-      described_class.run(context, endpoint: endpoint, protocol: protocol, scheme: scheme)
+      ignore_warnings do
+        described_class.run(context, endpoint: endpoint, protocol: protocol, scheme: scheme)
+      end
     end
 
     it "runs the instance" do
@@ -37,7 +39,9 @@ RSpec.describe Pakyow::Server do
       expect(instance).to receive(:run)
       expect(described_class).to receive(:new).with(context, endpoint: endpoint, protocol: protocol, scheme: scheme).and_return(instance)
 
-      described_class.run(context, endpoint: endpoint, protocol: protocol, scheme: scheme)
+      ignore_warnings do
+        described_class.run(context, endpoint: endpoint, protocol: protocol, scheme: scheme)
+      end
     end
   end
 end

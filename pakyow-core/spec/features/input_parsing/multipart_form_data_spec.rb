@@ -1,12 +1,11 @@
 RSpec.describe "parsing requests" do
   before do
-    Pakyow.action &action
+    Pakyow.action(&action)
   end
 
   include_context "app"
 
   let :action do
-    local = self
     Proc.new do |connection|
       connection.body = StringIO.new(Marshal.dump(input: connection.parsed_input.keys, params: connection.params.keys))
       connection.halt

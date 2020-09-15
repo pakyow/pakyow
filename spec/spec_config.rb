@@ -1,5 +1,11 @@
 require "pakyow/support/deep_dup"
 
+module Pakyow
+  # Stub this out globally so it doesn't cause us trouble.
+  #
+  def self.deep_freeze; end
+end
+
 RSpec.configure do |config|
   using Pakyow::Support::DeepDup
 
@@ -114,12 +120,6 @@ RSpec.configure do |config|
 
     @defined_constants = Module.constants.dup
 
-    if Pakyow.respond_to?(:deep_freeze)
-      Pakyow.singleton_class.remove_method :deep_freeze
-    end
-
-    Pakyow.singleton_class.define_method :deep_freeze do; end
-
     allow(Bundler).to receive(:reset!)
   end
 
@@ -203,11 +203,6 @@ RSpec.configure do |config|
     if ENV["RSS"]
       GC.start
       puts "rss: #{rss} live objects (#{GC.stat[:heap_live_slots]})"
-    end
-
-    begin
-      Pakyow.singleton_class.remove_method(:deep_freeze)
-    rescue NameError
     end
   end
 

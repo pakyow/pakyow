@@ -84,7 +84,10 @@ RSpec.shared_context "app" do
     setup(env: env) && run
   end
 
-  DEFAULT_HEADERS = { "content-type" => "text/html" }.freeze
+  unless defined?(DEFAULT_HEADERS)
+    DEFAULT_HEADERS = { "content-type" => "text/html" }.freeze
+  end
+
   def call(path = "/", headers: {}, method: :get, tuple: true, input: nil, params: nil, scheme: "http")
     connection_for_call = nil
     allow_any_instance_of(Pakyow::Connection).to receive(:finalize).and_wrap_original do |method|

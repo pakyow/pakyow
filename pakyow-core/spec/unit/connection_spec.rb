@@ -112,7 +112,9 @@ RSpec.shared_examples :connection do
     it "creates a task with the environment's thread local logger" do
       expect(connection).to receive(:Async).with(logger: Pakyow.logger).and_call_original
 
-      connection.async.wait
+      ignore_warnings do
+        connection.async.wait
+      end
     end
 
     it "sets the connection logger to be the current thread local target" do

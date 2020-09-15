@@ -25,7 +25,7 @@ RSpec.shared_examples :connection_stream do
         end
 
         expect { |b|
-          connection.stream &b
+          connection.stream(&b)
         }.to yield_with_args(connection)
       }.wait
     end

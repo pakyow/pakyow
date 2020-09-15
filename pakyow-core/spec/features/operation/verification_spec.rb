@@ -25,7 +25,7 @@ RSpec.describe "verifying operation values" do
 
     it "does not perform the operation" do
       begin
-        operation = Pakyow.app(:test).operations.test
+        Pakyow.app(:test).operations.test
       rescue
       end
 
@@ -36,7 +36,9 @@ RSpec.describe "verifying operation values" do
   context "verification succeeds" do
     it "calls the pipeline with sanitized values" do
       Pakyow.app(:test).operations.test(foo: "foo", bar: "bar", baz: "baz").tap do |operation|
-        expect(operation.values).to eq(foo: "foo", bar: "bar")
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(operation.values).to eq(foo: "foo", bar: "bar")
+        end
       end
     end
   end

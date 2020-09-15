@@ -111,7 +111,9 @@ RSpec.describe Pakyow::Application do
 
     describe "tasks.prelaunch" do
       it "exists" do
-        expect(app.config.tasks.prelaunch).to eq([])
+        Pakyow::Support::Deprecator.global.ignore do
+          expect(app.config.tasks.prelaunch).to eq([])
+        end
       end
     end
   end

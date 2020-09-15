@@ -1,3 +1,5 @@
+require "pakyow/endpoints"
+
 RSpec.describe Pakyow::Endpoints do
   before do
     instance << Pakyow::Endpoint.new(

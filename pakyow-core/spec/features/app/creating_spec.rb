@@ -28,7 +28,7 @@ RSpec.describe "creating an app" do
   it "loads all registered frameworks" do
     $calls = []
 
-    class FooFramework
+    class TestFooFramework
       def initialize(_)
         $calls << :initialize
       end
@@ -38,7 +38,7 @@ RSpec.describe "creating an app" do
       end
     end
 
-    Pakyow.register_framework :foo, FooFramework
+    Pakyow.register_framework :foo, TestFooFramework
     create_app
 
     expect($calls[0]).to eq(:initialize)
@@ -69,27 +69,27 @@ RSpec.describe "creating an app" do
 
   context "when frameworks are excluded" do
     before do
-      class FooFramework
+      class TestFooFramework
         def initialize(_); end
         def boot; end
       end
 
-      Pakyow.register_framework :foo, FooFramework
+      Pakyow.register_framework :foo, TestFooFramework
     end
 
     it "does not load the excluded framework" do
       create_app_without([:foo])
-      expect(Test::Application.ancestors).not_to include(FooFramework)
+      expect(Test::Application.ancestors).not_to include(TestFooFramework)
     end
 
     context "when exclusions are not passed as an array" do
       before do
-        Pakyow.register_framework :foo, FooFramework
+        Pakyow.register_framework :foo, TestFooFramework
         create_app_without(:foo)
       end
 
       it "still does not load the excluded framework" do
-        expect(Test::Application.ancestors).not_to include(FooFramework)
+        expect(Test::Application.ancestors).not_to include(TestFooFramework)
       end
     end
   end

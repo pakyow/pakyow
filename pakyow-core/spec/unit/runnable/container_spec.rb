@@ -65,6 +65,8 @@ RSpec.describe Pakyow::Runnable::Container do
     allow(Signal).to receive(:trap)
     allow(Process).to receive(:fork)
     allow(Process).to receive(:spawn)
+
+    @instance = nil
   end
 
   after do

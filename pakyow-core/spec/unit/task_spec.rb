@@ -1,3 +1,4 @@
+require "pakyow/cli"
 require "pakyow/task"
 
 RSpec.describe Pakyow::Task do
@@ -17,12 +18,14 @@ RSpec.describe Pakyow::Task do
   end
 
   let :instance do
-    described_class.new(
-      arguments: arguments,
-      options: options,
-      task_args: [:test_task, rake_arguments],
-      description: description
-    ) do; end
+    Pakyow::Support::Deprecator.global.ignore do
+      described_class.new(
+        arguments: arguments,
+        options: options,
+        task_args: [:test_task, rake_arguments],
+        description: description
+      ) do; end
+    end
   end
 
   let :arguments do
@@ -44,7 +47,10 @@ RSpec.describe Pakyow::Task do
   describe "#initialize" do
     it "defines a rake task with the given name" do
       expect_any_instance_of(described_class).to receive(:task).with(:test_task)
-      described_class.new(task_args: [:test_task]) do; end
+
+      Pakyow::Support::Deprecator.global.ignore do
+        described_class.new(task_args: [:test_task]) do; end
+      end
     end
 
     describe "the defined task" do
@@ -53,9 +59,12 @@ RSpec.describe Pakyow::Task do
           block.call
         end
 
-        context = nil
-        instance = described_class.new(task_args: [:test_task]) do
-          context = self
+        context, instance = nil
+
+        Pakyow::Support::Deprecator.global.ignore do
+          instance = described_class.new(task_args: [:test_task]) do
+            context = self
+          end
         end
 
         expect(context).to be(instance)
@@ -66,7 +75,10 @@ RSpec.describe Pakyow::Task do
       it "defines a namespaced rake task" do
         expect_any_instance_of(described_class).to receive(:namespace).with("foo").and_yield
         expect_any_instance_of(described_class).to receive(:task).with(:namespaced_task)
-        described_class.new(namespace: [:foo], task_args: [:namespaced_task]) do; end
+
+        Pakyow::Support::Deprecator.global.ignore do
+          described_class.new(namespace: [:foo], task_args: [:namespaced_task]) do; end
+        end
       end
     end
 
@@ -74,14 +86,19 @@ RSpec.describe Pakyow::Task do
       it "defines a deeply namespaced rake task" do
         expect_any_instance_of(described_class).to receive(:namespace).with("foo:bar").and_yield
         expect_any_instance_of(described_class).to receive(:task).with(:deeply_namespaced_task)
-        described_class.new(namespace: [:foo, :bar], task_args: [:deeply_namespaced_task]) do; end
+
+        Pakyow::Support::Deprecator.global.ignore do
+          described_class.new(namespace: [:foo, :bar], task_args: [:deeply_namespaced_task]) do; end
+        end
       end
     end
 
     context "with a description" do
       it "initializes" do
         expect {
-          described_class.new(description: "foo", task_args: [:described_task]) do; end
+          Pakyow::Support::Deprecator.global.ignore do
+            described_class.new(description: "foo", task_args: [:described_task]) do; end
+          end
         }.not_to raise_error
       end
     end
@@ -89,7 +106,9 @@ RSpec.describe Pakyow::Task do
     context "with arguments" do
       it "initializes" do
         expect {
-          described_class.new(arguments: {}, task_args: [:task_with_arguments]) do; end
+          Pakyow::Support::Deprecator.global.ignore do
+            described_class.new(arguments: {}, task_args: [:task_with_arguments]) do; end
+          end
         }.not_to raise_error
       end
     end
@@ -97,7 +116,9 @@ RSpec.describe Pakyow::Task do
     context "with options" do
       it "initializes" do
         expect {
-          described_class.new(options: {}, task_args: [:task_with_options]) do; end
+          Pakyow::Support::Deprecator.global.ignore do
+            described_class.new(options: {}, task_args: [:task_with_options]) do; end
+          end
         }.not_to raise_error
       end
     end
@@ -105,7 +126,10 @@ RSpec.describe Pakyow::Task do
     context "with task args" do
       it "sets the task args" do
         expect_any_instance_of(described_class).to receive(:task).with(:test_task, [:foo, :bar])
-        described_class.new(task_args: [:test_task, [:foo, :bar]]) do; end
+
+        Pakyow::Support::Deprecator.global.ignore do
+          described_class.new(task_args: [:test_task, [:foo, :bar]]) do; end
+        end
       end
     end
   end
@@ -113,8 +137,11 @@ RSpec.describe Pakyow::Task do
   describe "#call" do
     it "invokes the rake task" do
       expect(rake_task_double).to receive(:invoke).with(no_args)
-      instance = described_class.new(task_args: [:test_task]) do; end
-      instance.call
+
+      Pakyow::Support::Deprecator.global.ignore do
+        instance = described_class.new(task_args: [:test_task]) do; end
+        instance.call
+      end
     end
 
     context "with global options" do

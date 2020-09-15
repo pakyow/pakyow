@@ -64,7 +64,7 @@ RSpec.describe "determining container success", :repeatable do
           end
         end
 
-        container.service :foo, restartable: false do
+        container.service :bar, restartable: false do
           define_method :perform do
             fail
           ensure

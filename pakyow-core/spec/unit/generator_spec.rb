@@ -45,7 +45,7 @@ RSpec.describe Pakyow::Generator do
         expect(file).to receive(:generate).with(Pathname.new(destination_path), context: instance_of(generator_class))
       end
 
-      instance.generate(destination_path, options)
+      instance.generate(destination_path, **options)
     end
 
     context "hooks are defined for :generate" do
@@ -64,7 +64,7 @@ RSpec.describe Pakyow::Generator do
       end
 
       it "invokes the hooks" do
-        instance.generate(destination_path, options)
+        instance.generate(destination_path, **options)
         expect($generate_hook_calls[0]).to be(:before)
         expect($generate_hook_calls[1]).to be(:after)
       end
@@ -86,7 +86,7 @@ RSpec.describe Pakyow::Generator do
       }
 
       it "calls actions" do
-        instance.generate(destination_path, options)
+        instance.generate(destination_path, **options)
 
         expect(calls).to eq([:action])
       end

@@ -7,7 +7,7 @@ RSpec.describe "command" do
   end
 
   def define
-    Pakyow.command *name, &definition
+    Pakyow.command(*name, &definition)
   end
 
   let(:name) {
@@ -36,7 +36,7 @@ RSpec.describe "command" do
 
   describe "defining with a description" do
     def define
-      Pakyow.command *name do
+      Pakyow.command(*name) do
         describe "hello"
       end
     end
@@ -105,7 +105,6 @@ RSpec.describe "command" do
 
     context "required arguments are missing" do
       let(:definition) {
-        local = self
         Proc.new {
           argument :foo, required: true
 
@@ -152,7 +151,6 @@ RSpec.describe "command" do
 
     context "required options are missing" do
       let(:definition) {
-        local = self
         Proc.new {
           option :foo, required: true
 

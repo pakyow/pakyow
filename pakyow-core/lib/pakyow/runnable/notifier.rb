@@ -32,7 +32,7 @@ module Pakyow
           while running? && message = @parent.recv(4096)
             message = Marshal.load(message)
 
-            @callback.call(message[:event], message[:payload].merge(@callback_options))
+            @callback.call(message[:event], **message[:payload].merge(@callback_options))
           end
         rescue Errno::ECONNRESET
         ensure

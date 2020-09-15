@@ -1,4 +1,6 @@
 require "pakyow/application"
+require "pakyow/cli"
+
 require "pakyow/logger/thread_local"
 
 RSpec.describe Pakyow do
@@ -40,7 +42,9 @@ RSpec.describe Pakyow do
     context "called without an app" do
       it "raises an error" do
         expect {
-          Pakyow.mount at: path
+          ignore_warnings do
+            Pakyow.mount at: path
+          end
         }.to raise_error(ArgumentError)
       end
     end
@@ -258,7 +262,10 @@ RSpec.describe Pakyow do
         context "in prototype mode" do
           it "requires the default and development bundles" do
             expect(Bundler).to receive(:require).with(:default, :development)
-            Pakyow.load(env: :prototype)
+
+            ignore_warnings do
+              Pakyow.load(env: :prototype)
+            end
           end
         end
       end
@@ -291,7 +298,10 @@ RSpec.describe Pakyow do
 
             it "loads the environment-specific dotfile" do
               expect(Dotenv).to receive(:load).with(".env.test")
-              Pakyow.load(env: :test)
+
+              ignore_warnings do
+                Pakyow.load(env: :test)
+              end
             end
 
             it "loads dotenv" do
@@ -441,8 +451,6 @@ RSpec.describe Pakyow do
     end
 
     it "sets up each application" do
-      apps = []
-
       block1 = Proc.new { "one" }
       block2 = Proc.new { "two" }
       block3 = Proc.new { "three" }
@@ -841,10 +849,11 @@ RSpec.describe Pakyow do
     end
 
     it "calls ::output" do
-      allow(Pakyow).to receive(:deprecated)
       expect(Pakyow).to receive(:output).at_least(:once).and_call_original
 
-      Pakyow.global_logger
+      Pakyow::Support::Deprecator.global.ignore do
+        Pakyow.global_logger
+      end
     end
   end
 
@@ -900,8 +909,6 @@ RSpec.describe Pakyow do
 
     context "passing a formation that specifies an unknown top-level container" do
       it "fails" do
-        allow(Pakyow.container(:application)).to receive(:run)
-
         formation = Pakyow::Runnable::Formation.build(:foo) { |builder|
           builder.run(:bar, 1)
         }
@@ -918,7 +925,9 @@ RSpec.describe Pakyow do
       end
 
       it "knows that it's running" do
-        Pakyow.run
+        ignore_warnings do
+          Pakyow.run
+        end
 
         expect(Pakyow.running?).to be(true)
       end

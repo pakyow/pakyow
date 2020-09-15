@@ -18,7 +18,7 @@ RSpec.describe "accessing values through their instance variable" do
   }
 
   it "exposes the value" do
-    expect(app.operations.foo(values).instance_foo).to eq("foo")
+    expect(app.operations.foo(**values).instance_foo).to eq("foo")
   end
 
   context "optional value is not passed" do

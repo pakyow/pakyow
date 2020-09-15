@@ -71,7 +71,9 @@ command :create, :application do
   end
 
   private def default_application_lib_path
-    Pathname.new(File.expand_path(default_app.config.lib))
+    Pakyow.deprecator.ignore do
+      Pathname.new(File.expand_path(default_app.config.lib))
+    end
   end
 
   private def default_application_backend_path

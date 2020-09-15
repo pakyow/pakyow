@@ -101,7 +101,7 @@ RSpec.describe "watching files from the environment", :repeatable do
 
   describe "defining a callback with a matcher" do
     let(:changed_callbacks) {
-      Pakyow.changed /baz\.txt/ do |path, event|
+      Pakyow.changed(/baz\.txt/) do |path, event|
         calls << [path, event]
       end
     }
