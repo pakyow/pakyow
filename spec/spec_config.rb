@@ -308,10 +308,13 @@ module Pakyow
 
         Warning.dedup
 
+        ruby_gem_path = Pakyow::Support::System.ruby_gem_path_string
+        ruby_lib_path = RbConfig::CONFIG["libdir"]
+
         Warning.process do |warning|
           next if ignoring?
-          next if warning.start_with?(Pakyow::Support::System.ruby_gem_path_string)
-          next if warning.start_with?(RbConfig::CONFIG["libdir"])
+          next if warning.start_with?(ruby_gem_path)
+          next if warning.start_with?(ruby_lib_path)
 
           # Two warnings are generated for this, combine them.
           #
