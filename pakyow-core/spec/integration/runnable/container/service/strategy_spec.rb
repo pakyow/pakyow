@@ -29,7 +29,7 @@ RSpec.describe "defining the service strategy", :repeatable do
       sleep 0.5
 
       foo, bar = result.split("bar")
-      _, foo_process, foo_thread = foo.split(" ")
+      _, foo_process, _ = foo.split(" ")
       bar_process, bar_thread = bar.split(" ")
 
       expect(foo_process.to_i).not_to eq(Process.pid)

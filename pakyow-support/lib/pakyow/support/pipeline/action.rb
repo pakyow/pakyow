@@ -7,6 +7,7 @@ require_relative "../core_refinements/unbound_method/introspection"
 require_relative "../core_refinements/proc/introspection"
 
 require_relative "../inspectable"
+require_relative "../system"
 
 module Pakyow
   module Support
@@ -38,12 +39,20 @@ module Pakyow
           callable.call(context, *args, **kwargs, &next_action)
         end
 
-        def freeze(*)
+        if System.ruby_version < "2.7.0"
+          def freeze(*)
+            __common_pipeline_action_freeze; super
+          end
+        else
+          def freeze(*, **)
+            __common_pipeline_action_freeze; super
+          end
+        end
+
+        private def __common_pipeline_action_freeze
           # Finalize the action before it's frozen.
           #
           callable
-
-          super
         end
 
         # @api private

@@ -1,13 +1,5 @@
 RSpec.shared_examples :subscription_subscribe_compound do
   describe "subscribing to a query with a compound value" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -20,7 +12,23 @@ RSpec.shared_examples :subscription_subscribe_compound do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -61,7 +69,7 @@ RSpec.shared_examples :subscription_subscribe_compound do
 
           collection do
             post "subscribe" do
-              data.posts.by_id([1, 3]).subscribe(:post_subscriber, handler: TestHandler)
+              data.posts.by_id([1, 3]).subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do
@@ -101,7 +109,7 @@ RSpec.shared_examples :subscription_subscribe_compound do
     context "when an object covered by the query is updated" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call).once
+        expect_any_instance_of(handler).to receive(:call).once
         response = call("/posts/1", method: :patch, params: { post: { title: "updated" } })
         expect(response[0]).to eq(200)
       end
@@ -110,7 +118,7 @@ RSpec.shared_examples :subscription_subscribe_compound do
     context "when an object covered by the query is deleted" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call).once
+        expect_any_instance_of(handler).to receive(:call).once
         response = call("/posts/3", method: :delete)
         expect(response[0]).to eq(200)
       end
@@ -119,7 +127,7 @@ RSpec.shared_examples :subscription_subscribe_compound do
     context "when an object not covered by the query is updated" do
       it "does not call the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/posts/2", method: :patch, params: { post: { title: "updated" } })
         expect(response[0]).to eq(200)
       end
@@ -128,7 +136,7 @@ RSpec.shared_examples :subscription_subscribe_compound do
     context "when an object not covered by the query is deleted" do
       it "does not call the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/posts/2", method: :delete)
         expect(response[0]).to eq(200)
       end

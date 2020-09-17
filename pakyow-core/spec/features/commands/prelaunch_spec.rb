@@ -161,7 +161,7 @@ RSpec.describe "cli: prelaunch" do
       it "errors" do
         expect {
           run_command(command, project: true, tty: false)
-        }.to raise_error
+        }.to raise_error(RuntimeError)
       end
 
       it "does not run other commands" do
@@ -206,7 +206,9 @@ RSpec.describe "cli: prelaunch" do
       before do
         local = self
 
-        Pakyow.config.tasks.prelaunch << :foo
+        Pakyow::Support::Deprecator.global.ignore do
+          Pakyow.config.tasks.prelaunch << :foo
+        end
 
         Pakyow.command :foo do
           action do
@@ -220,7 +222,9 @@ RSpec.describe "cli: prelaunch" do
 
         Proc.new {
           configure do
-            config.tasks.prelaunch << :app_foo
+            Pakyow::Support::Deprecator.global.ignore do
+              config.tasks.prelaunch << :app_foo
+            end
           end
 
           Pakyow.command :app_foo do

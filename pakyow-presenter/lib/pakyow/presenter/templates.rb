@@ -247,10 +247,10 @@ module Pakyow
       private def ascend(path)
         return enum_for(:ascend, path) unless block_given?
 
-        path.ascend.each do |path|
-          yield path
+        path.ascend.each do |each_path|
+          yield each_path
 
-          if path == @path
+          if each_path == @path
             break
           end
         end

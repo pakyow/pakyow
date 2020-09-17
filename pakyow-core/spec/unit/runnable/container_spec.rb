@@ -65,6 +65,8 @@ RSpec.describe Pakyow::Runnable::Container do
     allow(Signal).to receive(:trap)
     allow(Process).to receive(:fork)
     allow(Process).to receive(:spawn)
+
+    @instance = nil
   end
 
   after do
@@ -104,8 +106,8 @@ RSpec.describe Pakyow::Runnable::Container do
     }
 
     it "runs an instance with the given options, passing the block" do
-      allow(container).to receive(:new).and_wrap_original do |original, *args, **kwargs, &block|
-        @instance = original.call(*args, **kwargs, &block)
+      allow(container).to receive(:new).and_wrap_original do |original, *args, **kwargs, &parent_block|
+        @instance = original.call(*args, **kwargs, &parent_block)
 
         expect(@instance).to receive(:run) do |&block|
           expect(block.call).to eq("block")

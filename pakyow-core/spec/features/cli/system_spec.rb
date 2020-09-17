@@ -42,7 +42,7 @@ RSpec.describe "calling a system command through the cli" do
   describe "output" do
     it "logs correctly" do
       output = capture_output do
-        result = Pakyow::CLI.system("touch", "./touched.txt")
+        Pakyow::CLI.system("touch", "./touched.txt")
       end
 
       expect(output).to include("cmd.")
@@ -52,7 +52,7 @@ RSpec.describe "calling a system command through the cli" do
     context "logger key is passed" do
       it "logs correctly" do
         output = capture_output do
-          result = Pakyow::CLI.system("touch", "./touched.txt", logger_key: "touch")
+          Pakyow::CLI.system("touch", "./touched.txt", logger_key: "touch")
         end
 
         expect(output).to include("touch.")

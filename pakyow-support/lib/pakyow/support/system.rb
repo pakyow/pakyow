@@ -61,6 +61,10 @@ module Pakyow
       ensure
         server.close
       end
+
+      def ruby_version
+        ENV["RUBY_VERSION"]
+      end
     end
   end
 end

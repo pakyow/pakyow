@@ -55,7 +55,9 @@ RSpec.describe Pakyow::Logger do
   describe "#initialize" do
     describe "argument: type" do
       it "is required" do
-        expect { described_class.new(output: output, level: level) }.to raise_error(ArgumentError)
+        ignore_warnings do
+          expect { described_class.new(output: output, level: level) }.to raise_error(ArgumentError)
+        end
       end
 
       it "is set on the instance" do
@@ -197,10 +199,6 @@ RSpec.describe Pakyow::Logger do
   end
 
   describe "#silence" do
-    before do
-      allow(Pakyow).to receive(:deprecated)
-    end
-
     it "is deprecated" do
       expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
         instance, :silence, solution: "use `Pakyow::Logger::ThreadLocal#silence'"
@@ -212,8 +210,10 @@ RSpec.describe Pakyow::Logger do
     it "does not log messages below error by default" do
       expect(output).not_to receive(:warn)
 
-      instance.silence do
-        instance.warn "test_warn"
+      Pakyow::Support::Deprecator.global.ignore do
+        instance.silence do
+          instance.warn "test_warn"
+        end
       end
     end
 
@@ -233,10 +233,12 @@ RSpec.describe Pakyow::Logger do
         expect(block.call).to include("message" => "test_unknown")
       end
 
-      instance.silence do
-        instance.error "test_error"
-        instance.fatal "test_fatal"
-        instance.unknown "test_unknown"
+      Pakyow::Support::Deprecator.global.ignore do
+        instance.silence do
+          instance.error "test_error"
+          instance.fatal "test_fatal"
+          instance.unknown "test_unknown"
+        end
       end
     end
 
@@ -244,8 +246,10 @@ RSpec.describe Pakyow::Logger do
       it "does not log messages below the passed level" do
         expect(output).not_to receive(:call)
 
-        instance.silence :warn do
-          instance.info "test_info"
+        Pakyow::Support::Deprecator.global.ignore do
+          instance.silence :warn do
+            instance.info "test_info"
+          end
         end
       end
 
@@ -260,16 +264,22 @@ RSpec.describe Pakyow::Logger do
           expect(block.call).to include("message" => "test_error")
         end
 
-        instance.silence :warn do
-          instance.warn "test_warn"
-          instance.error "test_error"
+        Pakyow::Support::Deprecator.global.ignore do
+          instance.silence :warn do
+            instance.warn "test_warn"
+            instance.error "test_error"
+          end
         end
       end
     end
 
     it "sets the log level back to the original level" do
       original_level = instance.level
-      instance.silence do; end
+
+      Pakyow::Support::Deprecator.global.ignore do
+        instance.silence do; end
+      end
+
       expect(instance.level).to eq(original_level)
     end
   end

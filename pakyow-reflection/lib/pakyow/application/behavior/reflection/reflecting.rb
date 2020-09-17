@@ -72,8 +72,8 @@ module Pakyow
                     data.send(exposure.scope.plural_name).source.class.associations.values.flatten.each do |association|
                       association_key_prefix = "#{association.name}_"
                       if param.to_s.start_with?(association_key_prefix)
-                        scope = self.class.mirror.scopes.find { |scope|
-                          scope.plural_name == association.associated_source_name
+                        scope = self.class.mirror.scopes.find { |each_scope|
+                          each_scope.plural_name == association.associated_source_name
                         } || Pakyow::Reflection::Scope.new(association.name)
 
                         Pakyow::Reflection::Exposure.new(

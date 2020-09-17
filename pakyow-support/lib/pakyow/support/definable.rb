@@ -6,6 +6,7 @@ require_relative "deprecatable"
 require_relative "extension"
 require_relative "isolable"
 require_relative "makeable"
+require_relative "system"
 
 require_relative "definable/registry"
 require_relative "definable/state"
@@ -256,6 +257,18 @@ module Pakyow
           isolated_object.instance_variable_set(:@__defined_state, state_registry)
           __definable_registries[state_name.to_sym] = state_registry
 
+          lookup_code = <<~CODE
+            def #{Support.inflector.pluralize(state_name)}(*namespace)
+              registry = __definable_registries[#{state_name.to_sym.inspect}]
+
+              if namespace.any?
+                registry.find(*namespace)
+              else
+                registry
+              end
+            end
+          CODE
+
           definition_code = <<~CODE
             def #{state_name}(*namespace, **kwargs, &block)
               registry = __definable_registries[#{state_name.to_sym.inspect}]
@@ -275,20 +288,12 @@ module Pakyow
             end
           CODE
 
-          lookup_code = <<~CODE
-            def #{Support.inflector.pluralize(state_name)}(*namespace)
-              registry = __definable_registries[#{state_name.to_sym.inspect}]
-
-              if namespace.any?
-                registry.find(*namespace)
-              else
-                registry
-              end
-            end
-          CODE
-
           class_eval(lookup_code)
-          singleton_class.class_eval(lookup_code)
+
+          unless state_name.to_s == Support.inflector.pluralize(state_name)
+            singleton_class.class_eval(lookup_code)
+          end
+
           singleton_class.class_eval(definition_code)
         end
 
@@ -324,13 +329,22 @@ module Pakyow
 
       prepend_methods do
         # @api private
-        def initialize(*, &block)
+        if System.ruby_version < "2.7.0"
+          def initialize(*, &block)
+            __common_definable_initialize; super
+          end
+        else
+          def initialize(*, **, &block)
+            __common_definable_initialize; super
+          end
+        end
+
+        private def __common_definable_initialize
           @__definable_registries = self.class.__definable_registries.deep_dup
+
           @__definable_registries.each_value do |registry|
             registry.reparent(self)
           end
-
-          super
         end
       end
 

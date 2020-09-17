@@ -1,13 +1,5 @@
 RSpec.shared_examples :subscription_subscribe_associated do
   describe "subscribing to a query that includes data associated via has_many" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -20,7 +12,23 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -38,7 +46,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
           collection do
             post "subscribe" do
-              data.posts.by_id(1).including(:comments).subscribe(:post_subscriber, handler: TestHandler)
+              data.posts.by_id(1).including(:comments).subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do
@@ -106,7 +114,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
     context "when an object covered by the association is created" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id } })
         expect(response[0]).to eq(200)
       end
@@ -117,7 +125,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -128,7 +136,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
           subscribe!
           call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
-          expect_any_instance_of(TestHandler).to receive(:call)
+          expect_any_instance_of(handler).to receive(:call)
           response = call("/comments/bar", method: :patch, params: { comment: { title: "baz" } })
           expect(response[0]).to eq(200)
         end
@@ -142,7 +150,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         post = Pakyow.apps.first.data.posts.create(title: "another post").one
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :patch, params: { comment: { title: "bar", post_id: post.id } })
         expect(response[0]).to eq(200)
       end
@@ -155,7 +163,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
           subscribe!
           call("/comments/foo", method: :patch, params: { comment: { title: "foo", post_id: post.id } })
-          expect_any_instance_of(TestHandler).not_to receive(:call)
+          expect_any_instance_of(handler).not_to receive(:call)
           response = call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
           expect(response[0]).to eq(200)
         end
@@ -168,7 +176,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :patch, params: { comment: { title: "foo", post_id: 1 } })
         expect(response[0]).to eq(200)
       end
@@ -179,7 +187,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :delete)
         expect(response[0]).to eq(200)
       end
@@ -190,7 +198,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         post = Pakyow.apps.first.data.posts.create(title: "another post").one
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/comments", method: :post, params: { comment: { title: "foo", post_id: post.id } })
         expect(response[0]).to eq(200)
       end
@@ -202,7 +210,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -214,7 +222,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         call("/comments", method: :post, params: { comment: { title: "foo", post_id: @post.id + 1 } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/comments/foo", method: :delete)
         expect(response[0]).to eq(200)
       end
@@ -222,14 +230,6 @@ RSpec.shared_examples :subscription_subscribe_associated do
   end
 
   describe "subscribing to a query that includes data associated via belongs_to" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -242,7 +242,23 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -260,7 +276,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
 
           collection do
             post "subscribe" do
-              data.posts.by_id(1).including(:user).subscribe(:post_subscriber, handler: TestHandler)
+              data.posts.by_id(1).including(:user).subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do
@@ -327,7 +343,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
     context "when an object covered by the association is updated" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/users/#{@user.id}", method: :patch, params: { user: { name: "user2" } })
         expect(response[0]).to eq(200)
       end
@@ -336,7 +352,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
         it "calls the handler" do
           subscribe!
           call("/users/#{@user.id}", method: :patch, params: { user: { name: "user2" } })
-          expect_any_instance_of(TestHandler).to receive(:call)
+          expect_any_instance_of(handler).to receive(:call)
           response = call("/users/#{@user.id}", method: :patch, params: { user: { name: "user3" } })
           expect(response[0]).to eq(200)
         end
@@ -346,7 +362,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
     context "when an object covered by the association is deleted" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/users/#{@user.id}", method: :delete)
         expect(response[0]).to eq(200)
       end
@@ -355,7 +371,7 @@ RSpec.shared_examples :subscription_subscribe_associated do
     context "when an object not covered by the association is created" do
       it "does not call the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/users", method: :post, params: { user: { name: "user2" } })
         expect(response[0]).to eq(200)
       end

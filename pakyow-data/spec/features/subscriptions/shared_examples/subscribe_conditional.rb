@@ -1,13 +1,5 @@
 RSpec.shared_examples :subscription_subscribe_conditional do
   describe "subscribing to a query with conditionals" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -20,7 +12,23 @@ RSpec.shared_examples :subscription_subscribe_conditional do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -67,7 +75,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
 
           collection do
             post "subscribe" do
-              data.posts.by_title_custom("foo").subscribe(:post_subscriber, handler: TestHandler)
+              data.posts.by_title_custom("foo").subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do
@@ -101,7 +109,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
     context "when an object covered by the query is created" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/posts", method: :post, params: { post: { title: "foo" } })
         expect(response[0]).to eq(200)
       end
@@ -112,7 +120,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         call("/posts", method: :post, params: { post: { title: "foo" } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/posts/foo", method: :patch, params: { post: { body: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -123,7 +131,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         call("/posts", method: :post, params: { post: { title: "foo" } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/posts/foo", method: :patch, params: { post: { title: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -134,7 +142,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
 
           subscribe!
           call("/posts/foo", method: :patch, params: { post: { title: "bar" } })
-          expect_any_instance_of(TestHandler).not_to receive(:call)
+          expect_any_instance_of(handler).not_to receive(:call)
           response = call("/posts/bar", method: :patch, params: { post: { title: "baz" } })
           expect(response[0]).to eq(200)
         end
@@ -146,7 +154,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         call("/posts", method: :post, params: { post: { title: "bar" } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/posts/foo", method: :patch, params: { post: { title: "foo" } })
         expect(response[0]).to eq(200)
       end
@@ -157,7 +165,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         call("/posts", method: :post, params: { post: { title: "foo" } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/posts/foo", method: :delete)
         expect(response[0]).to eq(200)
       end
@@ -166,7 +174,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
     context "when an object not covered by the query is created" do
       it "does not call the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/posts", method: :post, params: { post: { title: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -177,7 +185,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         call("/posts", method: :post, params: { post: { title: "bar" } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/posts/foo", method: :patch, params: { post: { title: "baz" } })
         expect(response[0]).to eq(200)
       end
@@ -188,7 +196,7 @@ RSpec.shared_examples :subscription_subscribe_conditional do
         call("/posts", method: :post, params: { post: { title: "bar" } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/posts/bar", method: :delete)
         expect(response[0]).to eq(200)
       end

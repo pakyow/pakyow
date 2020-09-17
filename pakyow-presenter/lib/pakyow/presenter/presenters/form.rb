@@ -6,9 +6,6 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/inflector"
 require "pakyow/support/safe_string"
 
-require "pakyow/presenter/presenter"
-require "pakyow/presenter/presenters/endpoint"
-
 module Pakyow
   module Presenter
     module Presenters

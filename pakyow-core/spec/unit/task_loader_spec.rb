@@ -1,3 +1,4 @@
+require "pakyow/cli"
 require "pakyow/task"
 
 RSpec.describe Pakyow::Task::Loader do
@@ -87,7 +88,7 @@ RSpec.describe Pakyow::Task::Loader do
         internal_namespace = nil
         instance.namespace :foo do
           namespace :bar do
-            context = self
+            self
           end
 
           internal_namespace = __namespace.dup
@@ -207,9 +208,11 @@ RSpec.describe Pakyow::Task::Loader do
     end
 
     it "resets the description" do
-      instance.describe "task that does foo"
-      instance.task :foo_task do; end
-      expect(instance.__description).to be(nil)
+      Pakyow::Support::Deprecator.global.ignore do
+        instance.describe "task that does foo"
+        instance.task :foo_task do; end
+        expect(instance.__description).to be(nil)
+      end
     end
   end
 end

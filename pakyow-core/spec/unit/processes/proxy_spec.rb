@@ -1,3 +1,5 @@
+require "pakyow/processes/proxy"
+
 RSpec.describe Pakyow::Processes::Proxy do
   it "is deprecated" do
     expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
@@ -19,7 +21,9 @@ RSpec.describe Pakyow::Processes::Proxy do
     it "returns an available port" do
       allow(Pakyow::Support::System).to receive(:available_port).and_return(4242)
 
-      expect(described_class.find_local_port).to eq(4242)
+      Pakyow::Support::Deprecator.global.ignore do
+        expect(described_class.find_local_port).to eq(4242)
+      end
     end
   end
 end

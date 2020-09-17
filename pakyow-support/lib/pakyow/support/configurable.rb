@@ -4,10 +4,11 @@ require "forwardable"
 
 require "concurrent/hash"
 
-require "pakyow/support/class_state"
-require "pakyow/support/extension"
+require_relative "class_state"
+require_relative "extension"
+require_relative "system"
 
-require "pakyow/support/configurable/config"
+require_relative "configurable/config"
 
 module Pakyow
   module Support
@@ -162,10 +163,18 @@ module Pakyow
       end
 
       prepend_methods do
-        def initialize(*)
-          @config = self.class.config.dup.update_configurable(self)
+        if System.ruby_version < "2.7.0"
+          def initialize(*)
+            __common_configurable_initialize; super
+          end
+        else
+          def initialize(*, **)
+            __common_configurable_initialize; super
+          end
+        end
 
-          super
+        private def __common_configurable_initialize
+          @config = self.class.config.dup.update_configurable(self)
         end
       end
 

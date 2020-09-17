@@ -21,7 +21,7 @@ RSpec.describe "restricting dependencies to a type" do
     it "does not fail" do
       expect {
         type.include extension
-      }.not_to raise_error(RuntimeError)
+      }.not_to raise_error
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe "restricting dependencies to a type" do
     it "does not fail" do
       expect {
         Class.new(type).include extension
-      }.not_to raise_error(RuntimeError)
+      }.not_to raise_error
     end
   end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "pakyow/support/deprecatable"
+require "pakyow/support/system"
 
 require "pakyow/assets/scripts/asset"
 require "pakyow/assets/scripts/terser"
@@ -14,9 +15,17 @@ module Pakyow
 
         extension :js
 
-        def initialize(*)
-          super
+        if Support::System.ruby_version < "2.7.0"
+          def initialize(*)
+            super; __common_assets_types_js_initialize
+          end
+        else
+          def initialize(*, **)
+            super; __common_assets_types_js_initialize
+          end
+        end
 
+        private def __common_assets_types_js_initialize
           @options = @config.babel.to_h
 
           if @config.source_maps

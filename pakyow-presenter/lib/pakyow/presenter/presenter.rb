@@ -13,6 +13,7 @@ require "pakyow/support/string_builder"
 require_relative "presentable"
 
 require_relative "presenters/endpoint"
+require_relative "presenters/form"
 
 module Pakyow
   module Presenter

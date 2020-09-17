@@ -6,6 +6,10 @@ RSpec.describe Pakyow::Support::System do
     allow(File).to receive(:expand_path).with("../../../../../", anything).and_return("/framework")
     allow(Bundler).to receive(:bundle_path).and_return(Pathname.new("/bundle"))
     allow(Gem).to receive(:dir).and_return("/gemdir")
+
+    described_class.instance_variables.each do |instance_variable|
+      described_class.remove_instance_variable(instance_variable)
+    end
   end
 
   shared_examples :memoized_pathname do
@@ -162,6 +166,16 @@ RSpec.describe Pakyow::Support::System do
     it_behaves_like :memoized_string
   end
 
+  describe "#ruby_version" do
+    def call
+      subject.ruby_version
+    end
+
+    it "returns the current ruby version" do
+      expect(call).to eq(ENV["RUBY_VERSION"])
+    end
+  end
+
   describe "#available_port" do
     before do
       allow(TCPServer).to receive(:new).with("127.0.0.1", 0).and_return(server)
@@ -212,7 +226,7 @@ RSpec.describe Pakyow::Support::System do
     shared_examples :private_behavior do
       it "is private" do
         expect { subject.public_send(method) }.to raise_error(NoMethodError)
-        expect { subject.send(method) }.to_not raise_error(NoMethodError)
+        expect { subject.send(method) }.to_not raise_error
       end
 
       it "behaves like the class method" do
@@ -272,6 +286,11 @@ RSpec.describe Pakyow::Support::System do
 
     describe "#ruby_gem_path_string" do
       let(:method) { :ruby_gem_path_string }
+      it_behaves_like :private_behavior
+    end
+
+    describe "#ruby_version" do
+      let(:method) { :ruby_version }
       it_behaves_like :private_behavior
     end
 

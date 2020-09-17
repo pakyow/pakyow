@@ -1,8 +1,6 @@
 RSpec.shared_examples :source_migrations_removing do |types:|
   describe "removing an attribute from an existing relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts, timestamps: false do
         end
@@ -94,7 +92,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
         end
 
         it "removes the column for each attribute" do
-          types.each_with_index do |(name, type), i|
+          types.each_with_index do |(name, _type), i|
             column = schema(:posts).find { |column_name, options|
               column_name == :"test_#{name}"
             }
@@ -113,7 +111,7 @@ RSpec.shared_examples :source_migrations_removing do |types:|
       end
 
       it "does not remove the column for each attribute" do
-        types.each_with_index do |(name, type), i|
+        types.each_with_index do |(name, _type), i|
           column = schema(:posts).find { |column_name, options|
             column_name == :"test_#{name}"
           }
@@ -126,8 +124,6 @@ RSpec.shared_examples :source_migrations_removing do |types:|
 
   describe "removing a primary key from an existing relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts, primary_id: false, timestamps: false do
           attribute :foo
@@ -212,8 +208,6 @@ RSpec.shared_examples :source_migrations_removing do |types:|
 
   describe "removing a foreign key from an existing relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts, timestamps: false do
         end

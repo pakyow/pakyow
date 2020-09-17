@@ -4,14 +4,14 @@ module Pakyow
   class Application
     module Helpers
       module Mailer
-        def mailer(path = nil)
+        def mailer(path = nil, &block)
           connection = @connection.dup
           mailer = app.mailer(path, connection.values)
 
           if block_given?
             context = dup
             context.instance_variable_set(:@connection, connection)
-            context.instance_exec(mailer, &Proc.new)
+            context.instance_exec(mailer, &block)
           end
 
           mailer

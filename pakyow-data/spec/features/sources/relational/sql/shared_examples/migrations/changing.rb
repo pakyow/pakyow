@@ -15,7 +15,7 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
         "datetime:time",
         "time:datetime"
       ]
-    }
+    } unless defined?(EXCEPTIONS)
 
     REQUIRES_EXPLICIT_CAST = {
       postgres: [
@@ -112,7 +112,7 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
         "time:integer",
         "time:json"
       ]
-    }
+    } unless defined?(REQUIRES_EXPLICIT_CAST)
 
     types.reject { |type|
       # We don't care about primary key types here.
@@ -126,8 +126,6 @@ RSpec.shared_examples :source_migrations_changing do |adapter:, types:|
       }.each do |to_type_name, to_type|
         context "changing from #{from_type_name} to #{to_type_name}" do
           let :app_def do
-            context = self
-
             Proc.new do
               source :posts, primary_id: false, timestamps: false do
                 attribute :"test_#{from_type_name}_to_#{to_type_name}", to_type

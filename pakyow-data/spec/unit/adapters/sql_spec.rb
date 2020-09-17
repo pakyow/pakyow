@@ -25,7 +25,7 @@ RSpec.describe Pakyow::Data::Adapters::Sql do
 
       context "timeout value is passed" do
         before do
-          described_class.new(timeout: 123)
+          described_class.new({timeout: 123})
         end
 
         it "configures the timeout" do
@@ -35,7 +35,7 @@ RSpec.describe Pakyow::Data::Adapters::Sql do
 
       context "timeout value is passed as a string" do
         before do
-          described_class.new(timeout: "123")
+          described_class.new({timeout: "123"})
         end
 
         it "configures the timeout as an integer" do

@@ -28,7 +28,7 @@ RSpec.describe "external asset fetching service" do
     File.expand_path("../tmp", __FILE__)
   }
 
-  def run
+  def run_externals_service
     setup
 
     Pakyow.container(:environment).service(:externals).run(config: Pakyow.config.runnable)
@@ -55,7 +55,7 @@ RSpec.describe "external asset fetching service" do
     }
 
     it "downloads the specified version of each external script" do
-      run
+      run_externals_service
 
       expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(true)
       expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
@@ -64,7 +64,7 @@ RSpec.describe "external asset fetching service" do
     it "restarts" do
       expect(Pakyow).to receive(:restart)
 
-      run
+      run_externals_service
     end
 
     context "external exists" do
@@ -91,7 +91,7 @@ RSpec.describe "external asset fetching service" do
       }
 
       it "does not download again" do
-        run
+        run_externals_service
 
         expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to eq(0)
         expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to eq(0)
@@ -122,7 +122,7 @@ RSpec.describe "external asset fetching service" do
       }
 
       it "does not download again" do
-        run
+        run_externals_service
 
         expect(File.size(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.3.js"))).to eq(0)
         expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@1.0.0-alpha.4.js"))).to be(false)
@@ -146,7 +146,7 @@ RSpec.describe "external asset fetching service" do
       }
 
       it "downloads the latest pakyow" do
-        run
+        run_externals_service
 
         expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{$latest_pakyow_js}.js"))).to be(true)
       end
@@ -172,7 +172,7 @@ RSpec.describe "external asset fetching service" do
       }
 
       it "downloads the latest version" do
-        run
+        run_externals_service
 
         expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "pakyow@#{$latest_pakyow_js}.js"))).to be(true)
       end
@@ -198,7 +198,7 @@ RSpec.describe "external asset fetching service" do
       }
 
       it "downloads each file" do
-        run
+        run_externals_service
 
         expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "vue@2.5.17__vue.common.js"))).to be(true)
         expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "vue@2.5.17__vue.runtime.js"))).to be(true)
@@ -224,7 +224,7 @@ RSpec.describe "external asset fetching service" do
         }
 
         it "names the downloaded file appropriately" do
-          run
+          run_externals_service
 
           expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
         end
@@ -279,7 +279,7 @@ RSpec.describe "external asset fetching service" do
     }
 
     it "downloads into the app's assets directory" do
-      run
+      run_externals_service
 
       expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
     end

@@ -31,8 +31,8 @@ module Pakyow
 
           # Defines a child object, setting `defined_child` and `parent` accordingly.
           #
-          def define(*args, &block)
-            defined_child = __defined_state.define(*args, &block)
+          def define(*args, **kwargs, &block)
+            defined_child = __defined_state.define(*args, **kwargs, &block)
             defined_child.parent = self
 
             unless children.include?(defined_child)

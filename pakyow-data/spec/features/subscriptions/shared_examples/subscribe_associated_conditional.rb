@@ -1,13 +1,5 @@
 RSpec.shared_examples :subscription_subscribe_associated_conditional do
   describe "subscribing to a query that includes associated data with a query" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -20,7 +12,23 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -41,7 +49,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
             post "subscribe" do
               data.posts.by_id(1).including(:comments) {
                 by_title("foo")
-              }.subscribe(:post_subscriber, handler: TestHandler)
+              }.subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do
@@ -112,7 +120,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
     context "when an object covered by the association is created" do
       it "calls the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments", method: :post, params: { comment: { title: "foo", body: "foo", post_id: @post.id } })
         expect(response[0]).to eq(200)
       end
@@ -123,7 +131,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
         call("/comments", method: :post, params: { comment: { title: "foo", body: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :patch, params: { comment: { body: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -134,7 +142,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
 
           subscribe!
           call("/comments/foo", method: :patch, params: { comment: { body: "bar" } })
-          expect_any_instance_of(TestHandler).to receive(:call)
+          expect_any_instance_of(handler).to receive(:call)
           response = call("/comments/foo", method: :patch, params: { comment: { body: "baz" } })
           expect(response[0]).to eq(200)
         end
@@ -146,7 +154,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
         call("/comments", method: :post, params: { comment: { title: "foo", body: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
         expect(response[0]).to eq(200)
       end
@@ -157,7 +165,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
 
           subscribe!
           call("/comments/foo", method: :patch, params: { comment: { title: "bar" } })
-          expect_any_instance_of(TestHandler).not_to receive(:call)
+          expect_any_instance_of(handler).not_to receive(:call)
           response = call("/comments/foo", method: :patch, params: { comment: { title: "baz" } })
           expect(response[0]).to eq(200)
         end
@@ -169,7 +177,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
         call("/comments", method: :post, params: { comment: { title: "bar", body: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/bar", method: :patch, params: { comment: { title: "foo" } })
         expect(response[0]).to eq(200)
       end
@@ -180,7 +188,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
         call("/comments", method: :post, params: { comment: { title: "foo", body: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         response = call("/comments/foo", method: :delete)
         expect(response[0]).to eq(200)
       end
@@ -189,7 +197,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
     context "when an object not covered by the association is created" do
       it "does not call the handler" do
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/comments", method: :post, params: { comment: { title: "bar", body: "foo", post_id: @post.id } })
         expect(response[0]).to eq(200)
       end
@@ -201,7 +209,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
         call("/comments", method: :post, params: { comment: { title: "bar", body: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/comments/bar", method: :patch, params: { comment: { title: "baz" } })
         expect(response[0]).to eq(200)
       end
@@ -213,7 +221,7 @@ RSpec.shared_examples :subscription_subscribe_associated_conditional do
         call("/comments", method: :post, params: { comment: { title: "bar", body: "foo", post_id: @post.id } })
 
         subscribe!
-        expect_any_instance_of(TestHandler).to_not receive(:call)
+        expect_any_instance_of(handler).to_not receive(:call)
         response = call("/comments/bar", method: :delete)
         expect(response[0]).to eq(200)
       end

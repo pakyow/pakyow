@@ -142,7 +142,7 @@ RSpec.describe Pakyow::CLI do
     before do
       allow(Pakyow).to receive(:tasks) do
         [].tap do |tasks|
-          tasks << task.new
+          tasks << task_instance
         end
       end
     end
@@ -209,16 +209,22 @@ RSpec.describe Pakyow::CLI do
       end
     end
 
+    let :task_instance do
+      task.new
+    end
+
     let :commands do
       Pakyow::CLI.new(feedback: feedback).send(:commands)
     end
 
     it "retains the argument order" do
-      expect_any_instance_of(task).to receive(:call) do |**args|
-        expect(**args).to eq({:env=>"development", :foo=>"foo_value", :bar=>"bar_value", :qux=>"qux_value"})
+      expect(task_instance).to receive(:call) do |*, **kwargs|
+        expect(**kwargs).to eq({:env=>"development", :foo=>"foo_value", :bar=>"bar_value", :qux=>"qux_value"})
       end
 
-      Pakyow::CLI.run(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value", "-e", "development"], output: output)
+      ignore_warnings do
+        Pakyow::CLI.run(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value", "-e", "development"], output: output)
+      end
     end
   end
 end

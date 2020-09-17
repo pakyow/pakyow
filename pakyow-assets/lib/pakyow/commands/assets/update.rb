@@ -19,19 +19,19 @@ command :assets, :update do
     if @asset
       @asset = @asset.to_sym
 
-      script = @app.config.assets.externals.scripts.find { |script|
-        script.name == asset
+      script = @app.config.assets.externals.scripts.find { |each_script|
+        each_script.name == asset
       } || raise(Pakyow::Assets::UnknownExternalAsset.new_with_message(asset: asset))
 
       fetch!(script)
     else
-      @app.config.assets.externals.scripts.each do |script|
-        fetch!(script)
+      @app.config.assets.externals.scripts.each do |each_script|
+        fetch!(each_script)
       end
 
       @app.plugs.each do |plug|
-        plug.config.assets.externals.scripts.each do |script|
-          fetch!(script)
+        plug.config.assets.externals.scripts.each do |each_script|
+          fetch!(each_script)
         end
       end
     end

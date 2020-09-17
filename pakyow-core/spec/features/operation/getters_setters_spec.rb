@@ -16,7 +16,7 @@ RSpec.describe "using an operation's getters and setters" do
   }
 
   it "defines a dynamic getter and setter for each value" do
-    expect(app.operations.foo(values).foo).to eq("oof")
+    expect(app.operations.foo(**values).foo).to eq("oof")
   end
 
   context "setter is explicitly defined" do
@@ -35,7 +35,7 @@ RSpec.describe "using an operation's getters and setters" do
     }
 
     it "invokes the setter" do
-      expect(app.operations.foo(values).foo).to eq("foo")
+      expect(app.operations.foo(**values).foo).to eq("foo")
     end
   end
 
@@ -50,19 +50,19 @@ RSpec.describe "using an operation's getters and setters" do
     }
 
     it "defines a real getter for required values" do
-      expect(app.operations.foo(values).class.method_defined?(:foo)).to be(true)
+      expect(app.operations.foo(**values).class.method_defined?(:foo)).to be(true)
     end
 
     it "defines a real getter for optional values" do
-      expect(app.operations.foo(values).class.method_defined?(:bar)).to be(true)
+      expect(app.operations.foo(**values).class.method_defined?(:bar)).to be(true)
     end
 
     it "privately defines a real setter for required values" do
-      expect(app.operations.foo(values).class.private_method_defined?(:foo=)).to be(true)
+      expect(app.operations.foo(**values).class.private_method_defined?(:foo=)).to be(true)
     end
 
     it "privately defines a real setter for optional values" do
-      expect(app.operations.foo(values).class.private_method_defined?(:bar=)).to be(true)
+      expect(app.operations.foo(**values).class.private_method_defined?(:bar=)).to be(true)
     end
 
     context "getters and setters are already defined" do
@@ -83,7 +83,7 @@ RSpec.describe "using an operation's getters and setters" do
       }
 
       it "does not override them" do
-        expect(app.operations.foo(values).foo).to eq("321")
+        expect(app.operations.foo(**values).foo).to eq("321")
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe "using an operation's getters and setters" do
       }
 
       it "does not override them" do
-        expect(app.operations.foo(values).send(:foo)).to eq("321")
+        expect(app.operations.foo(**values).send(:foo)).to eq("321")
       end
     end
   end

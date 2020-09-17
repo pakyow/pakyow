@@ -167,7 +167,7 @@ RSpec.describe "cli: prelaunch:build" do
       it "errors" do
         expect {
           run_command(command, project: true, tty: false)
-        }.to raise_error
+        }.to raise_error(RuntimeError)
       end
 
       it "does not run other commands" do

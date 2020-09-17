@@ -291,7 +291,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
       end
 
       it "does not say it has succeeded" do
-        output = capture_output do
+        capture_output do
           instance.succeeded("succeeded")
         end
 
@@ -299,7 +299,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
       end
 
       it "does say it has failed" do
-        output = capture_output do
+        capture_output do
           instance.failed("failed")
         end
 
@@ -379,7 +379,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
       end
 
       it "does not say it has failed" do
-        output = capture_output do
+        capture_output do
           instance.failed("failed")
         end
 
@@ -387,7 +387,7 @@ RSpec.describe Pakyow::Support::CLI::Runner do
       end
 
       it "does say it has succeeded" do
-        output = capture_output do
+        capture_output do
           instance.failed("failed")
         end
 

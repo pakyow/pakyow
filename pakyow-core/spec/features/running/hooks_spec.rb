@@ -6,8 +6,8 @@ RSpec.describe "run hooks" do
 
   before do
     Pakyow.setup(env: :test)
-    Pakyow.config.server.host = "0.0.0.0"
-    Pakyow.config.server.port = Pakyow::Support::System.available_port
+    Pakyow.config.runnable.server.host = "0.0.0.0"
+    Pakyow.config.runnable.server.port = Pakyow::Support::System.available_port
   end
 
   context "before run hook fails" do
@@ -22,7 +22,7 @@ RSpec.describe "run hooks" do
     it "raises the error" do
       expect {
         Pakyow.run
-      }.to raise_error
+      }.to raise_error(RuntimeError)
     end
   end
 

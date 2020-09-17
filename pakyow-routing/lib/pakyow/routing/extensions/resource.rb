@@ -129,8 +129,8 @@ module Pakyow
           #
           def self.define(controller, nested_resource_id, nested_param)
             unless controller.singleton_class.instance_methods(false).include?(:namespace)
-              controller.define_singleton_method :namespace do |*args, &block|
-                super(*args, &block).tap do |namespace|
+              controller.define_singleton_method :namespace do |*args, **kwargs, &block|
+                super(*args, **kwargs, &block).tap do |namespace|
                   namespace.allow_params nested_param
                   namespace.action :update_request_path_for_parent do
                     connection.get(:__endpoint_path).gsub!("/#{nested_resource_id}", "")

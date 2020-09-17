@@ -213,8 +213,6 @@ RSpec.describe "cookies" do
 
       describe "setting an unsupported setting" do
         let :app_def do
-          local = self
-
           Proc.new do
             configure do
               config.session.enabled = false
@@ -236,8 +234,6 @@ RSpec.describe "cookies" do
 
       describe "setting is nil" do
         let :app_def do
-          local = self
-
           Proc.new do
             configure do
               config.session.enabled = false
@@ -259,8 +255,6 @@ RSpec.describe "cookies" do
 
       describe "setting is empty" do
         let :app_def do
-          local = self
-
           Proc.new do
             configure do
               config.session.enabled = false
@@ -283,8 +277,6 @@ RSpec.describe "cookies" do
 
     describe "escaping" do
       let :app_def do
-        local = self
-
         Proc.new do
           configure do
             config.session.enabled = false
@@ -310,8 +302,6 @@ RSpec.describe "cookies" do
 
   describe "changing cookies" do
     let :app_def do
-      local = self
-
       Proc.new do
         configure do
           config.session.enabled = false
@@ -337,8 +327,6 @@ RSpec.describe "cookies" do
   describe "deleting cookies" do
     context "key is removed" do
       let :app_def do
-        local = self
-
         Proc.new do
           configure do
             config.session.enabled = false
@@ -357,8 +345,6 @@ RSpec.describe "cookies" do
 
     context "key is set to nil" do
       let :app_def do
-        local = self
-
         Proc.new do
           configure do
             config.session.enabled = false
@@ -377,8 +363,6 @@ RSpec.describe "cookies" do
 
     context "key is set to empty" do
       let :app_def do
-        local = self
-
         Proc.new do
           configure do
             config.session.enabled = false

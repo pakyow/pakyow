@@ -58,7 +58,9 @@ RSpec.describe Pakyow::Loader do
       expect(described_class).to receive(:load_path).with("foo", target: target).and_call_original
       expect(described_class).to receive(:load_path).with("foo/bar", target: target, pattern: "*.rb", reload: false)
 
-      described_class.load_path(path, target: target)
+      ignore_warnings do
+        described_class.load_path(path, target: target)
+      end
     end
 
     describe "passing a pattern" do

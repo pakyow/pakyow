@@ -55,7 +55,9 @@ RSpec.describe Pakyow::Application do
     context "when setup fails because of a syntax error" do
       before do
         app_class.before "load" do
-          eval("if")
+          ignore_warnings do
+            eval("if")
+          end
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))
@@ -123,7 +125,9 @@ RSpec.describe Pakyow::Application do
     context "when initialization fails because of a syntax error" do
       before do
         app_class.before "initialize" do
-          eval("if")
+          ignore_warnings do
+            eval("if")
+          end
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))
@@ -202,7 +206,9 @@ RSpec.describe Pakyow::Application do
     context "when booting fails because of a syntax error" do
       before do
         app_class.after "boot" do
-          eval("if")
+          ignore_warnings do
+            eval("if")
+          end
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))
@@ -259,7 +265,9 @@ RSpec.describe Pakyow::Application do
     context "when shutdown fails because of a syntax error" do
       before do
         app_class.before "shutdown" do
-          eval("if")
+          ignore_warnings do
+            eval("if")
+          end
         end
 
         Pakyow.logger.set(Logger.new(File::NULL))

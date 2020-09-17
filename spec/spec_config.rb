@@ -1,5 +1,11 @@
 require "pakyow/support/deep_dup"
 
+module Pakyow
+  # Stub this out globally so it doesn't cause us trouble.
+  #
+  def self.deep_freeze; end
+end
+
 RSpec.configure do |config|
   using Pakyow::Support::DeepDup
 
@@ -114,8 +120,6 @@ RSpec.configure do |config|
 
     @defined_constants = Module.constants.dup
 
-    Pakyow.singleton_class.define_method :deep_freeze do; end
-
     allow(Bundler).to receive(:reset!)
   end
 
@@ -200,11 +204,6 @@ RSpec.configure do |config|
       GC.start
       puts "rss: #{rss} live objects (#{GC.stat[:heap_live_slots]})"
     end
-
-    begin
-      Pakyow.singleton_class.remove_method(:deep_freeze)
-    rescue NameError
-    end
   end
 
   def cache_config(object)
@@ -269,6 +268,10 @@ RSpec.configure do |config|
       end
     end
   end
+
+  def ignore_warnings(&block)
+    $warnings.ignore(&block)
+  end
 end
 
 RSpec::Matchers.define :eq_sans_whitespace do |expected|
@@ -287,26 +290,105 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
+require "pakyow/support/system"
 
 require "warning"
-warnings = []
-pakyow_path = File.expand_path("../../", __FILE__)
-Warning.process do |warning|
-  if warning.start_with?(pakyow_path) && !warning.include?("_spec.rb") && !warning.include?("spec/")
-    warnings << warning.gsub(/^#{pakyow_path}\//, "")
+
+module Pakyow
+  module Support
+    # This will eventually make its way into an official warning collector in `pakyow/support`.
+    #
+    class Warnings
+      attr_reader :warnings
+
+      def initialize
+        @warnings = []
+        @ignoring = false
+        @lock = Mutex.new
+
+        Warning.dedup
+
+        ruby_gem_path = Pakyow::Support::System.ruby_gem_path_string
+        ruby_lib_path = RbConfig::CONFIG["libdir"]
+
+        Warning.process do |warning|
+          next if ignoring?
+          next if warning.start_with?(ruby_gem_path)
+          next if warning.start_with?(ruby_lib_path)
+
+          # Two warnings are generated for this, combine them.
+          #
+          if warning.match?(/warning: The called method (.*) is defined here/)
+            @lock.synchronize do
+              if @warnings.last&.match?(/Using the last argument as keyword parameters is deprecated; maybe \*\* should be added to the call/)
+                append_to_last_warning!(warning)
+              end
+            end
+          else
+            handle_warning(warning)
+          end
+        end
+      end
+
+      def ignore
+        @ignoring = true
+
+        yield
+      ensure
+        @ignoring = false
+      end
+
+      def ignoring?
+        @ignoring == true
+      end
+
+      private def handle_warning(warning)
+        if ENV.include?("CI")
+          raise warning
+        else
+          @lock.synchronize do
+            @warnings << warning
+          end
+        end
+      end
+
+      private def append_to_last_warning!(warning)
+        return if ENV.include?("CI")
+
+        @warnings.last << warning
+      end
+    end
   end
 end
 
+$pakyow_path = File.expand_path("../../", __FILE__)
 $toplevel_pid ||= Process.pid
+$warnings = Pakyow::Support::Warnings.new
 
 at_exit do
-  if warnings.any? && Process.pid == $toplevel_pid && !ENV.key?("CI") && ENV["WARN"] != "false"
+  if Process.pid == $toplevel_pid && ENV["WARN"] != "false"
     require "pakyow/support/cli/style"
-    puts Pakyow::Support::CLI.style.yellow "#{warnings.count} warnings were generated:"
-    warnings.take(1_000).each do |warning|
-      puts Pakyow::Support::CLI.style.yellow("  › ") + warning.strip
+
+    warnings = $warnings.warnings
+
+    if warnings.any?
+      puts Pakyow::Support::CLI.style.yellow("encountered #{warnings.count} warnings:")
+
+      warnings.each do |warning|
+        warning = warning.gsub(/^#{$pakyow_path}\//, "")
+        warning = warning.strip
+
+        warning.each_line.each_with_index do |line, index|
+          if index == 0
+            puts Pakyow::Support::CLI.style.yellow("  › ") + line
+          else
+            puts Pakyow::Support::CLI.style.yellow("    ") + line
+          end
+        end
+      end
+
+      puts
     end
-    puts
   end
 rescue Interrupt
 end

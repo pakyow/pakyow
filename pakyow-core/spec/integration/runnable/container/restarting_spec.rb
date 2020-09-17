@@ -483,8 +483,6 @@ RSpec.describe "restarting runnable containers from other processes", :repeatabl
       let(:definitions) {
         @message = "foo"
 
-        local = self
-
         container.on :restart, exec: false do |**payload|
           @payload = payload
         end

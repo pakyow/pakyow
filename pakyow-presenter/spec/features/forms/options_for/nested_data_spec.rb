@@ -198,8 +198,6 @@ RSpec.describe "populating options for nested data" do
     include_context "app"
 
       let :app_def do
-        local = self
-
         Proc.new do
           presenter "/form/nested_data_id" do
             options_for :post, :tags do

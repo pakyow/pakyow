@@ -84,12 +84,15 @@ RSpec.shared_context "app" do
     setup(env: env) && run
   end
 
-  DEFAULT_HEADERS = { "content-type" => "text/html" }.freeze
+  unless defined?(DEFAULT_HEADERS)
+    DEFAULT_HEADERS = { "content-type" => "text/html" }.freeze
+  end
+
   def call(path = "/", headers: {}, method: :get, tuple: true, input: nil, params: nil, scheme: "http")
     connection_for_call = nil
-    allow_any_instance_of(Pakyow::Connection).to receive(:finalize).and_wrap_original do |method|
-      connection_for_call = method.receiver
-      method.call
+    allow_any_instance_of(Pakyow::Connection).to receive(:finalize).and_wrap_original do |original_method|
+      connection_for_call = original_method.receiver
+      original_method.call
     end
 
     if params
@@ -104,11 +107,8 @@ RSpec.shared_context "app" do
     end
 
     body = Async::HTTP::Body::Buffered.wrap(input)
-    request = Async::HTTP::Protocol::Request.new(
-      scheme, "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers[headers], body
-    ).tap do |request|
-      request.remote_address = Addrinfo.tcp("localhost", "http")
-    end
+    request = Async::HTTP::Protocol::Request.new(scheme, "localhost", method.to_s.upcase, path, nil, Protocol::HTTP::Headers[headers], body)
+    request.remote_address = Addrinfo.tcp("localhost", "http")
 
     Async::Reactor.run {
       result = Pakyow.call(request).tap do

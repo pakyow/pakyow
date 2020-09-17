@@ -8,8 +8,6 @@ require "pakyow/support/cli/style"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/deprecatable"
 
-require_relative "cli"
-
 module Pakyow
   # Base task class that extends rake with additional functionality.
   #

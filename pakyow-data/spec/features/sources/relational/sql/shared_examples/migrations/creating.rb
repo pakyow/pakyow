@@ -1,8 +1,6 @@
 RSpec.shared_examples :source_migrations_creating do |types:|
   describe "creating a new relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts do
           # Define an attribute for every type.
@@ -140,8 +138,6 @@ RSpec.shared_examples :source_migrations_creating do |types:|
 
   describe "creating new dependent relational sources" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :children, timestamps: false do
         end

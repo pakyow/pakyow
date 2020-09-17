@@ -11,12 +11,6 @@ RSpec.describe Pakyow::Support::Deprecator::Reporters::Log do
       allow(Pakyow).to receive(:logger).and_return(logger)
     end
 
-    after do
-      if @defined_logger
-
-      end
-    end
-
     let(:logger) {
       double(:logger)
     }

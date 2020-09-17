@@ -1,7 +1,7 @@
 RSpec.describe "parsing requests" do
   before do
     Pakyow.parse_input "application/foo", &input_parser
-    Pakyow.action &action
+    Pakyow.action(&action)
   end
 
   let :input_parser do

@@ -291,6 +291,11 @@ module Pakyow
       end
 
       private def available_short_name?(name)
+        # FIXME: Requiring at the top of the file causes a circular require, but `PakyowCLI` is a
+        # dependency of this code. This may be a sign of a larger organizational issue.
+        #
+        require_relative "cli"
+
         name = name.to_sym
 
         !@options.include?(name) && !@flags.include?(name) && CLI.shortable?(name)

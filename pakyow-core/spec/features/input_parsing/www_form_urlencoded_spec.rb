@@ -1,6 +1,6 @@
 RSpec.describe "parsing requests" do
   before do
-    Pakyow.action &action
+    Pakyow.action(&action)
   end
 
   include_context "app"
