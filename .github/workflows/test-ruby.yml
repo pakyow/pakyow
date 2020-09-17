@@ -28,6 +28,7 @@ jobs:
           - core
           - form
           - mailer
+          - reflection
           - routing
           - support
 

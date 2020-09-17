@@ -112,7 +112,9 @@ module Pakyow
 
           def view_path_directory?(view_path)
             @app.templates.each.any? { |templates|
-              File.directory?(File.join(templates.path, templates.config[:paths][:pages], view_path))
+              templates.config[:paths][:pages].any? { |pages_path|
+                File.directory?(File.join(pages_path, view_path))
+              }
             }
           end
 
