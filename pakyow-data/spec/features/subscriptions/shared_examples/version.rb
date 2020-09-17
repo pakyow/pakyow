@@ -1,13 +1,5 @@
 RSpec.shared_examples :subscription_version do
   describe "versioning subscriptions" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -20,7 +12,23 @@ RSpec.shared_examples :subscription_version do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -43,7 +51,7 @@ RSpec.shared_examples :subscription_version do
 
           collection do
             post "subscribe" do
-              data.posts.subscribe(:post_subscriber, handler: TestHandler)
+              data.posts.subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do
@@ -76,7 +84,7 @@ RSpec.shared_examples :subscription_version do
 
     it "calls the handler" do
       subscribe!
-      expect_any_instance_of(TestHandler).to receive(:call)
+      expect_any_instance_of(handler).to receive(:call)
       response = call("/posts", method: :post, params: { post: { title: "foo" } })
       expect(response[0]).to eq(200)
     end
@@ -85,7 +93,7 @@ RSpec.shared_examples :subscription_version do
       it "does not call the handler" do
         subscribe!
         Pakyow.apps.first.config.data.subscriptions.version = "foo"
-        expect_any_instance_of(TestHandler).not_to receive(:call)
+        expect_any_instance_of(handler).not_to receive(:call)
         response = call("/posts", method: :post, params: { post: { title: "foo" } })
         expect(response[0]).to eq(200)
       end

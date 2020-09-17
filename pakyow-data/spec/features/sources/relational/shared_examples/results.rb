@@ -236,7 +236,7 @@ RSpec.shared_examples :source_results do
         posts = data.posts.ordered
         posts.count
 
-        expect(posts.source.instance_variable_get(:@results)).to be(nil)
+        expect(posts.source.instance_variable_defined?(:@results)).to be(false)
       end
     end
 

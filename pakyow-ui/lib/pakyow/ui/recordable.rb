@@ -7,6 +7,7 @@ require "pakyow/support/core_refinements/array/ensurable"
 require "pakyow/support/extension"
 require "pakyow/support/inflector"
 require "pakyow/support/safe_string"
+require "pakyow/support/system"
 
 require "pakyow/data/sources/relational"
 
@@ -231,9 +232,17 @@ module Pakyow
       end
 
       prepend_methods do
-        def initialize(*)
-          super
+        if Support::System.ruby_version < "2.7.0"
+          def initialize(*)
+            super; __common_ui_recordable_initialize
+          end
+        else
+          def initialize(*, **)
+            super; __common_ui_recordable_initialize
+          end
+        end
 
+        private def __common_ui_recordable_initialize
           @calls = []
           cache_bindings!
         end

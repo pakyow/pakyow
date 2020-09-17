@@ -56,6 +56,8 @@ RSpec.configure do |config|
     allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:post) do |_, *args, &block|
       block.call(*args)
     end
+
+    @data_connection = nil
   end
 
   config.after do
@@ -87,7 +89,7 @@ RSpec.configure do |config|
     end
 
     Pakyow.data_connections.values.flat_map(&:values).each(&:disconnect)
-    @data_connection.disconnect if @data_connection
+    @data_connection&.disconnect
   end
 
   def connection_name

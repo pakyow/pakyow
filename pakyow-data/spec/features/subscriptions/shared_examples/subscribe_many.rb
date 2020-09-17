@@ -20,8 +20,7 @@ RSpec.shared_examples :subscription_subscribe_many do
   end
 
   let :handler do
-    stub_const "TestHandler", Class.new
-    TestHandler.class_eval do
+    handler = Class.new {
       class << self
         attr_reader :subscription
 
@@ -35,9 +34,11 @@ RSpec.shared_examples :subscription_subscribe_many do
       end
 
       def call(*); end
-    end
+    }
 
-    TestHandler
+    stub_const("StubbedHandler", handler)
+
+    handler
   end
 
   context "expiring subscriber exists with a subscription" do
@@ -57,8 +58,8 @@ RSpec.shared_examples :subscription_subscribe_many do
       end
 
       it "triggers a mutation" do
-        double = instance_double(TestHandler)
-        allow(TestHandler).to receive(:new).and_return(double)
+        double = instance_double(handler)
+        allow(handler).to receive(:new).and_return(double)
         expect(double).to receive(:call).once
         subscribers.did_mutate(source)
       end
@@ -82,8 +83,8 @@ RSpec.shared_examples :subscription_subscribe_many do
       end
 
       it "triggers a mutation" do
-        double = instance_double(TestHandler)
-        allow(TestHandler).to receive(:new).and_return(double)
+        double = instance_double(handler)
+        allow(handler).to receive(:new).and_return(double)
         expect(double).to receive(:call).once
         subscribers.did_mutate(source)
       end
@@ -110,8 +111,8 @@ RSpec.shared_examples :subscription_subscribe_many do
         end
 
         it "triggers a mutation" do
-          double = instance_double(TestHandler)
-          allow(TestHandler).to receive(:new).and_return(double)
+          double = instance_double(handler)
+          allow(handler).to receive(:new).and_return(double)
           expect(double).to receive(:call).twice
           subscribers.did_mutate(source)
         end
@@ -159,8 +160,8 @@ RSpec.shared_examples :subscription_subscribe_many do
                 end
 
                 it "triggers a mutation" do
-                  double = instance_double(TestHandler)
-                  allow(TestHandler).to receive(:new).and_return(double)
+                  double = instance_double(handler)
+                  allow(handler).to receive(:new).and_return(double)
                   expect(double).to receive(:call).once
                   subscribers.did_mutate(source)
                 end

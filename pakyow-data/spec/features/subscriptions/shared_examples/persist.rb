@@ -20,16 +20,17 @@ RSpec.shared_examples :subscription_persist do
   end
 
   let :handler do
-    stub_const "TestHandler", Class.new
-    TestHandler.class_eval do
+    handler = Class.new {
       def initialize(app)
         @app = app
       end
 
       def call(*); end
-    end
+    }
 
-    TestHandler
+    stub_const("StubbedHandler", handler)
+
+    handler
   end
 
   context "subscriber exists with a subscription" do
@@ -46,7 +47,7 @@ RSpec.shared_examples :subscription_persist do
       end
 
       it "triggers mutations for both subscriptions" do
-        expect_any_instance_of(TestHandler).to receive(:call)
+        expect_any_instance_of(handler).to receive(:call)
         subscribers.did_mutate(source)
       end
     end

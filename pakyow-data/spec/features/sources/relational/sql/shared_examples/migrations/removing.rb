@@ -1,8 +1,6 @@
 RSpec.shared_examples :source_migrations_removing do |types:|
   describe "removing an attribute from an existing relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts, timestamps: false do
         end
@@ -126,8 +124,6 @@ RSpec.shared_examples :source_migrations_removing do |types:|
 
   describe "removing a primary key from an existing relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts, primary_id: false, timestamps: false do
           attribute :foo
@@ -212,8 +208,6 @@ RSpec.shared_examples :source_migrations_removing do |types:|
 
   describe "removing a foreign key from an existing relational source" do
     let :app_def do
-      context = self
-
       Proc.new do
         source :posts, timestamps: false do
         end

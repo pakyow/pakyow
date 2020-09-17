@@ -1,13 +1,5 @@
 RSpec.shared_examples :subscription_subscribe_deeply_associated do
   describe "subscribing to a query that includes deeply associated data" do
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
-
-      def call(*); end
-    end
-
     before do
       local = self
       Pakyow.configure do
@@ -20,7 +12,23 @@ RSpec.shared_examples :subscription_subscribe_deeply_associated do
 
     include_context "app"
 
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
+
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
+    end
+
     let :app_def do
+      local = self
+
       Proc.new do
         source :posts do
           attribute :title, :string
@@ -46,7 +54,7 @@ RSpec.shared_examples :subscription_subscribe_deeply_associated do
             post "subscribe" do
               data.posts.by_id(1).including(:comments) {
                 including(:tags)
-              }.subscribe(:post_subscriber, handler: TestHandler)
+              }.subscribe(:post_subscriber, handler: local.handler)
             end
 
             post "unsubscribe" do

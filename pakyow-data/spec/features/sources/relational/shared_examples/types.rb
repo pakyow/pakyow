@@ -51,7 +51,7 @@ RSpec.shared_examples :source_types do
 
           expect {
             data.posts.create(foo: 1)
-          }.to_not raise_error(Pakyow::Data::UniqueViolation)
+          }.to_not raise_error
 
           expect(data.posts.count).to eq(2)
         end

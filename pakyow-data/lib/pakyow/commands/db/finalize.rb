@@ -27,7 +27,7 @@ command :db, :finalize, boot: false do
 
     # Use a global connection for creating the database.
     #
-    global_migrator = Pakyow::Data::Migrator.connect_global(opts)
+    global_migrator = Pakyow::Data::Migrator.connect_global(**opts)
 
     # Create the migrator database unless it exists.
     #
@@ -35,7 +35,7 @@ command :db, :finalize, boot: false do
 
     # Use a normal migrator for migrating.
     #
-    migrator = Pakyow::Data::Migrator.connect(opts)
+    migrator = Pakyow::Data::Migrator.connect(**opts)
 
     # Run the existing migrations on it.
     #

@@ -24,12 +24,18 @@ RSpec.shared_examples :subscription_expire do
       SecureRandom.hex(24)
     end
 
-    class TestHandler
-      def initialize(app)
-        @app = app
-      end
+    let :handler do
+      handler = Class.new {
+        def initialize(app)
+          @app = app
+        end
 
-      def call(*); end
+        def call(*); end
+      }
+
+      stub_const("StubbedHandler", handler)
+
+      handler
     end
 
     before do
@@ -42,7 +48,7 @@ RSpec.shared_examples :subscription_expire do
 
     context "subscription has no active subscribers" do
       before do
-        Pakyow.app(:test).data.posts.subscribe(subscriber, handler: TestHandler)
+        Pakyow.app(:test).data.posts.subscribe(subscriber, handler: handler)
         Pakyow.app(:test).data.expire(subscriber, 5)
       end
 
@@ -54,8 +60,8 @@ RSpec.shared_examples :subscription_expire do
 
     context "subscription has an active subscriber" do
       before do
-        Pakyow.app(:test).data.posts.subscribe(subscriber + "_1", handler: TestHandler)
-        Pakyow.app(:test).data.posts.subscribe(subscriber + "_2", handler: TestHandler)
+        Pakyow.app(:test).data.posts.subscribe(subscriber + "_1", handler: handler)
+        Pakyow.app(:test).data.posts.subscribe(subscriber + "_2", handler: handler)
         Pakyow.app(:test).data.expire(subscriber + "_2", 5)
       end
 

@@ -1341,7 +1341,7 @@ RSpec.shared_examples :source_associations do
           @user1 = data.users.create
           @user2 = data.users.create
           @team = data.teams.create
-          subscription = data.subscriptions.create(team: @team)
+          data.subscriptions.create(team: @team)
           data.team_members.create(user: @user1, team: @team)
           data.team_members.create(user: @user2, team: @team)
         end

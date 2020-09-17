@@ -21,7 +21,7 @@ RSpec.shared_examples :source_queries do
 
     describe "by_attribute queries" do
       it "defines a query for each attribute" do
-        post = data.posts.create(title: "foo")
+        data.posts.create(title: "foo")
         expect(data.posts.by_id(1).count).to eq(1)
         expect(data.posts.by_title("foo").count).to eq(1)
         expect(data.posts.by_title("bar").count).to eq(0)
@@ -58,8 +58,9 @@ RSpec.shared_examples :source_queries do
     end
 
     it "exposes the query" do
-      post = data.posts.create(title: "foo")
-      post = data.posts.create(title: "bar")
+      data.posts.create(title: "foo")
+      data.posts.create(title: "bar")
+
       expect(data.posts.title_is_foo.count).to eq(1)
     end
 
@@ -116,7 +117,7 @@ RSpec.shared_examples :source_queries do
     it "does not allow them to be called" do
       expect {
         data.posts.avg
-      }.to raise_error
+      }.to raise_error(NoMethodError)
     end
   end
 
