@@ -290,6 +290,8 @@ RSpec::Matchers.define :include_sans_whitespace do |expected|
   diffable
 end
 
+require "pakyow/support/system"
+
 require "warning"
 
 module Pakyow
@@ -302,11 +304,26 @@ module Pakyow
       def initialize
         @warnings = []
         @ignoring = false
+        @lock = Mutex.new
+
+        Warning.dedup
 
         Warning.process do |warning|
           next if ignoring?
+          next if warning.start_with?(Pakyow::Support::System.ruby_gem_path_string)
+          next if warning.start_with?(RbConfig::CONFIG["libdir"])
 
-          warnings << warning
+          # Two warnings are generated for this, combine them.
+          #
+          if warning.match?(/warning: The called method (.*) is defined here/)
+            @lock.synchronize do
+              if @warnings.last&.match?(/Using the last argument as keyword parameters is deprecated; maybe \*\* should be added to the call/)
+                append_to_last_warning!(warning)
+              end
+            end
+          else
+            handle_warning(warning)
+          end
         end
       end
 
@@ -321,33 +338,50 @@ module Pakyow
       def ignoring?
         @ignoring == true
       end
+
+      private def handle_warning(warning)
+        if ENV.include?("CI")
+          raise warning
+        else
+          @lock.synchronize do
+            @warnings << warning
+          end
+        end
+      end
+
+      private def append_to_last_warning!(warning)
+        return if ENV.include?("CI")
+
+        @warnings.last << warning
+      end
     end
   end
 end
 
+$pakyow_path = File.expand_path("../../", __FILE__)
+$toplevel_pid ||= Process.pid
 $warnings = Pakyow::Support::Warnings.new
 
-require "pakyow/support/system"
-ruby_gem_path = Pakyow::Support::System.ruby_gem_path.to_s
-pakyow_path = File.expand_path("../../", __FILE__)
-$toplevel_pid ||= Process.pid
-
 at_exit do
-  if Process.pid == $toplevel_pid && !ENV.key?("CI") && ENV["WARN"] != "false"
+  if Process.pid == $toplevel_pid && ENV["WARN"] != "false"
     require "pakyow/support/cli/style"
 
-    filtered_warnings = $warnings.warnings.take(1_000).reject { |warning|
-      warning.start_with?(ruby_gem_path)
-    }
+    warnings = $warnings.warnings
 
-    if filtered_warnings.any?
-      puts Pakyow::Support::CLI.style.yellow "#{filtered_warnings.count} warnings were generated:"
+    if warnings.any?
+      puts Pakyow::Support::CLI.style.yellow("encountered #{warnings.count} warnings:")
 
-      filtered_warnings.each do |warning|
-        warning = warning.gsub(/^#{pakyow_path}\//, "")
+      warnings.each do |warning|
+        warning = warning.gsub(/^#{$pakyow_path}\//, "")
         warning = warning.strip
 
-        puts Pakyow::Support::CLI.style.yellow("  › ") + warning
+        warning.each_line.each_with_index do |line, index|
+          if index == 0
+            puts Pakyow::Support::CLI.style.yellow("  › ") + line
+          else
+            puts Pakyow::Support::CLI.style.yellow("    ") + line
+          end
+        end
       end
 
       puts
