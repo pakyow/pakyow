@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pakyow/support/system"
+
 module Pakyow
   class Loader
     # @api private
@@ -14,32 +16,64 @@ module Pakyow
         eval(@uncommented_code, binding, @path, @comments.lines.count + 1)
       end
 
-      def method_missing(name, *args, **kwargs, &block)
-        inner_source = if block
-          inner_source(block.source)
-        else
-          "\n"
-        end
-
-        local_comments = @comments
-        local_path = @path
-
-        @target.public_send(name, *args, **kwargs) do
-          if self.name
-            code_to_eval = case self
-            when Class
-              <<~CODE
-                #{local_comments}class #{self}#{inner_source}end
-              CODE
-            when Module
-              <<~CODE
-                #{local_comments}module #{self}#{inner_source}end
-              CODE
-            end
-
-            eval(code_to_eval, binding, local_path, 1)
+      if Support::System.ruby_version < "2.7.0"
+        def method_missing(name, *args, &block)
+          inner_source = if block
+            inner_source(block.source)
           else
-            class_eval(&block)
+            "\n"
+          end
+
+          local_comments = @comments
+          local_path = @path
+
+          @target.public_send(name, *args) do
+            if self.name
+              code_to_eval = case self
+              when Class
+                <<~CODE
+                  #{local_comments}class #{self}#{inner_source}end
+                CODE
+              when Module
+                <<~CODE
+                  #{local_comments}module #{self}#{inner_source}end
+                CODE
+              end
+
+              eval(code_to_eval, binding, local_path, 1)
+            else
+              class_eval(&block)
+            end
+          end
+        end
+      else
+        def method_missing(name, *args, **kwargs, &block)
+          inner_source = if block
+            inner_source(block.source)
+          else
+            "\n"
+          end
+
+          local_comments = @comments
+          local_path = @path
+
+          @target.public_send(name, *args, **kwargs) do
+            if self.name
+              code_to_eval = case self
+              when Class
+                <<~CODE
+                  #{local_comments}class #{self}#{inner_source}end
+                CODE
+              when Module
+                <<~CODE
+                  #{local_comments}module #{self}#{inner_source}end
+                CODE
+              end
+
+              eval(code_to_eval, binding, local_path, 1)
+            else
+              class_eval(&block)
+            end
           end
         end
       end

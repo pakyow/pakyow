@@ -845,16 +845,16 @@ RSpec.describe "handling status code events during a request lifecycle" do
     context "handler is defined on the environment connection" do
       let(:app_def) {
         Proc.new {
-          Pakyow.action do |connection|
-            connection.handle :foo, as: 401 do
+          Pakyow.action do |action_connection|
+            action_connection.handle :foo, as: 401 do |connection:|
               connection.body.write "unauthorized"
             end
 
-            connection.handle 401 do |connection:|
+            action_connection.handle 401 do |connection:|
               connection.body.write "401"
             end
 
-            connection.trigger :foo
+            action_connection.trigger :foo
           end
         }
       }
@@ -866,14 +866,14 @@ RSpec.describe "handling status code events during a request lifecycle" do
       context "handler is defined without a block" do
         let(:app_def) {
           Proc.new {
-            Pakyow.action do |connection|
-              connection.handle :foo, as: 401
+            Pakyow.action do |action_connection|
+              action_connection.handle :foo, as: 401
 
-              connection.handle 401 do |connection:|
+              action_connection.handle 401 do |connection:|
                 connection.body.write "401"
               end
 
-              connection.trigger :foo
+              action_connection.trigger :foo
             end
           }
         }
@@ -887,16 +887,16 @@ RSpec.describe "handling status code events during a request lifecycle" do
     context "handler is defined on the application connection" do
       let(:app_def) {
         Proc.new {
-          action do |connection|
-            connection.handle :foo, as: 401 do
+          action do |action_connection|
+            action_connection.handle :foo, as: 401 do |connection:|
               connection.body.write "unauthorized"
             end
 
-            connection.handle 401 do |connection:|
+            action_connection.handle 401 do |connection:|
               connection.body.write "401"
             end
 
-            connection.trigger :foo
+            action_connection.trigger :foo
           end
         }
       }
@@ -908,14 +908,14 @@ RSpec.describe "handling status code events during a request lifecycle" do
       context "handler is defined without a block" do
         let(:app_def) {
           Proc.new {
-            action do |connection|
-              connection.handle :foo, as: 401
+            action do |action_connection|
+              action_connection.handle :foo, as: 401
 
-              connection.handle 401 do |connection:|
+              action_connection.handle 401 do |connection:|
                 connection.body.write "401"
               end
 
-              connection.trigger :foo
+              action_connection.trigger :foo
             end
           }
         }

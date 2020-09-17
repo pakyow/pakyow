@@ -109,10 +109,6 @@ RSpec.configure do |config|
     end
   end
 
-  def timeout(duration, &block)
-    Timeout::timeout(duration, &block)
-  end
-
   def cli_run(*command, envars: self.envars)
     timeout(60) do
       Bundler.with_original_env do

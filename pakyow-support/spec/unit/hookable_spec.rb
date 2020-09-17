@@ -18,7 +18,7 @@ RSpec.describe Pakyow::Support::Hookable do
         event = events.first
         calls = []
 
-        hook_1 = -> (arg1, arg2) { calls << [arg1, arg2] }
+        hook_1 = Proc.new { |arg1, arg2| calls << [arg1, arg2] }
 
         hookable.before event, &hook_1
 
@@ -32,9 +32,9 @@ RSpec.describe Pakyow::Support::Hookable do
         event = events.first
         calls = []
 
-        hook_1 = -> { calls << 1 }
-        hook_2 = -> { calls << 2 }
-        hook_3 = -> { calls << 3 }
+        hook_1 = Proc.new { calls << 1 }
+        hook_2 = Proc.new { calls << 2 }
+        hook_3 = Proc.new { calls << 3 }
 
         hookable.before event, &hook_2
         hookable.before event, &hook_3
@@ -60,8 +60,8 @@ RSpec.describe Pakyow::Support::Hookable do
       before do
         local_calls = calls
 
-        hook_1 = -> { local_calls << 1 }
-        hook_2 = -> { local_calls << 2 }
+        hook_1 = Proc.new { local_calls << 1 }
+        hook_2 = Proc.new { local_calls << 2 }
 
         hookable.before event, &hook_2
         hookable.after event, &hook_1
@@ -181,7 +181,7 @@ RSpec.describe Pakyow::Support::Hookable do
 
     it "calls the class hooks first, regardless of the order of definition" do
       calls = []
-      hook_1 = -> { calls << 1 }
+      hook_1 = Proc.new { calls << 1 }
       hookable.before event, &hook_1
     end
   end
@@ -194,9 +194,9 @@ RSpec.describe Pakyow::Support::Hookable do
     it "calls hooks from highest to lowest priority" do
       calls = []
 
-      hook_1 = -> { calls << 1 }
-      hook_2 = -> { calls << 2 }
-      hook_3 = -> { calls << 3 }
+      hook_1 = Proc.new { calls << 1 }
+      hook_2 = Proc.new { calls << 2 }
+      hook_3 = Proc.new { calls << 3 }
 
       hookable.before event, priority: :low, &hook_1
       hookable.before event, priority: :high, &hook_2
@@ -218,12 +218,12 @@ RSpec.describe Pakyow::Support::Hookable do
     it "calls hooks in order" do
       calls = []
 
-      hook_1 = -> { calls << 1 }
-      hook_2 = -> { calls << 2 }
-      hook_3 = -> { calls << 3 }
-      hook_4 = -> { calls << 4 }
-      hook_5 = -> { calls << 5 }
-      hook_6 = -> { calls << 6 }
+      hook_1 = Proc.new { calls << 1 }
+      hook_2 = Proc.new { calls << 2 }
+      hook_3 = Proc.new { calls << 3 }
+      hook_4 = Proc.new { calls << 4 }
+      hook_5 = Proc.new { calls << 5 }
+      hook_6 = Proc.new { calls << 6 }
 
       hookable.before event, "foo.bar", &hook_1
       hookable.before "foo.bar", "bar.baz", &hook_2

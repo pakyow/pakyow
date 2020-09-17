@@ -12,24 +12,11 @@ RSpec.describe "verifying operation values" do
     end
   end
 
-  after do
-    $performed_operation = nil
-  end
-
   context "verification fails" do
     it "raises an error" do
       expect {
         Pakyow.app(:test).operations.test
       }.to raise_error(Pakyow::InvalidData)
-    end
-
-    it "does not perform the operation" do
-      begin
-        Pakyow.app(:test).operations.test
-      rescue
-      end
-
-      expect($performed_operation).to_not be(true)
     end
   end
 
