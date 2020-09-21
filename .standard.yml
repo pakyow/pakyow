@@ -13,3 +13,5 @@ ignore:
     - Lint/UnderscorePrefixedVariableName
   - 'pakyow-support/lib/pakyow/support/handleable.rb':
     - Lint/RescueException
+  - 'pakyow-reflection/lib/pakyow/reflection/framework.rb':
+    - Lint/NestedMethodDefinition

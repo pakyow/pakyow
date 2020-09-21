@@ -71,7 +71,7 @@ module Pakyow
                 })
               end
             end
-          else
+            # else
             # TODO: warn the user that a reflection couldn't be installed for an unnamed route
           end
         end

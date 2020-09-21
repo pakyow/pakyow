@@ -67,7 +67,7 @@ module Pakyow
           def define_children_for_endpoint_context(exposure)
             exposure.nodes.each do |exposure_node|
               exposure_node.find_significant_nodes(:endpoint).each do |endpoint_node|
-                if app_endpoint = endpoints.find(name: endpoint_node.label(:endpoint))
+                if (app_endpoint = endpoints.find(name: endpoint_node.label(:endpoint)))
                   app_endpoint.params.each do |param|
                     data.send(exposure.scope.plural_name).source.class.associations.values.flatten.each do |association|
                       association_key_prefix = "#{association.name}_"

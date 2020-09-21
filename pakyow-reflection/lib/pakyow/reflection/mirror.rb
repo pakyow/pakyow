@@ -141,7 +141,7 @@ module Pakyow
 
             # Define the reflected action, if there is one.
             #
-            if action = action_for_form(form_view, view_path)
+            if (action = action_for_form(form_view, view_path))
               # Define an action to handle this form submission.
               #
               scope.actions << Action.new(
@@ -206,7 +206,7 @@ module Pakyow
         until view_path_parts.count < 2
           view_path_part = view_path_parts.shift
 
-          if child_scope = scope(view_path_part)
+          if (child_scope = scope(view_path_part))
             view_path_parts.map { |each_view_path_part|
               scope(each_view_path_part)
             }.compact.each do |parent_scope|
@@ -241,7 +241,7 @@ module Pakyow
         end
       end
 
-      IGNORED_ATTRIBUTES = %i(id).freeze
+      IGNORED_ATTRIBUTES = %i[id].freeze
 
       def discover_attributes(view, fields: true)
         view.binding_props.reject { |binding_prop_node|
@@ -283,8 +283,9 @@ module Pakyow
       end
 
       def scope_for_binding(binding, parent_scope)
-        unless scope = scopes.find { |possible_scope| possible_scope.named?(binding) }
-          scope = Scope.new(binding); @scopes << scope
+        unless (scope = scopes.find { |possible_scope| possible_scope.named?(binding) })
+          scope = Scope.new(binding)
+          @scopes << scope
         end
 
         if parent_scope
@@ -296,14 +297,13 @@ module Pakyow
 
       def type_for_form_view(view)
         type_for_binding_name(view.binding_name.to_s) ||
-        (view.attributes.has?(:type) && type_for_attribute_type(view.attributes[:type])) ||
-        :string
+          (view.attributes.has?(:type) && type_for_attribute_type(view.attributes[:type])) ||
+          :string
       end
 
       def type_for_binding_name(binding_name)
         if binding_name.end_with?("_at")
           :datetime
-        else
         end
       end
 
@@ -317,8 +317,6 @@ module Pakyow
           :datetime
         when "number", "range"
           :decimal
-        else
-          nil
         end
       end
 
@@ -332,8 +330,6 @@ module Pakyow
             :update
           elsif endpoint.end_with?("#{plural_binding_name}_delete")
             :delete
-          else
-            nil
           end
         elsif path.include?(plural_binding_name) && path.include?("edit")
           :update
@@ -343,7 +339,7 @@ module Pakyow
       end
 
       def ensure_endpoint(view_path, options)
-        unless endpoint = @endpoints.find { |e| e.view_path == view_path }
+        unless (endpoint = @endpoints.find { |e| e.view_path == view_path })
           endpoint = Endpoint.new(view_path, options: options)
           @endpoints << endpoint
         end

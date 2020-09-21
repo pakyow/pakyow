@@ -18,8 +18,6 @@ module Pakyow
               state.find { |controller|
                 String.normalize_path(String.collapse_path(controller.path_to_self)) == String.normalize_path(path)
               } || controller_at_path(path, state.flat_map(&:children))
-            else
-              nil
             end
           end
 
@@ -28,8 +26,6 @@ module Pakyow
               controller_closest_to_path(path, state.flat_map(&:children)) || state.find { |controller|
                 String.normalize_path(path).start_with?(String.normalize_path(String.collapse_path(controller.path_to_self)))
               }
-            else
-              nil
             end
           end
 
@@ -42,7 +38,7 @@ module Pakyow
 
             path = String.normalize_path(path)
 
-            if controller = controller_closest_to_path(path, nested_state)
+            if (controller = controller_closest_to_path(path, nested_state))
               context = controller
               path = path.gsub(
                 /^#{String.normalize_path(String.collapse_path(controller.path_to_self))}/, ""
@@ -54,7 +50,7 @@ module Pakyow
             controller_name = if path == "/"
               :root
             else
-              String.normalize_path(path)[1..-1].gsub("/", "_").to_sym
+              String.normalize_path(path)[1..-1].tr("/", "_").to_sym
             end
 
             method = if context.is_a?(Class) && context.ancestors.include?(Pakyow::Routing::Controller)
@@ -101,7 +97,7 @@ module Pakyow
           end
 
           def resource_source_at_path(view_path)
-            view_path.split("/").reverse.each do |view_path_part|
+            view_path.split("/").reverse_each do |view_path_part|
               @app.sources.each do |source|
                 if source.plural_name == view_path_part.to_sym
                   return source
@@ -118,13 +114,13 @@ module Pakyow
             }
           end
 
-          RESOURCE_ENDPOINTS = %i(new edit list show).freeze
+          RESOURCE_ENDPOINTS = %i[new edit list show].freeze
 
           def find_or_define_resource_for_scope_at_path(scope, path, endpoint_type = nil)
             resource = resource_for_scope_at_path(scope, path) || define_resource_for_scope_at_path(scope, path)
 
             if path.end_with?(resource_path_for_scope(scope)) || endpoint_type.nil? || RESOURCE_ENDPOINTS.include?(path.split("/").last.to_sym)
-              return resource
+              resource
             else
               controller_for_endpoint_type = resource.send(endpoint_type)
 
@@ -138,14 +134,12 @@ module Pakyow
                 /^#{String.normalize_path(String.collapse_path(controller_for_endpoint_type.path_to_self))}/, ""
               )
 
-              if current_controller = controller_at_path(nested_path, resource.children)
-                return current_controller
+              if (current_controller = controller_at_path(nested_path, resource.children))
+                current_controller
+              elsif nested_path.empty?
+                controller_for_endpoint_type
               else
-                if nested_path.empty?
-                  controller_for_endpoint_type
-                else
-                  define_controller_at_path(nested_path, within: controller_for_endpoint_type)
-                end
+                define_controller_at_path(nested_path, within: controller_for_endpoint_type)
               end
             end
           end
@@ -157,13 +151,11 @@ module Pakyow
               }.find { |controller|
                 String.normalize_path(String.collapse_path(controller.path_to_self)) == full_resource_path_for_scope_at_path(scope, path)
               } || resource_for_scope_at_path(scope, path, state.flat_map(&:children))
-            else
-              nil
             end
           end
 
           def define_resource_for_scope_at_path(scope, path)
-            context = if resource_namespace_path = resource_namespace_path_for_scope_at_path(scope, path)
+            context = if (resource_namespace_path = resource_namespace_path_for_scope_at_path(scope, path))
               if within_resource?(resource_namespace_path)
                 ensure_controller_has_helpers(
                   find_or_define_resource_for_scope_at_path(

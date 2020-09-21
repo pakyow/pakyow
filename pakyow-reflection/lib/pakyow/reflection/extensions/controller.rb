@@ -31,9 +31,9 @@ module Pakyow
         def reflective_expose
           reflected_endpoint.exposures.each do |reflected_exposure|
             if reflected_exposure.parent.nil? || reflected_exposure.binding.to_s.include?("form")
-              if dataset = reflected_exposure.dataset
-                query = data.send(reflected_exposure.scope.plural_name)
+              query = data.send(reflected_exposure.scope.plural_name)
 
+              if (dataset = reflected_exposure.dataset)
                 if dataset.include?(:limit)
                   query = query.limit(dataset[:limit].to_i)
                 end
@@ -58,21 +58,16 @@ module Pakyow
                     query = query.public_send(dataset[:query].to_s)
                   end
                 end
-              else
-                query = data.send(reflected_exposure.scope.plural_name)
-
-                if reflects_specific_object?(reflected_exposure.scope.plural_name)
-                  if resource = resource_with_name(reflected_exposure.scope.plural_name)
-                    if resource == self.class
-                      query_param = resource.param
-                      params_param = resource.param
-                    else
-                      query_param = resource.param
-                      params_param = resource.nested_param
-                    end
-
-                    query = query.send(:"by_#{query_param}", params[params_param])
+              elsif reflects_specific_object?(reflected_exposure.scope.plural_name)
+                if (resource = resource_with_name(reflected_exposure.scope.plural_name))
+                  params_param = if resource == self.class
+                    resource.param
+                  else
+                    resource.nested_param
                   end
+
+                  query_param = resource.param
+                  query = query.send(:"by_#{query_param}", params[params_param])
                 end
               end
 
@@ -80,14 +75,12 @@ module Pakyow
 
               if reflects_specific_object?(reflected_exposure.scope.plural_name) && query.count == 0
                 trigger 404
-              else
-                if !reflected_exposure.binding.to_s.include?("form") || reflected_endpoint.view_path.end_with?("/edit")
-                  logger.debug {
-                    "[reflection] exposing dataset for `#{reflected_exposure.binding}': #{query.inspect}"
-                  }
-
-                  expose reflected_exposure.binding.to_s, query
+              elsif !reflected_exposure.binding.to_s.include?("form") || reflected_endpoint.view_path.end_with?("/edit")
+                logger.debug do
+                  "[reflection] exposing dataset for `#{reflected_exposure.binding}': #{query.inspect}"
                 end
+
+                expose reflected_exposure.binding.to_s, query
               end
             end
           end
@@ -121,9 +114,9 @@ module Pakyow
 
         def perform_reflected_action
           with_reflected_action do |reflected_action|
-            logger.debug {
+            logger.debug do
               "[reflection] performing `#{[self.class.name_of_self, connection.values[:__endpoint_name]].join("_")}' for `#{reflected_action.view_path}'"
-            }
+            end
 
             proxy = data.public_send(reflected_action.scope.plural_name)
 
@@ -168,10 +161,10 @@ module Pakyow
         end
 
         def redirect_to_reflected_destination
-          if destination = reflected_destination
-            logger.debug {
+          if (destination = reflected_destination)
+            logger.debug do
               "[reflection] redirecting to `#{destination}'"
-            }
+            end
 
             redirect destination
           end
@@ -179,11 +172,11 @@ module Pakyow
 
         def reflected_destination
           with_reflected_action do |reflected_action|
-            if connection.form && origin = connection.form[:origin]
+            if connection.form && (origin = connection.form[:origin])
               if instance_variable_defined?(:@object)
-                if route = self.class.routes[:get].find { |each_route| each_route.name == :show }
+                if (route = self.class.routes[:get].find { |each_route| each_route.name == :show })
                   route.build_path(self.class.path_to_self, **params.merge(@object.one.to_h))
-                elsif route = self.class.routes[:get].find { |each_route| each_route.name == :list }
+                elsif (route = self.class.routes[:get].find { |each_route| each_route.name == :list })
                   route.build_path(self.class.path_to_self, **params)
                 else
                   origin
@@ -191,8 +184,6 @@ module Pakyow
               else
                 origin
               end
-            else
-              nil
             end
           end
         end
@@ -216,7 +207,7 @@ module Pakyow
         end
 
         def parent_resource_named?(object_name, context = self.class)
-          if context && context.parent
+          if context&.parent
             context.parent.object_name&.name == object_name || parent_resource_named?(object_name, context.parent)
           else
             false

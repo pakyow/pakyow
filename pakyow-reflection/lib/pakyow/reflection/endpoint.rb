@@ -50,7 +50,7 @@ module Pakyow
 
         if value_part.include?("(")
           value_part.split("(").map { |sub_value_part|
-            sub_value_part.strip.gsub(")", "")
+            sub_value_part.strip.delete(")")
           }
         else
           value_part

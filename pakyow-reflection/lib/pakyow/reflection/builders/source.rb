@@ -8,7 +8,7 @@ module Pakyow
       # @api private
       class Source < Base
         def build(scope)
-          block = Proc.new do
+          block = proc {
             scope.attributes.each do |attribute|
               unless attributes.key?(attribute.name)
                 attribute attribute.name, attribute.type
@@ -17,14 +17,14 @@ module Pakyow
 
             scope.children.each do |child_scope|
               unless associations[:has_many].any? { |association|
-                                                      association.name == child_scope.plural_name
-                                                    } || associations[:has_one].any? { |association|
-                                                      association.name == child_scope.name
-                                                    }
+                       association.name == child_scope.plural_name
+                     } || associations[:has_one].any? { |association|
+                            association.name == child_scope.name
+                          }
                 has_many child_scope.plural_name, dependent: :delete
               end
             end
-          end
+          }
 
           (source_for_scope(scope) || define_source_for_scope(scope)).tap do |source|
             # TODO: What was the purpose of this?

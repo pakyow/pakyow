@@ -11,7 +11,7 @@ module Pakyow
 
       def initialize(name)
         @name = normalize(name)
-        @parents, @actions, @attributes, @children = [], [], { form: [], view: [] }, []
+        @parents, @actions, @attributes, @children = [], [], {form: [], view: []}, []
       end
 
       def add_parent(parent)

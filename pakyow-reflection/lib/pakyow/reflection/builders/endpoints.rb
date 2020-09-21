@@ -61,23 +61,17 @@ module Pakyow
             end
           end
 
-          unless route
-            # Find or define the route by path.
-            #
-            # TODO: This should look across all controllers, not just the current one. Look through endpoints?
-            #
-            route = controller.routes.values.flatten.find { |possible_route|
-              possible_route.path == route_path(endpoint.view_path)
-            } || controller.get(route_name(endpoint.view_path), route_path(endpoint.view_path)) do
-              operations.reflect(controller: self)
-            end
-          end
+          route ||= controller.routes.values.flatten.find { |possible_route|
+            possible_route.path == route_path(endpoint.view_path)
+          } || controller.get(route_name(endpoint.view_path), route_path(endpoint.view_path)) do
+                 operations.reflect(controller: self)
+               end
 
           if route.name
             controller.action :set_reflected_endpoint, only: [route.name] do
               connection.set(:__reflected_endpoint, endpoint)
             end
-          else
+            # else
             # TODO: warn the user that a reflection couldn't be installed for an unnamed route
           end
         end
