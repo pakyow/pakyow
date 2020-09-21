@@ -41,11 +41,13 @@ module Pakyow
 
         if System.ruby_version < "2.7.0"
           def freeze(*)
-            __common_pipeline_action_freeze; super
+            __common_pipeline_action_freeze
+            super
           end
         else
           def freeze(*, **)
-            __common_pipeline_action_freeze; super
+            __common_pipeline_action_freeze
+            super
           end
         end
 
@@ -101,13 +103,13 @@ module Pakyow
         private def build_block(name, block)
           wrap_callable(
             block,
-            block_empty: -> (context, &next_action) {
+            block_empty: ->(context, &next_action) {
               context.instance_eval(&block)
             },
-            block_args: -> (context, *args, &next_action) {
+            block_args: ->(context, *args, &next_action) {
               context.instance_exec(*args, &block)
             },
-            block_kwargs: -> (context, *args, **kwargs, &next_action) {
+            block_kwargs: ->(context, *args, **kwargs, &next_action) {
               context.instance_exec(*args, **kwargs, &block)
             }
           )
@@ -116,13 +118,13 @@ module Pakyow
         private def build_method(method)
           wrap_callable(
             method,
-            block_empty: -> (context, &next_action) {
+            block_empty: ->(context, &next_action) {
               method.bind(context).call(&next_action)
             },
-            block_args: -> (context, *args, &next_action) {
+            block_args: ->(context, *args, &next_action) {
               method.bind(context).call(*args, &next_action)
             },
-            block_kwargs: -> (context, *args, **kwargs, &next_action) {
+            block_kwargs: ->(context, *args, **kwargs, &next_action) {
               method.bind(context).call(*args, **kwargs, &next_action)
             }
           )
@@ -131,13 +133,13 @@ module Pakyow
         private def build_object(object)
           wrap_callable(
             object.method(:call),
-            block_empty: -> (_, &next_action) {
+            block_empty: ->(_, &next_action) {
               object.call(&next_action)
             },
-            block_args: -> (_, *args, &next_action) {
+            block_args: ->(_, *args, &next_action) {
               object.call(*args, &next_action)
             },
-            block_kwargs: -> (_, *args, **kwargs, &next_action) {
+            block_kwargs: ->(_, *args, **kwargs, &next_action) {
               object.call(*args, **kwargs, &next_action)
             }
           )
@@ -147,34 +149,32 @@ module Pakyow
           if callable.keyword_arguments?
             if callable.argument_list?
               if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
-                Proc.new do |context, *args, **kwargs, &next_action|
+                proc do |context, *args, **kwargs, &next_action|
                   block_kwargs.call(context, *args, **kwargs, &next_action)
                 end
               else
-                Proc.new do |context, *, **kwargs, &next_action|
+                proc do |context, *, **kwargs, &next_action|
                   block_kwargs.call(context, **kwargs, &next_action)
                 end
               end
             else
-              Proc.new do |context, **kwargs, &next_action|
+              proc do |context, **kwargs, &next_action|
                 block_kwargs.call(context, **kwargs, &next_action)
               end
             end
-          else
-            if callable.argument_list?
-              if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
-                Proc.new do |context, *args, **, &next_action|
-                  block_args.call(context, *args, &next_action)
-                end
-              else
-                Proc.new do |context, state, *, **, &next_action|
-                  block_args.call(context, state, &next_action)
-                end
+          elsif callable.argument_list?
+            if callable.is_a?(Proc) || callable.arity > 1 || callable.arity < -1
+              proc do |context, *args, **, &next_action|
+                block_args.call(context, *args, &next_action)
               end
             else
-              Proc.new do |context, *, **, &next_action|
-                block_empty.call(context, &next_action)
+              proc do |context, state, *, **, &next_action|
+                block_args.call(context, state, &next_action)
               end
+            end
+          else
+            proc do |context, *, **, &next_action|
+              block_empty.call(context, &next_action)
             end
           end
         end

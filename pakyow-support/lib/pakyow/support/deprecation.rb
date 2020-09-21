@@ -56,7 +56,7 @@ module Pakyow
         target = if @targets.count > 1
           "#{klass}::#{@targets[1]}"
         else
-          "#{klass}"
+          klass.to_s
         end
 
         "`#{target}' is deprecated"
@@ -74,7 +74,7 @@ module Pakyow
         target = if @targets.count > 1
           "#{object.class}##{@targets[1]}"
         else
-          "#{object.class}"
+          object.class.to_s
         end
 
         "`#{target}' is deprecated"

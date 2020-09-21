@@ -14,10 +14,8 @@ module Pakyow
       end
 
       def self.value_of_type(values, types)
-        if match = values.find { |value| types.find { |type| value.is_a?(type) } }
+        if (match = values.find { |value| types.find { |type| value.is_a?(type) } })
           values.delete(match)
-        else
-          nil
         end
       end
     end

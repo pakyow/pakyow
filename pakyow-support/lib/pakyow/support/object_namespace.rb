@@ -25,8 +25,8 @@ module Pakyow
         @path = @namespaces.join("/").freeze
       end
 
-      alias parts namespaces
-      alias to_s path
+      alias_method :parts, :namespaces
+      alias_method :to_s, :path
 
       def ==(other)
         other.is_a?(self.class) && @path == other.path

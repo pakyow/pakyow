@@ -146,11 +146,11 @@ module Pakyow
         end
 
         private def each_configurable_environment(environment)
-          if global_environment = __config_environments[:__global]
+          if (global_environment = __config_environments[:__global])
             yield global_environment
           end
 
-          if environment && specific_environment = __config_environments[environment]
+          if environment && (specific_environment = __config_environments[environment])
             yield specific_environment
           end
         end
@@ -165,11 +165,13 @@ module Pakyow
       prepend_methods do
         if System.ruby_version < "2.7.0"
           def initialize(*)
-            __common_configurable_initialize; super
+            __common_configurable_initialize
+            super
           end
         else
           def initialize(*, **)
-            __common_configurable_initialize; super
+            __common_configurable_initialize
+            super
           end
         end
 

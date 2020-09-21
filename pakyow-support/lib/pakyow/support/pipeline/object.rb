@@ -14,11 +14,13 @@ module Pakyow
         prepend_methods do
           if System.ruby_version < "2.7.0"
             def initialize(*)
-              __common_pipeline_object_initialize; super
+              __common_pipeline_object_initialize
+              super
             end
           else
             def initialize(*, **)
-              __common_pipeline_object_initialize; super
+              __common_pipeline_object_initialize
+              super
             end
           end
 

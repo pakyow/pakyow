@@ -201,6 +201,11 @@ module Pakyow
 
       using DeepDup
 
+      # @api private
+      DEFINABLE_OBJECT_EXTENSIONS = [
+        Makeable, State
+      ].freeze
+
       apply_extension do
         class_state :__definable_registries, default: {}, inheritable: true
       end
@@ -229,7 +234,7 @@ module Pakyow
         # @param context [Object] the context to define state in
         #
         def definable(state_name, definable_object, builder: nil, lookup: nil, context: isolable_context, &block)
-          isolated_object = isolate definable_object, context: context do
+          isolated_object = isolate(definable_object, context: context) {
             DEFINABLE_OBJECT_EXTENSIONS.each do |extension|
               unless ancestors.include?(extension)
                 include extension
@@ -237,7 +242,7 @@ module Pakyow
             end
 
             class_eval(&block) if block_given?
-          end
+          }
 
           namespace = if context.equal?(isolable_context)
             [Support.inflector.pluralize(state_name.to_s).to_sym]
@@ -309,11 +314,6 @@ module Pakyow
         deprecate :state, solution: "call the corresponding method for `type'"
 
         # @api private
-        DEFINABLE_OBJECT_EXTENSIONS = [
-          Makeable, State
-        ].freeze
-
-        # @api private
         def inherited(subclass)
           super
 
@@ -331,11 +331,13 @@ module Pakyow
         # @api private
         if System.ruby_version < "2.7.0"
           def initialize(*, &block)
-            __common_definable_initialize; super
+            __common_definable_initialize
+            super
           end
         else
           def initialize(*, **, &block)
-            __common_definable_initialize; super
+            __common_definable_initialize
+            super
           end
         end
 

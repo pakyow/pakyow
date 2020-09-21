@@ -6,7 +6,8 @@ module Pakyow
   module Support
     class SafeString < String
       def initialize(*)
-        super; freeze
+        super
+        freeze
       end
 
       def to_s

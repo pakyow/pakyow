@@ -76,7 +76,7 @@ module Pakyow
       #   https://stackoverflow.com/a/5772445
       #
       def inspect
-        inspection = String.new("#<#{self.class}:#{object_id}")
+        inspection = +"#<#{self.class}:#{object_id}"
 
         if recursive_inspect?
           "#{inspection} ...>"
@@ -118,7 +118,8 @@ module Pakyow
       end
 
       def prevent_inspect_recursion
-        inspected_objects[object_id] = true; yield
+        inspected_objects[object_id] = true
+        yield
       ensure
         inspected_objects.delete(object_id)
       end

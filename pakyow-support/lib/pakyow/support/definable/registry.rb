@@ -23,7 +23,7 @@ module Pakyow
         attr_reader :builder, :parent, :definitions
 
         # @api private
-        PRIORITIES = { high: 1, default: 0, low: -1 }.freeze
+        PRIORITIES = {high: 1, default: 0, low: -1}.freeze
 
         def initialize(name, object, parent:, namespace: [], builder: nil, lookup: nil, abstract: true)
           @name = name
@@ -34,7 +34,7 @@ module Pakyow
           @lookup = lookup
           @abstract = abstract
           @definitions = []
-          @priorities ={}
+          @priorities = {}
           @state = {}
         end
 
@@ -48,7 +48,7 @@ module Pakyow
         # Define an object.
         #
         def define(*namespace, priority: :default, extends: @object, **opts, &block)
-          unless object_to_extend = resolve_to_constant(extends)
+          unless (object_to_extend = resolve_to_constant(extends))
             raise NameError, "cannot extend unknown object: #{extends.inspect}"
           end
 
@@ -60,7 +60,7 @@ module Pakyow
 
           namespace, object_name, opts = build_final_args(*namespace, object_name, **opts)
 
-          if found = find(*namespace, object_name)
+          if (found = find(*namespace, object_name))
             if block_given?
               found.class_eval(&block)
             end
@@ -109,7 +109,7 @@ module Pakyow
 
         # @api private
         def method_missing(name, *args, **kwargs, &block)
-          if definition = @state[name]
+          if (definition = @state[name])
             if @lookup
               @lookup.call(@parent, definition, *args, **kwargs, &block)
             else
@@ -189,7 +189,7 @@ module Pakyow
           if @builder
             @builder.call(*namespace, object_name, **opts)
           else
-            return namespace, object_name, opts
+            [namespace, object_name, opts]
           end
         end
 

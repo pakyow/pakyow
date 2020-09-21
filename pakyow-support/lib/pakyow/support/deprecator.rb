@@ -81,7 +81,8 @@ module Pakyow
       #   end
       #
       def ignore
-        replace(Reporters::Null); yield
+        replace(Reporters::Null)
+        yield
       ensure
         replace(nil)
       end

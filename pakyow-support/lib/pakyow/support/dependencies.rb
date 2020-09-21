@@ -39,8 +39,6 @@ module Pakyow
           strip_path_prefix(line).split("/")[0]
         when :lib
           strip_path_prefix(line).split("/")[1]
-        else
-          nil
         end
       end
 
@@ -55,8 +53,6 @@ module Pakyow
           :pakyow
         elsif line.start_with?(Pakyow.config.lib)
           :lib
-        else
-          nil
         end
       end
 

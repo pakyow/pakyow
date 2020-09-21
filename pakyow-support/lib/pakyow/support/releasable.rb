@@ -45,8 +45,11 @@ module Pakyow
 
       extend_dependency ClassState
 
+      class UnknownReleaseChannel < ArgumentError
+      end
+
       apply_extension do
-        class_state :__release_channels, default: { default: 0 }, inheritable: true
+        class_state :__release_channels, default: {default: 0}, inheritable: true
         class_state :__risk_tolerance, default: nil, inheritable: true
         class_state :__releasables, default: [], inheritable: true
       end
@@ -106,9 +109,6 @@ module Pakyow
           }.each do |_, block|
             class_eval(&block)
           end
-        end
-
-        class UnknownReleaseChannel < ArgumentError
         end
       end
     end

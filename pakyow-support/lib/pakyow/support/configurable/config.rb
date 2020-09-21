@@ -80,7 +80,7 @@ module Pakyow
             if object_name.name == :config
               nil
             else
-              "#{object_name.parts.map { |part| part.to_s.upcase }.join("__")}"
+              object_name.parts.map { |part| part.to_s.upcase }.join("__").to_s
             end
           end
 

@@ -71,7 +71,7 @@ module Pakyow
 
         # Define a default pipeline.
         #
-        pipeline :default do; end
+        pipeline(:default) {}
 
         # Use the default pipeline so that actions can be defined immediately without ceremony.
         #
@@ -81,11 +81,13 @@ module Pakyow
       prepend_methods do
         if System.ruby_version < "2.7.0"
           def initialize(*)
-            __common_pipeline_initialize; super
+            __common_pipeline_initialize
+            super
           end
         else
           def initialize(*, **)
-            __common_pipeline_initialize; super
+            __common_pipeline_initialize
+            super
           end
         end
 

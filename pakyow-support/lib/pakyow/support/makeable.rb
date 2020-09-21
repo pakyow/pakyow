@@ -75,15 +75,13 @@ module Pakyow
 
             define_class_level_state(object, **kwargs)
             extend_with_block(object, &block)
-
-            object
           else
             object = isolate(
               self,
               as: object_name,
               namespace: namespace,
               context: context
-            ) do
+            ) {
               if block_given?
                 instance_variable_set(:@source_location, block.source_location)
               end
@@ -95,14 +93,14 @@ module Pakyow
               end
 
               extend_with_block(self, &block)
-            end
+            }
 
             if object.ancestors.include?(Hookable)
               object.call_hooks(:after, :make)
             end
-
-            object
           end
+
+          object
         end
 
         # @api private

@@ -67,7 +67,7 @@ module Pakyow
           "*, **"
         end
 
-        deprecation_module.module_eval <<~CODE
+        deprecation_module.module_eval <<~CODE, __FILE__, __LINE__ + 1
           def initialize(#{method_signature})
             Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
@@ -83,7 +83,7 @@ module Pakyow
           "*, **"
         end
 
-        deprecation_module.module_eval <<~CODE
+        deprecation_module.module_eval <<~CODE, __FILE__, __LINE__ + 1
           def extended(#{method_signature})
             Deprecator.global.deprecated #{target}, solution: #{solution.inspect}
 
@@ -102,7 +102,7 @@ module Pakyow
         target = target.to_sym
 
         unless deprecatable_methods.include?(target)
-          raise RuntimeError, "could not find method `#{target}' to deprecate"
+          raise "could not find method `#{target}' to deprecate"
         end
 
         method_signature = if System.ruby_version < "2.7.0"
@@ -111,7 +111,7 @@ module Pakyow
           "*, **"
         end
 
-        deprecation_module.module_eval <<~CODE
+        deprecation_module.module_eval <<~CODE, __FILE__, __LINE__ + 1
           def #{target}(#{method_signature})
             Deprecator.global.deprecated(*deprecated_method_reference(#{target.inspect}), solution: #{solution.inspect})
 
@@ -134,7 +134,7 @@ module Pakyow
       # @api private
       module DeprecationReferences
         private def deprecated_method_reference(target)
-          return self, target
+          [self, target]
         end
       end
     end

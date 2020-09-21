@@ -47,7 +47,7 @@ module Pakyow
           end
 
           private def freezable_variables
-            object = if self.is_a?(Class) || self.is_a?(Module)
+            object = if is_a?(Class) || is_a?(Module)
               self
             else
               self.class
@@ -65,7 +65,8 @@ module Pakyow
       refine Array do
         def deep_freeze
           unless frozen?
-            self.freeze; each(&:deep_freeze)
+            freeze
+            each(&:deep_freeze)
           end
 
           self
@@ -81,7 +82,8 @@ module Pakyow
               replacement_hash[key.deep_freeze] = value.deep_freeze
             end
 
-            replace(replacement_hash); freeze
+            replace(replacement_hash)
+            freeze
           end
 
           self

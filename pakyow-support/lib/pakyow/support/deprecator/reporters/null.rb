@@ -17,7 +17,8 @@ module Pakyow
         class Null
           # Eats the deprecation.
           #
-          def self.report; end
+          def self.report
+          end
         end
       end
     end

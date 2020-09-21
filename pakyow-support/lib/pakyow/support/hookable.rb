@@ -46,15 +46,15 @@ module Pakyow
 
       # Known hook priorities.
       #
-      PRIORITIES = { default: 0, high: 1, low: -1 }.freeze
+      PRIORITIES = {default: 0, high: 1, low: -1}.freeze
 
       extend_dependency ClassState
 
       apply_extension do
         class_state :__events, default: [], inheritable: true, reader: false
         class_state :__hooks, default: [], inheritable: true, reader: false
-        class_state :__hook_hash, default: { after: {}, before: {} }, inheritable: true
-        class_state :__hook_pipeline, default: { after: {}, before: {} }, inheritable: true
+        class_state :__hook_hash, default: {after: {}, before: {}}, inheritable: true
+        class_state :__hook_pipeline, default: {after: {}, before: {}}, inheritable: true
       end
 
       class_methods do
@@ -64,7 +64,8 @@ module Pakyow
         # @param events [Array<Symbol>] List of events.
         #
         def events(*events)
-          @__events.concat(events.map(&:to_sym)).uniq!; @__events
+          @__events.concat(events.map(&:to_sym)).uniq!
+          @__events
         end
 
         # Defines a hook to call before `event` occurs. If the hook is named it becomes an event
@@ -78,7 +79,7 @@ module Pakyow
         def before(event, name = nil, priority: PRIORITIES[:default], exec: true, &block)
           add_hook(:before, event, name, priority, exec, block)
         end
-        alias on before
+        alias_method :on, :before
 
         # Defines a hook to call after `event` occurs.
         #
@@ -172,13 +173,14 @@ module Pakyow
 
           if known_hook?(event)
             traverse_events_for_hook(event) do |hook_event|
-              pipeline!(:before, hook_event); pipeline!(:after, hook_event)
+              pipeline!(:before, hook_event)
+              pipeline!(:after, hook_event)
             end
           end
         end
 
         private def traverse_events_for_hook(name, &block)
-          if hook = @__hooks.find { |h| h[:name] == name.to_sym }
+          if (hook = @__hooks.find { |h| h[:name] == name.to_sym })
             yield hook[:event]
             traverse_events_for_hook(hook[:event], &block)
           end

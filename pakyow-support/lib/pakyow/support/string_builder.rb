@@ -20,7 +20,7 @@ module Pakyow
           working_template.scan(PATTERN).each do |match|
             value = if match[0].include?(".")
               object, property = match[0].split(".").map(&:to_sym)
-              if object_value = get_value(object, values)
+              if (object_value = get_value(object, values))
                 ensure_real_value(object_value)[property]
               end
             else
@@ -45,8 +45,6 @@ module Pakyow
           @block.call(name)
         elsif values.key?(name)
           values[name]
-        else
-          nil
         end
       end
 

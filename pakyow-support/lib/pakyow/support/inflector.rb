@@ -5,9 +5,9 @@ module Pakyow
     def self.inflector
       unless defined?(@__inflector)
         require "dry/inflector"
-        @__inflector = Dry::Inflector.new do |inflections|
+        @__inflector = Dry::Inflector.new { |inflections|
           inflections.uncountable "children"
-        end
+        }
       end
 
       @__inflector

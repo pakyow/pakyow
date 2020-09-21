@@ -23,11 +23,13 @@ module Pakyow
       prepend_methods do
         if System.ruby_version < "2.7.0"
           def initialize(*)
-            __common_handleable_initialize; super
+            __common_handleable_initialize
+            super
           end
         else
           def initialize(*, **)
-            __common_handleable_initialize; super
+            __common_handleable_initialize
+            super
           end
         end
 
@@ -44,9 +46,9 @@ module Pakyow
         # will be called when triggered for the exception or its subclass.
         #
         def handle(event = nil, &block)
-          event = event || :global
+          event ||= :global
 
-          unless handler = @__handlers[event]
+          unless (handler = @__handlers[event])
             handler = @__handlers[event] = Pipeline.new
             @__handler_events.unshift(event)
           end
@@ -67,7 +69,7 @@ module Pakyow
         # Triggers `event`, passing any arguments to triggered handlers.
         #
         def trigger(event, *args, **kwargs, &block)
-          if handler = find_handler(event)
+          if (handler = find_handler(event))
             handler.__pipeline.rcall(self, event, *args, **kwargs)
           elsif block_given?
             yield

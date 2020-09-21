@@ -46,7 +46,7 @@ module Pakyow
             }
           end
 
-          self.new(hash)
+          new(hash)
         end
 
         private
@@ -134,7 +134,7 @@ module Pakyow
           new_hash[key] = value
         }
       end
-      alias to_hash to_h
+      alias_method :to_hash, :to_h
 
       # Fixes an issue using pp inside a delegator.
       #

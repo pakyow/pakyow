@@ -25,8 +25,6 @@ module Pakyow
               success_mark: SUCCESS_MARK,
               error_mark: FAILURE_MARK
             )
-          else
-            nil
           end
 
           @succeeded = @failed = false

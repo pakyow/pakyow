@@ -58,8 +58,6 @@ module Pakyow
 
           isolated_object_name = if as
             build_isolable_object_name(*namespace, as)
-          else
-            nil
           end
 
           isolated_object = if isolated_object_name && context
@@ -114,8 +112,6 @@ module Pakyow
             isolation_target.const_get(class_name).tap do |isolated_class|
               isolated_class.class_eval(&block) if block_given?
             end
-          else
-            nil
           end
         end
 
@@ -136,8 +132,6 @@ module Pakyow
 
             if constant_defined_on_target?(constant, target_for_part)
               target_for_part.const_get(constant)
-            else
-              nil
             end
           }
         end

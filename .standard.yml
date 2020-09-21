@@ -9,3 +9,5 @@ ignore:
     - Security/Eval
   - 'pakyow-core/lib/pakyow/task.rb':
     - Security/Eval
+  - 'pakyow-support/lib/pakyow/support/handleable.rb':
+    - Lint/RescueException

@@ -39,13 +39,13 @@ module Pakyow
         def action(target, *options, before: nil, after: nil, &block)
           Action.new(@context, target, *options, &block).tap do |action|
             if before
-              if i = @actions.index { |a| a.name == before }
+              if (i = @actions.index { |a| a.name == before })
                 @actions.insert(i, action)
               else
                 @actions.unshift(action)
               end
             elsif after
-              if i = @actions.index { |a| a.name == after }
+              if (i = @actions.index { |a| a.name == after })
                 @actions.insert(i + 1, action)
               else
                 @actions << action
@@ -95,11 +95,11 @@ module Pakyow
           value = nil
           finished = false
 
-          halted = catch :halt do
+          halted = catch(:halt) {
             value = call_each_action(actions, context, *args, **kwargs)
 
             finished = true
-          end
+          }
 
           unless finished
             value = halted
@@ -121,13 +121,13 @@ module Pakyow
           finished = false
 
           until actions.empty?
-            rejected = catch :reject do
-              value = actions.shift.call(context, *args, **kwargs) do
+            rejected = catch(:reject) {
+              value = actions.shift.call(context, *args, **kwargs) {
                 call_each_action(actions, context, *args, **kwargs)
-              end
+              }
 
               finished = true
-            end
+            }
 
             unless finished
               value = rejected
