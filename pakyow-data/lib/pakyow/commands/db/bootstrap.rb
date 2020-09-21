@@ -9,7 +9,7 @@ command :db, :bootstrap, boot: false do
   required :cli
 
   action do
-    %w(db:create db:migrate).each do |command|
+    %w[db:create db:migrate].each do |command|
       @cli.call(command, adapter: @adapter, connection: @connection)
     end
   end

@@ -43,7 +43,7 @@ module Pakyow
 
             class Writer
               def initialize(root: false)
-                @root, @content = root, String.new
+                @root, @content = root, +""
               end
 
               def to_s
@@ -65,17 +65,21 @@ module Pakyow
               def method_missing(name, *args, **kwargs, &block)
                 method_call = "#{name} #{args_to_string(args, kwargs)}"
 
-                if block_given?
-                  @content << <<~CONTENT
+                @content << if block_given?
+                  <<~CONTENT
                     #{method_call} do
                     #{indent(Writer.new.tap { |writer| writer.instance_exec(&block) }.to_s)}
                     end
                   CONTENT
                 else
-                  @content << <<~CONTENT
+                  <<~CONTENT
                     #{method_call}
                   CONTENT
                 end
+              end
+
+              def respond_to_missing?(*)
+                true
               end
 
               private

@@ -75,7 +75,7 @@ module Pakyow
             user: uri.user,
             password: uri.password
           }.merge(
-            CGI::parse(uri.query.to_s).transform_values(&:first).indifferentize
+            CGI.parse(uri.query.to_s).transform_values(&:first).indifferentize
           )
         end
 

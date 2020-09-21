@@ -11,7 +11,8 @@ command :db, :finalize, boot: false do
 
     # We need to boot so that containers are available, but don't want to auto migrate.
     #
-    Pakyow.config.data.auto_migrate = false; Pakyow.boot
+    Pakyow.config.data.auto_migrate = false
+    Pakyow.boot
 
     require "pakyow/data/migrator"
 
@@ -19,7 +20,7 @@ command :db, :finalize, boot: false do
       adapter: @adapter,
       connection: @connection,
       connection_overrides: {
-        path: -> (connection_path) {
+        path: ->(connection_path) {
           "#{connection_path}-migrator"
         }
       }

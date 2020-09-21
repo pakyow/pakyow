@@ -23,6 +23,10 @@ module Pakyow
               @connection.adapter.connection.public_send(name, *args, &block)
             end
 
+            def respond_to_missing?(*)
+              true
+            end
+
             private
 
             def type_for_attribute(attribute)
@@ -40,6 +44,10 @@ module Pakyow
 
               def method_missing(name, *args, &block)
                 @table.public_send(name, *args, &block)
+              end
+
+              def respond_to_missing?(*)
+                true
               end
             end
           end

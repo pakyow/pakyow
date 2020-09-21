@@ -20,8 +20,8 @@ module Pakyow
 
             extend Forwardable
             def_delegators :@association, :associated_name, :associated_query_field, :associated_source=, :associated_source,
-                           :associated_source_name, :dependent, :dependents?, :name, :query, :query_field, :result_type,
-                           :source, :specific_type
+              :associated_source_name, :dependent, :dependents?, :name, :query, :query_field, :result_type,
+              :source, :specific_type
 
             def initialize(association, joining_source_name:)
               @association, @joining_source_name = association, Support.inflector.pluralize(joining_source_name).to_sym

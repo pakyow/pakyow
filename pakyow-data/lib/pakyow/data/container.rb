@@ -21,9 +21,7 @@ module Pakyow
       def source(source_name)
         plural_source_name = Support.inflector.pluralize(source_name).to_sym
 
-        if found_source = sources.find { |source|
-             source.plural_name == plural_source_name
-           }
+        if (found_source = sources.find { |source| source.plural_name == plural_source_name })
 
           found_source.new(
             @connection.dataset_for_source(found_source)
@@ -240,7 +238,7 @@ module Pakyow
       def wrap_defined_queries!(source)
         local_queries = source.queries
         source.prepend(
-          Module.new do
+          Module.new {
             local_queries.each do |query|
               define_method query do |*args, &block|
                 tap do
@@ -254,7 +252,7 @@ module Pakyow
                 end
               end
             end
-          end
+          }
         )
       end
 

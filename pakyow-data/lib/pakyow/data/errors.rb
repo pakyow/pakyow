@@ -9,11 +9,9 @@ module Pakyow
 
     class ConnectionError < Error
       def contextual_message
-        String.new(
-          <<~MESSAGE
-            Connection for #{@context.type}.#{@context.name} could not be established.
-          MESSAGE
-        )
+        +<<~MESSAGE
+          Connection for #{@context.type}.#{@context.name} could not be established.
+        MESSAGE
       end
     end
 
@@ -71,21 +69,17 @@ module Pakyow
     class UnknownAssociation < Error
       def contextual_message
         if associations.any?
-          String.new(
-            <<~MESSAGE
-              The following associations exist for #{@context.object_name.name}:
-            MESSAGE
-          ).tap do |message|
-            associations.each do |association|
-              message << "  * #{association.name}"
-            end
+          message = +<<~MESSAGE
+            The following associations exist for #{@context.object_name.name}:
+          MESSAGE
+
+          associations.each do |association|
+            message << "  * #{association.name}"
           end
         else
-          String.new(
-            <<~MESSAGE
-              No associations exist for #{@context.object_name.name}.
-            MESSAGE
-          )
+          +<<~MESSAGE
+            No associations exist for #{@context.object_name.name}.
+          MESSAGE
         end
       end
 
@@ -103,21 +97,17 @@ module Pakyow
 
       def contextual_message
         if commands.any?
-          String.new(
-            <<~MESSAGE
-              The following commands are defined for #{@context.object_name.name}:
-            MESSAGE
-          ).tap do |message|
-            commands.keys.each do |command|
-              message << "  * #{command}\n"
-            end
+          message = +<<~MESSAGE
+            The following commands are defined for #{@context.object_name.name}:
+          MESSAGE
+
+          commands.keys.each do |command|
+            message << "  * #{command}\n"
           end
         else
-          String.new(
-            <<~MESSAGE
-              No commands are defined for #{@context.object_name.name}.
-            MESSAGE
-          )
+          <<~MESSAGE
+            No commands are defined for #{@context.object_name.name}.
+          MESSAGE
         end
       end
 
@@ -135,21 +125,19 @@ module Pakyow
 
       def contextual_message
         if sources.any?
-          String.new(
-            <<~MESSAGE
-              The following sources are defined:
-            MESSAGE
-          ).tap do |message|
-            sources.keys.each do |source|
-              message << "  * #{source}\n"
-            end
+          message = +<<~MESSAGE
+            The following sources are defined:
+          MESSAGE
+
+          sources.keys.each do |source|
+            message << "  * #{source}\n"
           end
+
+          message
         else
-          String.new(
-            <<~MESSAGE
-              No sources are defined.
-            MESSAGE
-          )
+          +<<~MESSAGE
+            No sources are defined.
+          MESSAGE
         end
       end
 

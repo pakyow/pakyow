@@ -25,7 +25,6 @@ module Pakyow
                 container.source(
                   source.object_name.name
                 ),
-
                 @subscribers, @app
               )
             end

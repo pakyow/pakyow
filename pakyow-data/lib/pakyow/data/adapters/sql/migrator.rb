@@ -103,7 +103,7 @@ module Pakyow
             Differ.new(connection: @connection, source: source, attributes: attributes)
           end
 
-          AUTO_INCREMENTING_TYPES = %i(integer bignum).freeze
+          AUTO_INCREMENTING_TYPES = %i[integer bignum].freeze
           def add_column_for_attribute(attribute_name, attribute, context, source, method_prefix: "")
             if attribute.meta[:primary_key]
               if AUTO_INCREMENTING_TYPES.include?(attribute.meta[:migration_type])
@@ -126,7 +126,7 @@ module Pakyow
             context.drop_column(column_name)
           end
 
-          ALLOWED_COLUMN_OPTS = %i(size text)
+          ALLOWED_COLUMN_OPTS = %i[size text]
           def column_opts_for_attribute(attribute)
             {}.tap do |opts|
               ALLOWED_COLUMN_OPTS.each do |opt|
@@ -141,7 +141,7 @@ module Pakyow
             opts = column_opts_for_attribute(attribute)
 
             if opts.any?
-              opts.each_with_object(String.new) { |(key, value), opts_string|
+              opts.each_with_object(+"") { |(key, value), opts_string|
                 opts_string << ", #{key}: #{value.inspect}"
               }
             else
@@ -152,7 +152,7 @@ module Pakyow
           def handle_error
             yield
           rescue Sequel::Error => error
-            Pakyow.logger.warn "#{error}"
+            Pakyow.logger.warn error.to_s
           end
 
           class << self

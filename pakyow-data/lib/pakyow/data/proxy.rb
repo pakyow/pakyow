@@ -27,7 +27,7 @@ module Pakyow
         @nested_proxies = []
       end
 
-      IVARS_TO_DUP = %i(@proxied_calls @nested_proxies).freeze
+      IVARS_TO_DUP = %i[@proxied_calls @nested_proxies].freeze
 
       def deep_dup
         super.tap do |duped|
@@ -39,7 +39,7 @@ module Pakyow
 
       def method_missing(method_name, *args, &block)
         if @source.command?(method_name)
-          dup.tap { |duped_proxy|
+          dup.tap do |duped_proxy|
             result = @source.command(method_name).call(*args) { |yielded_result|
               duped_proxy.instance_variable_set(:@source, yielded_result)
               yield duped_proxy if block_given?
@@ -56,9 +56,9 @@ module Pakyow
                 @source.source_name, args[0], result
               )
             end
-          }
+          end
         elsif @source.query?(method_name) || @source.modifier?(method_name)
-          dup.tap { |duped_proxy|
+          dup.tap do |duped_proxy|
             nested_calls = []
 
             new_source = if block_given? && @source.block_for_nested_source?(method_name)
@@ -90,21 +90,19 @@ module Pakyow
             duped_proxy.instance_variable_get(:@proxied_calls) << [
               method_name, args, nested_calls
             ]
-          }
-        else
-          if Array.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
-            build_result(
-              @source.to_a.public_send(method_name, *args, &block),
-              method_name, args
-            )
-          elsif @source.class.instance_methods.include?(method_name)
-            build_result(
-              @source.public_send(method_name, *args, &block),
-              method_name, args
-            )
-          else
-            super
           end
+        elsif Array.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
+          build_result(
+            @source.to_a.public_send(method_name, *args, &block),
+            method_name, args
+          )
+        elsif @source.class.instance_methods.include?(method_name)
+          build_result(
+            @source.public_send(method_name, *args, &block),
+            method_name, args
+          )
+        else
+          super
         end
       end
 
@@ -156,7 +154,7 @@ module Pakyow
       def subscribe_related(parent_source:, serialized_proxy:, handler:, payload: nil)
         subscriptions = []
 
-        if association = parent_source.class.find_association_to_source(@source)
+        if (association = parent_source.class.find_association_to_source(@source))
           parent_source.each do |parent_result|
             subscription = {
               source: @source.source_name,

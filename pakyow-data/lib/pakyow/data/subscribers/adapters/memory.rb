@@ -84,12 +84,12 @@ module Pakyow
             @subscribers_by_subscription_id[subscription_id] || []
           end
 
-          SERIALIZABLE_IVARS = %i(
+          SERIALIZABLE_IVARS = %i[
             @subscriptions_by_id
             @subscription_ids_by_source
             @subscribers_by_subscription_id
             @expirations_for_subscriber
-          ).freeze
+          ].freeze
 
           def serialize
             SERIALIZABLE_IVARS.each_with_object({}) do |ivar, hash|

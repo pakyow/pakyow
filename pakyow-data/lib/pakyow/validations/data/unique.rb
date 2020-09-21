@@ -15,7 +15,7 @@ module Pakyow
         def self.valid?(value, source:, **options)
           query = options[:context].app.data.public_send(source).public_send(:"by_#{options[:key]}", value)
 
-          if updating = options[:updating]
+          if (updating = options[:updating])
             if updating.is_a?(Pakyow::Data::Result)
               query.count == 0 || query.any? { |result|
                 result[updating.__proxy.source.class.primary_key_field] == updating[updating.__proxy.source.class.primary_key_field]

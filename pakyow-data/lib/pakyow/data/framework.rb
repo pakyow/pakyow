@@ -16,7 +16,7 @@ module Pakyow
         require_relative "sources/relational"
 
         object.class_eval do
-          definable :source, Sources::Relational, builder: -> (*namespace, object_name, **opts) {
+          definable :source, Sources::Relational, builder: ->(*namespace, object_name, **opts) {
             unless opts.key?(:adapter)
               opts[:adapter] = Pakyow.config.data.default_adapter
             end
@@ -55,7 +55,7 @@ module Pakyow
 
               defaults :production do
                 setting :adapter_settings do
-                  { key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/") }
+                  {key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/")}
                 end
               end
             end

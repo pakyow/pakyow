@@ -21,7 +21,7 @@ module Pakyow
 
         def initialize(type, **qualifications)
           @type = type
-          @qualifications = { type: @type }.merge(qualifications)
+          @qualifications = {type: @type}.merge(qualifications)
           __setobj__([])
         end
 
@@ -53,7 +53,7 @@ module Pakyow
           to_a.first
         end
 
-        COMMANDS = %i(set).freeze
+        COMMANDS = %i[set].freeze
         def command?(maybe_command_name)
           COMMANDS.include?(maybe_command_name)
         end

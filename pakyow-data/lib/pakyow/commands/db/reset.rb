@@ -9,7 +9,7 @@ command :db, :reset, boot: false do
   required :cli
 
   action do
-    %w(db:drop db:bootstrap).each do |command|
+    %w[db:drop db:bootstrap].each do |command|
       @cli.call(command, adapter: @adapter, connection: @connection)
     end
   end

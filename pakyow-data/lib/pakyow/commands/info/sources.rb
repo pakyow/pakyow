@@ -27,7 +27,7 @@ command :info, :sources do
           Pakyow::Support::Dependencies.strip_path_prefix(source_location)
       end
 
-      source_location = if source_location.start_with?("pakyow-")
+      if source_location.start_with?("pakyow-")
         Pakyow::Support::CLI.style.blue(
           "pakyow/#{source_location.split("pakyow-", 2)[1]}"
         )

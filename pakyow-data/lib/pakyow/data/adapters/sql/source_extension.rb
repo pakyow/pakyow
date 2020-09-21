@@ -12,7 +12,7 @@ module Pakyow
           end
 
           apply_extension do
-            class_state :dataset_table, default: self.object_name.name
+            class_state :dataset_table, default: object_name.name
 
             class << self
               def table(table_name)

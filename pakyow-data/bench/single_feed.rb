@@ -35,7 +35,7 @@ Pakyow.app :single_feed_benchmark, only: %i[core data] do
 
     collection do
       get "/subscribe/:subscriber" do
-        data.messages.subscribe(params[:subscriber], payload: { current_time: Time.now }, handler: BenchHandler)
+        data.messages.subscribe(params[:subscriber], payload: {current_time: Time.now}, handler: BenchHandler)
       end
 
       get "/unsubscribe/:subscriber" do
@@ -78,7 +78,7 @@ def run_benchmark(subscriber_count)
 
   puts "DONE; sending a message..."
   start = Time.now
-  HTTP.post("http://localhost:4242/messages", json: { message: { content: "one" } })
+  HTTP.post("http://localhost:4242/messages", json: {message: {content: "one"}})
   elapsed = Time.now - start
 
   puts "DONE; checking for messages..."

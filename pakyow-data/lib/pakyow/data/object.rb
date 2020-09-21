@@ -33,7 +33,7 @@ module Pakyow
       def include?(key)
         respond_to?(key)
       end
-      alias key? include?
+      alias_method :key?, :include?
 
       def [](key)
         key = key.to_s.to_sym
@@ -75,8 +75,6 @@ module Pakyow
           other
         when Result
           other.__getobj__
-        else
-          nil
         end
 
         comparator && comparator.class == self.class && comparator.values == @values

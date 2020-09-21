@@ -12,11 +12,11 @@ module Pakyow
         @connection = connection
       end
 
-      IVARS_TO_DISCONNECT = %i(@runner @migrator).freeze
+      IVARS_TO_DISCONNECT = %i[@runner @migrator].freeze
 
       def disconnect!
         IVARS_TO_DISCONNECT.each do |ivar|
-          if instance_variable_defined?(ivar) && value = instance_variable_get(ivar)
+          if instance_variable_defined?(ivar) && (value = instance_variable_get(ivar))
             value.disconnect!
           end
         end

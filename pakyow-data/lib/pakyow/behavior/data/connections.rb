@@ -19,7 +19,7 @@ module Pakyow
             def connection(adapter, connection)
               adapter ||= Pakyow.config.data.default_adapter
               connection ||= Pakyow.config.data.default_connection
-              unless connection_instance = Pakyow.data_connections.dig(adapter.to_sym, connection.to_sym)
+              unless (connection_instance = Pakyow.data_connections.dig(adapter.to_sym, connection.to_sym))
                 # TODO: see if this bubbles up to a level the user can see (e.g. specify in the source)
                 #   okay, this is used to fetch a connection through the cli... maybe see if we can reuse when finding the connection for a source too
                 #

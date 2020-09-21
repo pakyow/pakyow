@@ -15,7 +15,7 @@ module Pakyow
             end
 
             def enqueue(future)
-              @commands << { future: future, callback: Proc.new }
+              @commands << {future: future, callback: Proc.new}
             end
 
             def wait

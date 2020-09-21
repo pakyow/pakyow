@@ -42,14 +42,14 @@ module Pakyow
 
         attr_reader :connection
 
-        DEFAULT_EXTENSIONS = %i(
+        DEFAULT_EXTENSIONS = %i[
           connection_validator
-        ).freeze
+        ].freeze
 
         DEFAULT_ADAPTER_EXTENSIONS = {
-          postgres: %i(
+          postgres: %i[
             pg_json
-          ).freeze
+          ].freeze
         }.freeze
 
         extend Support::DeepFreeze
@@ -100,11 +100,9 @@ module Pakyow
 
         def transaction(&block)
           @connection.transaction do
-            begin
-              block.call
-            rescue Rollback
-              raise Sequel::Rollback
-            end
+            block.call
+          rescue Rollback
+            raise Sequel::Rollback
           end
         end
 

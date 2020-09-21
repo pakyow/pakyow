@@ -73,7 +73,7 @@ module Pakyow
           @wrap_as = self.class.singular_name
           @included = []
 
-          if default_query = self.class.__default_query
+          if (default_query = self.class.__default_query)
             result = if default_query.is_a?(Proc)
               instance_exec(&default_query)
             else
@@ -122,7 +122,8 @@ module Pakyow
         end
 
         def limit(count)
-          __setobj__(__getobj__.limit(count)); self
+          __setobj__(__getobj__.limit(count))
+          self
         end
 
         def order(*ordering)
@@ -152,17 +153,15 @@ module Pakyow
             finalize(result)
           }
         end
-        alias all to_a
+        alias_method :all, :to_a
 
         def one
           return @results.first if instance_variable_defined?(:@results)
           return @result if instance_variable_defined?(:@result)
 
-          if result = self.class.one(__getobj__)
+          if (result = self.class.one(__getobj__))
             include_results!([result])
             @result = finalize(result)
-          else
-            nil
           end
         end
 
@@ -183,7 +182,7 @@ module Pakyow
         end
 
         def command(command_name)
-          if command = self.class.commands[command_name]
+          if (command = self.class.commands[command_name])
             Command.new(
               command_name,
               block: command[:block],
@@ -211,9 +210,9 @@ module Pakyow
         end
 
         # @api private
-        IVARS_TO_RELOAD = %i(
+        IVARS_TO_RELOAD = %i[
           @results @result
-        )
+        ]
 
         def reload
           IVARS_TO_RELOAD.select { |ivar|
@@ -245,14 +244,14 @@ module Pakyow
         end
 
         # @api private
-        MODIFIER_METHODS = %i(as including limit order).freeze
+        MODIFIER_METHODS = %i[as including limit order].freeze
         # @api private
         def modifier?(maybe_modifier_name)
           MODIFIER_METHODS.include?(maybe_modifier_name)
         end
 
         # @api private
-        NESTED_METHODS = %i(including).freeze
+        NESTED_METHODS = %i[including].freeze
         # @api private
         def block_for_nested_source?(maybe_nested_name)
           NESTED_METHODS.include?(maybe_nested_name)
@@ -439,8 +438,8 @@ module Pakyow
 
               # Define default fields
               #
-              self.primary_id if defined?(@primary_id) && @primary_id
-              self.timestamps if defined?(@timestamps) && @timestamps
+              primary_id if defined?(@primary_id) && @primary_id
+              timestamps if defined?(@timestamps) && @timestamps
             end
           end
         end
@@ -451,7 +450,7 @@ module Pakyow
         class_state :primary_key_field
         class_state :attributes, default: {}
         class_state :qualifications, default: {}, reader: false
-        class_state :associations, default: { belongs_to: [], has_many: [], has_one: [] }
+        class_state :associations, default: {belongs_to: [], has_many: [], has_one: []}
         class_state :commands, default: {}
 
         class << self

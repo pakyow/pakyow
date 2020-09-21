@@ -29,36 +29,36 @@ module Pakyow
           end
 
           def attributes_to_add
-            {}.tap { |attributes|
+            {}.tap do |attributes|
               self.attributes.each do |attribute_name, attribute_type|
                 unless schema.find { |column| column[0] == attribute_name }
                   attributes[attribute_name] = attribute_type
                 end
               end
-            }
+            end
           end
 
           def columns_to_remove
-            {}.tap { |columns|
+            {}.tap do |columns|
               schema.each do |column_name, column_info|
                 unless @source.attributes.keys.find { |attribute_name| attribute_name == column_name }
                   columns[column_name] = column_info
                 end
               end
-            }
+            end
           end
 
           def column_types_to_change
-            {}.tap { |attributes|
+            {}.tap do |attributes|
               self.attributes.each do |attribute_name, attribute_type|
-                if found_column = schema.find { |column| column[0] == attribute_name }
+                if (found_column = schema.find { |column| column[0] == attribute_name })
                   column_name, column_info = found_column
                   unless column_info[:type] == attribute_type.meta[:column_type] && (!attribute_type.meta.include?(:native_type) || column_info[:db_type] == attribute_type.meta[:native_type])
                     attributes[column_name] = attribute_type.meta[:migration_type]
                   end
                 end
               end
-            }
+            end
           end
 
           private

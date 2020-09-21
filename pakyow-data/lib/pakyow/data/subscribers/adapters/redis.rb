@@ -29,7 +29,7 @@ module Pakyow
             end
           end
 
-          SCRIPTS = %i(register expire persist).freeze
+          SCRIPTS = %i[register expire persist].freeze
           KEY_PART_SEPARATOR = "/"
           KEY_PREFIX = "data"
           INFINITY = "+inf"
@@ -138,9 +138,9 @@ module Pakyow
           def cleanup
             @redis.with do |redis|
               redis.scan_each(match: key_subscription_ids_by_source("*")) do |key|
-                Pakyow.logger.internal {
+                Pakyow.logger.internal do
                   "[Pakyow::Data::Subscribers::Adapters::Redis] Cleaning up expired subscriptions for #{key}"
-                }
+                end
 
                 removed_count = redis.zremrangebyscore(key, 0, Time.now.to_i)
 

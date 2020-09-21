@@ -49,7 +49,7 @@ module Pakyow
                 key = key.to_sym
 
                 begin
-                  if attribute = @source.class.attributes[key]
+                  if (attribute = @source.class.attributes[key])
                     if value.is_a?(Proxy) || value.is_a?(Result) || value.is_a?(Object)
                       raise TypeMismatch.new_with_message(type: value.class, mapping: attribute.meta[:mapping])
                     end
@@ -65,14 +65,14 @@ module Pakyow
 
               # Update timestamp fields.
               #
-              if timestamp_fields = @source.class.timestamp_fields
+              if (timestamp_fields = @source.class.timestamp_fields)
                 if @creates
                   timestamp_fields.values.each do |timestamp_field|
                     final_values[timestamp_field] = Time.now
                   end
                 # Don't update timestamps if we aren't also updating other values.
                 #
-                elsif values.any? && timestamp_field = timestamp_fields[@name]
+                elsif values.any? && (timestamp_field = timestamp_fields[@name])
                   final_values[timestamp_field] = Time.now
                 end
               end
@@ -154,32 +154,28 @@ module Pakyow
                         :associate_many_not_object,
                         association: association.name
                       )
+                    elsif association_value.any? { |value| value.originating_source.nil? }
+                      raise TypeMismatch.new_with_message(
+                        :associate_unknown_object,
+                        association: association.name
+                      )
+                    elsif association_value.find { |value| value.originating_source != association.associated_source }
+                      raise TypeMismatch.new_with_message(
+                        :associate_many_wrong_source,
+                        association: association.name,
+                        source: association.associated_source_name
+                      )
                     else
-                      if association_value.any? { |value| value.originating_source.nil? }
-                        raise TypeMismatch.new_with_message(
-                          :associate_unknown_object,
+                      associated_column_value = association_value.map { |object| object[association.associated_source.primary_key_field] }
+                      associated_object_query = association.associated_source.instance.send(
+                        :"by_#{association.associated_source.primary_key_field}", associated_column_value
+                      )
+
+                      if associated_object_query.count != association_value.count
+                        raise ConstraintViolation.new_with_message(
+                          :associate_many_missing,
                           association: association.name
                         )
-                      else
-                        if association_value.find { |value| value.originating_source != association.associated_source }
-                          raise TypeMismatch.new_with_message(
-                            :associate_many_wrong_source,
-                            association: association.name,
-                            source: association.associated_source_name
-                          )
-                        else
-                          associated_column_value = association_value.map { |object| object[association.associated_source.primary_key_field] }
-                          associated_object_query = association.associated_source.instance.send(
-                            :"by_#{association.associated_source.primary_key_field}", associated_column_value
-                          )
-
-                          if associated_object_query.count != association_value.count
-                            raise ConstraintViolation.new_with_message(
-                              :associate_many_missing,
-                              association: association.name
-                            )
-                          end
-                        end
                       end
                     end
                   else
@@ -189,6 +185,7 @@ module Pakyow
                     )
                   end
                 when NilClass
+                  # noop
                 else
                   raise TypeMismatch.new_with_message(
                     :associate_wrong_type,
@@ -247,8 +244,6 @@ module Pakyow
             original_dataset = if @updates
               # Hold on to the original values so we can update them locally.
               @source.dup.to_a
-            else
-              nil
             end
 
             unless @provides_dataset || @updates
@@ -376,9 +371,9 @@ module Pakyow
                   updated_source.instance_variable_set(:@original_results, original_dataset)
                 end
               elsif @provides_dataset
-                @source.dup.tap { |source|
+                @source.dup.tap do |source|
                   source.__setobj__(command_result)
-                }
+                end
               else
                 @source
               end
@@ -415,10 +410,10 @@ module Pakyow
 
                     # If objects are located in two different connections, fetch the raw values.
                     #
-                    if association.joining_source.container.connection == final_result.class.container.connection
-                      disassociate_column_value = associated_column_value
+                    disassociate_column_value = if association.joining_source.container.connection == final_result.class.container.connection
+                      associated_column_value
                     else
-                      disassociate_column_value = associated_column_value.map { |value|
+                      associated_column_value.map { |value|
                         value[association.query_field]
                       }
                     end
@@ -472,34 +467,32 @@ module Pakyow
                         end
                       end
                     end
-                  else
-                    if final_result.one
-                      associated_column_value = final_result.one[association.query_field]
+                  elsif final_result.one
+                    associated_column_value = final_result.one[association.query_field]
 
-                      # Disassociate old data.
+                    # Disassociate old data.
+                    #
+                    association.associated_source.instance.send(
+                      :"by_#{association.associated_query_field}", associated_column_value
+                    ).update(association.associated_query_field => nil)
+
+                    # Associate the correct data.
+                    #
+                    if associated_dataset
+                      associated_dataset.update(
+                        association.associated_query_field => associated_column_value
+                      )
+
+                      # Update the column value in passed objects.
                       #
-                      association.associated_source.instance.send(
-                        :"by_#{association.associated_query_field}", associated_column_value
-                      ).update(association.associated_query_field => nil)
-
-                      # Associate the correct data.
-                      #
-                      if associated_dataset
-                        associated_dataset.update(
-                          association.associated_query_field => associated_column_value
-                        )
-
-                        # Update the column value in passed objects.
-                        #
-                        case association_value
-                        when Proxy
-                          association_value.source.reload
-                        when Object, Array
-                          Array.ensure(association_value).each do |object|
-                            values = object.values.dup
-                            values[association.associated_query_field] = associated_column_value
-                            object.instance_variable_set(:@values, values.freeze)
-                          end
+                      case association_value
+                      when Proxy
+                        association_value.source.reload
+                      when Object, Array
+                        Array.ensure(association_value).each do |object|
+                          values = object.values.dup
+                          values[association.associated_query_field] = associated_column_value
+                          object.instance_variable_set(:@values, values.freeze)
                         end
                       end
                     end

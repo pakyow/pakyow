@@ -55,15 +55,15 @@ module Pakyow
 
       def did_mutate(given_source_name, given_changed_values = nil, given_result_source = nil)
         @executor.post(given_source_name, given_changed_values, given_result_source, Pakyow.logger.target) do |source_name, changed_values, result_source, logger|
-          logger.internal {
+          logger.internal do
             "[Pakyow::Data::Subscribers] did mutate #{source_name}"
-          }
+          end
 
           subscriptions = @adapter.subscriptions_for_source(source_name)
 
-          logger.internal {
+          logger.internal do
             "[Pakyow::Data::Subscribers] fetched #{subscriptions.count} subscriptions"
-          }
+          end
 
           subscriptions.uniq { |subscription|
             subscription.dig(:payload, :id) || subscription
@@ -72,9 +72,9 @@ module Pakyow
           }.each do |subscription|
             if subscription[:version] == @app.config.data.subscriptions.version
               begin
-                logger.internal {
+                logger.internal do
                   "[Pakyow::Data::Subscribers] processing subscription #{subscription[:id]}"
-                }
+                end
 
                 process(subscription, result_source)
 
