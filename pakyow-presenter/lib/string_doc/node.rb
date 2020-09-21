@@ -10,8 +10,8 @@ class StringDoc
   class Node
     class << self
       SELF_CLOSING = %w[area base basefont br hr input img link meta].freeze
-      FORM_INPUTS  = %w[input select textarea button].freeze
-      VALUELESS    = %w[select].freeze
+      FORM_INPUTS = %w[input select textarea button].freeze
+      VALUELESS = %w[select].freeze
 
       # Returns true if +tag+ is self-closing.
       #
@@ -48,7 +48,7 @@ class StringDoc
     def initialize(tag_open_start = "", attributes = Attributes.new, tag_open_end = "", children = StringDoc.empty, tag_close = "", parent: nil, significance: [], labels: {})
       @tag_open_start, @attributes, @tag_open_end, @children, @tag_close = tag_open_start, attributes, tag_open_end, children, tag_close
       @parent, @labels, @significance = parent, labels, significance
-      @transforms = { high: [], default: [], low: [] }
+      @transforms = {high: [], default: [], low: []}
       @pipeline = nil
       @finalized_labels = {}
     end
@@ -122,7 +122,7 @@ class StringDoc
       tap do
         @children = StringDoc.from_nodes(child)
         @tag_open_end = tag ? ">" : ""
-        @tag_close = (tag && !self.class.self_closing?(tag)) ? "</#{tag}>" : ""
+        @tag_close = tag && !self.class.self_closing?(tag) ? "</#{tag}>" : ""
       end
     end
 
@@ -278,7 +278,7 @@ class StringDoc
       @labels.delete(name.to_sym)
     end
 
-    def render(output = String.new, context: nil)
+    def render(output = +"", context: nil)
       if transforms_itself?
         __transform(output, context: context)
       else
@@ -302,8 +302,8 @@ class StringDoc
 
       output
     end
-    alias :to_html :render
-    alias :to_xml :render
+    alias_method :to_html, :render
+    alias_method :to_xml, :render
 
     # Returns the node as an xml string, without transforming.
     #
@@ -352,8 +352,6 @@ class StringDoc
     def find_first_significant_node(type, descend: false)
       if @children.is_a?(StringDoc)
         @children.find_first_significant_node(type, descend: descend)
-      else
-        nil
       end
     end
 
@@ -387,14 +385,15 @@ class StringDoc
       end
 
       current = node
-      while transform = node.next_transform
+      while (transform = node.next_transform)
         return_value = transform.call(node, context, string)
 
         case return_value
         when NilClass
           return
         when StringDoc
-          return_value.render(string, context: context); return
+          return_value.render(string, context: context)
+          return
         when Node, MetaNode
           if return_value.removed?
             return
@@ -402,7 +401,8 @@ class StringDoc
             current = return_value
           end
         else
-          string << return_value.to_s; return
+          string << return_value.to_s
+          return
         end
       end
 

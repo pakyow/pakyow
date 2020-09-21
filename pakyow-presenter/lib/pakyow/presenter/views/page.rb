@@ -14,7 +14,7 @@ module Pakyow
 
         class << self
           def load(path, content: nil, **args)
-            self.new(File.basename(path, ".*").to_sym, content || File.read(path), **args, path: path)
+            new(File.basename(path, ".*").to_sym, content || File.read(path), **args, path: path)
           end
         end
 
@@ -41,8 +41,6 @@ module Pakyow
             @object
           elsif @containers.key?(container)
             @containers[container].object
-          else
-            nil
           end
         end
 

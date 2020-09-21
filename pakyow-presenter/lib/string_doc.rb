@@ -43,7 +43,7 @@ class StringDoc
     # Registers a significant node with a name and an object to handle parsing.
     #
     def significant(name, object, descend: true)
-      significant_types[name] = { object: object, descend: descend }
+      significant_types[name] = {object: object, descend: descend}
     end
 
     # Creates a +StringDoc+ from an array of +Node+ objects.
@@ -68,7 +68,8 @@ class StringDoc
         element = queue.shift
 
         if element == doc
-          queue.concat(element.children.to_a); next
+          queue.concat(element.children.to_a)
+          next
         end
 
         yield element
@@ -88,7 +89,7 @@ class StringDoc
     # Builds a string-based representation of attributes for an oga element.
     #
     def attributes_string(element)
-      attributes(element).each_with_object(String.new) do |attribute, string|
+      attributes(element).each_with_object(+"") do |attribute, string|
         string << " #{attribute.name}=\"#{attribute.value}\""
       end
     end
@@ -156,7 +157,7 @@ class StringDoc
     }
   end
 
-    # @api private
+  # @api private
   def soft_copy
     instance = self.class.allocate
 
@@ -239,13 +240,11 @@ class StringDoc
           when Node
             yield node
           end
-        else
-          if descend || node.label(:descend) != false
-            if node.children.is_a?(StringDoc)
-              node.children.each_significant_node_without_descending_into_type(type, descend: descend, &block)
-            else
-              yield node.children
-            end
+        elsif descend || node.label(:descend) != false
+          if node.children.is_a?(StringDoc)
+            node.children.each_significant_node_without_descending_into_type(type, descend: descend, &block)
+          else
+            yield node.children
           end
         end
       end
@@ -301,7 +300,7 @@ class StringDoc
       @nodes.clear
     end
   end
-  alias remove clear
+  alias_method :remove, :clear
 
   # Replaces the current document.
   #
@@ -365,7 +364,7 @@ class StringDoc
   #
   def insert_after(node_to_insert, after_node)
     tap do
-      if after_node_index = @nodes.index(after_node)
+      if (after_node_index = @nodes.index(after_node))
         nodes = self.class.nodes_from_doc_or_string(node_to_insert)
 
         nodes.each do |node|
@@ -381,7 +380,7 @@ class StringDoc
   #
   def insert_before(node_to_insert, before_node)
     tap do
-      if before_node_index = @nodes.index(before_node)
+      if (before_node_index = @nodes.index(before_node))
         nodes = self.class.nodes_from_doc_or_string(node_to_insert)
 
         nodes.each do |node|
@@ -407,7 +406,7 @@ class StringDoc
   #
   def replace_node(node_to_replace, replacement_node)
     tap do
-      if replace_node_index = @nodes.index(node_to_replace)
+      if (replace_node_index = @nodes.index(node_to_replace))
         nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node)
 
         nodes_to_insert.each do |node|
@@ -420,7 +419,7 @@ class StringDoc
     end
   end
 
-  def render(output = String.new, context: nil)
+  def render(output = +"", context: nil)
     if collapsed && empty?
       output << collapsed
     else
@@ -438,8 +437,8 @@ class StringDoc
       output
     end
   end
-  alias :to_html :render
-  alias :to_xml :render
+  alias_method :to_html, :render
+  alias_method :to_xml, :render
 
   # Returns the node as an xml string, without transforming.
   #
@@ -447,7 +446,7 @@ class StringDoc
     if collapsed && empty?
       collapsed
     else
-      @nodes.each_with_object(String.new) do |node, string|
+      @nodes.each_with_object(+"") do |node, string|
         string << node.to_s
       end
     end
@@ -510,7 +509,8 @@ class StringDoc
 
       unless significance.any? || self.class.contains_significant_child?(element)
         # Nothing inside of the node is significant, so collapse it to a single node.
-        nodes << Node.new(element.to_xml); next
+        nodes << Node.new(element.to_xml)
+        next
       end
 
       node = if significance.any?
@@ -533,17 +533,17 @@ class StringDoc
 
   # Attributes that should be prefixed with +data-+
   #
-  DATA_ATTRS = %i(ui binding endpoint endpoint-action version).freeze
+  DATA_ATTRS = %i[ui binding endpoint endpoint-action version].freeze
 
   # Attributes that will be turned into +StringDoc+ labels
   #
-  LABEL_ATTRS = %i(ui mode version include exclude endpoint endpoint-action prototype binding dataset).freeze
+  LABEL_ATTRS = %i[ui mode version include exclude endpoint endpoint-action prototype binding dataset].freeze
 
   LABEL_MAPPING = {}.freeze
 
   # Attributes that should be deleted from the view
   #
-  DELETED_ATTRS = %i(include exclude prototype mode dataset).freeze
+  DELETED_ATTRS = %i[include exclude prototype mode dataset].freeze
 
   ATTR_MAPPING = {
     binding: :b,
@@ -611,7 +611,7 @@ class StringDoc
 
     significance.each do |significant_type|
       object = StringDoc.significant_types.dig(significant_type, :object)
-      if object && object.respond_to?(:decorate)
+      if object&.respond_to?(:decorate)
         object.decorate(node)
       end
     end
@@ -627,15 +627,15 @@ class StringDoc
       plug, binding = binding.split(".", 2)
       plug_name, plug_instance = plug.split("(", 2)
 
-      if plug_instance
-        plug_instance = plug_instance[0..-2]
+      plug_instance = if plug_instance
+        plug_instance[0..-2]
       else
-        plug_instance = :default
+        :default
       end
 
       labels[:plug] = {
         name: plug_name[1..-1].to_sym,
-        instance: plug_instance.to_sym,
+        instance: plug_instance.to_sym
       }
 
       labels[:plug][:key] = if labels[:plug][:instance] == :default
@@ -665,9 +665,9 @@ class StringDoc
     attributes[:"data-b"] = [binding_parts[0]].concat(channel).join(":")
   end
 
-  SEMANTIC_TAGS = %w(
+  SEMANTIC_TAGS = %w[
     form
-  ).freeze
+  ].freeze
 
   def semantic_channel_for_element(element, channel = [])
     if SEMANTIC_TAGS.include?(element.name)

@@ -15,7 +15,7 @@ module Pakyow
           apply_extension do
             build do |view, app:|
               view.object.find_significant_nodes(:endpoint, descend: true).each do |node|
-                if endpoint = app.endpoints.find(name: node.label(:endpoint))
+                if (endpoint = app.endpoints.find(name: node.label(:endpoint)))
                   node.set_label(:endpoint_object, endpoint)
                   node.set_label(:endpoint_params, {})
                 end

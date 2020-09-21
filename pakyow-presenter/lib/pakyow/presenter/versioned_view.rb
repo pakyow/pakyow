@@ -42,10 +42,8 @@ module Pakyow
       # Returns the view matching +version+.
       #
       def versioned(version)
-        if node = version_named(version.to_sym)
+        if (node = version_named(version.to_sym))
           View.from_object(node)
-        else
-          nil
         end
       end
 
@@ -54,7 +52,7 @@ module Pakyow
       def use(version)
         version = version.to_sym
 
-        if node = version_named(version)
+        if (node = version_named(version))
           node.set_label(:versioned, true)
           cleanup
         else

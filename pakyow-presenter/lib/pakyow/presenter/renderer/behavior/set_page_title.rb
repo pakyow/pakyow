@@ -13,8 +13,9 @@ module Pakyow
           apply_extension do
             attach do |presenter|
               presenter.render node: -> {
-                if title_value = info(:title)
-                  title.object.set_label(:title_template, title_value); title
+                if (title_value = info(:title))
+                  title.object.set_label(:title_template, title_value)
+                  title
                 end
               } do
                 self.html = html_safe(
@@ -23,8 +24,6 @@ module Pakyow
                       send(object_value, :title) || send(object_value)
                     elsif @presentables.key?(object_value)
                       @presentables[object_value]
-                    else
-                      nil
                     end
                   }.build
                 )

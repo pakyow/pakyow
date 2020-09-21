@@ -45,15 +45,11 @@ module Pakyow
               view.attrs[:href].to_s
             when "form"
               view.attrs[:action].to_s
-            else
-              nil
             end
           elsif view.object.labeled?(:endpoint_object)
             view.object.label(:endpoint_object).path(
               **__endpoint.params.merge(view.object.label(:endpoint_params).to_h)
             )
-          else
-            nil
           end
         end
 
@@ -133,7 +129,7 @@ module Pakyow
                 renders << {
                   binding_path: current_binding_path,
                   priority: :low,
-                  block: Proc.new {
+                  block: proc {
                     setup
                   }
                 }
@@ -142,7 +138,7 @@ module Pakyow
                   renders << {
                     binding_path: current_binding_path,
                     priority: :low,
-                    block: Proc.new {
+                    block: proc {
                       endpoint_view = endpoint(endpoint_node.label(:endpoint))
                       case endpoint_view
                       when Presenters::Form

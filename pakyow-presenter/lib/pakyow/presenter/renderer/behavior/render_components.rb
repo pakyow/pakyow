@@ -109,7 +109,7 @@ module Pakyow
 
                     unless component[:class].inherit_values == true
                       component_connection.values.each_key do |key|
-                        unless key.to_s.start_with?("__") || (component[:class].inherit_values && component[:class].inherit_values.include?(key))
+                        unless key.to_s.start_with?("__") || component[:class].inherit_values&.include?(key)
                           component_connection.values.delete(key)
                         end
                       end
@@ -159,7 +159,8 @@ module Pakyow
                 # Attach the above render function to the render node.
                 #
                 component_view.object.transform do |node, context, string|
-                  component_render.call(node, context, string); nil
+                  component_render.call(node, context, string)
+                  nil
                 end
               else
                 initialize_renderable_components(
@@ -184,7 +185,7 @@ module Pakyow
 
           # @api private
           def self.wrap_block(block, context_class)
-            Proc.new do
+            proc do
               @app.presenter_for_context(
                 context_class.__presenter_class, self
               ).instance_eval(&block)
@@ -203,8 +204,6 @@ module Pakyow
 
             if const_defined?(object_name.constant)
               const_get(object_name.constant)
-            else
-              nil
             end
           end
 
@@ -235,7 +234,7 @@ module Pakyow
                     channel: attached_render[:channel],
                     node: attached_render[:node],
                     priority: attached_render[:priority],
-                    block: wrap_block(attached_render[:block], component_class),
+                    block: wrap_block(attached_render[:block], component_class)
                   })
                 end
 

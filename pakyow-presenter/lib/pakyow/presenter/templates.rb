@@ -107,7 +107,7 @@ module Pakyow
             }.select(&:exist?),
             partials: Array.ensure(config.dig(:paths, :partials) || DEFAULT_PARTIALS_PATH).map { |partial_path|
               build_path(partial_path)
-            }.select(&:exist?),
+            }.select(&:exist?)
           }
         }
       end
@@ -138,7 +138,7 @@ module Pakyow
           layouts_path.children.each do |file|
             next unless template?(file)
 
-            if layout = load_view_of_type_at_path(Views::Layout, file)
+            if (layout = load_view_of_type_at_path(Views::Layout, file))
               @layouts[layout.name] ||= layout
             end
           end
@@ -152,7 +152,7 @@ module Pakyow
           partials_path.children.each do |file, partials|
             next unless template?(file)
 
-            if partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file))
+            if (partial = load_view_of_type_at_path(Views::Partial, file, normalize_path(file)))
               @includes[partial.name] ||= partial
             end
           end
@@ -166,7 +166,7 @@ module Pakyow
           }.reject { |path|
             path.basename.to_s.start_with?("_")
           }.each do |path|
-            if page = page_at_path(path)
+            if (page = page_at_path(path))
               path_to_page = String.normalize_path(
                 File.join(
                   @config[:prefix], normalize_path(path, pages_path)
@@ -209,8 +209,8 @@ module Pakyow
 
       private def index_page_at_path(path)
         ascend(path) do |parent_path|
-          next unless info = info(normalize_path(parent_path))
-          next unless page = info[:page]
+          next unless (info = info(normalize_path(parent_path)))
+          next unless (page = info[:page])
           return page
         end
       end
@@ -220,7 +220,7 @@ module Pakyow
           parent_path.children.select { |child|
             child.basename.to_s.start_with?("_")
           }.each_with_object(partials) { |child, child_partials|
-            if partial = load_view_of_type_at_path(Views::Partial, child, normalize_path(child))
+            if (partial = load_view_of_type_at_path(Views::Partial, child, normalize_path(child)))
               child_partials[partial.name] ||= partial
             end
           }
@@ -239,8 +239,6 @@ module Pakyow
           end
 
           type.load(path, info: info, content: content, logical_path: logical_path)
-        else
-          nil
         end
       end
 

@@ -27,14 +27,14 @@ module Pakyow
             if is_a?(Plugin)
               wrap_mode_block_for_plug(self, block)
             else
-              Proc.new do |connection|
+              proc do |connection|
                 isolated(:ModeCallContext).new(connection).instance_eval(&block)
               end
             end
           end
 
           private def wrap_mode_block_for_plug(plug, block)
-            Proc.new do |connection|
+            proc do |connection|
               plug.helper_caller(:passive, connection, plug).instance_eval(&block)
             end
           end
@@ -42,11 +42,13 @@ module Pakyow
           prepend_methods do
             if Support::System.ruby_version < "2.7.0"
               def initialize(*)
-                __common_presenter_modes_initialize; super
+                __common_presenter_modes_initialize
+                super
               end
             else
               def initialize(*, **)
-                __common_presenter_modes_initialize; super
+                __common_presenter_modes_initialize
+                super
               end
             end
 

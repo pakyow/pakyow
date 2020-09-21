@@ -10,7 +10,7 @@ module Pakyow
 
         class << self
           def load(path, content: nil, **args)
-            self.new(File.basename(path, ".*").to_sym, content || File.read(path), **args)
+            new(File.basename(path, ".*").to_sym, content || File.read(path), **args)
           end
         end
 

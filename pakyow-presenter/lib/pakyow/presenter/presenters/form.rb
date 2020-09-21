@@ -20,7 +20,7 @@ module Pakyow
 
           # @api private
           def connect_input_to_label(input, label)
-            if false || input.attributes[:id].to_s.empty?
+            if input.attributes[:id].to_s.empty?
               id = SecureRandom.hex(4)
               input.attributes[:id] = id
             else
@@ -35,8 +35,8 @@ module Pakyow
 
         include Support::SafeStringHelpers
 
-        SUPPORTED_ACTIONS = %i(create update replace delete).freeze
-        ACTION_METHODS = { create: "post", update: "patch", replace: "put", delete: "delete" }.freeze
+        SUPPORTED_ACTIONS = %i[create update replace delete].freeze
+        ACTION_METHODS = {create: "post", update: "patch", replace: "put", delete: "delete"}.freeze
 
         # @api private
         ID_LABEL = :__form_id
@@ -55,7 +55,7 @@ module Pakyow
         #
         def action=(action)
           if action.is_a?(Symbol)
-            if endpoint = app.endpoints.find(name: action)
+            if (endpoint = app.endpoints.find(name: action))
               view.object.set_label(:endpoint, action)
               view.object.set_label(:endpoint_object, endpoint)
               view.object.set_label(:endpoint_params, {})
@@ -83,7 +83,7 @@ module Pakyow
         # Populates a select field with options.
         #
         def options_for(field, options = nil)
-          unless field_presenter = find(Support.inflector.singularize(field)) || find(Support.inflector.pluralize(field))
+          unless (field_presenter = find(Support.inflector.singularize(field)) || find(Support.inflector.pluralize(field)))
             raise ArgumentError.new("could not find field named `#{field}'")
           end
 
@@ -110,7 +110,7 @@ module Pakyow
         # Populates a select field with grouped options.
         #
         def grouped_options_for(field, options = nil)
-          unless field_presenter = find(field)
+          unless (field_presenter = find(field))
             raise ArgumentError.new("could not find field named `#{field}'")
           end
 
@@ -118,7 +118,7 @@ module Pakyow
             raise ArgumentError.new("expected `#{field}' to be a select field")
           end
 
-          options = options || yield
+          options ||= yield
           case field_presenter.object.tagname
           when "select"
             create_grouped_select_options(options, field_presenter)
@@ -196,7 +196,7 @@ module Pakyow
           setup(object) do
             if SUPPORTED_ACTIONS.include?(action)
               unless labeled?(:endpoint)
-                if self.action = form_action_for_binding(action, object)
+                if (self.action = form_action_for_binding(action, object))
                   self.method = method_for_action(action)
                 end
               end
@@ -271,7 +271,7 @@ module Pakyow
         end
 
         def find_or_create_method_override_input
-          unless input = view.object.find_first_significant_node(:method_override)
+          unless (input = view.object.find_first_significant_node(:method_override))
             prepend(method_override_input)
             input = view.object.find_first_significant_node(:method_override)
           end
@@ -306,10 +306,8 @@ module Pakyow
         end
 
         def create_select_option(value, view)
-          option_binding = if option = view.object.find_first_significant_node(:option)
+          option_binding = if (option = view.object.find_first_significant_node(:option))
             option.label(:binding)
-          else
-            nil
           end
 
           Oga::XML::Element.new(name: "option").tap do |option_node|
@@ -319,8 +317,6 @@ module Pakyow
               value[1]
             elsif option_binding && value.respond_to?(:[])
               value[option_binding.to_sym]
-            else
-              nil
             end
 
             option_node.inner_text = ensure_html_safety(display_value.to_s)
@@ -385,7 +381,7 @@ module Pakyow
 
                 # Insert a hidden field to identify the data on submission.
                 #
-                if key = option_value_keys(current, value).find { |k| value.include?(k) }
+                if (key = option_value_keys(current, value).find { |k| value.include?(k) })
                   id_input = Oga::XML::Element.new(name: "input")
                   id_input.set(:type, "hidden")
 
@@ -404,7 +400,7 @@ module Pakyow
                   current.prepend(html_safe(id_input.to_xml))
                 end
               else
-                if input = current.object.find_first_significant_node(:field)
+                if (input = current.object.find_first_significant_node(:field))
                   input.attributes[:name] = "#{view.object.label(:binding)}[#{current.label(:binding)}]"
 
                   if original_values.is_a?(Array) && input.attributes[:type] != "radio"
@@ -414,7 +410,7 @@ module Pakyow
                   input.attributes[:value] = ensure_html_safety(option_value(value, current).to_s)
                 end
 
-                if label = current.object.find_first_significant_node(:label)
+                if (label = current.object.find_first_significant_node(:label))
                   label.html = ensure_html_safety(label_value(value, label).to_s)
                   label.set_label(:bound, true)
                 end
@@ -438,16 +434,14 @@ module Pakyow
         end
 
         def treat_as_nested?(view, value)
-          if value.is_a?(Array)
-            false
-          else
+          unless value.is_a?(Array)
             keys = option_value_keys(view, value, false)
             view.object.each_significant_node(:field) do |field|
               return true if field.labeled?(:binding) && !keys.include?(field.label(:binding))
             end
-
-            false
           end
+
+          false
         end
 
         def option_value(value, view)
@@ -475,8 +469,6 @@ module Pakyow
             value
           elsif view.labeled?(:binding) && value.respond_to?(:[])
             value[view.label(:binding)]
-          else
-            nil
           end
         end
 

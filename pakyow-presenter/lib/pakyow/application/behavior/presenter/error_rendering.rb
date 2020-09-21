@@ -85,7 +85,7 @@ module Pakyow
             end
 
             handle 500 do |connection:|
-              if error = connection.error
+              if (error = connection.error)
                 ErrorRendering.render_error(error, connection)
               end
             end
@@ -118,8 +118,6 @@ module Pakyow
               def contextual_message
                 if object.respond_to?(:contextual_message)
                   html_safe(markdown.render(format(object.contextual_message)))
-                else
-                  nil
                 end
               end
 

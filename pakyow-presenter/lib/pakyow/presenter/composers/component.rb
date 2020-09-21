@@ -66,7 +66,7 @@ module Pakyow
           #
           def follow_path(path, view)
             path = path.dup
-            while step = path.shift
+            while (step = path.shift)
               view = view.components[step]
             end
 

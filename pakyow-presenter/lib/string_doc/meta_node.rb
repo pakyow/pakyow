@@ -32,7 +32,7 @@ class StringDoc
       end
 
       @doc = StringDoc.from_nodes(nodes)
-      @transforms = { high: [], default: [], low: [] }
+      @transforms = {high: [], default: [], low: []}
 
       @internal_nodes = nodes.dup
 
@@ -100,9 +100,7 @@ class StringDoc
     end
 
     # @api private
-    def parent=(parent)
-      @parent = parent
-    end
+    attr_writer :parent
 
     # @api private
     def nodes
@@ -222,15 +220,13 @@ class StringDoc
     end
 
     def label(name)
-      if node = internal_nodes.first
+      if (node = internal_nodes.first)
         node.label(name)
-      else
-        nil
       end
     end
 
     def labeled?(name)
-      if node = internal_nodes.first
+      if (node = internal_nodes.first)
         node.labeled?(name)
       else
         false
@@ -296,7 +292,7 @@ class StringDoc
 
     def find_first_significant_node(type, descend: false)
       internal_nodes.each do |node|
-        if found = node.find_first_significant_node(type, descend: descend)
+        if (found = node.find_first_significant_node(type, descend: descend))
           return found
         end
       end
@@ -322,7 +318,7 @@ class StringDoc
 
     # Converts the node to an xml string.
     #
-    def render(output = String.new, context: nil)
+    def render(output = +"", context: nil)
       if transforms_itself?
         __transform(output, context: context)
       else
@@ -333,13 +329,13 @@ class StringDoc
 
       output
     end
-    alias :to_html :render
-    alias :to_xml :render
+    alias_method :to_html, :render
+    alias_method :to_xml, :render
 
     # Returns the node as an xml string, without transforming.
     #
     def to_s
-      nodes.each_with_object(String.new) do |node, string|
+      nodes.each_with_object(+"") do |node, string|
         string << node.to_s
       end
     end
@@ -358,14 +354,15 @@ class StringDoc
       end
 
       current = node
-      while transform = node.next_transform
+      while (transform = node.next_transform)
         return_value = transform.call(node, context, string)
 
         case return_value
         when NilClass
           return
         when StringDoc
-          return_value.render(string, context: context); return
+          return_value.render(string, context: context)
+          return
         when Node, MetaNode
           if return_value.removed?
             return
@@ -373,7 +370,8 @@ class StringDoc
             current = return_value
           end
         else
-          string << return_value.to_s; return
+          string << return_value.to_s
+          return
         end
       end
 

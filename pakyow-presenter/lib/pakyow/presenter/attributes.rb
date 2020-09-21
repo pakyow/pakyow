@@ -32,7 +32,7 @@ module Pakyow
           if type == ATTRIBUTE_TYPE_SET
             ::Set.new
           elsif type == ATTRIBUTE_TYPE_HASH
-            ::Hash.new
+            {}
           elsif type == ATTRIBUTE_TYPE_BOOLEAN
             false
           else
@@ -66,7 +66,7 @@ module Pakyow
         checked: ATTRIBUTE_TYPE_BOOLEAN,
         disabled: ATTRIBUTE_TYPE_BOOLEAN,
         readonly: ATTRIBUTE_TYPE_BOOLEAN,
-        multiple: ATTRIBUTE_TYPE_BOOLEAN,
+        multiple: ATTRIBUTE_TYPE_BOOLEAN
       }.freeze
 
       extend Forwardable

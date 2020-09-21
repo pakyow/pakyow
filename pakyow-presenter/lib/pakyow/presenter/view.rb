@@ -132,8 +132,6 @@ module Pakyow
             end
           elsif !found.empty? && names.count > 0 # descend further
             View.from_object(found[0]).find(*names)
-          else
-            nil
           end
 
           if result && block_given?
@@ -141,8 +139,6 @@ module Pakyow
           end
 
           result
-        else
-          nil
         end
       end
 
@@ -209,30 +205,24 @@ module Pakyow
       # Returns a view for the +<head>+ node.
       #
       def head
-        if head_node = @object.find_first_significant_node(:head)
+        if (head_node = @object.find_first_significant_node(:head))
           View.from_object(head_node)
-        else
-          nil
         end
       end
 
       # Returns a view for the +<body>+ node.
       #
       def body
-        if body_node = @object.find_first_significant_node(:body)
+        if (body_node = @object.find_first_significant_node(:body))
           View.from_object(body_node)
-        else
-          nil
         end
       end
 
       # Returns a view for the +<title>+ node.
       #
       def title
-        if title_node = @object.find_first_significant_node(:title)
+        if (title_node = @object.find_first_significant_node(:title))
           View.from_object(title_node)
-        else
-          nil
         end
       end
 
@@ -395,17 +385,15 @@ module Pakyow
 
       # Returns attributes object for +self+.
       #
-      def attributes
-        @attributes
-      end
-      alias attrs attributes
+      attr_reader :attributes
+      alias_method :attrs, :attributes
 
       # Wraps +attributes+ in a {Attributes} instance.
       #
       def attributes=(attributes)
         @attributes = Attributes.new(attributes)
       end
-      alias attrs= attributes=
+      alias_method :attrs=, :attributes=
 
       # Returns the version name for +self+.
       #
@@ -532,7 +520,7 @@ module Pakyow
       def find_partials(partials, found = [])
         found.tap do
           @object.each_significant_node(:partial, descend: true) do |node|
-            if replacement = partials[node.label(:partial)]
+            if (replacement = partials[node.label(:partial)])
               found << node.label(:partial)
               replacement.find_partials(partials, found)
             end
@@ -544,22 +532,28 @@ module Pakyow
       def mixin(partials)
         tap do
           @object.each_significant_node(:partial, descend: true) do |partial_node|
-            if replacement = partials[partial_node.label(:partial)]
+            if (replacement = partials[partial_node.label(:partial)])
               partial_node.replace(replacement.mixin(partials).object)
             end
           end
         end
       end
 
-      # Thanks Dan! https://stackoverflow.com/a/30225093
-      # @api private
-      INFO_MERGER = proc { |_, v1, v2| Support::IndifferentHash === v1 && Support::IndifferentHash === v2 ? v1.merge(v2, &merger) : Array === v1 && Array === v2 ? v1 | v2 : [:undefined, nil, :nil].include?(v2) ? v1 : v2 }
-
       # @api private
       def add_info(*infos)
         tap do
           infos.each do |info|
-            @info.merge!(Support::IndifferentHash.deep(info), &INFO_MERGER)
+            # Thanks Dan! https://stackoverflow.com/a/30225093
+            #
+            @info.merge!(Support::IndifferentHash.deep(info)) do |_, v1, v2|
+              if Support::IndifferentHash === v1 && Support::IndifferentHash === v2
+                v1.merge(v2, &merger)
+              elsif Array === v1 && Array === v2
+                v1 | v2
+              else
+                [:undefined, nil, :nil].include?(v2) ? v1 : v2
+              end
+            end
           end
         end
       end

@@ -77,7 +77,7 @@ module Pakyow
               # Connect labels.
               #
               form.object.children.each_significant_node(:label) do |label_node|
-                if label_node.attributes[:for] && input = form.find(*label_node.attributes[:for].to_s.split("."))
+                if label_node.attributes[:for] && (input = form.find(*label_node.attributes[:for].to_s.split(".")))
                   Presenters::Form.connect_input_to_label(input, label_node)
                 end
               end
@@ -115,7 +115,7 @@ module Pakyow
               forms
             } do
               unless setup?
-                if object = object_for_form
+                if (object = object_for_form)
                   if app.includes_framework?(:data) && object.is_a?(Data::Proxy)
                     object = object.one
                   end
@@ -124,12 +124,10 @@ module Pakyow
                 if !object.nil?
                   if labeled?(:endpoint)
                     setup(object)
+                  elsif object.key?(:id)
+                    update(object)
                   else
-                    if object.key?(:id)
-                      update(object)
-                    else
-                      create(object)
-                    end
+                    create(object)
                   end
                 elsif labeled?(:binding)
                   case presentables[:__endpoint_name]
@@ -143,8 +141,6 @@ module Pakyow
                   else
                     create
                   end
-                else
-                  # setup
                 end
               end
 

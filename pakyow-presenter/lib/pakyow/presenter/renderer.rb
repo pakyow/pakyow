@@ -33,7 +33,7 @@ module Pakyow
         initialize_presenter
       end
 
-      def perform(output = String.new)
+      def perform(output = +"")
         performing :render do
           @presenter.to_html(output)
         end
@@ -76,7 +76,7 @@ module Pakyow
       def find_or_build_presenter_view(app, composer, presenter, modes)
         presenter_view_key = [composer.key, presenter, modes]
 
-        unless presenter_view = self.class.__presenter_views[presenter_view_key]
+        unless (presenter_view = self.class.__presenter_views[presenter_view_key])
           presenter_view = composer.view
 
           self.class.build!(presenter_view, app: app, modes: modes, composer: composer)
@@ -142,7 +142,9 @@ module Pakyow
               renderer.perform(connection.body)
             end
           else
-            output = renderer.perform(StringIO.new); output.rewind
+            output = renderer.perform(StringIO.new)
+            output.rewind
+
             connection.body = output
           end
 
@@ -207,7 +209,7 @@ module Pakyow
 
         # @api private
         def find_presenter(app, path)
-          unless presenter = @__presenters_by_path[path]
+          unless (presenter = @__presenters_by_path[path])
             presenter = if path.nil? || Pakyow.env?(:prototype)
               app.isolated(:Presenter)
             else
@@ -234,12 +236,12 @@ module Pakyow
           @__expose_fns << block
         end
 
-        IMPLICIT_HTTP_METHODS = %i(get head).freeze
-        IMPLICIT_HTTP_FORMATS = %i(any html).freeze
+        IMPLICIT_HTTP_METHODS = %i[get head].freeze
+        IMPLICIT_HTTP_FORMATS = %i[any html].freeze
 
         def render_implicitly?(connection)
           IMPLICIT_HTTP_METHODS.include?(connection.method) && IMPLICIT_HTTP_FORMATS.include?(connection.format) &&
-            (Pakyow.env?(:prototype) || ((!connection.halted?) && !connection.rendered?))
+            (Pakyow.env?(:prototype) || (!connection.halted? && !connection.rendered?))
         end
 
         def find_presenter_for_path(app, path)

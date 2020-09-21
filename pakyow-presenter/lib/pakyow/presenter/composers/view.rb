@@ -21,7 +21,7 @@ module Pakyow
 
         attr_reader :view_path
 
-        UNRETAINED_SIGNIFICANCE = %i(container partial template).freeze
+        UNRETAINED_SIGNIFICANCE = %i[container partial template].freeze
 
         def initialize(view_path, app:)
           @view_path = String.normalize_path(view_path)
@@ -35,17 +35,17 @@ module Pakyow
         def view(return_cached: false)
           cache_key = :"#{@app.config.name}__#{@view_path}"
 
-          unless view = View.__cache[cache_key]
-            unless info = @app.view_info_for_path(@view_path)
+          unless (view = View.__cache[cache_key])
+            unless (info = @app.view_info_for_path(@view_path))
               error = UnknownPage.new("No view at path `#{@view_path}'")
               error.context = @view_path
               raise error
             end
 
             info = info.deep_dup
-            view = info[:layout].build(info[:page]).tap { |view_without_partials|
+            view = info[:layout].build(info[:page]).tap do |view_without_partials|
               view_without_partials.mixin(info[:partials])
-            }
+            end
 
             # We collapse built views down to significance that is considered "renderable". This is
             # mostly an optimization, since it lets us collapse some nodes into single strings and

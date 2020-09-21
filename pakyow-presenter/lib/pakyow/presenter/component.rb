@@ -30,9 +30,9 @@ module Pakyow
 
       class << self
         def presenter(&block)
-          @__presenter_class = Class.new(@__presenter_class) do
+          @__presenter_class = Class.new(@__presenter_class) {
             class_eval(&block)
-          end
+          }
 
           const_set(:Presenter, @__presenter_class)
         end

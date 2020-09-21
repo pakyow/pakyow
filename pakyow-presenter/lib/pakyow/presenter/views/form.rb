@@ -42,12 +42,12 @@ module Pakyow
         end
 
         def check_or_uncheck_value(value, view)
-          if view.attributes[:type] == "checkbox"
+          view.attributes[:checked] = if view.attributes[:type] == "checkbox"
             # There could be multiple values checked, so check for inclusion.
             #
-            view.attributes[:checked] = Array.ensure(value).map(&:to_s).include?(view.attributes[:value])
+            Array.ensure(value).map(&:to_s).include?(view.attributes[:value])
           else
-            view.attributes[:checked] = view.attributes[:value] == value.to_s
+            view.attributes[:value] == value.to_s
           end
         end
 

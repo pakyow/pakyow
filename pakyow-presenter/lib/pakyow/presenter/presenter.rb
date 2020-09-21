@@ -61,10 +61,8 @@ module Pakyow
       #
       # @see View#find
       def find(*names)
-        result = if found_view = @view.find(*names)
+        result = if (found_view = @view.find(*names))
           presenter_for(found_view)
-        else
-          nil
         end
 
         if result && block_given?
@@ -87,10 +85,8 @@ module Pakyow
       # Returns the named form from the view being presented.
       #
       def form(name)
-        if found_form = @view.form(name)
+        if (found_form = @view.form(name))
           presenter_for(found_form)
-        else
-          nil
         end
       end
 
@@ -106,10 +102,8 @@ module Pakyow
       # Returns the component matching +name+.
       #
       def component(name)
-        if found_component = @view.component(name)
+        if (found_component = @view.component(name))
           presenter_for(found_component)
-        else
-          nil
         end
       end
 
@@ -132,7 +126,7 @@ module Pakyow
       #
       def title=(value)
         unless @view.title
-          if head_view = @view.head
+          if (head_view = @view.head)
             title_view = View.new("<title></title>")
             head_view.append(title_view)
           end
@@ -172,7 +166,8 @@ module Pakyow
 
           if data.respond_to?(:empty?) && data.empty?
             if @view.is_a?(VersionedView) && @view.version?(:empty)
-              @view.use(:empty); @view.object.set_label(:bound, true)
+              @view.use(:empty)
+              @view.object.set_label(:bound, true)
             else
               remove
             end
@@ -242,7 +237,8 @@ module Pakyow
                 presenter.view.names.each do |version|
                   self.class.__versioning_logic[version]&.each do |logic|
                     if presenter.instance_exec(binder.object, &logic[:block])
-                      presenter.use(version); break
+                      presenter.use(version)
+                      break
                     end
                   end
                 end
@@ -259,7 +255,7 @@ module Pakyow
               presenter.view.binding_props.map { |binding_prop|
                 binding_prop.label(:binding)
               }.uniq.each do |binding_prop_name|
-                if found = presenter.view.find(binding_prop_name)
+                if (found = presenter.view.find(binding_prop_name))
                   presenter_for(found).use_implicit_version unless found.used?
                 end
               end
@@ -272,7 +268,7 @@ module Pakyow
             }.each do |binding_node|
               plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
 
-              if nested_view = presenter.find(binding_node.label(:binding))
+              if (nested_view = presenter.find(binding_node.label(:binding)))
                 if binder.object.include?(binding_node.label(:binding))
                   nested_view.present(binder.object[binding_node.label(:binding)])
                 elsif binder.object.include?(plural_binding_node_name)
@@ -375,7 +371,7 @@ module Pakyow
         end
       end
 
-      def to_html(output = String.new)
+      def to_html(output = +"")
         @view.object.to_html(output, context: self)
       end
 
@@ -414,8 +410,6 @@ module Pakyow
           else
             presenter_for(View.from_object(StringDoc::MetaNode.new(found)))
           end
-        else
-          nil
         end
       end
 
@@ -449,7 +443,7 @@ module Pakyow
       private
 
       def binder_for_current_scope(data)
-        context = if plug = @view.label(:plug)
+        context = if (plug = @view.label(:plug))
           @app.plug(plug[:name], plug[:instance])
         else
           @app
@@ -460,8 +454,8 @@ module Pakyow
         }
 
         unless binder
-           binder = @app.isolated(:Binder)
-           context = @app
+          binder = @app.isolated(:Binder)
+          context = @app
         end
 
         binder.new(data, app: context)
@@ -470,7 +464,7 @@ module Pakyow
       def bind_binder_to_view(binder, view)
         view.each_binding_prop do |binding|
           value = binder.__value(binding.label(:binding))
-          if value.is_a?(BindingParts) && binding_view = view.find(binding.label(:binding))
+          if value.is_a?(BindingParts) && (binding_view = view.find(binding.label(:binding)))
             value.accept(*binding_view.label(:include).to_s.split(" "))
             value.reject(*binding_view.label(:exclude).to_s.split(" "))
 
@@ -558,7 +552,8 @@ module Pakyow
                 set_endpoint_params_for_node(node, object[object_key])
                 key = param_string.split(object_key_prefix, 2)[1].to_sym
                 if object[object_key]&.include?(key)
-                  endpoint_params[param] = object[object_key][key]; next
+                  endpoint_params[param] = object[object_key][key]
+                  next
                 end
               end
             end
@@ -567,7 +562,8 @@ module Pakyow
             if param_string.start_with?(param_key_prefix)
               key = param_string.split(param_key_prefix, 2)[1].to_sym
               if object.include?(key)
-                endpoint_params[param] = object[key]; next
+                endpoint_params[param] = object[key]
+                next
               end
             end
 
@@ -659,11 +655,12 @@ module Pakyow
             renders << {
               binding_path: binding_render[:binding_path],
               priority: :low,
-              block: Proc.new {
+              block: proc {
                 if object.labeled?(:binding) && !object.labeled?(:bound)
                   presentables.each do |key, value|
                     if present?(key, object)
-                      present(value); break
+                      present(value)
+                      break
                     end
                   end
                 end
@@ -676,7 +673,7 @@ module Pakyow
           Presenters::Endpoint.attach_to_node(view.object, renders)
 
           renders.each do |render|
-            return_value = if node = render[:node]
+            return_value = if (node = render[:node])
               view.instance_exec(&node)
             else
               view.find(*render[:binding_path])
@@ -723,7 +720,7 @@ module Pakyow
         private
 
         def render_proc(_view, _render = nil, &block)
-          Proc.new do |node, context, string|
+          proc do |node, context, string|
             case node
             when StringDoc::MetaNode
               if node.nodes.any?
@@ -742,7 +739,9 @@ module Pakyow
               )
             end
 
-            presenter.instance_exec(node, context, string, &block); returning
+            presenter.instance_exec(node, context, string, &block)
+
+            returning
           rescue => error
             if presenter.app.config.presenter.features.streaming
               Pakyow.houston(error)

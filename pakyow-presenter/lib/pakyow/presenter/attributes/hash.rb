@@ -14,11 +14,11 @@ module Pakyow
       # Behaves just like a normal +Hash+.
       #
       class Hash < Attribute
-        VALUE_SEPARATOR = ":".freeze
-        PAIR_SEPARATOR  = ";".freeze
+        VALUE_SEPARATOR = ":"
+        PAIR_SEPARATOR = ";"
 
-        WRITE_VALUE_SEPARATOR = ": ".freeze
-        WRITE_PAIR_SEPARATOR  = "; ".freeze
+        WRITE_VALUE_SEPARATOR = ": "
+        WRITE_PAIR_SEPARATOR = "; "
 
         extend Forwardable
         def_delegators :@value, :any?, :empty?, :clear
@@ -60,7 +60,7 @@ module Pakyow
           end
 
           unless string.empty?
-            string = string + PAIR_SEPARATOR
+            string += PAIR_SEPARATOR
           end
 
           string
@@ -71,7 +71,7 @@ module Pakyow
 
           def parse(value)
             if value.is_a?(::Hash)
-              new(::Hash[value.map { |k, v| [ensure_html_safety(k), ensure_html_safety(v.to_s)]}])
+              new(::Hash[value.map { |k, v| [ensure_html_safety(k), ensure_html_safety(v.to_s)] }])
             elsif value.respond_to?(:to_s)
               new(value.to_s.split(PAIR_SEPARATOR).each_with_object({}) { |style, attributes|
                 key, value = style.split(VALUE_SEPARATOR)

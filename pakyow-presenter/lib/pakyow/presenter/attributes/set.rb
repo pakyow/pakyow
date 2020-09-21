@@ -15,7 +15,7 @@ module Pakyow
       # Behaves just like a normal +Set+.
       #
       class Set < Attribute
-        VALUE_SEPARATOR = " ".freeze
+        VALUE_SEPARATOR = " "
 
         extend Forwardable
         def_delegators :@value, :to_a, :any?, :empty?, :clear

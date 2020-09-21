@@ -38,8 +38,6 @@ module Pakyow
 
         require_relative "errors"
 
-        require_relative "../application/actions/presenter/auto_render"
-
         require "pakyow/support/indifferentize"
         require "pakyow/support/core_refinements/string/normalization"
 
@@ -93,7 +91,7 @@ module Pakyow
           end
 
           definable :binder, Binder
-          definable :presenter, Presenter, builder: -> (path, **opts) {
+          definable :presenter, Presenter, builder: ->(path, **opts) {
             path = String.normalize_path(path)
             opts[:path] = path
             return [], path, opts
@@ -122,7 +120,7 @@ module Pakyow
             include Application::Behavior::Presenter::ImplicitRendering
 
             action :verify_form_metadata do
-              if metadata = params[:"pw-form"]
+              if (metadata = params[:"pw-form"])
                 connection.set(
                   :__form,
                   JSON.parse(

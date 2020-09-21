@@ -10,31 +10,31 @@ require_relative "views/form"
 module Pakyow
   module Presenter
     # @api private
-    FORM_TAG = "form".freeze
+    FORM_TAG = "form"
     # @api private
-    OPTION_TAG = "option".freeze
+    OPTION_TAG = "option"
     # @api private
-    OPTGROUP_TAG = "optgroup".freeze
+    OPTGROUP_TAG = "optgroup"
     # @api private
-    INPUT_TAG = "input".freeze
+    INPUT_TAG = "input"
     # @api private
-    LABEL_TAG = "label".freeze
+    LABEL_TAG = "label"
     # @api private
-    TITLE_TAG = "title".freeze
+    TITLE_TAG = "title"
     # @api private
-    BODY_TAG = "body".freeze
+    BODY_TAG = "body"
     # @api private
-    HEAD_TAG = "head".freeze
+    HEAD_TAG = "head"
     # @api private
-    META_TAG = "meta".freeze
+    META_TAG = "meta"
     # @api private
-    HTML_TAG = "html".freeze
+    HTML_TAG = "html"
     # @api private
-    SCRIPT_TAG = "script".freeze
+    SCRIPT_TAG = "script"
     # @api private
-    SELECT_TAG = "select".freeze
+    SELECT_TAG = "select"
     # @api private
-    TEXTAREA_TAG = "textarea".freeze
+    TEXTAREA_TAG = "textarea"
 
     # @api private
     class SignificantNode
