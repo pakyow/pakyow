@@ -17,7 +17,7 @@ module Pakyow
 
       attr_reader :adapter
 
-      def initialize(adapter = :memory, adapter_config, timeout_config)
+      def initialize(adapter, adapter_config, timeout_config)
         require "pakyow/realtime/server/adapters/#{adapter}"
         @adapter = Adapters.const_get(adapter.to_s.capitalize).new(self, adapter_config)
         @sockets = Concurrent::Array.new

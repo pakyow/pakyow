@@ -19,8 +19,6 @@ module Pakyow
 
         require_relative "../presenter/renderer/behavior/realtime/install_websocket"
 
-        require_relative "../application/actions/realtime/upgrader"
-
         object.class_eval do
           register_helper :active, Application::Helpers::Realtime::Broadcasting
           register_helper :active, Application::Helpers::Realtime::Subscriptions
@@ -38,7 +36,7 @@ module Pakyow
 
             defaults :production do
               setting :adapter_settings do
-                { key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/") }
+                {key_prefix: [Pakyow.config.redis.key_prefix, config.name].join("/")}
               end
 
               setting :log_initial_request, true

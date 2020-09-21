@@ -40,10 +40,10 @@ module Pakyow
             }
 
             @buffer = Buffer.new(@redis, pubsub_channel)
-            @subscriber = Subscriber.new(::Redis.new(@config[:connection]), pubsub_channel) do |payload|
+            @subscriber = Subscriber.new(::Redis.new(@config[:connection]), pubsub_channel) { |payload|
               channel, message = Marshal.restore(payload).values_at(:channel, :message)
               @server.transmit_message_to_connection_ids(message, socket_ids_for_channel(channel), raw: true)
-            end
+            }
           end
 
           def disconnect
@@ -88,7 +88,7 @@ module Pakyow
           end
 
           def subscription_broadcast(channel, message)
-            @buffer << Marshal.dump(channel: channel, message: { payload: message }.to_json)
+            @buffer << Marshal.dump(channel: channel, message: {payload: message}.to_json)
           end
 
           def expire(socket_id, seconds)
@@ -174,9 +174,9 @@ module Pakyow
 
           def cleanup
             Concurrent::TimerTask.new(execution_interval: 300, timeout_interval: 300) {
-              Pakyow.logger.internal {
+              Pakyow.logger.internal do
                 "[Pakyow::Realtime::Server::Adapters::Redis] Cleaning up channel keys"
-              }
+              end
 
               removed_count = 0
               @redis.with do |redis|
@@ -252,9 +252,9 @@ module Pakyow
             def initialize(redis, channel, &callback)
               @redis, @channel, @callback = redis, channel, callback
 
-              @thread = Thread.new do
+              @thread = Thread.new {
                 subscribe
-              end
+              }
             end
 
             def disconnect
@@ -265,11 +265,9 @@ module Pakyow
             def subscribe
               @redis.subscribe(@channel) do |on|
                 on.message do |_, payload|
-                  begin
-                    @callback.call(payload)
-                  rescue => error
-                    Pakyow.logger.error "[Pakyow::Realtime::Server::Adapters::Redis] Subscriber callback failed: #{error}"
-                  end
+                  @callback.call(payload)
+                rescue => error
+                  Pakyow.logger.error "[Pakyow::Realtime::Server::Adapters::Redis] Subscriber callback failed: #{error}"
                 end
               end
             rescue ::Redis::CannotConnectError

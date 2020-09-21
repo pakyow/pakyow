@@ -94,11 +94,11 @@ module Pakyow
             @socket_instances_by_socket_id[socket_id] == socket_instance_id
           end
 
-          SERIALIZABLE_IVARS = %i(
+          SERIALIZABLE_IVARS = %i[
             @socket_ids_by_channel
             @channels_by_socket_id
             @socket_instances_by_socket_id
-          ).freeze
+          ].freeze
 
           def serialize
             SERIALIZABLE_IVARS.each_with_object({}) do |ivar, hash|

@@ -20,7 +20,7 @@ module Pakyow
         include ::Protocol::WebSocket::Headers
 
         def self.call(framer, protocol = [], **options)
-          return self.new(framer, Array(protocol).first, **options)
+          new(framer, Array(protocol).first, **options)
         end
 
         def initialize(framer, protocol = nil, **options)
@@ -31,7 +31,7 @@ module Pakyow
         attr :protocol
 
         def call
-          self.close
+          close
         end
       end
 
@@ -84,22 +84,26 @@ module Pakyow
       private
 
       def open
-        response = Async::WebSocket::Adapters::Native.open(@connection.request, handler: Connection) do |socket|
-          original_logger = @logger
-          Pakyow.logger.set(@logger)
-          @logger = Pakyow.logger
+        response = Async::WebSocket::Adapters::Native.open(@connection.request, handler: Connection) { |socket|
+          begin
+            original_logger = @logger
+            Pakyow.logger.set(@logger)
+            @logger = Pakyow.logger
 
-          @socket = socket
+            @socket = socket
 
-          handle_open
-          while message = socket.read
-            handle_message(message)
+            handle_open
+            while (message = socket.read)
+              handle_message(message)
+            end
+          rescue EOFError, Protocol::WebSocket::ClosedError
+          ensure
+            @socket&.close
+            shutdown
+
+            @logger = original_logger
           end
-        rescue EOFError, Protocol::WebSocket::ClosedError
-        ensure
-          @socket&.close; shutdown
-          @logger = original_logger
-        end
+        }
 
         @connection.__getobj__.instance_variable_set(:@response, response)
       end
@@ -114,12 +118,12 @@ module Pakyow
       end
 
       def handle_message(raw)
-        @logger.internal {
+        @logger.internal do
           "< " + raw
-        }
+        end
 
         message = JSON.parse(raw)
-        if handlers = @connection.app.class.__websocket_handlers[message["type"]]
+        if (handlers = @connection.app.class.__websocket_handlers[message["type"]])
           handlers.each do |handler|
             instance_exec(message["payload"], &handler)
           end
@@ -141,12 +145,13 @@ module Pakyow
         })
       end
 
-      HEARTBEAT_INTERVAL = 1.freeze
+      HEARTBEAT_INTERVAL = 1
 
       def start_heartbeat
         @heartbeat = Async { |task|
           loop do
-            task.sleep(HEARTBEAT_INTERVAL); beat
+            task.sleep(HEARTBEAT_INTERVAL)
+            beat
           end
         }
       end
@@ -171,7 +176,7 @@ module Async
         def self.open(request, headers: [], protocols: [], handler: Connection, **options)
           if websocket?(request) && Array(request.protocol).include?(PROTOCOL)
             # Select websocket sub-protocol:
-            if requested_protocol = request.headers[SEC_WEBSOCKET_PROTOCOL]
+            if (requested_protocol = request.headers[SEC_WEBSOCKET_PROTOCOL])
               protocol = (requested_protocol & protocols).first
             end
 
@@ -180,8 +185,6 @@ module Async
 
               yield handler.call(framer, protocol)
             end
-          else
-            nil
           end
         end
       end
