@@ -15,10 +15,8 @@ gemspec path: "pakyow-support"
 gemspec path: "pakyow-ui"
 
 gem "htmlbeautifier", ">= 1.3"
-gem "pronto", ">= 0.10"
-gem "pronto-rubocop", ">= 0.10", require: false
 gem "pry", ">= 0.13"
-gem "rubocop", ">= 0.83"
+gem "standard", ">= 0.6"
 
 group :test do
   gem "simplecov", ">= 0.18", require: false
