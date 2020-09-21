@@ -53,7 +53,7 @@ module Pakyow
           puts
           puts Support::CLI.style.bold("COMMANDS")
           longest_name_length = commands.map(&:cli_name).max_by(&:length).length
-          commands.sort { |a, b| a.cli_name <=> b.cli_name }.each do |command|
+          commands.sort_by(&:cli_name).each do |command|
             puts "  #{command.cli_name}".ljust(longest_name_length + 4) + Support::CLI.style.yellow(command.description) + "\n"
           end
         end
@@ -115,7 +115,7 @@ module Pakyow
 
             description = option[:description]
 
-            if !command.flag?(key) && default = option[:default]
+            if !command.flag?(key) && (default = option[:default])
               default_value = case default
               when Proc
                 default.call
@@ -134,12 +134,10 @@ module Pakyow
 
             prefix = if command.flag?(key)
               "      --#{key}"
+            elsif (short = option[:short])
+              "  -#{short}, --#{key}=#{key}"
             else
-              if short = option[:short]
-                "  -#{short}, --#{key}=#{key}"
-              else
-                "      --#{key}=#{key}"
-              end
+              "      --#{key}=#{key}"
             end
 
             puts prefix.ljust(longest_length * 2 + 11) + description

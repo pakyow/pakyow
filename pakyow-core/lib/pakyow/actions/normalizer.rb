@@ -12,7 +12,7 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       def initialize
-        if canonical_uri = Pakyow.config.normalizer.canonical_uri
+        if (canonical_uri = Pakyow.config.normalizer.canonical_uri)
           configure_canonical_uri!(canonical_uri)
         end
       end

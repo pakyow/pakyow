@@ -51,7 +51,7 @@ module Pakyow
 
           def wait(container)
             if @services.any?
-              while message = @queue.pop
+              while (message = @queue.pop)
                 event, service = message
 
                 case event
@@ -70,8 +70,8 @@ module Pakyow
                     else
                       backoff_service(service)
                     end
-                  else
-                    break if @services.empty?
+                  elsif @services.empty?
+                    break
                   end
                 end
               end
@@ -158,34 +158,36 @@ module Pakyow
           end
 
           private def run_service(service)
-            Fiber.new do
-              Signal.trap(:HUP) do
-                if container.restartable?
-                  raise Restart
+            Fiber.new {
+              begin
+                Signal.trap(:HUP) do
+                  if container.restartable?
+                    raise Restart
+                  end
                 end
+
+                Signal.trap(:INT) do
+                  raise Interrupt
+                end
+
+                Signal.trap(:TERM) do
+                  raise Terminate
+                end
+
+                Pakyow.async logger: service.logger do
+                  service.run
+                rescue => error
+                  Pakyow.houston(error)
+
+                  service_failed!(service)
+                end
+
+                service.stop
+              rescue Terminate
+              rescue Interrupt
+                service.stop
               end
-
-              Signal.trap(:INT) do
-                raise Interrupt
-              end
-
-              Signal.trap(:TERM) do
-                raise Terminate
-              end
-
-              Pakyow.async logger: service.logger do
-                service.run
-              rescue => error
-                Pakyow.houston(error)
-
-                service_failed!(service)
-              end
-
-              service.stop
-            rescue Terminate
-            rescue Interrupt
-              service.stop
-            end.resume
+            }.resume
           rescue Interrupt
             # Catch interrupts that occur before the fiber runs.
           end

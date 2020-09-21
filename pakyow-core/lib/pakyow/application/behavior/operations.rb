@@ -14,7 +14,7 @@ module Pakyow
 
         apply_extension do
           after :make do
-            definable :operation, Operation, lookup: -> (app, operation, **values, &block) {
+            definable :operation, Operation, lookup: ->(app, operation, **values, &block) {
               (block ? Class.new(operation, &block) : operation).new(app: app, **values).perform
             }
 

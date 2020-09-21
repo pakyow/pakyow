@@ -61,12 +61,15 @@ module Pakyow
       process.count.times do
         Fiber.new {
           until @stopped
-            status = @group.fork object: process do
-              process.call
-            rescue Interrupt
-            rescue => error
-              Pakyow.houston(error); exit 1
-            end
+            status = @group.fork(object: process) {
+              begin
+                process.call
+              rescue Interrupt
+              rescue => error
+                Pakyow.houston(error)
+                exit 1
+              end
+            }
 
             break unless status.success?
           end

@@ -19,7 +19,7 @@ module Pakyow
 
     extend Forwardable
     def_delegators :@rake, :name
-    alias cli_name name
+    alias_method :cli_name, :name
 
     attr_reader :description, :arguments, :options, :flags, :short_names
 
@@ -100,7 +100,7 @@ module Pakyow
     end
 
     def parse_options(argv, options)
-      unparsed = Array.new
+      unparsed = []
       OptionParser.new { |opts|
         @flags.keys.each do |flag|
           opts.on("--#{flag}") do |v|
@@ -161,14 +161,14 @@ module Pakyow
       }]
     end
 
-    UNAVAILABLE_SHORT_NAMES = %w(a e h).freeze
+    UNAVAILABLE_SHORT_NAMES = %w[a e h].freeze
     def determine_short_names
       short_names = {
         env: "e"
       }
 
       @options.each do |name, opts|
-        if short = opts[:short]
+        if (short = opts[:short])
           short = name[0] if short == :default
           unless short_names.value?(short) || UNAVAILABLE_SHORT_NAMES.include?(short)
             short_names[name] = short
@@ -177,7 +177,7 @@ module Pakyow
       end
 
       @flags.each do |name, opts|
-        if short = opts[:short]
+        if (short = opts[:short])
           unless short_names.value?(short) || UNAVAILABLE_SHORT_NAMES.include?(short)
             short_names[name] = short
           end
@@ -211,7 +211,7 @@ module Pakyow
       def describe(description)
         @__description = description
       end
-      alias :desc :describe
+      alias_method :desc, :describe
 
       def argument(name, description, required: false)
         @__arguments[name.to_sym] = {

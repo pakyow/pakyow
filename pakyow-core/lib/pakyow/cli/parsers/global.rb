@@ -24,8 +24,6 @@ module Pakyow
         private def parse_command!(argv)
           if argv.any? && !argv[0].start_with?("-")
             argv.shift
-          else
-            nil
           end
         end
 
@@ -62,14 +60,15 @@ module Pakyow
         end
 
         private def parse_with_unknown_args!(argv)
-          parser, original, unparsed = yield, argv.dup, Array.new
+          parser, original, unparsed = yield, argv.dup, []
 
           begin
             parser.order!(argv) do |arg|
               unparsed << arg
             end
           rescue OptionParser::InvalidOption => error
-            unparsed.concat(error.args); retry
+            unparsed.concat(error.args)
+            retry
           end
 
           argv.replace((original & argv) + unparsed)

@@ -15,7 +15,7 @@ module Pakyow
           setting :paths, ["./commands", File.expand_path("../../commands", __FILE__)]
         end
 
-        definable :command, Command, builder: -> (*namespace, object_name, **opts) {
+        definable :command, Command, builder: ->(*namespace, object_name, **opts) {
           opts[:cli_name] = (namespace + [object_name]).join(":")
 
           unless opts.include?(:boot)
@@ -23,7 +23,7 @@ module Pakyow
           end
 
           return namespace, object_name, opts
-        }, lookup: -> (_app, command, **values) {
+        }, lookup: ->(_app, command, **values) {
           command.call(**values)
         }
 

@@ -25,8 +25,6 @@ module Pakyow
               end
 
               @verifier
-            else
-              nil
             end
           end
 

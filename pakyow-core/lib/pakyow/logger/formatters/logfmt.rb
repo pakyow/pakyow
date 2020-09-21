@@ -16,10 +16,10 @@ module Pakyow
       class Logfmt < Pakyow::Logger::Formatters::JSON
         private
 
-        UNESCAPED_STRING = /\A[\w\.\-\+\%\,\:\;\/]*\z/i
+        UNESCAPED_STRING = /\A[\w.\-+%,:;\/]*\z/i
 
         def serialize(message)
-          string = String.new
+          string = +""
 
           message.each_pair do |key, value|
             value = case value

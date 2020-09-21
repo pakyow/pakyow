@@ -14,9 +14,9 @@ module Pakyow
 
       apply_extension do
         before :boot do
-          config.secrets.reject! { |secret|
+          config.secrets.reject! do |secret|
             secret.nil? || secret.empty?
-          }
+          end
 
           if config.secrets.any?
             @verifier = Support::MessageVerifier.new(config.secrets[0])

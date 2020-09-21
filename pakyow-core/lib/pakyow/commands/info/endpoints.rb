@@ -13,9 +13,7 @@ command :info, :endpoints do
       endpoint.method.to_s.upcase
     }
 
-    longest_endpoint_method = endpoint_methods.max { |a, b|
-      a.length <=> b.length
-    }
+    longest_endpoint_method = endpoint_methods.max_by(&:length)
 
     endpoint_names = @app.endpoints.map { |endpoint|
       endpoint.name

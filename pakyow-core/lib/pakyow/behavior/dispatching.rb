@@ -22,9 +22,9 @@ module Pakyow
 
         performing :dispatch, connection: connection do
           catch :halt do
-            apps.find { |app|
+            apps.find do |app|
               app.mount_path && app.accept?(connection)
-            }&.call(connection)
+            end&.call(connection)
 
             finished = true
           end

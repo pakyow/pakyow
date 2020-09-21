@@ -15,6 +15,8 @@ module Pakyow
     class Result
       using Support::DeepDup
 
+      attr_writer :validation
+
       def initialize
         @errors = {}
         @nested = {}
@@ -35,10 +37,6 @@ module Pakyow
 
       def nested(key, result)
         @nested[key] = result
-      end
-
-      def validation(result)
-        @validation = result
       end
 
       def verified?
@@ -178,7 +176,7 @@ module Pakyow
       result = Result.new
 
       if validatable?(values)
-        result.validation(@validator.call(values, context: context))
+        result.validation = @validator.call(values, context: context)
       end
 
       @allowable_keys.each do |allowable_key|
@@ -195,7 +193,7 @@ module Pakyow
           end
         end
 
-        if verifier_for_key = @verifiers_by_key[allowable_key]
+        if (verifier_for_key = @verifiers_by_key[allowable_key])
           Array.ensure(values[allowable_key]).each do |values_for_key|
             result.nested(allowable_key, verifier_for_key.call(values_for_key, context: context))
           end
@@ -214,7 +212,7 @@ module Pakyow
 
       unless result.verified?
         error = InvalidData.new_with_message(:verification)
-        error.context = { object: values, result: result }
+        error.context = {object: values, result: result}
         raise error
       end
 
@@ -227,10 +225,8 @@ module Pakyow
 
     def default(key)
       key = key.to_sym
-      if value = @defaults.include?(key)
+      if @defaults.include?(key)
         resolve_default_value(@defaults[key])
-      else
-        nil
       end
     end
 
@@ -258,7 +254,7 @@ module Pakyow
         if values.key?(key)
           value = values[key]
 
-          if type = @types[key]
+          if (type = @types[key])
             value = type[value]
           end
 
@@ -270,11 +266,11 @@ module Pakyow
     end
 
     # @api private
-    MUTATABLE_TYPES = %w(
+    MUTATABLE_TYPES = %w[
       Hash
       Pakyow::Support::IndifferentHash
       Pakyow::Connection::Params
-    ).freeze
+    ].freeze
 
     private def mutable?(values)
       MUTATABLE_TYPES.include?(values.class.name)

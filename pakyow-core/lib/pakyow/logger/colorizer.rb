@@ -10,7 +10,7 @@ module Pakyow
       # Colorizes message based on level.
       #
       def self.colorize(message, level)
-        if color = color(level)
+        if (color = color(level))
           Support::CLI.style.public_send(color, message)
         else
           message

@@ -43,7 +43,7 @@ module Pakyow
             raise FormationError.new_with_message(:multiple, formation: @string, containers: containers.uniq)
           end
 
-          @formation = Formation.build(containers.first) do |formation|
+          @formation = Formation.build(containers.first) { |formation|
             nested_formations = {}
 
             entries.each do |entry|
@@ -67,7 +67,7 @@ module Pakyow
                 formation.run(:all)
               end
             end
-          end
+          }
         end
       end
     end

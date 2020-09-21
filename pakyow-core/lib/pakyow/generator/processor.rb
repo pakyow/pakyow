@@ -18,7 +18,7 @@ module Pakyow
 
         def process(content, context:)
           erb = if RUBY_VERSION.start_with?("2.5")
-            ERB.new(content, nil, "%<>-")
+            ERB.new(content, trim_mode: "%<>-")
           else
             ERB.new(content, trim_mode: "%-")
           end

@@ -28,7 +28,7 @@ module Pakyow
             }
           )
         ).tap do |plugin_templates|
-          if app_templates = @plugin.parent.templates.each.find { |templates| templates.name == :default }
+          if (app_templates = @plugin.parent.templates.each.find { |templates| templates.name == :default })
             plugin_templates.paths.each do |path|
               plugin_info = plugin_templates.info(path)
 
@@ -39,7 +39,7 @@ module Pakyow
                 plugin_info[:partials].merge!(app_templates.includes)
               end
 
-              if app_info = app_templates.info(File.join(@plugin.mount_path, path))
+              if (app_info = app_templates.info(File.join(@plugin.mount_path, path)))
                 # Define the plugin view as the `plug` partial so that it can be included.
                 #
                 plugin_info[:partials][:plug] = Presenter::Views::Partial.from_object(

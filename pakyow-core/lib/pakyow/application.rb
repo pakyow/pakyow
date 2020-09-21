@@ -203,9 +203,9 @@ module Pakyow
             end
 
             performing :load do
-              lib_path = Pakyow.deprecator.ignore do
+              lib_path = Pakyow.deprecator.ignore {
                 config.lib
-              end
+              }
 
               if File.exist?(lib_path)
                 Pakyow.deprecated "application lib", solution: "use the environment lib"
@@ -280,7 +280,7 @@ module Pakyow
 
     def shutdown
       unless rescued?
-        performing :shutdown do; end
+        performing(:shutdown) {}
       end
     rescue ScriptError, StandardError => error
       raise ApplicationError.build(error, context: self)

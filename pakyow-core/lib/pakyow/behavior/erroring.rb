@@ -19,7 +19,7 @@ module Pakyow
         #   end
         #
         def houston(error)
-          performing :error, error do; end
+          performing(:error, error) {}
         ensure
           logger.houston(error)
         end

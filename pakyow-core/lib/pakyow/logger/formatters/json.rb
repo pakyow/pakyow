@@ -50,11 +50,11 @@ module Pakyow
 
           case message
           when Hash
-            if connection = message.delete("prologue")
+            if (connection = message.delete("prologue"))
               format_prologue(connection, entry)
-            elsif connection = message.delete("epilogue")
+            elsif (connection = message.delete("epilogue"))
               format_epilogue(connection, entry)
-            elsif error = message.delete("error")
+            elsif (error = message.delete("error"))
               format_error(error, entry)
             else
               entry.update(message)

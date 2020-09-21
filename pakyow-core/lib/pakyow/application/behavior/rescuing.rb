@@ -21,7 +21,7 @@ module Pakyow
           def error
             defined?(@error) ? @error : self.class.error
           end
-          alias rescued error
+          alias_method :rescued, :error
 
           # Returns true if the application has been rescued.
           #

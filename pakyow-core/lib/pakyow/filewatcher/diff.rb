@@ -29,7 +29,7 @@ module Pakyow
 
         @changes.each_pair(&block)
       end
-      alias each_pair each_change
+      alias_method :each_pair, :each_change
 
       # Yields each changed path.
       #

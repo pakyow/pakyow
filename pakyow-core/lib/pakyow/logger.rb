@@ -42,7 +42,7 @@ module Pakyow
     # @param started_at [Time] when the logging began
     # @param output [Object] the object that will perform the logging
     # @param id [String] a unique id used to identify the request
-    def initialize(type, started_at: Time.now, id: SecureRandom.hex(4), output:, level:)
+    def initialize(type, output:, level:, started_at: Time.now, id: SecureRandom.hex(4))
       @type, @started_at, @id = type, started_at, id
 
       level = case level
@@ -87,7 +87,7 @@ module Pakyow
     def add(level, message = nil, &block)
       public_send(level, message, &block)
     end
-    alias log add
+    alias_method :log, :add
 
     # Logs the beginning of a request, including the time, request method,
     # request uri, and originating ip address.
@@ -122,19 +122,19 @@ module Pakyow
 
     def decorate(message = nil)
       message = yield if block_given?
-      { "logger" => self, "message" => message }
+      {"logger" => self, "message" => message}
     end
 
     def formatted_prologue(connection)
-      { "prologue" => connection }
+      {"prologue" => connection}
     end
 
     def formatted_epilogue(connection)
-      { "epilogue" => connection }
+      {"epilogue" => connection}
     end
 
     def formatted_error(error)
-      { "error" => error }
+      {"error" => error}
     end
   end
 end

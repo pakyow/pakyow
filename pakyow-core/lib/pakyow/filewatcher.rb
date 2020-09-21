@@ -36,7 +36,8 @@ module Pakyow
 
       @lock.synchronize do
         unless @watched.include?(path)
-          @watched << path; true
+          @watched << path
+          true
         end
       end
     end
@@ -74,14 +75,14 @@ module Pakyow
     def perform
       run
     end
-    alias start perform
+    alias_method :start, :perform
 
     # Stops the filewatcher.
     #
     def stop
       @status.stopped!
     end
-    alias shutdown stop
+    alias_method :shutdown, :stop
 
     # Pauses the filewatcher.
     #
@@ -117,7 +118,7 @@ module Pakyow
 
               # Look for changes.
               #
-              snapshot = detect_changes(snapshot) do |(path, event), diff|
+              snapshot = detect_changes(snapshot) { |(path, event), diff|
                 # Double check that we haven't paused or stopped when processing each change.
                 #
                 if @status.running?
@@ -134,7 +135,7 @@ module Pakyow
                     end
                   end
                 end
-              end
+              }
             end
           end
         end

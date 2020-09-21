@@ -10,7 +10,7 @@ module Pakyow
         def initialize(*, **)
           super
 
-          @buffer = String.new
+          @buffer = +""
         end
 
         def print_command_start(cmd, *args)
@@ -34,7 +34,7 @@ module Pakyow
         end
 
         def print_command_exit(cmd, *args)
-          @buffer = String.new
+          @buffer = +""
         end
       end
     end

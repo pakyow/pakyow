@@ -7,13 +7,11 @@ module Pakyow
   #
   class Framework
     class << self
-      # rubocop:disable Naming/MethodName
       def Framework(name)
         Class.new(self) do
           @framework_name = name
         end
       end
-      # rubocop:enabled Naming/MethodName
 
       def inherited(framework_class)
         super

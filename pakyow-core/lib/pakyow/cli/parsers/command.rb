@@ -36,7 +36,7 @@ module Pakyow
 
             @command.options.each_pair do |key, option|
               match = ["--#{key}=VAL"]
-              if short = option[:short]
+              if (short = option[:short])
                 match.unshift("-#{short}VAL")
               end
 

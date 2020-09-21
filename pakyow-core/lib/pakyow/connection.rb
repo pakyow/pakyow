@@ -121,7 +121,8 @@ module Pakyow
 
     def parsed_input
       unless instance_variable_defined?(:@parsed_input)
-        @parsed_input = nil; @parsed_input = parse_input
+        @parsed_input = nil
+        @parsed_input = parse_input
       end
 
       @parsed_input
@@ -144,9 +145,9 @@ module Pakyow
     def scheme
       if request_header("https").to_s == "on" || request_header("x-forwarded-ssl").to_s == "on"
         "https"
-      elsif value = request_header("x-forwarded-scheme")
+      elsif (value = request_header("x-forwarded-scheme"))
         value[0]
-      elsif value = request_header("x-forwarded-proto")
+      elsif (value = request_header("x-forwarded-proto"))
         value[0]
       else
         @request.scheme
@@ -242,7 +243,7 @@ module Pakyow
 
       @type
     end
-    alias media_type type
+    alias_method :media_type, :type
 
     def type_params
       unless instance_variable_defined?(:@parsed_type_params)
@@ -251,7 +252,7 @@ module Pakyow
 
       @parsed_type_params
     end
-    alias media_type_params type_params
+    alias_method :media_type_params, :type_params
 
     def secure?
       scheme == "https"
@@ -283,7 +284,7 @@ module Pakyow
     #   => "application/json"
     #
     def format=(format)
-      if mime = MiniMime.lookup_by_extension(format.to_s)
+      if (mime = MiniMime.lookup_by_extension(format.to_s))
         set_header("content-type", mime.content_type)
       end
 
@@ -297,7 +298,7 @@ module Pakyow
     def write(content)
       @body.write(content)
     end
-    alias << write
+    alias_method :<<, :write
 
     def close
       @body.close
@@ -360,7 +361,8 @@ module Pakyow
       performing :finalize do
         if request_method == "HEAD"
           if streaming?
-            @streams.each(&:stop); @streams = []
+            @streams.each(&:stop)
+            @streams = []
           end
         end
 
@@ -368,7 +370,7 @@ module Pakyow
 
         if streaming?
           Async::Reactor.run do
-            while stream = @streams.shift
+            while (stream = @streams.shift)
               stream.wait
             end
 
@@ -425,7 +427,7 @@ module Pakyow
     private
 
     def normalize_header(key)
-      key.to_s.downcase.gsub("_", "-")
+      key.to_s.downcase.tr("_", "-")
     end
 
     def normalize_header_value(value)
@@ -486,12 +488,12 @@ module Pakyow
       when Hash, Support::IndifferentHash
         cookie
       else
-        { value: cookie }
+        {value: cookie}
       end
     end
 
     def serialize_cookie(cookie)
-      serialized = String.new
+      serialized = +""
 
       serialized << "; domain=#{cookie[:domain]}" if cookie[:domain]
       serialized << "; path=#{cookie[:path]}" if cookie[:path]
@@ -503,8 +505,6 @@ module Pakyow
         Time.now + expires_value
       when Date, DateTime, Time
         expires_value
-      else
-        nil
       end
 
       serialized << "; expires=#{expires.httpdate}" if expires
@@ -517,8 +517,6 @@ module Pakyow
         "Lax"
       when "strict"
         "Strict"
-      else
-        nil
       end
 
       serialized << "; SameSite=#{same_site}" if same_site
@@ -545,9 +543,9 @@ module Pakyow
         parse_content_type
       end
 
-      QueryParser.new.tap { |parser|
+      QueryParser.new.tap do |parser|
         parser.parse(@type_params.to_s)
-      }.params.deep_indifferentize
+      end.params.deep_indifferentize
     end
 
     def parse_input
@@ -561,8 +559,6 @@ module Pakyow
             input.rewind
           end
         end
-      else
-        nil
       end
     end
 
@@ -577,14 +573,12 @@ module Pakyow
     def parse_subdomain(tld_length)
       @subdomain_by_tld_length[tld_length] = if subdomains(tld_length).any?
         subdomains(tld_length).join(".")
-      else
-        nil
       end
     end
 
     def parse_subdomains(tld_length)
       @subdomains_by_tld_length[tld_length] = if authority.include?(".")
-        authority.split(".")[0..(-(2 + tld_length))]
+        authority.split(".")[0..-(2 + tld_length)]
       else
         []
       end
@@ -593,13 +587,11 @@ module Pakyow
     def parse_format
       @format = if path.include?(".")
         path.split(".").last.to_sym
-      elsif accept = request_header("accept")
+      elsif (accept = request_header("accept"))
         if accept[0] == "*/*"
           :any
-        elsif mime_type = MiniMime.lookup_by_content_type(accept[0])&.extension
+        elsif (mime_type = MiniMime.lookup_by_content_type(accept[0])&.extension)
           mime_type.to_sym
-        else
-          nil
         end
       else
         :html

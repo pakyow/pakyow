@@ -74,7 +74,7 @@ module Pakyow
     }.freeze
 
     def contextual_message
-      known_types = @context[:types].each_with_object(String.new) { |known_type, known_types_message|
+      known_types = @context[:types].each_with_object(+"") { |known_type, known_types_message|
         known_types_message << "  - #{known_type.inspect}\n"
       }
 
@@ -92,7 +92,7 @@ module Pakyow
     }.freeze
 
     def contextual_message
-      available_plugins = Pakyow.plugins.keys.each_with_object(String.new) { |plugin_name, available_plugins_message|
+      available_plugins = Pakyow.plugins.keys.each_with_object(+"") { |plugin_name, available_plugins_message|
         available_plugins_message << "  - #{plugin_name.inspect}\n"
       }
 
@@ -116,9 +116,9 @@ module Pakyow
     }.freeze
 
     def contextual_message
-      available_services = @context.services.each.each_with_object(String.new) do |service, available_services_message|
+      available_services = @context.services.each.each_with_object(+"") { |service, available_services_message|
         available_services_message << "  - #{service.object_name.name.inspect}\n"
-      end
+      }
 
       <<~MESSAGE
         Try using one of these available services:
@@ -140,9 +140,9 @@ module Pakyow
     }.freeze
 
     def contextual_message
-      release_channels = @context.release_channels.each_with_object(String.new) do |channel, release_channels_message|
+      release_channels = @context.release_channels.each_with_object(+"") { |channel, release_channels_message|
         release_channels_message << "  - #{channel.inspect}\n"
-      end
+      }
 
       <<~MESSAGE
         Try using one of these available release channels:

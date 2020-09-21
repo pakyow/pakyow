@@ -18,7 +18,7 @@ module Pakyow
         # Error the environment was rescued from.
         #
         attr_reader :error
-        alias rescued error
+        alias_method :rescued, :error
 
         # Returns true if the environment has been rescued.
         #

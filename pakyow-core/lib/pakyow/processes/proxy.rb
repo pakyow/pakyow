@@ -40,7 +40,7 @@ module Pakyow
         Async::Reactor.run do
           Async::HTTP::Server.new(server, endpoint).run
 
-          if !ENV.key?("PW_RESPAWN")
+          unless ENV.key?("PW_RESPAWN")
             Pakyow.logger << Pakyow::Processes::Server.running_text(
               scheme: "http", host: @host, port: @port
             )

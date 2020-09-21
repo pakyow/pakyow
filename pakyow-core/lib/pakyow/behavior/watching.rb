@@ -26,11 +26,13 @@ module Pakyow
 
           if Support::System.ruby_version < "2.7.0"
             def initialize(*)
-              __common_watching_behavior_initializer; super
+              __common_watching_behavior_initializer
+              super
             end
           else
             def initialize(*, **)
-              __common_watching_behavior_initializer; super
+              __common_watching_behavior_initializer
+              super
             end
           end
 
@@ -76,7 +78,7 @@ module Pakyow
         # Register a callback to be called when a file changes.
         #
         def changed(matcher = nil, snapshot: false, &block)
-          (__filewatcher_changes[matcher] ||= []) << { block: block, snapshot: snapshot }
+          (__filewatcher_changes[matcher] ||= []) << {block: block, snapshot: snapshot}
         end
 
         def on_change(matcher = nil, &block)

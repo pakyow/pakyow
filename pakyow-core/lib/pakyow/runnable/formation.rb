@@ -26,7 +26,7 @@ module Pakyow
         # Builds a formation.
         #
         def build(container = nil)
-          instance = self.new(container)
+          instance = new(container)
           yield instance if block_given?
           instance
         end
@@ -90,7 +90,7 @@ module Pakyow
         end
 
         formation.each_formation.each do |nested_formation|
-          if existing_nested = formation(nested_formation.container)
+          if (existing_nested = formation(nested_formation.container))
             existing_nested.merge!(nested_formation)
           else
             self << nested_formation

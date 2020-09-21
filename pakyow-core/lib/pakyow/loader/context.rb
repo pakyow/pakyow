@@ -92,9 +92,9 @@ module Pakyow
         line_number = first_nonblank_or_commented_line_number(lines)
 
         if lines.empty? || line_number == 1
-          return "", code
+          ["", code]
         else
-          return lines[0...(line_number - 1)].join, lines[(line_number - 1)..-1].join
+          [lines[0...(line_number - 1)].join, lines[(line_number - 1)..-1].join]
         end
       end
 
@@ -128,7 +128,7 @@ module Pakyow
         else
           # We should never get here, but raise an error just to be clear.
           #
-          raise RuntimeError, "could not parse inner source of `#{@path}'"
+          raise "could not parse inner source of `#{@path}'"
         end
 
         inner_source + trailing_whitespace
@@ -149,7 +149,7 @@ module Pakyow
 
         # We should never get here, but raise an error just to be clear.
         #
-        raise RuntimeError, "could not find a complete expression for `#{matcher}' in `#{@path}'"
+        raise "could not find a complete expression for `#{matcher}' in `#{@path}'"
       end
     end
   end

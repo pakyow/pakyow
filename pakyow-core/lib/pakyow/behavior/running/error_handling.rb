@@ -10,6 +10,7 @@ module Pakyow
           handle Exception do |error|
             case error
             when SystemExit
+              # noop
             when SignalException
               raise error
             else

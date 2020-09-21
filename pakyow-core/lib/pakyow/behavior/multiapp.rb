@@ -35,7 +35,7 @@ module Pakyow
           $LOAD_PATH.unshift(config.common_lib)
         end
 
-        singleton_class.prepend Module.new {
+        prependable = Module.new {
           private def load_apps_common
             if multiapp?
               Dir.glob(File.join(config.multiapp_path, "*")).select { |path|
@@ -54,6 +54,8 @@ module Pakyow
             end
           end
         }
+
+        singleton_class.prepend(prependable)
       end
 
       class_methods do

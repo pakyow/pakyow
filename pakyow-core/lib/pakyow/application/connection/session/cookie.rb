@@ -27,7 +27,7 @@ module Pakyow
 
             # Update the original cookie value so we can compare for changes.
             #
-            connection.update_request_cookie(options.name, self.dup)
+            connection.update_request_cookie(options.name, dup)
           end
 
           def to_s
@@ -41,7 +41,7 @@ module Pakyow
           private
 
           def deserialize(connection, options)
-            if value = connection.cookies[options.name]
+            if (value = connection.cookies[options.name])
               Support::IndifferentHash.deep(
                 Marshal.load(
                   Pakyow.verifier.verify(
@@ -52,7 +52,7 @@ module Pakyow
             else
               Support::IndifferentHash.new
             end
-          rescue StandardError
+          rescue
             Support::IndifferentHash.new
           end
         end

@@ -107,8 +107,6 @@ module Pakyow
           else
             if CODE_TO_DESCRIPTION.key?(code_or_symbol)
               code_or_symbol
-            else
-              nil
             end
           end
         end

@@ -129,7 +129,7 @@ module Pakyow
 
     def handling(command = nil, debug: false)
       yield command
-    rescue StandardError => error
+    rescue => error
       if @feedback.tty?
         @feedback.error(error)
 
@@ -201,7 +201,7 @@ module Pakyow
     end
 
     private def handle_unknown_command(command_name)
-      if task = (Pakyow.commands.definitions + Pakyow.tasks).find { |command| command.cli_name == command_name }
+      if (task = (Pakyow.commands.definitions + Pakyow.tasks).find { |command| command.cli_name == command_name })
         if task.global?
           raise UnknownCommand.new_with_message(
             :not_in_global_context,
@@ -246,7 +246,7 @@ module Pakyow
     end
 
     class << self
-      UNAVAILABLE_SHORT_NAMES = %i(a e h).freeze
+      UNAVAILABLE_SHORT_NAMES = %i[a e h].freeze
 
       # @api private
       def shortable?(short_name)

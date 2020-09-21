@@ -96,7 +96,7 @@ module Pakyow
 
       rake_args = [:values]
       rake_args = if dependent
-        { rake_args => dependent }
+        {rake_args => dependent}
       else
         rake_args
       end
@@ -114,11 +114,11 @@ module Pakyow
       end
 
       if self.class.arguments.include?(target)
-        return self, "argument `#{target}'"
+        [self, "argument `#{target}'"]
       elsif self.class.options.include?(target)
-        return self, "option `#{target}'"
+        [self, "option `#{target}'"]
       elsif self.class.flags.include?(target)
-        return self, "flag `#{target}'"
+        [self, "flag `#{target}'"]
       else
         super
       end
@@ -231,7 +231,7 @@ module Pakyow
 
       # @api private
       def app?
-        if verifier = __verifiers[:default]
+        if (verifier = __verifiers[:default])
           verifier.allowable_keys.include?(:app)
         else
           false
@@ -240,7 +240,7 @@ module Pakyow
 
       # @api private
       def cli?
-        if verifier = __verifiers[:default]
+        if (verifier = __verifiers[:default])
           verifier.allowable_keys.include?(:cli)
         else
           false

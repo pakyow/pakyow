@@ -23,14 +23,14 @@ command :prelaunch do
       end
     end
 
-    %w(prelaunch:build prelaunch:release).each do |command|
+    %w[prelaunch:build prelaunch:release].each do |command|
       @cli.call(command)
     end
   end
 
   private def each_command(object)
     Pakyow::Support::Deprecator.global.ignore do
-      (object.config.tasks.prelaunch).uniq.each do |command, options = {}|
+      object.config.tasks.prelaunch.uniq.each do |command, options = {}|
         yield command, options.merge(global_options)
       end
     end

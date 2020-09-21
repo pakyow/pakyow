@@ -16,7 +16,7 @@ module Pakyow
 
       class << self
         def running_text(scheme:, host:, port:)
-          text = String.new("Pakyow › #{Pakyow.env.capitalize}")
+          text = +"Pakyow › #{Pakyow.env.capitalize}"
           text << " › #{scheme}://#{host}:#{port}"
 
           Support::CLI.style.blue.bold(

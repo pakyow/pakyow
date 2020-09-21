@@ -33,7 +33,7 @@ module Pakyow
         end
 
         private def setup_deprecator(deprecator)
-          @deprecator = if reporter = setup_deprecation_reporter(deprecator)
+          @deprecator = if (reporter = setup_deprecation_reporter(deprecator))
             Support::Deprecator.new(reporter: reporter).tap do |instance|
               Support::Deprecator.global >> instance
             end

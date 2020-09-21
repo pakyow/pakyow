@@ -12,8 +12,6 @@ module Pakyow
         def count(service)
           if service.to_sym == :all
             super
-          else
-            nil
           end
         end
       end

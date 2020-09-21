@@ -102,7 +102,7 @@ module Pakyow
       end
 
       if self.class.__verifiers[:default]&.allowable_keys&.include?(target)
-        return self, "verified value `#{target}'"
+        [self, "verified value `#{target}'"]
       else
         super
       end
@@ -142,14 +142,14 @@ module Pakyow
       private def define_attributes_for_verifier(verifier)
         verifier.allowable_keys.each do |key|
           unless method_defined?(key) || private_method_defined?(key)
-            class_eval <<~CODE, __FILE__, __LINE__
+            class_eval <<~CODE, __FILE__, __LINE__ + 1
               attr_reader :#{key}
             CODE
           end
 
           setter = :"#{key}="
           unless method_defined?(setter) || private_method_defined?(setter)
-            class_eval <<~CODE, __FILE__, __LINE__
+            class_eval <<~CODE, __FILE__, __LINE__ + 1
               private
 
               attr_writer :#{key}

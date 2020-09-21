@@ -53,11 +53,11 @@ module Pakyow
       private
 
       def rack_normalize_header(key)
-        key.to_s.upcase.gsub("-", "_")
+        key.to_s.upcase.tr("-", "_")
       end
 
       def rack_normalize_header_key_value(key, value)
-        if value && policy = header_policy(key)
+        if value && (policy = header_policy(key))
           policy.new(value.to_s)
         else
           value
@@ -65,13 +65,11 @@ module Pakyow
       end
 
       def header_policy(key)
-        key = key.to_s.downcase.gsub("_", "-")
+        key = key.to_s.downcase.tr("_", "-")
         if defined?(Protocol::HTTP::Headers::MERGE_POLICY)
           Protocol::HTTP::Headers::MERGE_POLICY[key]
         elsif defined?(Protocol::HTTP::Headers::POLICY)
           Protocol::HTTP::Headers::POLICY[key]
-        else
-          nil
         end
       end
     end

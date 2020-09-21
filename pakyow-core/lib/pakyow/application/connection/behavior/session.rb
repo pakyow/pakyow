@@ -22,8 +22,6 @@ module Pakyow
           def build_session
             if @app.config.session.enabled
               @app.session_object.new(self, @app.session_options)
-            else
-              nil
             end
           end
         end

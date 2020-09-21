@@ -18,13 +18,13 @@ module Pakyow
           #   end
           #
           def handle(event = nil, as: nil, &block)
-            event = if code = Connection::Statuses.code(event)
+            event = if (code = Connection::Statuses.code(event))
               code
             else
               event
             end
 
-            if code = Connection::Statuses.code(as)
+            if (code = Connection::Statuses.code(as))
               super(event) do |super_event, *args, **kwargs|
                 connection = kwargs[:connection]
                 connection&.status = code
@@ -48,7 +48,7 @@ module Pakyow
           def trigger(event, *args, **kwargs)
             connection = kwargs[:connection]
 
-            if code = Connection::Statuses.code(event)
+            if (code = Connection::Statuses.code(event))
               connection&.status = code
               event = code
             end

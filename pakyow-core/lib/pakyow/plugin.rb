@@ -45,8 +45,6 @@ module Pakyow
         else
           plugin_name
         end
-      else
-        nil
       end
     end
 
@@ -308,8 +306,8 @@ module Pakyow
     end
 
     def create_helper_contexts
-      @helper_contexts = %i(global passive active).each_with_object({}) { |context, helper_contexts|
-        helper_class = Class.new do
+      @helper_contexts = %i[global passive active].each_with_object({}) { |context, helper_contexts|
+        helper_class = Class.new {
           def initialize(connection, context)
             @connection, @context = connection, context
           end
@@ -325,7 +323,7 @@ module Pakyow
           def respond_to_missing?(method_name, include_private = false)
             @context.respond_to?(method_name, include_private) || super
           end
-        end
+        }
 
         self.class.include_helpers(context, helper_class)
         helper_contexts[context] = helper_class
@@ -335,11 +333,9 @@ module Pakyow
     class << self
       attr_reader :plugin_name, :plugin_path, :mount_path
 
-      # rubocop:disable Naming/MethodName
       def Plugin(name, path)
         make name, plugin_name: name, plugin_path: path
       end
-      # rubocop:enabled Naming/MethodName
 
       def inherited(plugin_class)
         super

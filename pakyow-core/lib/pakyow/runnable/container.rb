@@ -190,7 +190,7 @@ module Pakyow
             ::Process.exit(success?)
           end
         end
-      rescue SignalException, Interrupt => error
+      rescue SignalException => error
         raise error unless toplevel_pid?
       ensure
         stop

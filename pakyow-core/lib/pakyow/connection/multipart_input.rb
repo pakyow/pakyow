@@ -12,7 +12,7 @@ module Pakyow
         __setobj__(Tempfile.new(["PakyowMultipart", File.extname(filename)]))
       end
 
-      alias media_type type
+      alias_method :media_type, :type
 
       # Fixes an issue using pp inside a delegator.
       #

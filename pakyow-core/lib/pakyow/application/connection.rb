@@ -41,7 +41,8 @@ module Pakyow
       end
 
       private def __initialize(app, connection)
-        @app = app; __setobj__(connection)
+        @app = app
+        __setobj__(connection)
       end
 
       def initialize_dup(_)

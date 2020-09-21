@@ -24,16 +24,16 @@ module Pakyow
           class_state :__included_helpers, default: {}, inheritable: true
 
           setting :helpers,
-                  global: [
-                    Pakyow::Application::Helpers::Application,
-                    Support::SafeStringHelpers
-                  ],
+            global: [
+              Pakyow::Application::Helpers::Application,
+              Support::SafeStringHelpers
+            ],
 
-                  passive: [
-                    Pakyow::Application::Helpers::Connection
-                  ],
+            passive: [
+              Pakyow::Application::Helpers::Connection
+            ],
 
-                  active: []
+            active: []
 
           after "make", priority: :high do
             definable :helper, Helper

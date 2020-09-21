@@ -66,9 +66,9 @@ module Pakyow
           raise DepthLimitExceeded, "depth limit (#{@depth_limit}) exceeded by `#{key}'"
         end
 
-        if key && key.include?("[") && key.include?("]")
+        if key&.include?("[") && key&.include?("]")
           opened = false
-          read, nested = String.new, nil
+          read, nested = +"", nil
 
           key.length.times do |i|
             char = key[i]
@@ -81,7 +81,7 @@ module Pakyow
               case params
               when Array
                 nested_value = if nested
-                  if current_nested_value = params.last
+                  if (current_nested_value = params.last)
                     unless current_nested_value.is_a?(@params.class)
                       raise InvalidParameter, "expected `#{read}' to be #{@params.class} (got #{current_nested_value.class})"
                     end
@@ -94,20 +94,18 @@ module Pakyow
                   else
                     (params << @params.class.new).last
                   end
-                else
-                  if current_nested_value = params[read]
-                    unless current_nested_value.is_a?(Array)
-                      raise InvalidParameter, "expected `#{read}' to be Array (got #{current_nested_value.class})"
-                    end
-
-                    current_nested_value
-                  else
-                    (params << []).last
+                elsif (current_nested_value = params[read])
+                  unless current_nested_value.is_a?(Array)
+                    raise InvalidParameter, "expected `#{read}' to be Array (got #{current_nested_value.class})"
                   end
+
+                  current_nested_value
+                else
+                  (params << []).last
                 end
               when @params.class
                 nested_value = if nested
-                  if current_nested_value = params[read]
+                  if (current_nested_value = params[read])
                     unless current_nested_value.is_a?(@params.class)
                       raise InvalidParameter, "expected `#{read}' to be #{@params.class} (got #{current_nested_value.class})"
                     end
@@ -116,16 +114,14 @@ module Pakyow
                   else
                     @params.class.new
                   end
-                else
-                  if current_nested_value = params[read]
-                    unless current_nested_value.is_a?(Array)
-                      raise InvalidParameter, "expected `#{read}' to be Array (got #{current_nested_value.class})"
-                    end
-
-                    current_nested_value
-                  else
-                    []
+                elsif (current_nested_value = params[read])
+                  unless current_nested_value.is_a?(Array)
+                    raise InvalidParameter, "expected `#{read}' to be Array (got #{current_nested_value.class})"
                   end
+
+                  current_nested_value
+                else
+                  []
                 end
 
                 add(read, nested_value, params)
@@ -135,10 +131,11 @@ module Pakyow
               if (next_char = key[j]) && next_char != "["
                 raise InvalidParameter, "expected `#{nested}' to be #{params.class} (got String)"
               else
-                add_value_for_key(value, (nested || String.new) << key[j..-1], nested_value, depth + 1); break
+                add_value_for_key(value, (nested || +"") << key[j..-1], nested_value, depth + 1)
+                break
               end
             elsif opened
-              (nested ||= String.new) << char
+              (nested ||= +"") << char
             else
               read << char
             end
@@ -155,10 +152,8 @@ module Pakyow
                 current_value = [current_value, value]
                 add(key, current_value, params)
               end
-            else
-              if key && !key.empty?
-                add(key, value, params)
-              end
+            elsif key && !key.empty?
+              add(key, value, params)
             end
           end
         end

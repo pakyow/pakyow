@@ -42,7 +42,7 @@ module Pakyow
     # Returns a normalized name suitable for generation.
     #
     def self.generatable_name(value)
-      Support.inflector.underscore(value.downcase).gsub("  ", " ").gsub(" ", "_")
+      Support.inflector.underscore(value.downcase).gsub("  ", " ").tr(" ", "_")
     end
 
     def initialize(*source_paths, **options)
@@ -80,7 +80,7 @@ module Pakyow
         delete_thread_localized(:destination)
       end
     end
-    alias generate perform
+    alias_method :generate, :perform
 
     def run(command, message:, from: thread_localized(:destination, "."))
       Support::CLI::Runner.new(message: message).run(

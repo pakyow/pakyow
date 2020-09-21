@@ -200,17 +200,23 @@ module Pakyow
 
     setting :host, "localhost"
     remove_method :host=
-    def host=(value); Pakyow.config.runnable.server.host = value; end
+    def host=(value)
+      Pakyow.config.runnable.server.host = value
+    end
     deprecate :host, solution: "use `config.runnable.server.host'"
 
     setting :port, 3000
     remove_method :port=
-    def port=(value); Pakyow.config.runnable.server.port = value; end
+    def port=(value)
+      Pakyow.config.runnable.server.port = value
+    end
     deprecate :port, solution: "use `config.runnable.server.port'"
 
     setting :count, 1
     remove_method :count=
-    def count=(value); Pakyow.config.runnable.server.count = value; end
+    def count=(value)
+      Pakyow.config.runnable.server.count = value
+    end
     deprecate :count, solution: "use `config.runnable.server.count'"
 
     setting :proxy, true
@@ -223,7 +229,8 @@ module Pakyow
 
   configurable :cli do
     setting :repl do
-      require "irb"; IRB
+      require "irb"
+      IRB
     end
   end
 
@@ -246,7 +253,7 @@ module Pakyow
 
     setting :destinations do
       if config.logger.enabled
-        { stdout: $stdout }
+        {stdout: $stdout}
       else
         {}
       end
@@ -366,15 +373,15 @@ module Pakyow
   end
 
   extend Support::ClassState
-  class_state :apps,        default: []
-  class_state :__mounts,    default: {}
-  class_state :__setups,    default: {}
-  class_state :frameworks,  default: {}
-  class_state :__loaded,    default: false, reader: false
-  class_state :__setup,     default: false, reader: false
-  class_state :__booted,    default: false, reader: false
-  class_state :server,      default: nil, reader: false
-  class_state :env,         default: nil, reader: false
+  class_state :apps, default: []
+  class_state :__mounts, default: {}
+  class_state :__setups, default: {}
+  class_state :frameworks, default: {}
+  class_state :__loaded, default: false, reader: false
+  class_state :__setup, default: false, reader: false
+  class_state :__booted, default: false, reader: false
+  class_state :server, default: nil, reader: false
+  class_state :env, default: nil, reader: false
   class_state :setup_error, default: nil
 
   class << self
@@ -434,7 +441,7 @@ module Pakyow
     # @param at [String] where the endpoint should be mounted
     #
     def mount(app, at:)
-      @__mounts[app] = { path: at }
+      @__mounts[app] = {path: at}
     end
 
     # Loads the Pakyow environment for the current project.
@@ -612,8 +619,6 @@ module Pakyow
 
           mount_path = if mount
             path
-          else
-            nil
           end
 
           mount(app, at: mount_path)
@@ -633,7 +638,7 @@ module Pakyow
       connection = config.connection_class.new(input)
       connection.async { super(connection) }.wait
       connection.finalize
-    rescue StandardError => error
+    rescue => error
       houston(error)
 
       Async::HTTP::Protocol::Response.new(

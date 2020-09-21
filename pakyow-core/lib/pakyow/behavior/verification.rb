@@ -55,7 +55,7 @@ module Pakyow
 
         def verify(name = :default, &block)
           name = name.to_sym
-          if verifier = __verifiers[name]
+          if (verifier = __verifiers[name])
             if block_given?
               verifier.instance_eval(&block)
             end

@@ -19,13 +19,14 @@ module Pakyow
       #
       %i[running paused stopped].each do |state|
         define_method :"#{state}!" do |&block|
-          changed = @lock.synchronize do
+          changed = @lock.synchronize {
             if @state == state
               false
             else
-              @state = state; true
+              @state = state
+              true
             end
-          end
+          }
 
           block&.call if changed
         end

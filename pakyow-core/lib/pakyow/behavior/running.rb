@@ -91,7 +91,7 @@ module Pakyow
               end
 
               private def running_text(env:, scheme:, host:, port:)
-                text = String.new("Pakyow › #{env.to_s.capitalize}")
+                text = +"Pakyow › #{env.to_s.capitalize}"
                 text << " › #{scheme}://#{host}:#{port}"
 
                 if $stdout.tty?
@@ -169,7 +169,7 @@ module Pakyow
                 strategy: strategy,
                 formation: formation,
                 config: config.runnable,
-                env: env,
+                env: env
               ) do |container|
                 @__running_container = container
                 yield container if block_given?

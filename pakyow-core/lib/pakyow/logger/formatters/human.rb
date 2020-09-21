@@ -23,7 +23,7 @@ module Pakyow
         private
 
         def format(event, **options)
-          entry = String.new
+          entry = +""
 
           case event
           when Hash
@@ -47,11 +47,11 @@ module Pakyow
 
           case message
           when Hash
-            if connection = message["prologue"]
+            if (connection = message["prologue"])
               format_prologue(connection, entry)
-            elsif connection = message["epilogue"]
+            elsif (connection = message["epilogue"])
               format_epilogue(connection, entry)
-            elsif error = message["error"]
+            elsif (error = message["error"])
               format_error(error, entry)
             else
               format_message(message, entry)

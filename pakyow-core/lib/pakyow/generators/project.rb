@@ -21,7 +21,7 @@ generator :project do
   action :generate_application do |destination_path|
     generator_namespace = self.class.object_name.parts - Pakyow.generator(:project).object_name.parts
 
-    if application_generator = Pakyow.generator(:application, *generator_namespace)
+    if (application_generator = Pakyow.generator(:application, *generator_namespace))
       application_generator.generate(destination_path, **@__options)
     end
   end

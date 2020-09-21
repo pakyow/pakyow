@@ -18,7 +18,7 @@ module Pakyow
       attr_reader :values
 
       def initialize(params, boundary:)
-        @params, @boundary = params, boundary.to_s.gsub(/[\"\']/, "")
+        @params, @boundary = params, boundary.to_s.gsub(/["']/, "")
         @reader = ::MultipartParser::Reader.new(@boundary)
         @reader.on_part(&method(:on_part))
         @reader.on_error(&method(:on_error))
@@ -27,13 +27,13 @@ module Pakyow
       end
 
       def parse(input)
-        while data = input.read
+        while (data = input.read)
           @reader.write(data)
         end
 
         finalize
         @params
-      rescue StandardError => error
+      rescue => error
         ensure_closed
         if error.is_a?(LimitExceeded)
           raise error
@@ -66,32 +66,28 @@ module Pakyow
 
       def on_part(part)
         headers = Protocol::HTTP::Headers.new(part.headers).to_h
-        disposition = QueryParser.new.tap { |parser|
+        disposition = QueryParser.new.tap do |parser|
           parser.parse(headers["content-disposition"].to_s)
-        }.params
-        content_type = QueryParser.new.tap { |parser|
+        end.params
+        content_type = QueryParser.new.tap do |parser|
           parser.parse(headers["content-type"].to_s)
-        }.params
+        end.params
 
-        if filename = disposition["filename"]
+        if (filename = disposition["filename"])
           value = add(MultipartInput.new(filename: filename, headers: headers, type: part.mime))
-
-          part.on_data do |data|
-            value << data
-          end
         else
-          value = add(String.new)
-          encoding = if charset = content_type["charset"]
+          value = add(+"")
+          encoding = if (charset = content_type["charset"])
             Encoding.find(charset.gsub(/[^a-zA-Z0-9\-_]/, ""))
           else
             Encoding::UTF_8
           end
 
           value.force_encoding(encoding)
+        end
 
-          part.on_data do |data|
-            value << data
-          end
+        part.on_data do |data|
+          value << data
         end
 
         @params.add_value_for_key(value, part.name || disposition["filename"])

@@ -73,7 +73,7 @@ module Pakyow
     end
 
     def details
-      if project? && location = project_backtrace_locations[0]
+      if project? && (location = project_backtrace_locations[0])
         message = "`#{(cause || self).class}' occurred on line `#{location.lineno}' of `#{path}':"
 
         begin
@@ -82,14 +82,14 @@ module Pakyow
 
             #{indent_as_source(MethodSource.source_helper([path, location.lineno], location.label), location.lineno)}
           MESSAGE
-        rescue StandardError
+        rescue
           <<~MESSAGE
             #{message}
 
                 Error parsing source.
           MESSAGE
         end
-      elsif location = (cause || self).backtrace_locations.to_a[0]
+      elsif (location = (cause || self).backtrace_locations.to_a[0])
         library_name = Support::Dependencies.library_name(location.absolute_path)
         library_type = Support::Dependencies.library_type(location.absolute_path)
 
@@ -176,11 +176,11 @@ module Pakyow
 
     def indent_as_source(message, lineno)
       message.split("\n").each_with_index.map { |line, i|
-        start = String.new("    #{lineno + i}|")
-        if i == 0
-          start << "›"
+        start = +"    #{lineno + i}|"
+        start << if i == 0
+          "›"
         else
-          start << " "
+          " "
         end
         "#{start} #{line}"
       }.join("\n")
