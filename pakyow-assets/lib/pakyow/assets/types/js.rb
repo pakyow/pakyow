@@ -17,11 +17,13 @@ module Pakyow
 
         if Support::System.ruby_version < "2.7.0"
           def initialize(*)
-            super; __common_assets_types_js_initialize
+            super
+            __common_assets_types_js_initialize
           end
         else
           def initialize(*, **)
-            super; __common_assets_types_js_initialize
+            super
+            __common_assets_types_js_initialize
           end
         end
 
@@ -38,9 +40,9 @@ module Pakyow
         def process(content)
           result = if transformable?
             transformed = Scripts::Babel.transform(content, **@options)
-            { content: transformed["code"], map: transformed["map"] }
+            {content: transformed["code"], map: transformed["map"]}
           else
-            { content: content, map: "" }
+            {content: content, map: ""}
           end
 
           if @config.minify
@@ -49,7 +51,7 @@ module Pakyow
 
           @source_map = result[:map]
           result[:content]
-        rescue StandardError => error
+        rescue => error
           Pakyow.logger.error "[#{self.class}] #{error}"
 
           # Be sure to return a string.
@@ -93,11 +95,11 @@ module Pakyow
           end
 
           result = Pakyow::Assets::Scripts::Terser.minify(
-            { filename => input[:content] }, options
+            {filename => input[:content]}, options
           )
 
-          { content: result["code"], map: result["map"] }
-        rescue StandardError => error
+          {content: result["code"], map: result["map"]}
+        rescue => error
           Pakyow.logger.error "[#{self.class}] #{error}"
 
           # Be sure to return the original input.

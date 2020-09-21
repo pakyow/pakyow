@@ -17,11 +17,13 @@ module Pakyow
 
             if Support::System.ruby_version < "2.7.0"
               def initialize(*)
-                __common_assets_externals_initialize; super
+                __common_assets_externals_initialize
+                super
               end
             else
               def initialize(*, **)
-                __common_assets_externals_initialize; super
+                __common_assets_externals_initialize
+                super
               end
             end
 
@@ -63,7 +65,7 @@ module Pakyow
 
                   @fetched = true
                 end
-              rescue StandardError => error
+              rescue => error
                 Pakyow.houston(error)
               end
             end

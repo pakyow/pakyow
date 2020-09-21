@@ -30,7 +30,7 @@ module Pakyow
         def process(content)
           @engine = ::SassC::Engine.new(content, @options)
           @engine.render
-        rescue StandardError => error
+        rescue => error
           Pakyow.logger.error "[#{self.class}] #{error}"
 
           # Be sure to return a string.

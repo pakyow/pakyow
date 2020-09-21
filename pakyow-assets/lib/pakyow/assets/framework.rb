@@ -35,12 +35,12 @@ module Pakyow
 
           configurable :assets do
             setting :types,
-                    av: %w(.webm .snd .au .aiff .mp3 .mp2 .m2a .m3a .ogx .gg .oga .midi .mid .avi .wav .wave .mp4 .m4v .acc .m4a .flac),
-                    data: %w(.json .xml .yml .yaml),
-                    fonts: %w(.eot .otf .ttf .woff .woff2),
-                    images: %w(.ico .bmp .gif .webp .png .jpg .jpeg .tiff .tif .svg),
-                    scripts: %w(.js),
-                    styles: %w(.css .sass .scss)
+              av: %w[.webm .snd .au .aiff .mp3 .mp2 .m2a .m3a .ogx .gg .oga .midi .mid .avi .wav .wave .mp4 .m4v .acc .m4a .flac],
+              data: %w[.json .xml .yml .yaml],
+              fonts: %w[.eot .otf .ttf .woff .woff2],
+              images: %w[.ico .bmp .gif .webp .png .jpg .jpeg .tiff .tif .svg],
+              scripts: %w[.js],
+              styles: %w[.css .sass .scss]
 
             setting :extensions do
               config.assets.types.values.flatten

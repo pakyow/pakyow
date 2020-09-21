@@ -20,7 +20,7 @@ module Pakyow
                   accessible_pack_path(pack_path)
                 }.map { |pack_path, pack_asset_paths|
                   [accessible_pack_path(pack_path), pack_asset_paths]
-                }.reverse.each do |pack_path, pack_asset_paths|
+                }.reverse_each do |pack_path, pack_asset_paths|
                   asset_pack = isolated(:Pack).new(File.basename(pack_path).to_sym, config.assets)
 
                   pack_asset_paths.each do |pack_asset_path|
@@ -47,7 +47,7 @@ module Pakyow
           class_methods do
             def packs_for_view(view)
               (autoloaded_packs + view_packs(view) + component_packs(view)).uniq.each_with_object([]) { |pack_name, packs_for_view|
-                if found_pack = packs.each.find { |pack| pack.name == pack_name.to_sym }
+                if (found_pack = packs.each.find { |pack| pack.name == pack_name.to_sym })
                   packs_for_view << found_pack
                 end
               }
@@ -121,7 +121,7 @@ module Pakyow
                 # Include assets for partials used by the page into the page pack.
                 #
                 partials.each do |partial_name|
-                  if partial = template_info[:partials][partial_name]
+                  if (partial = template_info[:partials][partial_name])
                     Pathname.glob(File.join(config.presenter.path, "#{partial.logical_path}.*")) do |potential_asset_path|
                       next if template_store.template?(potential_asset_path)
 
@@ -158,7 +158,7 @@ module Pakyow
                   )
                 end
 
-                self.packs << page_pack.finalize
+                packs << page_pack.finalize
               end
             end
 

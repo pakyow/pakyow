@@ -14,7 +14,6 @@ module Pakyow
       #   => { "code" => "function add(n,d){return n+d}" }
       #
       class Terser < Script
-
         dependency File.expand_path("../../../../../src/source-map@0.6.1/dist/source-map.js", __FILE__)
         dependency File.expand_path("../../../../../src/terser@4.6.10/dist/bundle.min.js", __FILE__)
 

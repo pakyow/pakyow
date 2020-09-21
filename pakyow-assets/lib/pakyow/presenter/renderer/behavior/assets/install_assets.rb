@@ -12,7 +12,7 @@ module Pakyow
 
             apply_extension do
               build do |view, app:|
-                if head = view.head
+                if (head = view.head)
                   (app.top.class.packs_for_view(view) + app.class.packs_for_view(view)).uniq { |pack|
                     pack.public_path
                   }.each do |pack|

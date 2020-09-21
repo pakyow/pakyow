@@ -33,7 +33,8 @@ module Pakyow
             type.__extensions.include?(File.extname(path))
           } || self
 
-          asset_class.load; asset_class.new(
+          asset_class.load
+          asset_class.new(
             local_path: path,
             source_location: source_location,
             config: config,
@@ -140,11 +141,13 @@ module Pakyow
       end
 
       def read
-        String.new.tap do |asset|
-          each do |content|
-            asset << content
-          end
+        asset = +""
+
+        each do |content|
+          asset << content
         end
+
+        asset
       end
 
       def bytesize
@@ -189,8 +192,6 @@ module Pakyow
             source_map_content,
             file: File.basename(public_path)
           )
-        else
-          nil
         end
       end
 
@@ -205,7 +206,8 @@ module Pakyow
       def ensure_content
         @mutex.synchronize do
           unless frozen? || instance_variable_defined?(:@content)
-            @content = load_content; freeze
+            @content = load_content
+            freeze
           end
         end
 

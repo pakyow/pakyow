@@ -24,7 +24,7 @@ module Pakyow
               public_path = public_path(connection)
 
               if public?(public_path)
-                if mime = MiniMime.lookup_by_filename(public_path)
+                if (mime = MiniMime.lookup_by_filename(public_path))
                   connection.set_header("content-type", mime.content_type)
                 end
 

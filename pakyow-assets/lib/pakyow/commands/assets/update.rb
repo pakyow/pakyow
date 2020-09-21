@@ -44,7 +44,7 @@ command :assets, :update do
       script.fetch!
 
       runner.succeeded
-    rescue StandardError => error
+    rescue => error
       runner.failed(error.message)
     end
   end

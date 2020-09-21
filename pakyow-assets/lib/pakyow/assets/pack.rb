@@ -18,7 +18,7 @@ module Pakyow
       def initialize(name, config, prefix: "/")
         @name, @config = name, config
         @assets = []
-        @packed = { js: [], css: [] }
+        @packed = {js: [], css: []}
         @public_path = String.normalize_path(
           File.join(config.prefix, prefix, "packs", name.to_s)
         )
@@ -45,8 +45,6 @@ module Pakyow
       def packed(path)
         if path.start_with?(@public_path + ".")
           @packed[File.extname(path)[1..-1].to_sym]
-        else
-          nil
         end
       end
 
@@ -134,15 +132,17 @@ module Pakyow
       end
 
       def read
-        String.new.tap do |packed_asset|
-          @assets.each do |asset|
-            packed_asset << asset.read
-          end
+        packed_asset = +""
 
-          if @config.source_maps && source_map?
-            packed_asset << source_mapping_url
-          end
+        @assets.each do |asset|
+          packed_asset << asset.read
         end
+
+        if @config.source_maps && source_map?
+          packed_asset << source_mapping_url
+        end
+
+        packed_asset
       end
 
       def bytesize

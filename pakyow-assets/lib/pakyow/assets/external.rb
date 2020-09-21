@@ -97,7 +97,8 @@ module Pakyow
         end
 
         def perform
-          get(@uri.path); self
+          get(@uri.path)
+          self
         end
 
         private def get(path)
@@ -111,8 +112,8 @@ module Pakyow
           elsif response.status >= 500
             raise Failed, "Unexpected response status: #{response.status}"
           else
-            @body = String.new
-            while body = response.body.read
+            @body = +""
+            while (body = response.body.read)
               @body << body
             end
           end

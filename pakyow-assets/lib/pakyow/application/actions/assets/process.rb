@@ -13,7 +13,7 @@ module Pakyow
           def call(connection)
             if connection.app.config.assets.process
               # TODO: can we short circuit if the request path doesn't match the connection?
-              if asset = find_asset(connection) || find_pack(connection) || find_asset_map(connection) || find_pack_map(connection)
+              if (asset = find_asset(connection) || find_pack(connection) || find_asset_map(connection) || find_pack_map(connection))
                 connection.set_header("content-type", asset.mime_type)
                 connection.body = asset
                 connection.halt
@@ -46,8 +46,6 @@ module Pakyow
           def find_pack_map(connection)
             if (pack = find_pack(connection, unmapped(connection))) && pack.source_map?
               pack.source_map
-            else
-              nil
             end
           end
 

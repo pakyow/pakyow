@@ -40,7 +40,7 @@ module Pakyow
 
         FileUtils.mkdir_p(File.dirname(compile_path))
 
-        asset_content = asset.each.each_with_object(String.new) { |each_asset, content|
+        asset_content = asset.each.each_with_object(+"") { |each_asset, content|
           content << each_asset
         }
 
@@ -48,7 +48,7 @@ module Pakyow
           file.write(asset_content)
         end
 
-        if @app.config.assets.source_maps && source_map = asset.source_map
+        if @app.config.assets.source_maps && (source_map = asset.source_map)
           File.open(compile_path + ".map", "w+") do |file|
             file.write(source_map.read)
           end
