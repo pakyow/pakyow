@@ -24,7 +24,7 @@ module Pakyow
             end
 
             handle InvalidData, as: :bad_request do |error, connection:|
-              if connection.form && connection.form.include?(:origin)
+              if connection.form&.include?(:origin)
                 raw_messages = case error.result
                 when Verifier::Result
                   error.result.messages(type: :presentable)
@@ -35,19 +35,19 @@ module Pakyow
                 errors = case raw_messages
                 when Array
                   raw_messages.map { |message|
-                    { message: message }
+                    {message: message}
                   }
                 when Hash
                   raw_messages.flat_map { |type, messages|
                     case messages
                     when Array
                       messages.map { |type_message|
-                        { field: type, message: type_message }
+                        {field: type, message: type_message}
                       }
                     when Hash
                       messages.flat_map { |field, field_messages|
                         field_messages.map { |field_message|
-                          { field: field, message: field_message }
+                          {field: field, message: field_message}
                         }
                       }
                     end
@@ -73,7 +73,7 @@ module Pakyow
 
           component :form do
             def perform
-              errors = if connection.values.include?(:__form_errors)
+              errors = if connection.set?(:__form_errors)
                 connection.get(:__form_errors)
               else
                 []
@@ -106,7 +106,9 @@ module Pakyow
                 view.label(:form)[:id] = form_id
                 presented_form_binding = presentables.dig(:__form, :binding)
                 if presented_form_binding.nil? || presented_form_binding.to_sym == view.channeled_binding_name
-                  classify_form; classify_fields
+                  classify_form
+                  classify_fields
+
                   present_errors(form_errors)
                 end
               end
@@ -139,8 +141,8 @@ module Pakyow
               end
 
               def present_errors(errors)
-                if form_errors_presenter = component(:"form-errors")
-                  if error_presenter = form_errors_presenter.find(:error)
+                if (form_errors_presenter = component(:"form-errors"))
+                  if (error_presenter = form_errors_presenter.find(:error))
                     error_presenter.present(errors)
                   end
 
