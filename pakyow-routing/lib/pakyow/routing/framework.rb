@@ -26,13 +26,11 @@ module Pakyow
 
           # Make controllers definable on the app.
           #
-          definable :controller, Controller, builder: -> (*namespace, object_name, **opts) {
+          definable :controller, Controller, builder: ->(*namespace, object_name, **opts) {
             controller_name, matcher = Controller.parse_name_and_matcher_from_args(*namespace, object_name)
 
             path = if matcher.is_a?(String)
               matcher
-            else
-              nil
             end
 
             matcher ||= "/"
@@ -119,7 +117,7 @@ module Pakyow
               origin_whitelist: config.security.csrf.origin_whitelist
             ),
 
-            authenticity: Security::CSRF::VerifyAuthenticityToken.new({}),
+            authenticity: Security::CSRF::VerifyAuthenticityToken.new({})
           }
         end
       end

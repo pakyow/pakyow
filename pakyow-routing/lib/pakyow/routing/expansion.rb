@@ -11,7 +11,7 @@ module Pakyow
       attr_reader :expander, :controller, :name
 
       extend Forwardable
-      def_delegators :@expander, *%i(default template).concat(Controller::DEFINABLE_HTTP_METHODS)
+      def_delegators :@expander, *%i[default template].concat(Controller::DEFINABLE_HTTP_METHODS)
       def_delegators :@controller, :action
 
       def initialize(template_name, controller, options, &template_block)
@@ -55,9 +55,9 @@ module Pakyow
                       local_expander.routes[method].index { |expander_route|
                         expander_route.name == each_route.name
                       }
-                    }.select { |index|
+                    }.find { |index|
                       index > index_of_last_insert
-                    }.first
+                    }
 
                     if insert_before_this_index
                       @routes[method].insert(

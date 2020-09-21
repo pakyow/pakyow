@@ -111,7 +111,7 @@ module Pakyow
             end
 
             get :list, "/"
-            get :new,  "/new"
+            get :new, "/new"
             post :create, "/"
             get :edit, "/#{resource_id}/edit"
             patch :update, "/#{resource_id}"
@@ -141,8 +141,9 @@ module Pakyow
 
             unless controller.singleton_class.instance_methods(false).include?(:resource)
               controller.define_singleton_method :resource do |name, matcher, param: DEFAULT_PARAM, &block|
-                if existing_resource = children.find { |child| child.expansions.include?(:resource) && child.object_name.name == name }
-                  existing_resource.instance_exec(&block); existing_resource
+                if (existing_resource = children.find { |child| child.expansions.include?(:resource) && child.object_name.name == name })
+                  existing_resource.instance_exec(&block)
+                  existing_resource
                 else
                   expand(:resource, name, File.join(nested_resource_id, matcher), param: param) do
                     allow_params nested_param

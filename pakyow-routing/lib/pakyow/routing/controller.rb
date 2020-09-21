@@ -165,11 +165,11 @@ module Pakyow
       include Routing::Behavior::ErrorHandling
       include Routing::Behavior::ParamVerification
 
-      METHOD_GET    = :get
-      METHOD_HEAD   = :head
-      METHOD_POST   = :post
-      METHOD_PUT    = :put
-      METHOD_PATCH  = :patch
+      METHOD_GET = :get
+      METHOD_HEAD = :head
+      METHOD_POST = :post
+      METHOD_PUT = :put
+      METHOD_PATCH = :patch
       METHOD_DELETE = :delete
 
       DEFINABLE_HTTP_METHODS = [
@@ -180,7 +180,7 @@ module Pakyow
         METHOD_DELETE
       ].freeze
 
-      CONTENT_DISPOSITION = "Content-Disposition".freeze
+      CONTENT_DISPOSITION = "Content-Disposition"
 
       require "pakyow/routing/expansion"
 
@@ -218,7 +218,7 @@ module Pakyow
         end
 
         matcher = self.class.matcher
-        if match = matcher.match(request_path)
+        if (match = matcher.match(request_path))
           match_data = match.named_captures
           connection.params.merge!(match_data)
 
@@ -228,12 +228,12 @@ module Pakyow
 
           @children.each do |child_controller|
             child_controller.call(connection, request_path)
-            return if connection.halted?
+            break if connection.halted?
           end
 
           unless connection.halted?
             self.class.routes[request_method].to_a.each do |route|
-              if route_match = route.match(request_path)
+              if (route_match = route.match(request_path))
                 connection.params.merge!(route_match.named_captures)
 
                 connection.set(
@@ -250,7 +250,7 @@ module Pakyow
                 dup.call_route(connection, route)
               end
 
-              return if connection.halted?
+              break if connection.halted?
             end
           end
         end
@@ -275,9 +275,9 @@ module Pakyow
       def dispatch
         halted = false
         performing :dispatch do
-          halted = catch :halt do
+          halted = catch(:halt) {
             @route.call(self)
-          end
+          }
         end
 
         # Catching the halt then re-halting lets us call after dispatch hooks in non-error cases.
@@ -371,7 +371,8 @@ module Pakyow
         @connection.set(:__endpoint_name, nil)
         @connection.remove_instance_variable(:@path)
 
-        app.perform(@connection); halt
+        app.perform(@connection)
+        halt
       end
 
       # Responds to a specific request format.
@@ -399,7 +400,7 @@ module Pakyow
         halt
       end
 
-      DEFAULT_SEND_TYPE = "application/octet-stream".freeze
+      DEFAULT_SEND_TYPE = "application/octet-stream"
 
       # Sends a file or other data in the response.
       #
@@ -510,11 +511,9 @@ module Pakyow
         #     # more routes here
         #   end
         #
-        # rubocop:disable Naming/MethodName
         def Controller(matcher)
           make(matcher)
         end
-        # rubocop:enabled Naming/MethodName
 
         # Create a default route. Shorthand for +get "/"+.
         #
@@ -781,7 +780,7 @@ module Pakyow
 
         # @api private
         def expand_within(name, **options, &block)
-          raise NameError, "unknown template `#{name}'" unless template = templates[name]
+          raise NameError, "unknown template `#{name}'" unless (template = templates[name])
           Routing::Expansion.new(name, self, options, &template)
           class_eval(&block)
           self
@@ -789,7 +788,7 @@ module Pakyow
 
         # @api private
         def parse_name_and_matcher_from_args(name_or_matcher = nil, matcher_or_name = nil)
-          return Support::Aargv.normalize(
+          Support::Aargv.normalize(
             [name_or_matcher, matcher_or_name].compact, name: [Symbol, Support::ObjectName], matcher: Object
           ).values_at(:name, :matcher)
         end

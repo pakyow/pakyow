@@ -10,7 +10,7 @@ module Pakyow
       include Support::Hookable
       events :reject
 
-      SAFE_HTTP_METHODS = %i(get head options trace).freeze
+      SAFE_HTTP_METHODS = %i[get head options trace].freeze
 
       def initialize(config)
         @config = config

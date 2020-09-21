@@ -19,10 +19,10 @@ module Pakyow
         @name, @method, @block = name, method, block
 
         if path_or_matcher.is_a?(String)
-          @path    = path_or_matcher.to_s
+          @path = path_or_matcher.to_s
           @matcher = create_matcher_from_path(@path)
         else
-          @path    = ""
+          @path = ""
           @matcher = path_or_matcher
         end
       end
