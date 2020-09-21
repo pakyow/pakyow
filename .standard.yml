@@ -9,5 +9,7 @@ ignore:
     - Security/Eval
   - 'pakyow-core/lib/pakyow/task.rb':
     - Security/Eval
+  - 'pakyow-mailer/lib/pakyow/mailer/framework.rb':
+    - Lint/UnderscorePrefixedVariableName
   - 'pakyow-support/lib/pakyow/support/handleable.rb':
     - Lint/RescueException

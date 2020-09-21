@@ -91,13 +91,11 @@ module Pakyow
 
       # @api private
       def log_outgoing(delivered_mail)
-        message = String.new
+        message = +""
         message << "┌──────────────────────────────────────────────────────────────────────────────┐\n"
         message << "│ Subject: #{rpad(delivered_mail.subject, -9)} │\n"
 
-        if plaintext = delivered_mail.body.parts.find { |part|
-             part.content_type.include?("text/plain")
-           }
+        if (plaintext = delivered_mail.body.parts.find { |part| part.content_type.include?("text/plain") })
 
           message << "├──────────────────────────────────────────────────────────────────────────────┤\n"
 

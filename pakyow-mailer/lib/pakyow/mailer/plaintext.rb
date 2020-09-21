@@ -26,14 +26,14 @@ module Pakyow
         # eg. the following formats:
         # <img alt="" />
         # <img alt="">
-        txt.gsub!(/<img.+?alt=\"([^\"]*)\"[^>]*\>/i, '\1')
+        txt.gsub!(/<img.+?alt="([^"]*)"[^>]*>/i, '\1')
 
         # for img tags with '' for attribute quotes
         # with or without closing tag
         # eg. the following formats:
         # <img alt='' />
         # <img alt=''>
-        txt.gsub!(/<img.+?alt=\'([^\']*)\'[^>]*\>/i, '\1')
+        txt.gsub!(/<img.+?alt='([^']*)'[^>]*>/i, '\1')
 
         # links
         txt.gsub!(/<a\s[^\n]*?href=["'](mailto:)?([^"']*)["'][^>]*>(.*?)<\/a>/im) do |_s|
@@ -48,37 +48,40 @@ module Pakyow
 
         # handle headings (H1-H6)
         txt.gsub!(/(<\/h[1-6]>)/i, "\n\\1") # move closing tags to new lines
-        txt.gsub!(/[\s]*<h([1-6]+)[^>]*>[\s]*(.*)[\s]*<\/h[1-6]+>/i) do |_s|
+        txt.gsub!(/\s*<h([1-6]+)[^>]*>\s*(.*)\s*<\/h[1-6]+>/i) do |_s|
           hlevel = $1.to_i
 
           htext = $2
-          htext.gsub!(/<br[\s]*\/?>/i, "\n") # handle <br>s
+          htext.gsub!(/<br\s*\/?>/i, "\n") # handle <br>s
           htext.gsub!(/<\/?[^>]*>/i, "") # strip tags
 
           # determine maximum line length
           hlength = 0
-          htext.each_line do |l| llength = l.strip.length; hlength = llength if llength > hlength end
+          htext.each_line do |l|
+            llength = l.strip.length
+            hlength = llength if llength > hlength
+          end
           hlength = line_length if hlength > line_length
 
-          case hlevel
-          when 1   # H1, asterisks above and below
-            htext = ("*" * hlength) + "\n" + htext + "\n" + ("*" * hlength)
-          when 2   # H1, dashes above and below
-            htext = ("-" * hlength) + "\n" + htext + "\n" + ("-" * hlength)
+          htext = case hlevel
+          when 1 # H1, asterisks above and below
+            ("*" * hlength) + "\n" + htext + "\n" + ("*" * hlength)
+          when 2 # H1, dashes above and below
+            ("-" * hlength) + "\n" + htext + "\n" + ("-" * hlength)
           else # H3-H6, dashes below
-            htext = htext + "\n" + ("-" * hlength)
+            htext + "\n" + ("-" * hlength)
           end
 
           "\n\n" + htext + "\n\n"
         end
 
         # wrap spans
-        txt.gsub!(/(<\/span>)[\s]+(<span)/mi, '\1 \2')
+        txt.gsub!(/(<\/span>)\s+(<span)/mi, '\1 \2')
 
         # lists -- TODO: should handle ordered lists
-        txt.gsub!(/[\s]*(<li[^>]*>)[\s]*/i, "* ")
+        txt.gsub!(/\s*(<li[^>]*>)\s*/i, "* ")
         # list not followed by a newline
-        txt.gsub!(/<\/li>[\s]*(?![\n])/i, "\n")
+        txt.gsub!(/<\/li>\s*(?!\n)/i, "\n")
 
         # paragraphs and line breaks
         txt.gsub!(/<\/p>/i, "\n\n")
@@ -103,7 +106,7 @@ module Pakyow
         txt.gsub!(/[ \t]+\n/, "\n") # space at end of lines
 
         # no more than two consecutive newlines
-        txt.gsub!(/[\n]{3,}/, "\n\n")
+        txt.gsub!(/\n{3,}/, "\n\n")
 
         # the word messes up the parens
         txt.gsub!(/\(([ \n])(http[^)]+)([\n ])\)/) do |_s|

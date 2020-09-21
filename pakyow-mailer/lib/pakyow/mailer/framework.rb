@@ -30,27 +30,29 @@ module Pakyow
 
           register_helper :active, Pakyow::Application::Helpers::Mailer
 
-          mail_renderer = Class.new(isolated(:Renderer)) do
+          mail_renderer = Class.new(isolated(:Renderer)) {
             # Override so we don't trigger any hooks.
             #
-            def perform(output = String.new)
+            def perform(output = +"")
               @presenter.to_html(output)
             end
-          end
+          }
 
           # Delete the create_template_nodes build step since we don't want to mail templates.
           #
-          mail_renderer.__build_fns.delete_if { |fn|
+          mail_renderer.__build_fns.delete_if do |fn|
             fn.source_location[0].end_with?("create_template_nodes.rb")
-          }
+          end
 
           isolate(mail_renderer, as: "MailRenderer")
 
-          def mailer(path = nil, presentables)
+          def mailer(path = nil, __values: {}, **presentables)
             if path
+              __values.merge!(presentables)
+
               renderer = isolated(:MailRenderer).new(
                 app: self,
-                presentables: presentables,
+                presentables: __values,
                 presenter_class: isolated(:MailRenderer).find_presenter(self, path),
                 composer: Presenter::Composers::View.new(path, app: self)
               )
