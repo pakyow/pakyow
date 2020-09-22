@@ -48,11 +48,11 @@ module Pakyow
 
           def register_subscriptions(subscriptions, subscriber: nil)
             subscriptions.map { |subscription|
-              self.class.generate_subscription_id(subscription).tap do |subscription_id|
-                register_subscription_with_subscription_id(subscription, subscription_id)
-                register_subscription_id_for_source(subscription_id, subscription[:source])
-                register_subscriber_for_subscription_id(subscriber, subscription_id)
-              end
+              subscription_id = self.class.generate_subscription_id(subscription)
+              register_subscription_with_subscription_id(subscription, subscription_id)
+              register_subscription_id_for_source(subscription_id, subscription[:source])
+              register_subscriber_for_subscription_id(subscriber, subscription_id)
+              subscription_id
             }
           end
 

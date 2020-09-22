@@ -92,13 +92,9 @@ module Pakyow
         end
 
         def including(association_name, &block)
-          tap do
-            association_name = association_name.to_sym
+          association_name = association_name.to_sym
 
-            association_to_include = self.class.associations.values.flatten.find { |association|
-              association.name == association_name
-            } || raise(UnknownAssociation.new("unknown association `#{association_name}'").tap { |error| error.context = self.class })
-
+          if (association_to_include = self.class.associations.values.flatten.find { |association| association.name == association_name })
             included_source = association_to_include.associated_source.instance
 
             if association_to_include.query
@@ -112,13 +108,18 @@ module Pakyow
             end
 
             @included << [association_to_include, final_source]
+
+            self
+          else
+            error = UnknownAssociation.new("unknown association `#{association_name}'")
+            error.context = self.class
+            raise error
           end
         end
 
         def as(object)
-          tap do
-            @wrap_as = object
-          end
+          @wrap_as = object
+          self
         end
 
         def limit(count)
@@ -193,11 +194,9 @@ module Pakyow
               deletes: command[:deletes]
             )
           else
-            raise(
-              UnknownCommand.new_with_message(command: command_name).tap do |error|
-                error.context = self.class
-              end
-            )
+            error = UnknownCommand.new_with_message(command: command_name)
+            error.context = self.class
+            raise error
           end
         end
 
@@ -363,11 +362,13 @@ module Pakyow
                   )
 
                   combined_results = joined_results.map { |joined_result|
-                    combined_results.find { |result|
+                    combined_result = combined_results.find { |result|
                       result[combined_source.class.primary_key_field] == joined_result[association.left_foreign_key_field]
-                    }.dup.tap do |combined_result|
-                      combined_result[aliased] = joined_result[association.right_foreign_key_field]
-                    end
+                    }
+
+                    combined_result[aliased] = joined_result[association.right_foreign_key_field]
+
+                    combined_result
                   }
                 end
               end
@@ -526,52 +527,61 @@ module Pakyow
           end
 
           def belongs_to(association_name, query: nil, source: association_name)
-            Associations::BelongsTo.new(
+            association = Associations::BelongsTo.new(
               name: association_name, query: query, source: self, associated_source_name: source
-            ).tap do |association|
-              @associations[:belongs_to] << association
-            end
+            )
+
+            @associations[:belongs_to] << association
+            association
           end
 
           # rubocop:disable Naming/PredicateName
           def has_many(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
-            Associations::HasMany.new(
+            association = Associations::HasMany.new(
               name: association_name, query: query, source: self, associated_source_name: source, as: as, dependent: dependent
-            ).tap do |association|
-              @associations[:has_many] << association
+            )
 
-              if through
-                setup_as_through(association, through: through)
-              end
+            @associations[:has_many] << association
+
+            if through
+              setup_as_through(association, through: through)
             end
+
+            association
           end
           # rubocop:enable Naming/PredicateName
 
           # rubocop:disable Naming/PredicateName
           def has_one(association_name, query: nil, source: association_name, as: singular_name, through: nil, dependent: :raise)
-            Associations::HasOne.new(
+            association = Associations::HasOne.new(
               name: association_name, query: query, source: self, associated_source_name: source, as: as, dependent: dependent
-            ).tap do |association|
-              @associations[:has_one] << association
+            )
 
-              if through
-                setup_as_through(association, through: through)
-              end
+            @associations[:has_one] << association
+
+            if through
+              setup_as_through(association, through: through)
             end
+
+            association
           end
           # rubocop:enable Naming/PredicateName
 
           def setup_as_through(association, through:)
-            Associations::Through.new(association, joining_source_name: through).tap do |through_association|
-              associations[association.specific_type][
-                associations[association.specific_type].index(association)
-              ] = through_association
-            end
+            through_association = Associations::Through.new(association, joining_source_name: through)
+
+            associations[association.specific_type][
+              associations[association.specific_type].index(association)
+            ] = through_association
+
+            through_association
           end
 
           # @api private
           def source_from_source(*)
-            super.tap(&:reload)
+            super_source = super
+            super_source.reload
+            super_source
           end
 
           # @api private

@@ -11,9 +11,9 @@ RSpec.describe Pakyow::Application::Behavior::Assets::Types::Js do
 
     app_class.include_framework :assets
 
-    app_class.config.assets.tap do |config|
-      config.source_maps = false
-    end
+    config = app_class.config.assets
+    config.source_maps = false
+    config
   end
 
   let :local_path do

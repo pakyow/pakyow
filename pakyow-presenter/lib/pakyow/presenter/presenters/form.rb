@@ -310,17 +310,17 @@ module Pakyow
             option.label(:binding)
           end
 
-          Oga::XML::Element.new(name: "option").tap do |option_node|
-            option_node.set("value", ensure_html_safety(option_value(value, view).to_s))
+          option_node = Oga::XML::Element.new(name: "option")
+          option_node.set("value", ensure_html_safety(option_value(value, view).to_s))
 
-            display_value = if value.is_a?(Array)
-              value[1]
-            elsif option_binding && value.respond_to?(:[])
-              value[option_binding.to_sym]
-            end
-
-            option_node.inner_text = ensure_html_safety(display_value.to_s)
+          display_value = if value.is_a?(Array)
+            value[1]
+          elsif option_binding && value.respond_to?(:[])
+            value[option_binding.to_sym]
           end
+
+          option_node.inner_text = ensure_html_safety(display_value.to_s)
+          option_node
         end
 
         def create_input_options(values, field_presenter)
@@ -473,17 +473,18 @@ module Pakyow
         end
 
         def option_value_keys(view, value, include_binding_prop = true)
-          [].tap do |keys|
-            if include_binding_prop
-              keys << view.object.label(:binding_prop)
-            end
+          keys = []
 
-            if value.class.respond_to?(:primary_key_field)
-              keys << value.class.primary_key_field
-            end
+          if include_binding_prop
+            keys << view.object.label(:binding_prop)
+          end
 
-            keys << :id
-          end.compact
+          if value.class.respond_to?(:primary_key_field)
+            keys << value.class.primary_key_field
+          end
+
+          keys << :id
+          keys.compact
         end
 
         def options_for_allowed?(field_presenter)

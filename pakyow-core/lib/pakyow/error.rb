@@ -22,11 +22,12 @@ module Pakyow
         else
           message = message(message_type, **message_values)
           message = original_error.message if message.empty?
-          new(message).tap do |error|
-            error.wrapped_exception = original_error
-            error.set_backtrace(original_error.backtrace)
-            error.context = context
-          end
+
+          error = new(message)
+          error.wrapped_exception = original_error
+          error.set_backtrace(original_error.backtrace)
+          error.context = context
+          error
         end
       end
 
@@ -261,11 +262,13 @@ module Pakyow
 
         # @api private
         def format(message)
-          message.dup.tap do |message_to_format|
-            message.scan(HIGHLIGHT_REGEX).each do |match|
-              message_to_format.gsub!("`#{match[0]}'", Support::CLI.style.italic.blue(match[0]))
-            end
+          message_to_format = message.dup
+
+          message.scan(HIGHLIGHT_REGEX).each do |match|
+            message_to_format.gsub!("`#{match[0]}'", Support::CLI.style.italic.blue(match[0]))
           end
+
+          message_to_format
         end
       end
     end

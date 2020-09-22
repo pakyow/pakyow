@@ -16,9 +16,9 @@ module Pakyow
           end
 
           def from_object(name, object)
-            super(object).tap do |instance|
-              instance.instance_variable_set(:@name, name)
-            end
+            instance = super(object)
+            instance.instance_variable_set(:@name, name)
+            instance
           end
         end
 

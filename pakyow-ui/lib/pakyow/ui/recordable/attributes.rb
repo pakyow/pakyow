@@ -15,6 +15,7 @@ module Pakyow
         %i([] []=).each do |method_name|
           define_method method_name do |*args|
             result = super(*args)
+
             result = case method_name
             when :[]
               Attribute.new(result)
@@ -22,15 +23,15 @@ module Pakyow
               result
             end
 
-            result.tap do
-              subsequent = if result.is_a?(Attribute)
-                result
-              else
-                []
-              end
-
-              @calls << [remap_for_client(method_name), args, [], subsequent]
+            subsequent = if result.is_a?(Attribute)
+              result
+            else
+              []
             end
+
+            @calls << [remap_for_client(method_name), args, [], subsequent]
+
+            result
           end
         end
 
@@ -40,9 +41,9 @@ module Pakyow
 
         class << self
           def from_attributes(attributes)
-            new(attributes.instance_variable_get(:@attributes)).tap do |instance|
-              instance.instance_variable_set(:@calls, [])
-            end
+            instance = new(attributes.instance_variable_get(:@attributes))
+            instance.instance_variable_set(:@calls, [])
+            instance
           end
         end
       end

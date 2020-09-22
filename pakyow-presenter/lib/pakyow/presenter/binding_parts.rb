@@ -52,9 +52,9 @@ module Pakyow
           value = if block.arity == 0
             block.call
           else
-            view.attrs[name].tap do |current_value|
-              block.call(current_value)
-            end
+            current_value = view.attrs[name]
+            block.call(current_value)
+            current_value
           end
 
           [name, value]

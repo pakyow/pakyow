@@ -72,9 +72,9 @@ module Pakyow
 
           # @api private
           def source_from_source(source, dataset)
-            source.dup.tap do |duped_source|
-              duped_source.__setobj__(dataset)
-            end
+            duped_source = source
+            duped_source.__setobj__(dataset)
+            duped_source
           end
         end
       end

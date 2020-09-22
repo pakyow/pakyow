@@ -53,40 +53,40 @@ module Pakyow
         Array(recipient).map { |to|
           deliverable_mail = mail.dup
           deliverable_mail.to = to
-          deliverable_mail.deliver.tap do |delivered_mail|
-            unless @config.silent
-              log_outgoing(delivered_mail)
-            end
-          end
+          delivered_mail = deliverable_mail.deliver
+          log_outgoing(delivered_mail) unless @config.silent
+          delivered_mail
         }
       end
 
       private
 
       def process(content, content_type)
-        {}.tap do |processed_content|
-          if content_type.include?("text/html")
-            document = Oga.parse_html(content)
-            mailable_document = document.at_css("body") || document
+        processed_content = {}
 
-            processed_content[:text] = Plaintext.convert_to_text(
-              mailable_document.to_xml
-            )
+        if content_type.include?("text/html")
+          document = Oga.parse_html(content)
+          mailable_document = document.at_css("body") || document
 
-            stylesheets = if @renderer
-              @renderer.app.class.packs_for_view(@renderer.presenter.view).select(&:stylesheets?).map(&:stylesheets)
-            else
-              []
-            end
+          processed_content[:text] = Plaintext.convert_to_text(
+            mailable_document.to_xml
+          )
 
-            processed_content[:html] = StyleInliner.new(
-              mailable_document,
-              stylesheets: stylesheets
-            ).inlined
+          stylesheets = if @renderer
+            @renderer.app.class.packs_for_view(@renderer.presenter.view).select(&:stylesheets?).map(&:stylesheets)
           else
-            processed_content[:text] = content
+            []
           end
+
+          processed_content[:html] = StyleInliner.new(
+            mailable_document,
+            stylesheets: stylesheets
+          ).inlined
+        else
+          processed_content[:text] = content
         end
+
+        processed_content
       end
 
       # @api private

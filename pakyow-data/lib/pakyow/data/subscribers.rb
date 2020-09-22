@@ -48,9 +48,9 @@ module Pakyow
           subscription[:version] = @app.config.data.subscriptions.version
         end
 
-        @adapter.register_subscriptions(subscriptions, subscriber: subscriber).tap do |ids|
-          yield ids if block_given?
-        end
+        ids = @adapter.register_subscriptions(subscriptions, subscriber: subscriber)
+        yield ids if block_given?
+        ids
       end
 
       def did_mutate(given_source_name, given_changed_values = nil, given_result_source = nil)

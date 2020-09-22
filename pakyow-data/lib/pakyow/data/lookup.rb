@@ -64,16 +64,16 @@ module Pakyow
           source.associations.values.flatten.each do |association|
             association.dependent_source_names.compact.each do |source_name|
               unless @sources.key?(source_name)
-                raise(
-                  UnknownSource.new_with_message(
-                    source: source.object_name.name,
-                    association_source: source_name,
-                    association_type: association.specific_type,
-                    association_name: association.name
-                  ).tap do |error|
-                    error.context = self
-                  end
+                error = UnknownSource.new_with_message(
+                  source: source.object_name.name,
+                  association_source: source_name,
+                  association_type: association.specific_type,
+                  association_name: association.name
                 )
+
+                error.context = self
+
+                raise error
               end
             end
           end

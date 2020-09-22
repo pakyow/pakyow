@@ -10,11 +10,12 @@ module Pakyow
     # @api private
     class StyleInliner
       def initialize(doc_or_html, stylesheets: [])
-        @css_parser = CssParser::Parser.new.tap do |parser|
-          stylesheets.each do |stylesheet|
-            parser.load_string!(stylesheet.read)
-          end
+        parser = CssParser::Parser.new
+        stylesheets.each do |stylesheet|
+          parser.load_string!(stylesheet.read)
         end
+
+        @css_parser = parser
 
         @doc = case doc_or_html
         when Oga::XML::Document

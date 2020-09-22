@@ -54,14 +54,14 @@ module Pakyow
       end
 
       def merge(other)
-        tap do
-          other.mappings.each do |mapping|
-            @internal.add_mapping(mapping)
-          end
-
-          @sources.concat(other.sources)
-          @sources_content.concat(other.sources_content)
+        other.mappings.each do |mapping|
+          @internal.add_mapping(mapping)
         end
+
+        @sources.concat(other.sources)
+        @sources_content.concat(other.sources_content)
+
+        self
       end
 
       def mime_type

@@ -16,26 +16,28 @@ module Pakyow
       end
 
       def build(**values)
-        @template.dup.tap do |working_template|
-          working_template.scan(PATTERN).each do |match|
-            value = if match[0].include?(".")
-              object, property = match[0].split(".").map(&:to_sym)
-              if (object_value = get_value(object, values))
-                ensure_real_value(object_value)[property]
-              end
-            else
-              get_value(match[0].to_sym, values)
-            end
+        working_template = @template.dup
 
-            value = if @html_safe
-              ensure_html_safety(value)
-            else
-              value.to_s
+        working_template.scan(PATTERN).each do |match|
+          value = if match[0].include?(".")
+            object, property = match[0].split(".").map(&:to_sym)
+            if (object_value = get_value(object, values))
+              ensure_real_value(object_value)[property]
             end
-
-            working_template.gsub!("{#{match[0]}}", value)
+          else
+            get_value(match[0].to_sym, values)
           end
+
+          value = if @html_safe
+            ensure_html_safety(value)
+          else
+            value.to_s
+          end
+
+          working_template.gsub!("{#{match[0]}}", value)
         end
+
+        working_template
       end
 
       private

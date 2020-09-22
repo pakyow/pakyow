@@ -109,9 +109,9 @@ module Pakyow
           isolation_target = resolve_isolation_target(namespace, context)
 
           if isolation_target && isolated?(class_name, context: isolation_target)
-            isolation_target.const_get(class_name).tap do |isolated_class|
-              isolated_class.class_eval(&block) if block_given?
-            end
+            isolated_class = isolation_target.const_get(class_name)
+            isolated_class.class_eval(&block) if block_given?
+            isolated_class
           end
         end
 

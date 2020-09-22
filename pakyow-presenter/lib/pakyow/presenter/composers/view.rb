@@ -43,9 +43,8 @@ module Pakyow
             end
 
             info = info.deep_dup
-            view = info[:layout].build(info[:page]).tap do |view_without_partials|
-              view_without_partials.mixin(info[:partials])
-            end
+            view = info[:layout].build(info[:page])
+            view.mixin(info[:partials])
 
             # We collapse built views down to significance that is considered "renderable". This is
             # mostly an optimization, since it lets us collapse some nodes into single strings and

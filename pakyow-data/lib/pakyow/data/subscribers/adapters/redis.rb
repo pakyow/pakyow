@@ -53,27 +53,29 @@ module Pakyow
           end
 
           def register_subscriptions(subscriptions, subscriber:)
-            [].tap do |subscription_ids|
-              subscriptions.each do |subscription|
-                subscription_string = self.class.stringify_subscription(subscription)
-                subscription_id = self.class.generate_subscription_id(subscription_string)
-                source = subscription[:source]
+            subscription_ids = []
 
-                @redis.with do |redis|
-                  redis.evalsha(@scripts[:register], argv: [
-                    @prefix,
-                    KEY_PART_SEPARATOR,
-                    subscriber.to_s,
-                    subscription_id,
-                    subscription_string,
-                    source.to_s,
-                    Time.now.to_i
-                  ])
-                end
+            subscriptions.each do |subscription|
+              subscription_string = self.class.stringify_subscription(subscription)
+              subscription_id = self.class.generate_subscription_id(subscription_string)
+              source = subscription[:source]
 
-                subscription_ids << subscription_id
+              @redis.with do |redis|
+                redis.evalsha(@scripts[:register], argv: [
+                  @prefix,
+                  KEY_PART_SEPARATOR,
+                  subscriber.to_s,
+                  subscription_id,
+                  subscription_string,
+                  source.to_s,
+                  Time.now.to_i
+                ])
               end
+
+              subscription_ids << subscription_id
             end
+
+            subscription_ids
           end
 
           def subscriptions_for_source(source)
@@ -161,9 +163,9 @@ module Pakyow
                 key_subscription_id(subscription_id)
               }).zip(subscription_ids).map { |subscription_string, subscription_id|
                 begin
-                  Marshal.restore(Zlib::Inflate.inflate(subscription_string)).tap do |subscription|
-                    subscription[:id] = subscription_id
-                  end
+                  subscription = Marshal.restore(Zlib::Inflate.inflate(subscription_string))
+                  subscription[:id] = subscription_id
+                  subscription
                 rescue TypeError
                   Pakyow.logger.error "could not find subscription for #{subscription_id}"
                   {}

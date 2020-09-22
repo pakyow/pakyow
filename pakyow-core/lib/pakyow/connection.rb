@@ -543,9 +543,9 @@ module Pakyow
         parse_content_type
       end
 
-      QueryParser.new.tap do |parser|
-        parser.parse(@type_params.to_s)
-      end.params.deep_indifferentize
+      parser = QueryParser.new
+      parser.parse(@type_params.to_s)
+      parser.params.deep_indifferentize
     end
 
     def parse_input
@@ -554,11 +554,13 @@ module Pakyow
           request.body = Async::HTTP::Body::Rewindable.new(request.body)
         end
 
-        @input_parser[:block].call(input, self).tap do
-          if input.respond_to?(:rewind)
-            input.rewind
-          end
+        parser = @input_parser[:block].call(input, self)
+
+        if input.respond_to?(:rewind)
+          input.rewind
         end
+
+        parser
       end
     end
 

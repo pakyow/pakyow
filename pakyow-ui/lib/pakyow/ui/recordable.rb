@@ -213,15 +213,17 @@ module Pakyow
         end
 
         def from_presenter(presenter)
-          allocate.tap do |instance|
-            # Copy state from the presenter we're tracking.
-            #
-            presenter.instance_variables.each do |ivar|
-              instance.instance_variable_set(ivar, presenter.instance_variable_get(ivar))
-            end
+          instance = allocate
 
-            instance.cache_bindings!
+          # Copy state from the presenter we're tracking.
+          #
+          presenter.instance_variables.each do |ivar|
+            instance.instance_variable_set(ivar, presenter.instance_variable_get(ivar))
           end
+
+          instance.cache_bindings!
+
+          instance
         end
       end
 
@@ -262,45 +264,47 @@ module Pakyow
           define_method method_name do |*args, &block|
             nested = []
 
-            super(*args) { |nested_presenter, *nested_args|
+            result = super(*args) { |nested_presenter, *nested_args|
               if block
                 nested << nested_presenter
                 block.call(nested_presenter, *nested_args)
               end
-            }.tap do |result|
-              call_args = case method_name
-              when :find
-                # Because multiple bindings can be passed, we want to wrap them in
-                # an array so that the client sees them as a single argument.
-                #
-                [args]
-              when :transform
-                # Ignore the potential `yield_block` argument that's used internally.
-                #
-                [viewify(args[0])]
-              when :bind
-                # Modify the bound data to include only necessary values.
-                #
-                viewify(args)
-              else
-                args
-              end
+            }
 
-              subsequent = if (result.is_a?(Presenter::Presenter) && !result.equal?(self)) || (result.is_a?(Delegator) && !result.__getobj__.equal?(self)) || result.is_a?(Attributes)
-                result
-              else
-                []
-              end
-
-              calls << [remap_for_client(method_name), call_args, nested, subsequent]
+            call_args = case method_name
+            when :find
+              # Because multiple bindings can be passed, we want to wrap them in
+              # an array so that the client sees them as a single argument.
+              #
+              [args]
+            when :transform
+              # Ignore the potential `yield_block` argument that's used internally.
+              #
+              [viewify(args[0])]
+            when :bind
+              # Modify the bound data to include only necessary values.
+              #
+              viewify(args)
+            else
+              args
             end
+
+            subsequent = if (result.is_a?(Presenter::Presenter) && !result.equal?(self)) || (result.is_a?(Delegator) && !result.__getobj__.equal?(self)) || result.is_a?(Attributes)
+              result
+            else
+              []
+            end
+
+            calls << [remap_for_client(method_name), call_args, nested, subsequent]
+
+            result
           end
         end
 
         def attributes
-          Attributes.from_attributes(super).tap do |subsequent|
-            calls << [:attributes, [], [], subsequent]
-          end
+          subsequent = Attributes.from_attributes(super)
+          calls << [:attributes, [], [], subsequent]
+          subsequent
         end
         alias_method :attrs, :attributes
       end

@@ -66,12 +66,14 @@ module Pakyow
 
       def on_part(part)
         headers = Protocol::HTTP::Headers.new(part.headers).to_h
-        disposition = QueryParser.new.tap do |parser|
-          parser.parse(headers["content-disposition"].to_s)
-        end.params
-        content_type = QueryParser.new.tap do |parser|
-          parser.parse(headers["content-type"].to_s)
-        end.params
+
+        disposition_parser = QueryParser.new
+        disposition_parser.parse(headers["content-disposition"].to_s)
+        disposition = disposition_parser.params
+
+        content_type_parser = QueryParser.new
+        content_type_parser.parse(headers["content-type"].to_s)
+        content_type = content_type_parser.params
 
         if (filename = disposition["filename"])
           value = add(MultipartInput.new(filename: filename, headers: headers, type: part.mime))

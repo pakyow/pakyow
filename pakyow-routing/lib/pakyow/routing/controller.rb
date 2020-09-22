@@ -796,9 +796,9 @@ module Pakyow
         private def build_route(method, *args, &block)
           route_name, matcher = parse_name_and_matcher_from_args(*args)
 
-          Routing::Route.new(matcher, name: route_name, method: method, &block).tap do |route|
-            routes[method] << route
-          end
+          route = Routing::Route.new(matcher, name: route_name, method: method, &block)
+          routes[method] << route
+          route
         end
       end
     end

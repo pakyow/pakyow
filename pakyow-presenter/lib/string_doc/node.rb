@@ -119,11 +119,10 @@ class StringDoc
     #
     # @api private
     def close(tag, child)
-      tap do
-        @children = StringDoc.from_nodes(child)
-        @tag_open_end = tag ? ">" : ""
-        @tag_close = tag && !self.class.self_closing?(tag) ? "</#{tag}>" : ""
-      end
+      @children = StringDoc.from_nodes(child)
+      @tag_open_end = tag ? ">" : ""
+      @tag_close = tag && !self.class.self_closing?(tag) ? "</#{tag}>" : ""
+      self
     end
 
     def next_transform

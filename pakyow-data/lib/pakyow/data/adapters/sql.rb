@@ -89,13 +89,15 @@ module Pakyow
         end
 
         def merge_results(left_column_name, right_column_name, mergeable_source, merge_into_source)
-          merge_into_source.tap do
-            merge_into_source.__setobj__(
-              merge_into_source.join(
-                mergeable_source.class.dataset_table, left_column_name => right_column_name
-              )
+          merged = merge_into_source
+
+          merge_into_source.__setobj__(
+            merge_into_source.join(
+              mergeable_source.class.dataset_table, left_column_name => right_column_name
             )
-          end
+          )
+
+          merged
         end
 
         def transaction(&block)

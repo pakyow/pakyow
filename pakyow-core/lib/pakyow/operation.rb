@@ -120,23 +120,23 @@ module Pakyow
 
       # @api private
       def verify(name = :default, &block)
-        super.tap do |verifier|
-          define_attributes_for_verifier(verifier)
-        end
+        verifier = super
+        define_attributes_for_verifier(verifier)
+        verifier
       end
 
       # @api private
       def required(*)
-        super.tap do
-          define_attributes_for_verifier(__verifiers[:default])
-        end
+        return_value = super
+        define_attributes_for_verifier(__verifiers[:default])
+        return_value
       end
 
       # @api private
       def optional(*)
-        super.tap do
-          define_attributes_for_verifier(__verifiers[:default])
-        end
+        return_value = super
+        define_attributes_for_verifier(__verifiers[:default])
+        return_value
       end
 
       private def define_attributes_for_verifier(verifier)

@@ -151,9 +151,8 @@ module Pakyow
       # Yields +self+.
       #
       def with
-        tap do
-          yield self
-        end
+        yield self
+        self
       end
 
       # Transforms the view to match +data+.
@@ -161,56 +160,56 @@ module Pakyow
       # @see View#transform
       #
       def transform(data, yield_binder = false)
-        tap do
-          data = Array.ensure(data).reject(&:nil?)
+        data = Array.ensure(data).reject(&:nil?)
 
-          if data.respond_to?(:empty?) && data.empty?
-            if @view.is_a?(VersionedView) && @view.version?(:empty)
-              @view.use(:empty)
-              @view.object.set_label(:bound, true)
-            else
-              remove
-            end
+        if data.respond_to?(:empty?) && data.empty?
+          if @view.is_a?(VersionedView) && @view.version?(:empty)
+            @view.use(:empty)
+            @view.object.set_label(:bound, true)
           else
-            template = @view.soft_copy
-            insertable = @view
-            current = @view
+            remove
+          end
+        else
+          template = @view.soft_copy
+          insertable = @view
+          current = @view
 
-            data.each do |object|
-              binder = binder_or_data(object)
+          data.each do |object|
+            binder = binder_or_data(object)
 
-              current.transform(binder)
+            current.transform(binder)
 
-              if block_given?
-                yield presenter_for(current), yield_binder ? binder : object
-              end
-
-              unless current.equal?(@view)
-                insertable.after(current)
-                insertable = current
-              end
-
-              current = template.soft_copy
+            if block_given?
+              yield presenter_for(current), yield_binder ? binder : object
             end
+
+            unless current.equal?(@view)
+              insertable.after(current)
+              insertable = current
+            end
+
+            current = template.soft_copy
           end
         end
+
+        self
       end
 
       # Binds +data+ to the view, using the appropriate binder if available.
       #
       def bind(data)
-        tap do
-          data = binder_or_data(data)
+        data = binder_or_data(data)
 
-          if data.is_a?(Binder)
-            bind_binder_to_view(data, @view)
-          else
-            @view.bind(data)
-          end
-
-          set_binding_info(data)
-          set_endpoint_params(data)
+        if data.is_a?(Binder)
+          bind_binder_to_view(data, @view)
+        else
+          @view.bind(data)
         end
+
+        set_binding_info(data)
+        set_endpoint_params(data)
+
+        self
       end
 
       # Transforms the view to match +data+, then binds, using the appropriate binder if available.
@@ -218,124 +217,117 @@ module Pakyow
       # @see View#present
       #
       def present(data)
-        tap do
-          transform(data, true) do |presenter, binder|
-            if block_given?
-              yield presenter, binder.object
-            end
+        transform(data, true) do |presenter, binder|
+          if block_given?
+            yield presenter, binder.object
+          end
 
-            unless presenter.view.object.labeled?(:bound) || self.class.__presentation_logic.empty?
-              self.class.__presentation_logic[presenter.view.channeled_binding_name].to_a.each do |presentation_logic|
-                presenter.instance_exec(binder.object, &presentation_logic[:block])
-              end
+          unless presenter.view.object.labeled?(:bound) || self.class.__presentation_logic.empty?
+            self.class.__presentation_logic[presenter.view.channeled_binding_name].to_a.each do |presentation_logic|
+              presenter.instance_exec(binder.object, &presentation_logic[:block])
             end
+          end
 
-            if presenter.view.is_a?(VersionedView)
-              unless presenter.view.used? || self.class.__versioning_logic.empty?
-                # Use global versions.
-                #
-                presenter.view.names.each do |version|
-                  self.class.__versioning_logic[version]&.each do |logic|
-                    if presenter.instance_exec(binder.object, &logic[:block])
-                      presenter.use(version)
-                      break
-                    end
+          if presenter.view.is_a?(VersionedView)
+            unless presenter.view.used? || self.class.__versioning_logic.empty?
+              # Use global versions.
+              #
+              presenter.view.names.each do |version|
+                self.class.__versioning_logic[version]&.each do |logic|
+                  if presenter.instance_exec(binder.object, &logic[:block])
+                    presenter.use(version)
+                    break
                   end
                 end
               end
-
-              # If we still haven't used a version, use one implicitly.
-              #
-              unless presenter.view.used?
-                presenter.use_implicit_version
-              end
-
-              # Implicitly use binding props.
-              #
-              presenter.view.binding_props.map { |binding_prop|
-                binding_prop.label(:binding)
-              }.uniq.each do |binding_prop_name|
-                if (found = presenter.view.find(binding_prop_name))
-                  presenter_for(found).use_implicit_version unless found.used?
-                end
-              end
             end
 
-            presenter.bind(binder)
+            # If we still haven't used a version, use one implicitly.
+            #
+            unless presenter.view.used?
+              presenter.use_implicit_version
+            end
 
-            presenter.view.binding_scopes.uniq { |binding_scope|
-              binding_scope.label(:binding)
-            }.each do |binding_node|
-              plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
+            # Implicitly use binding props.
+            #
+            presenter.view.binding_props.map { |binding_prop|
+              binding_prop.label(:binding)
+            }.uniq.each do |binding_prop_name|
+              if (found = presenter.view.find(binding_prop_name))
+                presenter_for(found).use_implicit_version unless found.used?
+              end
+            end
+          end
 
-              if (nested_view = presenter.find(binding_node.label(:binding)))
-                if binder.object.include?(binding_node.label(:binding))
-                  nested_view.present(binder.object[binding_node.label(:binding)])
-                elsif binder.object.include?(plural_binding_node_name)
-                  nested_view.present(binder.object[plural_binding_node_name])
-                else
-                  nested_view.remove
-                end
+          presenter.bind(binder)
+
+          presenter.view.binding_scopes.uniq { |binding_scope|
+            binding_scope.label(:binding)
+          }.each do |binding_node|
+            plural_binding_node_name = Support.inflector.pluralize(binding_node.label(:binding)).to_sym
+
+            if (nested_view = presenter.find(binding_node.label(:binding)))
+              if binder.object.include?(binding_node.label(:binding))
+                nested_view.present(binder.object[binding_node.label(:binding)])
+              elsif binder.object.include?(plural_binding_node_name)
+                nested_view.present(binder.object[plural_binding_node_name])
+              else
+                nested_view.remove
               end
             end
           end
         end
+
+        self
       end
 
       # @see View#append
       #
       def append(view)
-        tap do
-          @view.append(view)
-        end
+        @view.append(view)
+        self
       end
 
       # @see View#prepend
       #
       def prepend(view)
-        tap do
-          @view.prepend(view)
-        end
+        @view.prepend(view)
+        self
       end
 
       # @see View#after
       #
       def after(view)
-        tap do
-          @view.after(view)
-        end
+        @view.after(view)
+        self
       end
 
       # @see View#before
       #
       def before(view)
-        tap do
-          @view.before(view)
-        end
+        @view.before(view)
+        self
       end
 
       # @see View#replace
       #
       def replace(view)
-        tap do
-          @view.replace(view)
-        end
+        @view.replace(view)
+        self
       end
 
       # @see View#remove
       #
       def remove
-        tap do
-          @view.remove
-        end
+        @view.remove
+        self
       end
 
       # @see View#clear
       #
       def clear
-        tap do
-          @view.clear
-        end
+        @view.clear
+        self
       end
 
       # Returns true if +self+ equals +other+.

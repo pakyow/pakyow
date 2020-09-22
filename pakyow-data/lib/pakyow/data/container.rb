@@ -241,15 +241,15 @@ module Pakyow
           Module.new {
             local_queries.each do |query|
               define_method query do |*args, &block|
-                tap do
-                  result = super(*args, &block)
-                  case result
-                  when self.class
-                    result
-                  else
-                    __setobj__(result)
-                  end
+                result = super(*args, &block)
+                case result
+                when self.class
+                  result
+                else
+                  __setobj__(result)
                 end
+
+                self
               end
             end
           }

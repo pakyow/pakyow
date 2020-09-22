@@ -37,23 +37,25 @@ module Pakyow
         end
 
         def action(target, *options, before: nil, after: nil, &block)
-          Action.new(@context, target, *options, &block).tap do |action|
-            if before
-              if (i = @actions.index { |a| a.name == before })
-                @actions.insert(i, action)
-              else
-                @actions.unshift(action)
-              end
-            elsif after
-              if (i = @actions.index { |a| a.name == after })
-                @actions.insert(i + 1, action)
-              else
-                @actions << action
-              end
+          action = Action.new(@context, target, *options, &block)
+
+          if before
+            if (i = @actions.index { |a| a.name == before })
+              @actions.insert(i, action)
+            else
+              @actions.unshift(action)
+            end
+          elsif after
+            if (i = @actions.index { |a| a.name == after })
+              @actions.insert(i + 1, action)
             else
               @actions << action
             end
+          else
+            @actions << action
           end
+
+          action
         end
 
         def skip(*actions)

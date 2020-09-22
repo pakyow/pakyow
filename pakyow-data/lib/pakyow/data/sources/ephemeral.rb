@@ -26,19 +26,19 @@ module Pakyow
         end
 
         def set(results)
-          tap do
-            __setobj__(
-              results.map { |result|
-                unless result.key?(:id)
-                  result[:id] = SecureRandom.uuid
-                end
+          __setobj__(
+            results.map { |result|
+              unless result.key?(:id)
+                result[:id] = SecureRandom.uuid
+              end
 
-                result
-              }
-            )
+              result
+            }
+          )
 
-            yield self if block_given?
-          end
+          yield self if block_given?
+
+          self
         end
 
         def to_ary

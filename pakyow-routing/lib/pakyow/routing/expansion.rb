@@ -40,33 +40,35 @@ module Pakyow
                 if args.any?
                   super(*args)
                 else
-                  build_route(method, route.name, route.path || route.matcher, &block).tap do
-                    # Make sure the route was inserted in the same order as found in the template.
-                    #
-                    index_of_last_insert = local_expander.routes[method].index { |expander_route|
-                      expander_route.name == @routes[method].last.name
-                    }
+                  built_route = build_route(method, route.name, route.path || route.matcher, &block)
 
-                    insert_before_this_index = @routes[method].select { |each_route|
-                      local_expander.routes[method].any? { |expander_route|
-                        each_route.name == expander_route.name
-                      }
-                    }.map { |each_route|
-                      local_expander.routes[method].index { |expander_route|
-                        expander_route.name == each_route.name
-                      }
-                    }.find { |index|
-                      index > index_of_last_insert
-                    }
+                  # Make sure the route was inserted in the same order as found in the template.
+                  #
+                  index_of_last_insert = local_expander.routes[method].index { |expander_route|
+                    expander_route.name == @routes[method].last.name
+                  }
 
-                    if insert_before_this_index
-                      @routes[method].insert(
-                        @routes[method].index { |each_route|
-                          each_route.name == local_expander.routes[method][insert_before_this_index].name
-                        }, @routes[method].delete_at(index_of_last_insert)
-                      )
-                    end
+                  insert_before_this_index = @routes[method].select { |each_route|
+                    local_expander.routes[method].any? { |expander_route|
+                      each_route.name == expander_route.name
+                    }
+                  }.map { |each_route|
+                    local_expander.routes[method].index { |expander_route|
+                      expander_route.name == each_route.name
+                    }
+                  }.find { |index|
+                    index > index_of_last_insert
+                  }
+
+                  if insert_before_this_index
+                    @routes[method].insert(
+                      @routes[method].index { |each_route|
+                        each_route.name == local_expander.routes[method][insert_before_this_index].name
+                      }, @routes[method].delete_at(index_of_last_insert)
+                    )
                   end
+
+                  built_route
                 end
               end
             end

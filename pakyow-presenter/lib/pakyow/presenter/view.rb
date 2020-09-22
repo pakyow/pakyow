@@ -229,122 +229,114 @@ module Pakyow
       # Yields +self+.
       #
       def with
-        tap do
-          yield self
-        end
+        yield self
+        self
       end
 
       # Transforms +self+ to match structure of +object+.
       #
       def transform(object)
-        tap do
-          if object.nil? || (object.respond_to?(:empty?) && object.empty?)
-            remove
-          else
-            removals = []
-            each_binding_prop(descend: false) do |binding|
-              binding_name = if binding.significant?(:multipart_binding)
-                binding.label(:binding_prop)
-              else
-                binding.label(:binding)
-              end
-
-              unless object.present?(binding_name)
-                removals << binding
-              end
+        if object.nil? || (object.respond_to?(:empty?) && object.empty?)
+          remove
+        else
+          removals = []
+          each_binding_prop(descend: false) do |binding|
+            binding_name = if binding.significant?(:multipart_binding)
+              binding.label(:binding_prop)
+            else
+              binding.label(:binding)
             end
 
-            removals.each(&:remove)
+            unless object.present?(binding_name)
+              removals << binding
+            end
           end
 
-          yield self, object if block_given?
+          removals.each(&:remove)
         end
+
+        yield self, object if block_given?
+
+        self
       end
 
       # Binds a single object.
       #
       def bind(object)
-        tap do
-          unless object.nil?
-            each_binding_prop do |binding|
-              binding_name = if binding.significant?(:multipart_binding)
-                binding.label(:binding_prop)
-              else
-                binding.label(:binding)
-              end
-
-              if object.include?(binding_name)
-                value = if object.is_a?(Binder)
-                  object.__content(binding_name, binding)
-                else
-                  object[binding_name]
-                end
-
-                bind_value_to_node(value, binding)
-                binding.set_label(:bound, true)
-              end
+        unless object.nil?
+          each_binding_prop do |binding|
+            binding_name = if binding.significant?(:multipart_binding)
+              binding.label(:binding_prop)
+            else
+              binding.label(:binding)
             end
 
-            attributes[:"data-id"] = object[:id]
-            self.object.set_label(:bound, true)
+            if object.include?(binding_name)
+              value = if object.is_a?(Binder)
+                object.__content(binding_name, binding)
+              else
+                object[binding_name]
+              end
+
+              bind_value_to_node(value, binding)
+              binding.set_label(:bound, true)
+            end
           end
+
+          attributes[:"data-id"] = object[:id]
+          self.object.set_label(:bound, true)
         end
+
+        self
       end
 
       # Appends a view or string to +self+.
       #
       def append(view_or_string)
-        tap do
-          @object.append(self.class.from_view_or_string(view_or_string).object)
-        end
+        @object.append(self.class.from_view_or_string(view_or_string).object)
+        self
       end
 
       # Prepends a view or string to +self+.
       #
       def prepend(view_or_string)
-        tap do
-          @object.prepend(self.class.from_view_or_string(view_or_string).object)
-        end
+        @object.prepend(self.class.from_view_or_string(view_or_string).object)
+        self
       end
 
       # Inserts a view or string after +self+.
       #
       def after(view_or_string)
-        tap do
-          @object.after(self.class.from_view_or_string(view_or_string).object)
-        end
+        @object.after(self.class.from_view_or_string(view_or_string).object)
+        self
       end
 
       # Inserts a view or string before +self+.
       #
       def before(view_or_string)
-        tap do
-          @object.before(self.class.from_view_or_string(view_or_string).object)
-        end
+        @object.before(self.class.from_view_or_string(view_or_string).object)
+        self
       end
 
       # Replaces +self+ with a view or string.
       #
       def replace(view_or_string)
-        tap do
-          @object.replace(self.class.from_view_or_string(view_or_string).object)
-        end
+        @object.replace(self.class.from_view_or_string(view_or_string).object)
+        self
       end
 
       # Removes +self+.
       #
       def remove
-        tap do
-          @object.remove
-        end
+        @object.remove
+        self
       end
 
       # Removes +self+'s children.
       #
       def clear
-        tap do
-          @object.clear
-        end
+        @object.clear
+        self
       end
 
       # Safely sets the html value of +self+.
@@ -518,44 +510,44 @@ module Pakyow
 
       # @api private
       def find_partials(partials, found = [])
-        found.tap do
-          @object.each_significant_node(:partial, descend: true) do |node|
-            if (replacement = partials[node.label(:partial)])
-              found << node.label(:partial)
-              replacement.find_partials(partials, found)
-            end
+        @object.each_significant_node(:partial, descend: true) do |node|
+          if (replacement = partials[node.label(:partial)])
+            found << node.label(:partial)
+            replacement.find_partials(partials, found)
           end
         end
+
+        found
       end
 
       # @api private
       def mixin(partials)
-        tap do
-          @object.each_significant_node(:partial, descend: true) do |partial_node|
-            if (replacement = partials[partial_node.label(:partial)])
-              partial_node.replace(replacement.mixin(partials).object)
-            end
+        @object.each_significant_node(:partial, descend: true) do |partial_node|
+          if (replacement = partials[partial_node.label(:partial)])
+            partial_node.replace(replacement.mixin(partials).object)
           end
         end
+
+        self
       end
 
       # @api private
       def add_info(*infos)
-        tap do
-          infos.each do |info|
-            # Thanks Dan! https://stackoverflow.com/a/30225093
-            #
-            @info.merge!(Support::IndifferentHash.deep(info)) do |_, v1, v2|
-              if Support::IndifferentHash === v1 && Support::IndifferentHash === v2
-                v1.merge(v2, &merger)
-              elsif Array === v1 && Array === v2
-                v1 | v2
-              else
-                [:undefined, nil, :nil].include?(v2) ? v1 : v2
-              end
+        infos.each do |info|
+          # Thanks Dan! https://stackoverflow.com/a/30225093
+          #
+          @info.merge!(Support::IndifferentHash.deep(info)) do |_, v1, v2|
+            if Support::IndifferentHash === v1 && Support::IndifferentHash === v2
+              v1.merge(v2, &merger)
+            elsif Array === v1 && Array === v2
+              v1 | v2
+            else
+              [:undefined, nil, :nil].include?(v2) ? v1 : v2
             end
           end
         end
+
+        self
       end
 
       # @api private

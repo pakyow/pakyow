@@ -30,67 +30,77 @@ module Pakyow
       IVARS_TO_DUP = %i[@proxied_calls @nested_proxies].freeze
 
       def deep_dup
-        super.tap do |duped|
-          IVARS_TO_DUP.each do |ivar|
-            duped.instance_variable_set(ivar, duped.instance_variable_get(ivar).deep_dup)
-          end
+        duped = super
+
+        IVARS_TO_DUP.each do |ivar|
+          duped.instance_variable_set(ivar, duped.instance_variable_get(ivar).deep_dup)
         end
+
+        duped
       end
 
       def method_missing(method_name, *args, &block)
         if @source.command?(method_name)
-          dup.tap do |duped_proxy|
-            result = @source.command(method_name).call(*args) { |yielded_result|
-              duped_proxy.instance_variable_set(:@source, yielded_result)
-              yield duped_proxy if block_given?
-            }
+          duped_proxy = dup
 
-            if @source.respond_to?(:transaction) && @source.transaction?
-              @source.on_commit do
-                @subscribers.did_mutate(
-                  @source.source_name, args[0], result
-                )
-              end
-            else
+          result = @source.command(method_name).call(*args) { |yielded_result|
+            duped_proxy.instance_variable_set(:@source, yielded_result)
+            yield duped_proxy if block_given?
+          }
+
+          if @source.respond_to?(:transaction) && @source.transaction?
+            @source.on_commit do
               @subscribers.did_mutate(
                 @source.source_name, args[0], result
               )
             end
+          else
+            @subscribers.did_mutate(
+              @source.source_name, args[0], result
+            )
           end
+
+          duped_proxy
         elsif @source.query?(method_name) || @source.modifier?(method_name)
-          dup.tap do |duped_proxy|
-            nested_calls = []
+          duped_proxy = dup
+          nested_calls = []
 
-            new_source = if block_given? && @source.block_for_nested_source?(method_name)
-              # In this case a block has been passed that would, without intervention,
-              # be called in context of a source instance. We don't want that, since
-              # it would provide full access to the underlying dataset. Instead the
-              # exposed object should simply be another proxy.
+          new_source = if block_given? && @source.block_for_nested_source?(method_name)
+            # In this case a block has been passed that would, without intervention,
+            # be called in context of a source instance. We don't want that, since
+            # it would provide full access to the underlying dataset. Instead the
+            # exposed object should simply be another proxy.
 
-              local_subscribers, local_app = @subscribers, @app
-              @source.source_from_self.public_send(method_name, *args) {
-                nested_proxy = Proxy.new(self, local_subscribers, local_app)
-                nested_proxy.instance_variable_set(:@proxied_calls, nested_calls)
-                nested_proxy.instance_exec(&block).source.tap do |nested_proxy_source|
-                  duped_proxy.nested_proxies << nested_proxy.dup.tap do |finalized_nested_proxy|
-                    finalized_nested_proxy.instance_variable_set(:@source, nested_proxy_source)
-                  end
-                end
-              }
-            else
-              @source.source_from_self.public_send(method_name, *args).tap do |working_source|
-                working_source.included.each do |_, included_source|
-                  nested_proxy = Proxy.new(included_source, @subscribers, @app)
-                  duped_proxy.nested_proxies << nested_proxy
-                end
-              end
+            local_subscribers, local_app = @subscribers, @app
+            @source.source_from_self.public_send(method_name, *args) {
+              nested_proxy = Proxy.new(self, local_subscribers, local_app)
+              nested_proxy.instance_variable_set(:@proxied_calls, nested_calls)
+              nested_proxy_source = nested_proxy.instance_exec(&block).source
+
+              finalized_nested_proxy = nested_proxy.dup
+              finalized_nested_proxy.instance_variable_set(:@source, nested_proxy_source)
+
+              duped_proxy.nested_proxies << finalized_nested_proxy
+
+              nested_proxy_source
+            }
+          else
+            working_source = @source.source_from_self.public_send(method_name, *args)
+
+            working_source.included.each do |_, included_source|
+              nested_proxy = Proxy.new(included_source, @subscribers, @app)
+              duped_proxy.nested_proxies << nested_proxy
             end
 
-            duped_proxy.instance_variable_set(:@source, new_source)
-            duped_proxy.instance_variable_get(:@proxied_calls) << [
-              method_name, args, nested_calls
-            ]
+            working_source
           end
+
+          duped_proxy.instance_variable_set(:@source, new_source)
+          duped_proxy.instance_variable_get(:@proxied_calls) << [
+            method_name, args, nested_calls
+          ]
+
+          duped_proxy
         elsif Array.instance_methods.include?(method_name) && !@source.class.instance_methods.include?(method_name)
           build_result(
             @source.to_a.public_send(method_name, *args, &block),

@@ -19,9 +19,9 @@ module Pakyow
 
         %i([] []= << delete clear add).each do |method_name|
           define_method method_name do |*args|
-            super(*args).tap do
-              @calls << [remap_for_client(method_name), args, [], []]
-            end
+            result = super(*args)
+            @calls << [remap_for_client(method_name), args, [], []]
+            result
           end
         end
 

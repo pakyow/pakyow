@@ -66,9 +66,12 @@ module Pakyow
                 method_call = "#{name} #{args_to_string(args, kwargs)}"
 
                 @content << if block_given?
+                  writer = Writer.new
+                  writer.instance_exec(&block)
+
                   <<~CONTENT
                     #{method_call} do
-                    #{indent(Writer.new.tap { |writer| writer.instance_exec(&block) }.to_s)}
+                    #{indent(writer.to_s)}
                     end
                   CONTENT
                 else

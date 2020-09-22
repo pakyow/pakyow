@@ -602,7 +602,7 @@ module Pakyow
       else
         local = self
         require "pakyow/application"
-        Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
+        app = Pakyow::Application.make(Support::ObjectName.build(app_name, "application")) {
           envar "PWAPP__#{app_name.to_s.upcase}"
 
           # Change the name only if it's still the default. It's possible the app has already been
@@ -613,16 +613,18 @@ module Pakyow
           # Including frameworks during make lets frameworks attach `after :make` hooks.
           #
           include_frameworks(*(only || local.frameworks.keys) - Array.ensure(without))
-        }.tap do |app|
-          @__setups[app] ||= []
-          @__setups[app] << block if block_given?
+        }
 
-          mount_path = if mount
-            path
-          end
+        @__setups[app] ||= []
+        @__setups[app] << block if block_given?
 
-          mount(app, at: mount_path)
+        mount_path = if mount
+          path
         end
+
+        mount(app, at: mount_path)
+
+        app
       end
     end
 

@@ -18,11 +18,11 @@ module Pakyow
           # Includes one or more frameworks into the app class.
           #
           def include_frameworks(*frameworks)
-            tap do
-              frameworks.each do |framework_name|
-                include_framework(framework_name)
-              end
+            frameworks.each do |framework_name|
+              include_framework(framework_name)
             end
+
+            self
           end
 
           # Includes a framework into the app class.

@@ -128,13 +128,15 @@ module Pakyow
 
           ALLOWED_COLUMN_OPTS = %i[size text]
           def column_opts_for_attribute(attribute)
-            {}.tap do |opts|
-              ALLOWED_COLUMN_OPTS.each do |opt|
-                if attribute.meta.include?(opt)
-                  opts[opt] = attribute.meta[opt]
-                end
+            opts = {}
+
+            ALLOWED_COLUMN_OPTS.each do |opt|
+              if attribute.meta.include?(opt)
+                opts[opt] = attribute.meta[opt]
               end
             end
+
+            opts
           end
 
           def column_opts_string_for_attribute(attribute)

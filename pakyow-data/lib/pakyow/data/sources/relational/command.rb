@@ -335,15 +335,17 @@ module Pakyow
                   ) || final_values.dig(association.associated_query_field)
 
                   if value
-                    @source.class.instance.tap do |impacted_source|
-                      impacted_source.__setobj__(
-                        @source.class.container.connection.adapter.result_for_attribute_value(
-                          association.associated_query_field, value, impacted_source
-                        )
-                      )
+                    impacted_source = @source.class.instance
 
-                      impacted_source.update(association.associated_query_field => nil)
-                    end
+                    impacted_source.__setobj__(
+                      @source.class.container.connection.adapter.result_for_attribute_value(
+                        association.associated_query_field, value, impacted_source
+                      )
+                    )
+
+                    impacted_source.update(association.associated_query_field => nil)
+
+                    impacted_source
                   end
                 end
               end
@@ -355,25 +357,27 @@ module Pakyow
                 # return a source containing locally updated values. This lets us see
                 # the original values but prevents us from fetching twice.
 
-                @source.class.container.source(@source.class.object_name.name).tap do |updated_source|
-                  updated_source.__setobj__(
-                    @source.class.container.connection.adapter.result_for_attribute_value(
-                      @source.class.primary_key_field, command_result, updated_source
-                    )
+                updated_source = @source.class.container.source(@source.class.object_name.name)
+
+                updated_source.__setobj__(
+                  @source.class.container.connection.adapter.result_for_attribute_value(
+                    @source.class.primary_key_field, command_result, updated_source
                   )
+                )
 
-                  updated_source.instance_variable_set(:@results, original_dataset.map { |original_object|
-                    new_object = original_object.class.new(original_object.values.merge(final_values))
-                    new_object.originating_source = original_object.originating_source
-                    new_object
-                  })
+                updated_source.instance_variable_set(:@results, original_dataset.map { |original_object|
+                  new_object = original_object.class.new(original_object.values.merge(final_values))
+                  new_object.originating_source = original_object.originating_source
+                  new_object
+                })
 
-                  updated_source.instance_variable_set(:@original_results, original_dataset)
-                end
+                updated_source.instance_variable_set(:@original_results, original_dataset)
+
+                updated_source
               elsif @provides_dataset
-                @source.dup.tap do |source|
-                  source.__setobj__(command_result)
-                end
+                source = @source.dup
+                source.__setobj__(command_result)
+                source
               else
                 @source
               end

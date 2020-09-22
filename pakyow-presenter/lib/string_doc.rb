@@ -34,10 +34,10 @@ class StringDoc
     # Creates an empty doc.
     #
     def empty
-      allocate.tap do |doc|
-        doc.instance_variable_set(:@nodes, [])
-        doc.instance_variable_set(:@collapsed, nil)
-      end
+      doc = allocate
+      doc.instance_variable_set(:@nodes, [])
+      doc.instance_variable_set(:@collapsed, nil)
+      doc
     end
 
     # Registers a significant node with a name and an object to handle parsing.
@@ -49,14 +49,15 @@ class StringDoc
     # Creates a +StringDoc+ from an array of +Node+ objects.
     #
     def from_nodes(nodes)
-      allocate.tap do |instance|
-        instance.instance_variable_set(:@nodes, nodes)
-        instance.instance_variable_set(:@collapsed, nil)
+      instance = allocate
+      instance.instance_variable_set(:@nodes, nodes)
+      instance.instance_variable_set(:@collapsed, nil)
 
-        nodes.each do |node|
-          node.parent = instance
-        end
+      nodes.each do |node|
+        node.parent = instance
       end
+
+      instance
     end
 
     # Yields nodes from an oga document, breadth-first.
@@ -151,9 +152,9 @@ class StringDoc
     super
 
     @nodes = @nodes.map { |node|
-      node.dup.tap do |duped_node|
-        duped_node.parent = self
-      end
+      duped_node = node.dup
+      duped_node.parent = self
+      duped_node
     }
   end
 
@@ -274,11 +275,12 @@ class StringDoc
   # Returns nodes matching the significant type.
   #
   def find_significant_nodes(type, descend: false)
-    [].tap do |nodes|
-      each_significant_node(type, descend: descend) do |node|
-        nodes << node
-      end
+    nodes = []
+    each_significant_node(type, descend: descend) do |node|
+      nodes << node
     end
+
+    nodes
   end
 
   # Returns nodes matching the significant type and name.
@@ -286,19 +288,19 @@ class StringDoc
   # @see find_significant_nodes
   #
   def find_significant_nodes_with_name(type, name, descend: false)
-    [].tap do |nodes|
-      each_significant_node_with_name(type, name, descend: descend) do |node|
-        nodes << node
-      end
+    nodes = []
+    each_significant_node_with_name(type, name, descend: descend) do |node|
+      nodes << node
     end
+
+    nodes
   end
 
   # Clears all nodes.
   #
   def clear
-    tap do
-      @nodes.clear
-    end
+    @nodes.clear
+    self
   end
   alias_method :remove, :clear
 
@@ -307,15 +309,15 @@ class StringDoc
   # Accepts a +StringDoc+ or XML +String+.
   #
   def replace(doc_or_string)
-    tap do
-      nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+    nodes = self.class.nodes_from_doc_or_string(doc_or_string)
 
-      nodes.each do |node|
-        node.parent = self
-      end
-
-      @nodes = nodes
+    nodes.each do |node|
+      node.parent = self
     end
+
+    @nodes = nodes
+
+    self
   end
 
   # Appends to this document.
@@ -323,25 +325,24 @@ class StringDoc
   # Accepts a +StringDoc+ or XML +String+.
   #
   def append(doc_or_string)
-    tap do
-      nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+    nodes = self.class.nodes_from_doc_or_string(doc_or_string)
 
-      nodes.each do |node|
-        node.parent = self
-      end
-
-      @nodes.concat(nodes)
+    nodes.each do |node|
+      node.parent = self
     end
+
+    @nodes.concat(nodes)
+
+    self
   end
 
   # Appends raw html to this document, without parsing.
   #
   def append_html(html)
-    tap do
-      node = Node.new(html.to_s)
-      node.parent = self
-      @nodes << node
-    end
+    node = Node.new(html.to_s)
+    node.parent = self
+    @nodes << node
+    self
   end
 
   # Prepends to this document.
@@ -349,74 +350,74 @@ class StringDoc
   # Accepts a +StringDoc+ or XML +String+.
   #
   def prepend(doc_or_string)
-    tap do
-      nodes = self.class.nodes_from_doc_or_string(doc_or_string)
+    nodes = self.class.nodes_from_doc_or_string(doc_or_string)
 
-      nodes.each do |node|
-        node.parent = self
-      end
-
-      @nodes.unshift(*nodes)
+    nodes.each do |node|
+      node.parent = self
     end
+
+    @nodes.unshift(*nodes)
+
+    self
   end
 
   # Inserts a node after another node contained in this document.
   #
   def insert_after(node_to_insert, after_node)
-    tap do
-      if (after_node_index = @nodes.index(after_node))
-        nodes = self.class.nodes_from_doc_or_string(node_to_insert)
+    if (after_node_index = @nodes.index(after_node))
+      nodes = self.class.nodes_from_doc_or_string(node_to_insert)
 
-        nodes.each do |node|
-          node.parent = self
-        end
-
-        @nodes.insert(after_node_index + 1, *nodes)
+      nodes.each do |node|
+        node.parent = self
       end
+
+      @nodes.insert(after_node_index + 1, *nodes)
     end
+
+    self
   end
 
   # Inserts a node before another node contained in this document.
   #
   def insert_before(node_to_insert, before_node)
-    tap do
-      if (before_node_index = @nodes.index(before_node))
-        nodes = self.class.nodes_from_doc_or_string(node_to_insert)
+    if (before_node_index = @nodes.index(before_node))
+      nodes = self.class.nodes_from_doc_or_string(node_to_insert)
 
-        nodes.each do |node|
-          node.parent = self
-        end
-
-        @nodes.insert(before_node_index, *nodes)
+      nodes.each do |node|
+        node.parent = self
       end
+
+      @nodes.insert(before_node_index, *nodes)
     end
+
+    self
   end
 
   # Removes a node from the document.
   #
   def remove_node(node_to_delete)
-    tap do
-      @nodes.delete_if { |node|
-        node.equal?(node_to_delete)
-      }
+    @nodes.delete_if do |node|
+      node.equal?(node_to_delete)
     end
+
+    self
   end
 
   # Replaces a node from the document.
   #
   def replace_node(node_to_replace, replacement_node)
-    tap do
-      if (replace_node_index = @nodes.index(node_to_replace))
-        nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node)
+    if (replace_node_index = @nodes.index(node_to_replace))
+      nodes_to_insert = self.class.nodes_from_doc_or_string(replacement_node)
 
-        nodes_to_insert.each do |node|
-          node.parent = self
-        end
-
-        @nodes.insert(replace_node_index + 1, *nodes_to_insert)
-        @nodes.delete_at(replace_node_index)
+      nodes_to_insert.each do |node|
+        node.parent = self
       end
+
+      @nodes.insert(replace_node_index + 1, *nodes_to_insert)
+      @nodes.delete_at(replace_node_index)
     end
+
+    self
   end
 
   def render(output = +"", context: nil)

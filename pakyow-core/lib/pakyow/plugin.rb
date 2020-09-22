@@ -359,22 +359,24 @@ module Pakyow
       end
 
       def features
-        Dir.glob(File.join(plugin_path, "features", "*")).map { |feature_path|
+        features = Dir.glob(File.join(plugin_path, "features", "*")).map { |feature_path|
           {
             name: File.basename(feature_path).to_sym,
             path: feature_path
           }
-        }.tap do |features|
-          features.delete_if do |feature|
-            @__disabled_features.include?(feature[:name])
-          end
+        }
 
-          if @__enabled_features.any?
-            features.keep_if do |feature|
-              @__enabled_features.include?(feature[:name])
-            end
+        features.delete_if do |feature|
+          @__disabled_features.include?(feature[:name])
+        end
+
+        if @__enabled_features.any?
+          features.keep_if do |feature|
+            @__enabled_features.include?(feature[:name])
           end
         end
+
+        features
       end
 
       private def isolable_context

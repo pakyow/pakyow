@@ -25,17 +25,17 @@ module Pakyow
       end
 
       def finalize
-        tap do
-          if @config.fingerprint
-            extension = File.extname(@public_path)
-            @public_path = File.join(
-              File.dirname(@public_path),
-              File.basename(@public_path, extension) + "__" + fingerprint + extension
-            )
-          end
-
-          pack_assets!
+        if @config.fingerprint
+          extension = File.extname(@public_path)
+          @public_path = File.join(
+            File.dirname(@public_path),
+            File.basename(@public_path, extension) + "__" + fingerprint + extension
+          )
         end
+
+        pack_assets!
+
+        self
       end
 
       def <<(asset)

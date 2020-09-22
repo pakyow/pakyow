@@ -196,9 +196,8 @@ module Pakyow
       end
 
       def disable_source_map
-        tap do
-          @source_map_enabled = false
-        end
+        @source_map_enabled = false
+        self
       end
 
       private
