@@ -1,0 +1,31 @@
+name: Standard RB
+
+on:
+  pull_request:
+    branches:
+    - master
+  push:
+  repository_dispatch:
+
+jobs:
+  test-ruby:
+    runs-on: ubuntu-latest
+
+    name: Standard RB
+
+    container:
+      image: pakyow/ci-ruby-2.7.1
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          rm -f Gemfile.lock
+          bundle install --jobs=3 && bundle update --jobs=3
+
+      - name: Lint
+        shell: bash -l -e -o pipefail {0}
+        run: |
+          CI=true bundle exec standardrb
