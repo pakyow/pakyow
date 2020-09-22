@@ -42,7 +42,7 @@ namespace :release do
     puts "\033[31mAre you sure you want to publish these gems? There's no going back!"
     puts "Enter the current version number to continue...\033[0m"
     puts
-    input = STDIN.gets.chomp
+    input = $stdin.gets.chomp
     puts
 
     if input == Pakyow::VERSION

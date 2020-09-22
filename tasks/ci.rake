@@ -16,13 +16,11 @@ namespace :ci do
   task :test, [:framework, :test] do |_, args|
     if args[:framework] == "js"
       system "docker-compose run --rm pakyow-ci 'cd pakyow-js && npm test #{args[:test]}'"
+    elsif args.key?(:test)
+      command = "cd pakyow-#{args[:framework]} && bundle exec rspec #{args[:test]}"
+      system "docker-compose run --rm -e CI=true -e GEMS='#{args[:framework]}' pakyow-ci '#{command}'"
     else
-      if args.key?(:test)
-        command = "cd pakyow-#{args[:framework]} && bundle exec rspec #{args[:test]}"
-        system "docker-compose run --rm -e CI=true -e GEMS='#{args[:framework]}' pakyow-ci '#{command}'"
-      else
-        system "docker-compose run --rm -e CI=true -e GEMS='#{args[:framework]}' pakyow-ci 'bundle exec rake'"
-      end
+      system "docker-compose run --rm -e CI=true -e GEMS='#{args[:framework]}' pakyow-ci 'bundle exec rake'"
     end
   end
 end

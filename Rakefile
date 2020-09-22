@@ -3,7 +3,7 @@
 GEMS = if ENV.key?("GEMS")
   ENV["GEMS"].split(",").map(&:to_sym).freeze
 else
-  %i(
+  %i[
     assets
     core
     data
@@ -15,8 +15,8 @@ else
     routing
     support
     ui
-  ).freeze
+  ].freeze
 end
 
-Dir.glob("tasks/*.rake").each do |r| import r end
-task default: %w(test:all)
+Dir.glob("tasks/*.rake").each { |r| import r }
+task default: %w[test:all]
