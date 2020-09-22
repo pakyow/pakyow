@@ -49,7 +49,7 @@ module Pakyow
 
           prepend PresenterForContext
 
-          ui_renderer = Class.new(isolated(:Renderer)) do
+          ui_renderer = Class.new(isolated(:Renderer)) {
             def marshal_load(state)
               deserialize(state)
               @presenter_class = @app.find_ui_presenter_for(@presenter_class)
@@ -59,13 +59,13 @@ module Pakyow
             def perform(*)
               @presenter.to_html
             end
-          end
+          }
 
           # Delete the render_components build step since ui will not be invoking the component.
           #
-          ui_renderer.__build_fns.delete_if { |fn|
+          ui_renderer.__build_fns.delete_if do |fn|
             fn.source_location[0].end_with?("render_components.rb")
-          }
+          end
 
           isolate(ui_renderer, as: Support::ObjectName.build("UIRenderer"))
 
@@ -81,7 +81,7 @@ module Pakyow
 
           after "initialize" do
             @ui_executor = Concurrent::SingleThreadExecutor.new(
-              auto_terminate: false,
+              auto_terminate: false
             )
           end
         end

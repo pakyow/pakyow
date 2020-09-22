@@ -40,9 +40,9 @@ module Pakyow
 
         class << self
           def from_attributes(attributes)
-            new(attributes.instance_variable_get(:@attributes)).tap { |instance|
+            new(attributes.instance_variable_get(:@attributes)).tap do |instance|
               instance.instance_variable_set(:@calls, [])
-            }
+            end
           end
         end
       end

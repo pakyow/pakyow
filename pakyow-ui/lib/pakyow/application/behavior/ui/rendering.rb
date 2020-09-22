@@ -30,7 +30,7 @@ module Pakyow
                 unless presentables.include?(:__ui_transform) || subscribables.empty?
                   # To keep up with the node(s) that matter for the transformation, a `data-t` attribute
                   # is added to the node that contains the transformation_id. When the transformation is
-                  # triggered in the future, the client knows what node to apply tranformations to.
+                  # triggered in the future, the client knows what node to apply transformations to.
                   #
                   # Note that when we're presenting an entire view, `data-t` is set on the `html` node.
                   #
@@ -70,9 +70,9 @@ module Pakyow
               after "render" do
                 if instance_variable_defined?(:@payload)
                   @app.ui_executor.post(self, subscribables, @payload, Pakyow.logger.target) do |context, subscribables, payload, logger|
-                    logger.internal {
+                    logger.internal do
                       "[ui] subscribing #{@payload[:id]}"
-                    }
+                    end
 
                     # Find every subscribable presentable, creating a data subscription for each.
                     #
@@ -110,14 +110,10 @@ module Pakyow
                     value
                   elsif value.instance_variable_defined?(:@__proxy)
                     value.instance_variable_get(:@__proxy)
-                  else
-                    nil
                   end
 
                   if proxy && proxy.subscribable?
                     proxy.deep_dup
-                  else
-                    nil
                   end
                 }.compact.uniq { |subscribable|
                   subscribable.source.__getobj__

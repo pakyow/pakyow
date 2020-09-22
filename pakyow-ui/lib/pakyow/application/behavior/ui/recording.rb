@@ -21,7 +21,7 @@ module Pakyow
               }
             end
 
-            ui_presenter_class ||= self.class.ui_presenters.find { |klass|
+            ui_presenter_class || self.class.ui_presenters.find { |klass|
               klass.ancestors.include?(presenter_class)
             }
           end

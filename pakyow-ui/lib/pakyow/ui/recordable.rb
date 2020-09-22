@@ -52,15 +52,13 @@ module Pakyow
         }.compact
       end
 
-      private
-
-      def optimized
+      private def optimized
         calls = []
 
         # Combine finds when looking for the same nodes.
         #
         @calls.each do |call|
-          if call[0] == :find && matching_call = calls.find { |c| c[0] == :find && c[1] == call[1] && c[2] == call[2] }
+          if call[0] == :find && (matching_call = calls.find { |c| c[0] == :find && c[1] == call[1] && c[2] == call[2] })
             matching_call[3].to_a.concat(call[3].to_a)
           else
             calls << call
@@ -69,16 +67,16 @@ module Pakyow
 
         # Prioritize the calls so they are applied correctly on the client.
         #
-        calls.sort! { |a, b|
+        calls.sort! do |a, b|
           call_priority(a, calls) <=> call_priority(b, calls)
-        }
+        end
 
         calls
       end
 
-      PRIORITY_CALLS = %i(transform use).freeze
+      PRIORITY_CALLS = %i[transform use].freeze
 
-      def call_priority(call, calls)
+      private def call_priority(call, calls)
         if PRIORITY_CALLS.include?(call[0])
           # Set priority calls to a priority of -1000, which is highest priority.
           #
@@ -97,7 +95,7 @@ module Pakyow
       # FIXME: We currently viewify twice for present; once for transform, another for bind.
       # Let's create a `Viewified` object instead... then check to see if it's already happened.
       #
-      def viewify(data)
+      private def viewify(data)
         data = if data.is_a?(Data::Proxy)
           data.to_a
         elsif data.nil?
@@ -167,7 +165,7 @@ module Pakyow
           binding_path_part = binding_path.shift
           current_options = options.dup
 
-          if id = binding_info[binding_path_part.to_s.split(":", 2)[0].to_sym]
+          if (id = binding_info[binding_path_part.to_s.split(":", 2)[0].to_sym])
             # Tie the transformations to a node of a specific id, unless we're transforming the entire set.
             #
             unless calls.any? { |call| call[0] == :transform }
@@ -196,30 +194,26 @@ module Pakyow
       class_methods do
         def render_proc(view, render, &block)
           super(view, render) do |_, context|
-            if render[:node]
-              instance_exec(&block)
+            instance_exec(&block)
 
+            if render[:node]
               # The super proc creates a new presenter instance per render, but we want each to use the
               # same starting point for calls since they all apply to the same node.
               #
               context.calls.concat(calls)
-            else
-              instance_exec(&block)
-
-              if calls.any?
-                # Explicitly find the node to apply the transformation to the correct node. While
-                # we're at it, append any transformations caused by the `instance_exec` above.
-                #
-                Recordable.find_through(
-                  render[:binding_path].dup, object.label(:binding_info).to_h, {}, context.calls, calls
-                )
-              end
+            elsif calls.any?
+              # Explicitly find the node to apply the transformation to the correct node. While
+              # we're at it, append any transformations caused by the `instance_exec` above.
+              #
+              Recordable.find_through(
+                render[:binding_path].dup, object.label(:binding_info).to_h, {}, context.calls, calls
+              )
             end
           end
         end
 
         def from_presenter(presenter)
-          allocate.tap { |instance|
+          allocate.tap do |instance|
             # Copy state from the presenter we're tracking.
             #
             presenter.instance_variables.each do |ivar|
@@ -227,18 +221,20 @@ module Pakyow
             end
 
             instance.cache_bindings!
-          }
+          end
         end
       end
 
       prepend_methods do
         if Support::System.ruby_version < "2.7.0"
           def initialize(*)
-            super; __common_ui_recordable_initialize
+            super
+            __common_ui_recordable_initialize
           end
         else
           def initialize(*, **)
-            super; __common_ui_recordable_initialize
+            super
+            __common_ui_recordable_initialize
           end
         end
 
@@ -259,10 +255,10 @@ module Pakyow
           presenter
         end
 
-        %i(
+        %i[
           find transform use bind append prepend after before replace remove clear title= html=
           endpoint endpoint_action component
-        ).each do |method_name|
+        ].each do |method_name|
           define_method method_name do |*args, &block|
             nested = []
 
@@ -306,7 +302,7 @@ module Pakyow
             calls << [:attributes, [], [], subsequent]
           end
         end
-        alias attrs attributes
+        alias_method :attrs, :attributes
       end
     end
   end
