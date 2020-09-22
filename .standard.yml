@@ -5,6 +5,8 @@ ignore:
   - '**/spec/**/*'
   - 'pakyow-core/lib/pakyow/behavior/running.rb':
     - Lint/NestedMethodDefinition
+  - 'pakyow-core/lib/pakyow/generator/processor.rb':
+    - Lint/ErbNewArguments
   - 'pakyow-core/lib/pakyow/loader/context.rb':
     - Security/Eval
   - 'pakyow-core/lib/pakyow/runnable/errors.rb':
