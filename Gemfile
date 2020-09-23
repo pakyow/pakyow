@@ -19,20 +19,20 @@ gem "pry", ">= 0.13"
 gem "standard", ">= 0.6"
 
 group :test do
-  gem "simplecov", ">= 0.18", require: false
+  gem "simplecov", ">= 0.19", require: false
   gem "simplecov-console", ">= 0.7"
 
   gem "event_emitter", ">= 0.2"
   gem "httparty", ">= 0.18"
-  gem "rack", ">= 2.2.2"
+  gem "rack", ">= 2.2.3"
 
   gem "rspec", "~> 3.9"
   gem "rspec-benchmark", "~> 0.6"
   gem "rspec-repeat", "~> 1.0"
 
-  gem "warning", "~> 1.0"
+  gem "warning", "~> 1.1"
 
-  gem "sassc", "~> 2.3"
+  gem "sassc", "~> 2.4"
 
   gem "mysql2", "~> 0.5"
   gem "pg", "~> 1.2"
