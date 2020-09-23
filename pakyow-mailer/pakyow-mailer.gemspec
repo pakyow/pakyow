@@ -28,5 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "css_parser", "~> 1.7"
   spec.add_dependency "htmlentities", "~> 4.3"
   spec.add_dependency "mail", "~> 2.7"
-  spec.add_dependency "oga", "~> 3.2"
+  spec.add_dependency "oga", "~> 3.3"
 end
