@@ -146,7 +146,7 @@ module Pakyow
       end
 
       def bytesize
-        bytes = @assets.map(&:bytesize).inject(&:+)
+        bytes = @assets.sum(&:bytesize)
 
         if @config.source_maps && source_map?
           bytes += source_mapping_url.bytesize
