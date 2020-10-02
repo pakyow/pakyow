@@ -63,7 +63,7 @@ module Pakyow
       end
 
       def ruby_version
-        ENV["RUBY_VERSION"]
+        @__ruby_version ||= RbConfig::CONFIG["RUBY_PROGRAM_VERSION"]
       end
     end
   end
