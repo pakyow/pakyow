@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Get the current Ruby version in a more reliable way.**
+
+    *Related links:*
+    - [Pull Request #526][pr-526]
+
   * `fix` **Handle makeable object redefinition more elegantly.**
 
     *Related links:*
@@ -334,6 +339,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-526]: https://github.com/pakyow/pakyow/pull/526
 [pr-522]: https://github.com/pakyow/pakyow/pull/522
 [pr-521]: https://github.com/pakyow/pakyow/pull/521
 [pr-497]: https://github.com/pakyow/pakyow/pull/497

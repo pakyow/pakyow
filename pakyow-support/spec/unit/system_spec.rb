@@ -171,8 +171,8 @@ RSpec.describe Pakyow::Support::System do
       subject.ruby_version
     end
 
-    it "returns the current ruby version" do
-      expect(call).to eq(ENV["RUBY_VERSION"])
+    it "returns the current ruby api version" do
+      expect(call).to eq(RbConfig::CONFIG["RUBY_PROGRAM_VERSION"])
     end
   end
 
