@@ -151,19 +151,21 @@ RSpec.describe "pipelines" do
           include Pakyow::Support::Pipeline
 
           action Class.new {
-            def initialize(option)
+            def initialize(argument, option:)
+              @argument = argument
               @option = option
             end
 
             def call(result)
+              result << @argument
               result << @option
             end
-          }, "option"
+          }, "argument", option: "option"
         end
       end
 
       it "passes the options to the instance" do
-        expect(pipelined.new.call(result.new)).to eq(["option"])
+        expect(pipelined.new.call(result.new)).to eq(["argument", "option"])
       end
     end
 
@@ -222,19 +224,21 @@ RSpec.describe "pipelines" do
           include Pakyow::Support::Pipeline
 
           action :foo, Class.new {
-            def initialize(option)
+            def initialize(argument, option:)
+              @argument = argument
               @option = option
             end
 
             def call(result)
+              result << @argument
               result << @option
             end
-          }, "option"
+          }, "argument", option: "option"
         end
       end
 
       it "passes the options to the instance" do
-        expect(pipelined.new.call(result.new)).to eq(["option"])
+        expect(pipelined.new.call(result.new)).to eq(["argument", "option"])
       end
     end
 

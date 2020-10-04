@@ -36,8 +36,8 @@ module Pakyow
           call_actions(@actions.reverse, context, *args, **kwargs)
         end
 
-        def action(target, *options, before: nil, after: nil, &block)
-          action = Action.new(@context, target, *options, &block)
+        def action(target, *options_args, before: nil, after: nil, **options_kwargs, &block)
+          action = Action.new(@context, target, *options_args, **options_kwargs, &block)
 
           if before
             if (i = @actions.index { |a| a.name == before })
