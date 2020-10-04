@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support keyword arguments in pipeline action definitions.**
+
+    *Related links:*
+    - [Pull Request #527][pr-527]
+
   * `fix` **Get the current Ruby version in a more reliable way.**
 
     *Related links:*
@@ -339,6 +344,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-527]: https://github.com/pakyow/pakyow/pull/527
 [pr-526]: https://github.com/pakyow/pakyow/pull/526
 [pr-522]: https://github.com/pakyow/pakyow/pull/522
 [pr-521]: https://github.com/pakyow/pakyow/pull/521

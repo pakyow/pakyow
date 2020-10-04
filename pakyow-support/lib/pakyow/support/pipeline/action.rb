@@ -21,10 +21,10 @@ module Pakyow
         using Refinements::UnboundMethod::Introspection
         using Refinements::Proc::Introspection
 
-        attr_reader :target, :name, :options
+        attr_reader :target, :name
 
-        def initialize(def_context, target, *options, &block)
-          @target, @options, @block = target, options, block
+        def initialize(def_context, target, *options_args, **options_kwargs, &block)
+          @target, @options_args, @options_kwargs, @block = target, options_args, options_kwargs, block
 
           if target.is_a?(Symbol)
             @name = target
@@ -74,20 +74,28 @@ module Pakyow
           else
             case @target
             when Symbol
-              if @options[0]
-                case @options[0]
+              if @options_args[0]
+                case @options_args[0]
                 when Class
-                  build_object(options[0].new(*options[1..-1]))
+                  if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
+                    build_object(@options_args[0].new(*@options_args[1..-1]))
+                  else
+                    build_object(@options_args[0].new(*@options_args[1..-1], **@options_kwargs))
+                  end
                 when Proc
-                  build_block(@target, @options[0])
+                  build_block(@target, @options_args[0])
                 else
-                  build_object(options[0])
+                  build_object(@options_args[0])
                 end
               else
                 build_method(@def_context.instance_method(@target))
               end
             when Class
-              build_object(@target.new(*@options))
+              if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
+                build_object(@target.new(*@options_args))
+              else
+                build_object(@target.new(*@options_args, **@options_kwargs))
+              end
             when Proc
               build_block(nil, @target)
             else
