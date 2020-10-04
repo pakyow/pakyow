@@ -116,7 +116,12 @@ module Pakyow
     end
 
     def input
-      @request.body
+      @__input ||= @request.body
+    end
+
+    # @api private
+    def wrap_input
+      @__input = yield(@request.body)
     end
 
     def parsed_input
@@ -551,7 +556,7 @@ module Pakyow
     def parse_input
       if instance_variable_defined?(:@input_parser) && input
         if @input_parser[:rewindable]
-          request.body = Async::HTTP::Body::Rewindable.new(request.body)
+          @__input = Async::HTTP::Body::Rewindable.new(input)
         end
 
         parser = @input_parser[:block].call(input, self)

@@ -832,6 +832,30 @@ RSpec.describe Pakyow do
     end
   end
 
+  describe "limit action" do
+    let(:pipeline) {
+      Pakyow.instance_variable_get(:@__pipeline)
+    }
+
+    it "is not included by default" do
+      expect(pipeline.actions.map(&:name)).not_to include(:limit)
+    end
+
+    context "limiter length is greater than 0" do
+      before do
+        Pakyow.configure do
+          config.limiter.length = 1024
+        end
+
+        Pakyow.setup
+      end
+
+      it "is included" do
+        expect(pipeline.actions.map(&:name)).to include(:limit)
+      end
+    end
+  end
+
   describe "::output" do
     it "is memoized" do
       expect(Pakyow.output).to be(Pakyow.output)

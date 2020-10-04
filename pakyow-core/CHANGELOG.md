@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce the limiter action for limiting request body size.**
+
+    *Related links:*
+    - [Pull Request #528][pr-528]
+
   * `fix` **Don't register multiple deprecators with the global deprecator.**
 
     *Related links:*
@@ -725,6 +730,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-528]: https://github.com/pakyow/pakyow/pull/528
 [pr-523]: https://github.com/pakyow/pakyow/pull/523
 [pr-518]: https://github.com/pakyow/pakyow/pull/518
 [pr-517]: https://github.com/pakyow/pakyow/pull/517

@@ -34,6 +34,7 @@ require_relative "behavior/restarting"
 require_relative "behavior/verifier"
 
 require_relative "actions/input_parser"
+require_relative "actions/limiter"
 require_relative "actions/logger"
 require_relative "actions/missing"
 require_relative "actions/normalizer"
@@ -42,6 +43,7 @@ require_relative "actions/restart"
 require_relative "handleable/actions/handle"
 require_relative "handleable/behavior/statuses"
 require_relative "handleable/behavior/defaults/not_found"
+require_relative "handleable/behavior/defaults/request_too_large"
 require_relative "handleable/behavior/defaults/server_error"
 
 # Pakyow environment for running one or more rack apps. Multiple apps can be
@@ -302,6 +304,10 @@ module Pakyow
     end
   end
 
+  configurable :limiter do
+    setting :length, 0
+  end
+
   configurable :redis do
     configurable :connection do
       setting :url do
@@ -357,20 +363,18 @@ module Pakyow
   include Handleable::Behavior::Statuses
 
   include Handleable::Behavior::Defaults::NotFound
+  include Handleable::Behavior::Defaults::RequestTooLarge
   include Handleable::Behavior::Defaults::ServerError
 
   include Support::Pipeline
+
+  # These actions are defined first to guarantee they wrap every connection.
+  #
   action :handle, Handleable::Actions::Handle
   action :missing, Actions::Missing
   action :log, Actions::Logger
   action :normalize, Actions::Normalizer
   action :parse, Actions::InputParser
-
-  before :configure do
-    if env?(:development) || env?(:prototype)
-      action :restart, Actions::Restart
-    end
-  end
 
   extend Support::ClassState
   class_state :apps, default: []
@@ -496,6 +500,10 @@ module Pakyow
         load(env: env)
 
         performing :setup do
+          if config.limiter.length > 0
+            action :limit, Actions::Limiter, before: :parse, length: config.limiter.length
+          end
+
           require "console"
           require "console/split"
 

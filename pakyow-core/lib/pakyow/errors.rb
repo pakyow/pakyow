@@ -18,6 +18,12 @@ module Pakyow
     }.freeze
   end
 
+  class RequestTooLarge < Error
+    class_state :messages, default: {
+      default: "Request length `{length}' exceeds the defined limit of `{limit}'"
+    }
+  end
+
   class InvalidData < Error
     class_state :messages, default: {
       verification: "Provided data didn't pass verification"
