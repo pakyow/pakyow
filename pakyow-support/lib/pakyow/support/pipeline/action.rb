@@ -77,7 +77,11 @@ module Pakyow
               if @options_args[0]
                 case @options_args[0]
                 when Class
-                  build_object(@options_args[0].new(*@options_args[1..-1], **@options_kwargs))
+                  if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
+                    build_object(@options_args[0].new(*@options_args[1..-1]))
+                  else
+                    build_object(@options_args[0].new(*@options_args[1..-1], **@options_kwargs))
+                  end
                 when Proc
                   build_block(@target, @options_args[0])
                 else
@@ -87,7 +91,11 @@ module Pakyow
                 build_method(@def_context.instance_method(@target))
               end
             when Class
-              build_object(@target.new(*@options_args, **@options_kwargs))
+              if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
+                build_object(@target.new(*@options_args))
+              else
+                build_object(@target.new(*@options_args, **@options_kwargs))
+              end
             when Proc
               build_block(nil, @target)
             else
