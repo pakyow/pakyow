@@ -35,6 +35,12 @@ module Pakyow
             end
           end
         end
+
+        before "setup" do
+          if env?(:development) || env?(:prototype)
+            action :restart, Actions::Restart
+          end
+        end
       end
 
       class_methods do

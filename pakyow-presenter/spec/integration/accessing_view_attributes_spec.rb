@@ -1,3 +1,6 @@
+require "pakyow/presenter/significant_nodes"
+require "pakyow/presenter/view"
+
 RSpec.describe "accessing view attributes" do
   let :html do
     "<div binding=\"post\" style=\"color: blue\" class=\"foo bar\" title=\"baz\" checked=\"checked\"></div>"

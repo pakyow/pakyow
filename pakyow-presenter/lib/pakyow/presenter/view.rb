@@ -9,6 +9,8 @@ require "pakyow/support/safe_string"
 
 require_relative "../../string_doc"
 
+require_relative "attributes"
+
 module Pakyow
   module Presenter
     # Provides an interface for manipulating view templates.
