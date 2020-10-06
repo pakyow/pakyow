@@ -1,3 +1,5 @@
+require "pakyow/reflection/endpoint"
+
 RSpec.describe "dataset parsing" do
   let :dataset do
     Pakyow::Reflection::Exposure.new(
