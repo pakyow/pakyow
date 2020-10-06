@@ -70,4 +70,29 @@ RSpec.describe "parsing requests" do
       expect(@called).to be(false)
     end
   end
+
+  context "params are accessed before input parser is set" do
+    before do
+      Pakyow.parse_input "application/foo" do |input, connection|
+        value = input.read
+        connection.params[:foo] = value
+        { foo: value }
+      end
+
+      Pakyow.action before: :handle do |connection|
+        connection.params
+      end
+    end
+
+    let(:action) {
+      Proc.new { |connection|
+        connection.body = connection.parsed_input.fetch(:foo)
+        connection.halt
+      }
+    }
+
+    it "resets the params when the input parser is set" do
+      expect(call("/", method: :post, headers: { "content-type" => "application/foo" }, input: StringIO.new("bar"))[2]).to eq("bar")
+    end
+  end
 end

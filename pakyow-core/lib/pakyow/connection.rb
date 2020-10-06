@@ -57,7 +57,7 @@ module Pakyow
     attr_reader :error
 
     # @api private
-    attr_writer :error, :input_parser
+    attr_writer :error
     # @api private
     attr_reader :request
 
@@ -427,6 +427,13 @@ module Pakyow
       if @request_cookies.key?(key)
         @request_cookies[key] = value
       end
+    end
+
+    # @api private
+    def input_parser=(parser)
+      @input_parser = parser
+      remove_instance_variable(:@built_params) if defined?(@built_params)
+      remove_instance_variable(:@parsed_input) if defined?(@parsed_input)
     end
 
     private
