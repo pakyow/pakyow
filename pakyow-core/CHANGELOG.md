@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Reset params after setting an input parser on the connection.**
+
+    *Related links:*
+    - [Pull Request #529][pr-529]
+
   * `add` **Introduce the limiter action for limiting request body size.**
 
     *Related links:*
@@ -730,6 +735,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-529]: https://github.com/pakyow/pakyow/pull/529
 [pr-528]: https://github.com/pakyow/pakyow/pull/528
 [pr-523]: https://github.com/pakyow/pakyow/pull/523
 [pr-518]: https://github.com/pakyow/pakyow/pull/518
