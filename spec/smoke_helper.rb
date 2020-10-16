@@ -66,13 +66,13 @@ RSpec.configure do |config|
 
   def install
     Bundler.with_original_env do
-      system "bundle exec rake release:install"
+      system "bundle exec rake gems:install"
     end
   end
 
   def clean
     Bundler.with_original_env do
-      system "bundle exec rake release:clean"
+      system "bundle exec rake gems:clean"
     end
   end
 

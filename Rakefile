@@ -1,22 +1,16 @@
 # frozen_string_literal: true
 
-GEMS = if ENV.key?("GEMS")
-  ENV["GEMS"].split(",").map(&:to_sym).freeze
-else
-  %i[
-    assets
-    core
-    data
-    form
-    mailer
-    presenter
-    realtime
-    reflection
-    routing
-    support
-    ui
-  ].freeze
-end
+framework_paths = Pathname.new(File.expand_path("../frameworks", __FILE__)).glob("*")
+package_paths = Pathname.new(File.expand_path("../packages", __FILE__)).glob("*")
 
-Dir.glob("tasks/*.rake").each { |r| import r }
-task default: %w[test:all]
+GEM_PATHS = [
+  Pathname.new("."),
+  Pathname.new("core"),
+  Pathname.new("support")
+].concat(framework_paths).freeze
+
+PACKAGE_PATHS = [].concat(package_paths).freeze
+
+Dir.glob("tasks/*.rake").each do |tasks|
+  import(tasks)
+end

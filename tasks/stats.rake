@@ -3,23 +3,23 @@
 namespace :stats do
   desc "Count the lines of code across all libraries"
   task :loc do
-    all_libs = GEMS.each_with_object(["lib"]) { |gem, command|
-      command << "pakyow-#{gem}/lib"
+    code_paths = GEM_PATHS.map { |path|
+      path.join("lib")
+    } + PACKAGE_PATHS.map { |path|
+      path.join("src")
     }
 
-    all_libs << "pakyow-js/src"
-
-    system "cloc #{all_libs.join(" ")}"
+    system "cloc #{code_paths.join(" ")}"
   end
 
   desc "Count the lines of tests across all libraries"
   task :lot do
-    all_libs = GEMS.each_with_object(["spec"]) { |gem, command|
-      command << "pakyow-#{gem}/spec"
+    code_paths = GEM_PATHS.map { |path|
+      path.join("spec")
+    } + PACKAGE_PATHS.map { |path|
+      path.join("__tests__")
     }
 
-    all_libs << "pakyow-js/__tests__"
-
-    system "cloc #{all_libs.join(" ")}"
+    system "cloc #{code_paths.join(" ")}"
   end
 end

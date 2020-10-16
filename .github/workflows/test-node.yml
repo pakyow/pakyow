@@ -22,12 +22,12 @@ jobs:
       - name: Setup
         shell: bash -l -e -o pipefail {0}
         run: |
-          cd pakyow-js
+          cd packages/js
           rm -f package-json.lock
           npm install
 
       - name: Test
         shell: bash -l -e -o pipefail {0}
         run: |
-          cd pakyow-js
+          cd packages/js
           npm test

@@ -3,19 +3,19 @@ parallel: true
 
 ignore:
   - '**/spec/**/*'
-  - 'pakyow-core/lib/pakyow/behavior/running.rb':
+  - 'core/lib/pakyow/behavior/running.rb':
     - Lint/NestedMethodDefinition
-  - 'pakyow-core/lib/pakyow/generator/processor.rb':
+  - 'core/lib/pakyow/generator/processor.rb':
     - Lint/ErbNewArguments
-  - 'pakyow-core/lib/pakyow/loader/context.rb':
+  - 'core/lib/pakyow/loader/context.rb':
     - Security/Eval
-  - 'pakyow-core/lib/pakyow/runnable/errors.rb':
+  - 'core/lib/pakyow/runnable/errors.rb':
     - Lint/InheritException
-  - 'pakyow-core/lib/pakyow/task.rb':
+  - 'core/lib/pakyow/task.rb':
     - Security/Eval
-  - 'pakyow-mailer/lib/pakyow/mailer/framework.rb':
+  - 'frameworks/mailer/lib/pakyow/mailer/framework.rb':
     - Lint/UnderscorePrefixedVariableName
-  - 'pakyow-support/lib/pakyow/support/handleable.rb':
-    - Lint/RescueException
-  - 'pakyow-reflection/lib/pakyow/reflection/framework.rb':
+  - 'frameworks/reflection/lib/pakyow/reflection/framework.rb':
     - Lint/NestedMethodDefinition
+  - 'support/lib/pakyow/support/handleable.rb':
+    - Lint/RescueException
