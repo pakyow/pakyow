@@ -71,6 +71,31 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       end
     end
 
+    it "deep freezes from the bottom up" do
+      c = Class.new {
+        attr_reader :reference_was_frozen
+        attr_writer :reference
+
+        def initialize(reference = nil)
+          @reference = reference
+        end
+
+        def freeze
+          @reference_was_frozen = @reference.frozen?
+
+          super
+        end
+      }
+
+      o1 = c.new
+      o2 = c.new(o1)
+      o1.reference = o2
+      o1.deep_freeze
+
+      expect(o1.reference_was_frozen).to be(true)
+      expect(o2.reference_was_frozen).to be(false)
+    end
+
     it "deep freezes ivars without loop" do
       objects = Array.new(5, Object.new)
       objects.reduce do |parent, child|

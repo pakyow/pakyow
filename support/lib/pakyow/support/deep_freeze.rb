@@ -8,10 +8,30 @@ require_relative "deprecator"
 require_relative "deprecatable"
 require_relative "extension"
 require_relative "hookable"
+require_relative "thread_localizer"
 
 module Pakyow
   module Support
     module DeepFreeze
+      # @api private
+      def self.prevent_freeze_recursion(object)
+        objects_in_freezer[object.object_id] = true
+
+        yield
+      ensure
+        objects_in_freezer.delete(object.object_id)
+      end
+
+      # @api private
+      def self.freezing?(object)
+        objects_in_freezer[object.object_id]
+      end
+
+      # @api private
+      def self.objects_in_freezer
+        ThreadLocalizer.thread_localized_store[:__pw_freezing_objects] ||= {}
+      end
+
       extend Extension
 
       extend_dependency ClassState
@@ -43,8 +63,8 @@ module Pakyow
       [Object, Delegator].each do |klass|
         refine klass do
           def deep_freeze
-            if !frozen? && respond_to?(:freeze)
-              if !respond_to?(:insulated?) || !insulated?
+            unless DeepFreeze.freezing?(self) || frozen? || !respond_to?(:freeze) || (respond_to?(:insulated?) && insulated?)
+              DeepFreeze.prevent_freeze_recursion(self) do
                 if self.class.ancestors.include?(Hookable)
                   performing :freeze do
                     perform_deep_freeze
@@ -59,11 +79,11 @@ module Pakyow
           end
 
           private def perform_deep_freeze
-            freeze
-
             freezable_variables.each do |name|
               instance_variable_get(name).deep_freeze
             end
+
+            freeze
           end
 
           private def freezable_variables
@@ -84,9 +104,12 @@ module Pakyow
 
       refine Array do
         def deep_freeze
-          unless frozen?
-            freeze
-            each(&:deep_freeze)
+          unless DeepFreeze.freezing?(self) || frozen?
+            DeepFreeze.prevent_freeze_recursion(self) do
+              each(&:deep_freeze)
+
+              freeze
+            end
           end
 
           self
@@ -95,15 +118,18 @@ module Pakyow
 
       refine Hash do
         def deep_freeze
-          unless frozen?
-            replacement_hash = {}
+          unless DeepFreeze.freezing?(self) || frozen?
+            DeepFreeze.prevent_freeze_recursion(self) do
+              replacement_hash = {}
 
-            each_pair do |key, value|
-              replacement_hash[key.deep_freeze] = value.deep_freeze
+              each_pair do |key, value|
+                replacement_hash[key.deep_freeze] = value.deep_freeze
+              end
+
+              replace(replacement_hash)
+
+              freeze
             end
-
-            replace(replacement_hash)
-            freeze
           end
 
           self
