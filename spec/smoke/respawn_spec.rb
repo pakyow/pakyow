@@ -5,9 +5,21 @@ RSpec.describe "respawning a project", :repeatable, smoke: true do
     before do
       # Add the markdown page.
       #
-      File.open(project_path.join("frontend/pages/index.md"), "w+") do |file|
+      # File.open(project_path.join("frontend/pages/index.md"), "w+") do |file|
+      #   file.write <<~SOURCE
+      #     **hello web**
+      #   SOURCE
+      # end
+
+      File.open(project_path.join("config/application.rb"), "w+") do |file|
         file.write <<~SOURCE
-          **hello web**
+          Pakyow.app :smoke_test, only: %i[routing data] do
+            controller "/" do
+              default do
+                send defined?(Dry::Configurable).to_s
+              end
+            end
+          end
         SOURCE
       end
 
@@ -20,7 +32,7 @@ RSpec.describe "respawning a project", :repeatable, smoke: true do
       sleep 5
 
       File.open(project_path.join("Gemfile"), "a") do |file|
-        file.write("\ngem \"pakyow-markdown\"")
+        file.write("\ngem \"dry-configurable\"")
       end
 
       # Give bundler time to install.
@@ -30,7 +42,7 @@ RSpec.describe "respawning a project", :repeatable, smoke: true do
       response = http.get("http://localhost:#{port}")
 
       expect(response.status).to eq(200)
-      expect(response.body.to_s).to include("<strong>hello web</strong>")
+      expect(response.body.to_s).to include("constant")
     end
   end
 
