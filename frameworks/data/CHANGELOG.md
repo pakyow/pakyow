@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't attempt to auto migrate applications without the data framework.**
+
+    *Related links:*
+    - [Pull Request #532][pr-532]
+
   * `fix` **Only include values for attributes in relational results.**
 
     *Related links:*
@@ -10,6 +15,7 @@
     *Related links:*
     - [Pull Request #381][pr-381]
 
+[pr-532]: https://github.com/pakyow/pakyow/pull/532
 [pr-382]: https://github.com/pakyow/pakyow/pull/382
 [pr-381]: https://github.com/pakyow/pakyow/pull/381
 

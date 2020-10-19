@@ -89,6 +89,24 @@ RSpec.describe "auto migrating on boot" do
           end
         end
       end
+
+      context "auto migrating when one application does not include the data framework" do
+        let(:env_def) {
+          Proc.new {
+            Pakyow.app(:test_2, without: %i[data]) do
+              # intentionally empty
+            end
+          }
+        }
+
+        def setup_expectations
+          expect_any_instance_of(Pakyow::Data::Migrator).to receive(:auto_migrate!).and_call_original
+        end
+
+        it "auto migrates the first application" do
+          # intentionally empty
+        end
+      end
     end
   end
 

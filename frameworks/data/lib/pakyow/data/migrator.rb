@@ -82,7 +82,9 @@ module Pakyow
       def sources
         return [] unless Pakyow.booted?
 
-        Pakyow.apps.reject(&:rescued?).flat_map { |app|
+        Pakyow.apps.reject(&:rescued?).select { |app|
+          app.class.includes_framework?(:data)
+        }.flat_map { |app|
           app.data.containers.flat_map(&:sources).concat(
             app.plugs.flat_map { |plug|
               plug.data.containers.flat_map(&:sources)
