@@ -105,7 +105,7 @@ module Pakyow
   using Support::Refinements::Array::Ensurable
 
   include Support::Hookable
-  events :load, :configure, :setup, :boot, :shutdown, :run, :error
+  events :load, :configure, :setup, :boot, :shutdown, :run, :error, :fork
 
   include Support::Configurable
 

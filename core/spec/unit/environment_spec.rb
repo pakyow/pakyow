@@ -1035,6 +1035,33 @@ RSpec.describe Pakyow do
         expect(Pakyow.container(:supervisor)).to have_received(:run).exactly(:once)
       end
     end
+
+    describe "fork hooks" do
+      before do
+        local = self
+        Pakyow.on "fork" do
+          local.fork_before = true
+        end
+
+        Pakyow.after "fork" do
+          local.fork_after = true
+        end
+      end
+
+      attr_writer :fork_before, :fork_after
+
+      it "calls before fork hooks" do
+        Pakyow.run(env: :test)
+
+        expect(@fork_before).to be(true)
+      end
+
+      it "calls after fork hooks" do
+        Pakyow.run(env: :test)
+
+        expect(@fork_after).to be(true)
+      end
+    end
   end
 
   describe "::shutdown" do
