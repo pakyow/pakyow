@@ -52,7 +52,7 @@ module Pakyow
           ].freeze
         }.freeze
 
-        extend Support::DeepFreeze
+        include Support::DeepFreeze
         insulate :connection
 
         def initialize(opts, logger: nil)

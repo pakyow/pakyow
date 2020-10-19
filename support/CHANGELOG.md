@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Add before/after freeze hooks to objects that include deep freeze.**
+
+    *Related links:*
+    - [Pull Request #531][pr-531]
+
   * `chg` **Support keyword arguments in pipeline action definitions.**
 
     *Related links:*
@@ -344,6 +349,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-531]: https://github.com/pakyow/pakyow/pull/531
 [pr-527]: https://github.com/pakyow/pakyow/pull/527
 [pr-526]: https://github.com/pakyow/pakyow/pull/526
 [pr-522]: https://github.com/pakyow/pakyow/pull/522

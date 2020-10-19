@@ -11,7 +11,7 @@ module Pakyow
     class Subscribers
       attr_accessor :lookup, :adapter
 
-      extend Support::DeepFreeze
+      include Support::DeepFreeze
       insulate :executor
 
       using Support::Refinements::Method::Introspection

@@ -27,7 +27,7 @@ module Pakyow
 
           using Support::DeepDup
 
-          extend Support::DeepFreeze
+          include Support::DeepFreeze
           insulate :subscriptions_by_id, :subscription_ids_by_source, :subscribers_by_subscription_id, :subscription_ids_by_subscriber, :expirations_for_subscriber
 
           def initialize(*)

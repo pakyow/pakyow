@@ -10,7 +10,7 @@ module Pakyow
       class Internal
         attr_reader :actions
 
-        extend DeepFreeze
+        include DeepFreeze
         insulate :context
 
         def initialize(context, &block)

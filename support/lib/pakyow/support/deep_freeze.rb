@@ -6,44 +6,64 @@ require "socket"
 require_relative "class_state"
 require_relative "deprecator"
 require_relative "deprecatable"
+require_relative "extension"
+require_relative "hookable"
 
 module Pakyow
   module Support
     module DeepFreeze
-      extend Deprecatable
+      extend Extension
 
-      def self.extended(base)
-        base.extend ClassState
-        base.class_state :__insulated_variables, inheritable: true, default: []
+      extend_dependency ClassState
+      include_dependency Hookable
+
+      apply_extension do
+        events :freeze
+
+        class_state :__insulated_variables, inheritable: true, default: []
       end
 
-      def insulate(*instance_variables)
-        @__insulated_variables.concat(
-          instance_variables.map { |instance_variable|
-            :"@#{instance_variable}"
-          }
-        ).uniq!
-      end
+      class_methods do
+        extend Deprecatable
 
-      def unfreezable(*instance_variables)
-        insulate(*instance_variables)
+        def insulate(*instance_variables)
+          @__insulated_variables.concat(
+            instance_variables.map { |instance_variable|
+              :"@#{instance_variable}"
+            }
+          ).uniq!
+        end
+
+        def unfreezable(*instance_variables)
+          insulate(*instance_variables)
+        end
+        deprecate :unfreezable, solution: "use `insulate'"
       end
-      deprecate :unfreezable, solution: "use `insulate'"
 
       [Object, Delegator].each do |klass|
         refine klass do
           def deep_freeze
             if !frozen? && respond_to?(:freeze)
               if !respond_to?(:insulated?) || !insulated?
-                freeze
-
-                freezable_variables.each do |name|
-                  instance_variable_get(name).deep_freeze
+                if self.class.ancestors.include?(Hookable)
+                  performing :freeze do
+                    perform_deep_freeze
+                  end
+                else
+                  perform_deep_freeze
                 end
               end
             end
 
             self
+          end
+
+          private def perform_deep_freeze
+            freeze
+
+            freezable_variables.each do |name|
+              instance_variable_get(name).deep_freeze
+            end
           end
 
           private def freezable_variables

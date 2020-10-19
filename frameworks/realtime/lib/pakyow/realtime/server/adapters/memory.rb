@@ -16,7 +16,7 @@ module Pakyow
         #
         # @api private
         class Memory
-          extend Support::DeepFreeze
+          include Support::DeepFreeze
           insulate :socket_ids_by_channel, :channels_by_socket_id, :expirations_for_socket_id, :socket_instances_by_socket_id
 
           def initialize(server, _config)

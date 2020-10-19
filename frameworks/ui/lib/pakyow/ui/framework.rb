@@ -76,7 +76,7 @@ module Pakyow
           # @api private
           attr_reader :ui_executor
 
-          extend Support::DeepFreeze
+          include Support::DeepFreeze
           insulate :ui_executor
 
           after "initialize" do
