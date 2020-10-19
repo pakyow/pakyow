@@ -60,6 +60,16 @@ module Pakyow
         deprecate :unfreezable, solution: "use `insulate'"
       end
 
+      def freeze
+        if DeepFreeze.freezing?(self)
+          super
+        else
+          performing :freeze do
+            super
+          end
+        end
+      end
+
       [Object, Delegator].each do |klass|
         refine klass do
           def deep_freeze

@@ -213,6 +213,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
         include Pakyow::Support::DeepFreeze
 
         before :freeze do
+          @calls << :before
           @self_was_frozen = frozen?
           @state_was_frozen = @state.frozen?
         end
@@ -222,32 +223,49 @@ RSpec.describe Pakyow::Support::DeepFreeze do
           local.instance_variable_set(:@state_is_frozen, @state.frozen?)
         end
 
-        attr_reader :state, :self_was_frozen, :state_was_frozen
+        attr_reader :state, :self_was_frozen, :state_was_frozen, :calls
 
         def initialize
           @state = {}
+          @calls = []
         end
       }
     }
 
-    before do
-      hooked_object.deep_freeze
-    end
-
     it "calls before freeze hook before freezing" do
+      hooked_object.deep_freeze
+
       expect(hooked_object.self_was_frozen).to be(false)
     end
 
     it "calls before freeze hook before freezing internal state" do
+      hooked_object.deep_freeze
+
       expect(hooked_object.state_was_frozen).to be(false)
     end
 
     it "calls after freeze hook after freezing internal state" do
+      hooked_object.deep_freeze
+
       expect(@state_is_frozen).to be(true)
     end
 
     it "calls after freeze hook after freezing" do
+      hooked_object.deep_freeze
+
       expect(@self_is_frozen).to be(true)
+    end
+
+    it "calls the hooks when doing a normal freeze" do
+      hooked_object.freeze
+
+      expect(hooked_object.calls).to include(:before)
+    end
+
+    it "does not call hooks twice" do
+      hooked_object.freeze
+
+      expect(hooked_object.calls.count(:before)).to eq(1)
     end
   end
 
