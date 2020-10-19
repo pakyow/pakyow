@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Resolve an issue causing params to be parsed twice.**
+
+    *Related links:*
+    - [Pull Request #530][pr-530]
+
   * `fix` **Reset params after setting an input parser on the connection.**
 
     *Related links:*
@@ -735,6 +740,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-530]: https://github.com/pakyow/pakyow/pull/530
 [pr-529]: https://github.com/pakyow/pakyow/pull/529
 [pr-528]: https://github.com/pakyow/pakyow/pull/528
 [pr-523]: https://github.com/pakyow/pakyow/pull/523

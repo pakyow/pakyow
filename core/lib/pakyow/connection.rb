@@ -57,7 +57,7 @@ module Pakyow
     attr_reader :error
 
     # @api private
-    attr_writer :error
+    attr_writer :error, :input_parser
     # @api private
     attr_reader :request
 
@@ -125,9 +125,8 @@ module Pakyow
     end
 
     def parsed_input
-      unless instance_variable_defined?(:@parsed_input)
-        @parsed_input = nil
-        @parsed_input = parse_input
+      if should_parse_input?
+        parse_input
       end
 
       @parsed_input
@@ -429,13 +428,6 @@ module Pakyow
       end
     end
 
-    # @api private
-    def input_parser=(parser)
-      @input_parser = parser
-      remove_instance_variable(:@built_params) if defined?(@built_params)
-      remove_instance_variable(:@parsed_input) if defined?(@parsed_input)
-    end
-
     private
 
     def normalize_header(key)
@@ -547,7 +539,7 @@ module Pakyow
     def build_params
       @built_params = true
       @params.parse(query.to_s)
-      parsed_input
+      parse_input if should_parse_input?
     end
 
     def build_type_params
@@ -561,7 +553,9 @@ module Pakyow
     end
 
     def parse_input
-      if instance_variable_defined?(:@input_parser) && input
+      @parsed_input = if instance_variable_defined?(:@input_parser) && input
+        @__parsing_input = true
+
         if @input_parser[:rewindable]
           @__input = Async::HTTP::Body::Rewindable.new(input)
         end
@@ -572,8 +566,13 @@ module Pakyow
           input.rewind
         end
 
+        @__did_parse_input = true
         parser
       end
+    end
+
+    def should_parse_input?
+      !defined?(@__did_parse_input) && !defined?(@__parsing_input)
     end
 
     def parse_path
