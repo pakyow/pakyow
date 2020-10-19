@@ -147,7 +147,7 @@ module Pakyow
         end
 
         def to_a
-          return @results if instance_variable_defined?(:@results)
+          return @results if defined?(@results)
           @results = self.class.to_a(__getobj__)
           include_results!(@results)
           @results.map! { |result|
@@ -157,8 +157,8 @@ module Pakyow
         alias_method :all, :to_a
 
         def one
-          return @results.first if instance_variable_defined?(:@results)
-          return @result if instance_variable_defined?(:@result)
+          return @results.first if defined?(@results)
+          return @result if defined?(@result)
 
           if (result = self.class.one(__getobj__))
             include_results!([result])

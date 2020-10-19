@@ -29,7 +29,7 @@ module Pakyow
             end
 
             on "shutdown" do
-              if instance_variable_defined?(:@websocket_server)
+              if defined?(@websocket_server)
                 @websocket_server.shutdown
               end
             end

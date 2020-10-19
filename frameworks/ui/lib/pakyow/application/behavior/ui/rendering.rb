@@ -68,7 +68,7 @@ module Pakyow
               end
 
               after "render" do
-                if instance_variable_defined?(:@payload)
+                if defined?(@payload)
                   @app.ui_executor.post(self, subscribables, @payload, Pakyow.logger.target) do |context, subscribables, payload, logger|
                     logger.internal do
                       "[ui] subscribing #{@payload[:id]}"

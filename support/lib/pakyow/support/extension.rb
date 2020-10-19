@@ -182,33 +182,33 @@ module Pakyow
       private
 
       def enforce_restrictions(base)
-        if instance_variable_defined?(:@__extension_restriction) && !base.ancestors.include?(@__extension_restriction)
+        if defined?(@__extension_restriction) && !base.ancestors.include?(@__extension_restriction)
           raise "expected `#{base}' to be a decendent of `#{@__extension_restriction}'"
         end
       end
 
       def mixin_extension_modules(base)
-        if instance_variable_defined?(:@__extension_extend_module)
+        if defined?(@__extension_extend_module)
           base.extend @__extension_extend_module
         end
 
-        if instance_variable_defined?(:@__extension_prepend_module)
+        if defined?(@__extension_prepend_module)
           base.prepend @__extension_prepend_module
         end
 
-        if instance_variable_defined?(:@__extension_common_module)
+        if defined?(@__extension_common_module)
           base.extend @__extension_common_module
           base.include @__extension_common_module
         end
 
-        if instance_variable_defined?(:@__extension_common_prepend_module)
+        if defined?(@__extension_common_prepend_module)
           base.prepend @__extension_common_prepend_module
           base.singleton_class.prepend @__extension_common_prepend_module
         end
       end
 
       def include_extensions(base)
-        if instance_variable_defined?(:@__extension_block)
+        if defined?(@__extension_block)
           base.instance_exec(&@__extension_block)
         end
       end

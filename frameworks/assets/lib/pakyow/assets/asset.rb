@@ -127,7 +127,7 @@ module Pakyow
           public_path
         end
 
-        if instance_variable_defined?(:@content) && (!@config.fingerprint || instance_variable_defined?(:@fingerprinted_public_path))
+        if defined?(@content) && (!@config.fingerprint || defined?(@fingerprinted_public_path))
           super
         end
       end
@@ -167,7 +167,7 @@ module Pakyow
 
       def public_path
         if @config.fingerprint
-          unless instance_variable_defined?(:@fingerprinted_public_path)
+          unless defined?(@fingerprinted_public_path)
             @fingerprinted_public_path = File.join(
               File.dirname(@public_path),
               fingerprinted_filename
@@ -204,7 +204,7 @@ module Pakyow
 
       def ensure_content
         @mutex.synchronize do
-          unless frozen? || instance_variable_defined?(:@content)
+          unless frozen? || defined?(@content)
             @content = load_content
             freeze
           end

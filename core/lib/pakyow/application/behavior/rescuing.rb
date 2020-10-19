@@ -27,9 +27,9 @@ module Pakyow
           #
           def rescued?
             if is_a?(Application)
-              self.class.rescued? || (instance_variable_defined?(:@error) && !!@error)
+              self.class.rescued? || (defined?(@error) && !!@error)
             else
-              instance_variable_defined?(:@error) && !!@error
+              defined?(@error) && !!@error
             end
           end
 

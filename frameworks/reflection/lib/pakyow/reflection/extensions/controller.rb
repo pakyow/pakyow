@@ -173,7 +173,7 @@ module Pakyow
         def reflected_destination
           with_reflected_action do |reflected_action|
             if connection.form && (origin = connection.form[:origin])
-              if instance_variable_defined?(:@object)
+              if defined?(@object)
                 if (route = self.class.routes[:get].find { |each_route| each_route.name == :show })
                   route.build_path(self.class.path_to_self, **params.merge(@object.one.to_h))
                 elsif (route = self.class.routes[:get].find { |each_route| each_route.name == :list })

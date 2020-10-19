@@ -16,7 +16,7 @@ module Pakyow
 
           apply_extension do
             on "shutdown", priority: :high do
-              if Pakyow.config.realtime.adapter == :memory && instance_variable_defined?(:@websocket_server)
+              if Pakyow.config.realtime.adapter == :memory && defined?(@websocket_server)
                 realtime_server_serializer.serialize
               end
             end

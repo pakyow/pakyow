@@ -135,7 +135,7 @@ module Pakyow
     # Returns the request method (e.g. `:get`).
     #
     def method
-      unless instance_variable_defined?(:@method)
+      unless defined?(@method)
         @method = if request_method == "POST" && params.include?(:"pw-http-method")
           params[:"pw-http-method"].downcase.to_sym
         else
@@ -163,7 +163,7 @@ module Pakyow
     end
 
     def host
-      unless instance_variable_defined?(:@host)
+      unless defined?(@host)
         parse_authority
       end
 
@@ -171,7 +171,7 @@ module Pakyow
     end
 
     def port
-      unless instance_variable_defined?(:@port)
+      unless defined?(@port)
         parse_authority
       end
 
@@ -195,7 +195,7 @@ module Pakyow
     end
 
     def path
-      unless instance_variable_defined?(:@path)
+      unless defined?(@path)
         parse_path
       end
 
@@ -203,7 +203,7 @@ module Pakyow
     end
 
     def query
-      unless instance_variable_defined?(:@query)
+      unless defined?(@query)
         parse_path
       end
 
@@ -219,7 +219,7 @@ module Pakyow
     end
 
     def endpoint
-      unless instance_variable_defined?(:@endpoint)
+      unless defined?(@endpoint)
         @endpoint = Endpoint.new(path, params).freeze
       end
 
@@ -233,7 +233,7 @@ module Pakyow
     #   => :html
     #
     def format
-      unless instance_variable_defined?(:@format)
+      unless defined?(@format)
         parse_format
       end
 
@@ -241,7 +241,7 @@ module Pakyow
     end
 
     def type
-      unless instance_variable_defined?(:@type)
+      unless defined?(@type)
         parse_content_type
       end
 
@@ -250,7 +250,7 @@ module Pakyow
     alias_method :media_type, :type
 
     def type_params
-      unless instance_variable_defined?(:@parsed_type_params)
+      unless defined?(@parsed_type_params)
         @parsed_type_params = build_type_params
       end
 
@@ -265,7 +265,7 @@ module Pakyow
     # Returns an indifferentized params hash.
     #
     def params
-      unless instance_variable_defined?(:@built_params)
+      unless defined?(@built_params)
         build_params
       end
 
@@ -273,7 +273,7 @@ module Pakyow
     end
 
     def cookies
-      unless instance_variable_defined?(:@cookies)
+      unless defined?(@cookies)
         parse_cookies
       end
 
@@ -382,7 +382,7 @@ module Pakyow
           end
         end
 
-        if instance_variable_defined?(:@response)
+        if defined?(@response)
           @response
         else
           Async::HTTP::Protocol::Response[@status, @headers, @body]
@@ -529,7 +529,7 @@ module Pakyow
     end
 
     def cookie_config
-      unless instance_variable_defined?(:@cookie_config)
+      unless defined?(@cookie_config)
         @cookie_config = Pakyow.config.cookies.to_h
       end
 
@@ -543,7 +543,7 @@ module Pakyow
     end
 
     def build_type_params
-      unless instance_variable_defined?(:@type_params)
+      unless defined?(@type_params)
         parse_content_type
       end
 
@@ -553,7 +553,7 @@ module Pakyow
     end
 
     def parse_input
-      @parsed_input = if instance_variable_defined?(:@input_parser) && input
+      @parsed_input = if defined?(@input_parser) && input
         @__parsing_input = true
 
         if @input_parser[:rewindable]

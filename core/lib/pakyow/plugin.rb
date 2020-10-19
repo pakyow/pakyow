@@ -340,7 +340,7 @@ module Pakyow
       def inherited(plugin_class)
         super
 
-        if instance_variable_defined?(:@plugin_name)
+        if defined?(@plugin_name)
           plugin_class.instance_variable_set(:@plugin_name, instance_variable_get(:@plugin_name))
           plugin_class.instance_variable_set(:@plugin_path, instance_variable_get(:@plugin_path))
 

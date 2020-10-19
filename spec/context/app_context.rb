@@ -2,7 +2,7 @@ RSpec.shared_context "app" do
   let :app do
     local_app_def = app_def
 
-    block = if instance_variable_defined?(:@default_app_def)
+    block = if defined?(@default_app_def)
       local_default_app_def = @default_app_def
 
       Proc.new do
@@ -19,7 +19,7 @@ RSpec.shared_context "app" do
   end
 
   let :excluded_frameworks do
-    if instance_variable_defined?(:@excluded_frameworks)
+    if defined?(@excluded_frameworks)
       @excluded_frameworks
     else
       []

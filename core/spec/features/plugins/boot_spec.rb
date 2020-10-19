@@ -5,7 +5,7 @@ RSpec.describe "booting plugins" do
     class TestPlugin < Pakyow::Plugin(:testable, File.join(__dir__, "support/plugin"))
       action :test
       def test(connection)
-        connection.body = StringIO.new((instance_variable_defined?(:@value) ? @value || :did_not_boot : :did_not_boot).to_s)
+        connection.body = StringIO.new((defined?(@value) ? @value || :did_not_boot : :did_not_boot).to_s)
         connection.halt
       end
     end

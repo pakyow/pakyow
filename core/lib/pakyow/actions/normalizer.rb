@@ -113,7 +113,7 @@ module Pakyow
       end
 
       def strict_host?
-        instance_variable_defined?(:@canonical_uri)
+        defined?(@canonical_uri)
       end
 
       def canonical?(connection)

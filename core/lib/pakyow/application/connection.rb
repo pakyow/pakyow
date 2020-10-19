@@ -52,7 +52,7 @@ module Pakyow
       end
 
       def path
-        unless instance_variable_defined?(:@path)
+        unless defined?(@path)
           @path = String.normalize_path(
             __getobj__.path.split(@app.mount_path, 2)[1]
           )

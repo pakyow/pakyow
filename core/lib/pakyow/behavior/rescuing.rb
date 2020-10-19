@@ -23,7 +23,7 @@ module Pakyow
         # Returns true if the environment has been rescued.
         #
         def rescued?
-          instance_variable_defined?(:@error) && !!@error
+          defined?(@error) && !!@error
         end
 
         # Enters rescue mode after reporting the error.

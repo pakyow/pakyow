@@ -16,7 +16,7 @@ module Pakyow
       def inherited(framework_class)
         super
 
-        return unless instance_variable_defined?(:@framework_name)
+        return unless defined?(@framework_name)
         Pakyow.register_framework(@framework_name, framework_class)
       end
     end

@@ -65,7 +65,7 @@ module Pakyow
             end
 
             on "shutdown" do
-              if instance_variable_defined?(:@data)
+              if defined?(@data)
                 @data.subscribers.shutdown
               end
             end

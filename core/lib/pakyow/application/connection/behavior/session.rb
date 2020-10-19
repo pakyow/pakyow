@@ -10,7 +10,7 @@ module Pakyow
           extend Support::Extension
 
           def session
-            unless instance_variable_defined?(:@session)
+            unless defined?(@session)
               @session = build_session
             end
 

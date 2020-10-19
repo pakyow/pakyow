@@ -1,5 +1,5 @@
 <%= 1 + 1 %>
 
-<%- if instance_variable_defined?(:@use_option) && @use_option -%>
+<%- if defined?(@use_option) && @use_option -%>
 <%= @value %>
 <%- end -%>

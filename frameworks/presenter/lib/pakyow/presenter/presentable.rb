@@ -19,7 +19,7 @@ module Pakyow
 
       def presentable?(presentable_key)
         presentable_key = presentable_key.to_s
-        instance_variable_defined?(:@presentables) && @presentables.any? { |key, _|
+        defined?(@presentables) && @presentables.any? { |key, _|
           key.to_s.start_with?(presentable_key)
         }
       end
