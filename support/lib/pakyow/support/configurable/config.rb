@@ -25,7 +25,7 @@ module Pakyow
 
         using DeepDup
 
-        extend DeepFreeze
+        include DeepFreeze
         insulate :configurable
 
         extend Pakyow::Support::Deprecatable

@@ -9,7 +9,7 @@ RSpec.describe Pakyow::Support::DeepFreeze do
 
   let(:unfreezable_class) {
     Class.new do
-      extend Pakyow::Support::DeepFreeze
+      include Pakyow::Support::DeepFreeze
       insulate :fire
 
       attr_reader :fire, :water
@@ -173,6 +173,56 @@ RSpec.describe Pakyow::Support::DeepFreeze do
       expect(unfreezable_class).to receive(:insulate).with(:foo)
 
       unfreezable_class.unfreezable :foo
+    end
+  end
+
+  describe "freeze hooks" do
+    let(:hooked_object) {
+      hooked_class.new
+    }
+
+    let(:hooked_class) {
+      local = self
+
+      Class.new {
+        include Pakyow::Support::DeepFreeze
+
+        before :freeze do
+          @self_was_frozen = frozen?
+          @state_was_frozen = @state.frozen?
+        end
+
+        after :freeze do
+          local.instance_variable_set(:@self_is_frozen, frozen?)
+          local.instance_variable_set(:@state_is_frozen, @state.frozen?)
+        end
+
+        attr_reader :state, :self_was_frozen, :state_was_frozen
+
+        def initialize
+          @state = {}
+        end
+      }
+    }
+
+    before do
+      hooked_object.deep_freeze
+    end
+
+    it "calls before freeze hook before freezing" do
+      expect(hooked_object.self_was_frozen).to be(false)
+    end
+
+    it "calls before freeze hook before freezing internal state" do
+      expect(hooked_object.state_was_frozen).to be(false)
+    end
+
+    it "calls after freeze hook after freezing internal state" do
+      expect(@state_is_frozen).to be(true)
+    end
+
+    it "calls after freeze hook after freezing" do
+      expect(@self_is_frozen).to be(true)
     end
   end
 

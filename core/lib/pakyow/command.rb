@@ -69,7 +69,7 @@ module Pakyow
     class_state :aliases, default: {}, inheritable: true
     class_state :__prelaunch_block, default: nil, inheritable: true
 
-    extend Support::DeepFreeze
+    include Support::DeepFreeze
     insulate :rake
 
     after "make" do

@@ -34,7 +34,7 @@ module Pakyow
           KEY_PREFIX = "data"
           INFINITY = "+inf"
 
-          extend Support::DeepFreeze
+          include Support::DeepFreeze
           insulate :redis
 
           def initialize(config)

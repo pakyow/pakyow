@@ -12,7 +12,7 @@ require_relative "websocket"
 module Pakyow
   module Realtime
     class Server
-      extend Support::DeepFreeze
+      include Support::DeepFreeze
       insulate :executor, :sockets
 
       attr_reader :adapter
