@@ -116,7 +116,15 @@ module Pakyow
       definable :service, Service
 
       include Support::Hookable
-      events :restart
+      events :fork, :restart
+
+      before "fork" do
+        Pakyow.call_hooks(:before, :fork)
+      end
+
+      after "fork" do
+        Pakyow.call_hooks(:after, :fork)
+      end
 
       attr_reader :options
 

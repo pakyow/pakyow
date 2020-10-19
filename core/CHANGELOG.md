@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Add fork events to the environment, called by containers.**
+
+    *Related links:*
+    - [Pull Request #533][pr-533]
+
   * `fix` **Resolve an issue causing params to be parsed twice.**
 
     *Related links:*
@@ -740,6 +745,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-533]: https://github.com/pakyow/pakyow/pull/533
 [pr-530]: https://github.com/pakyow/pakyow/pull/530
 [pr-529]: https://github.com/pakyow/pakyow/pull/529
 [pr-528]: https://github.com/pakyow/pakyow/pull/528

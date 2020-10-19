@@ -28,23 +28,25 @@ module Pakyow
             @notifier&.stop
             @notifier = Notifier.new(container: container, &method(:handle_notification).to_proc)
 
-            container.formation.each.map { |service_name, desired_service_count|
-              service_instance = container.services(service_name).new(**container.options)
-              desired_service_count ||= (service_instance.count || 1)
-              service_limit = service_instance.limit
+            container.performing :fork do
+              container.formation.each.map { |service_name, desired_service_count|
+                service_instance = container.services(service_name).new(**container.options)
+                desired_service_count ||= (service_instance.count || 1)
+                service_limit = service_instance.limit
 
-              service_count = if service_limit.nil? || service_instance.limit >= desired_service_count
-                desired_service_count
-              else
-                Pakyow.logger.warn "attempted to run service `#{container.class.object_name.name}.#{service_name}' #{desired_service_count} times, but was limited to #{service_limit}"
+                service_count = if service_limit.nil? || service_instance.limit >= desired_service_count
+                  desired_service_count
+                else
+                  Pakyow.logger.warn "attempted to run service `#{container.class.object_name.name}.#{service_name}' #{desired_service_count} times, but was limited to #{service_limit}"
 
-                service_limit
-              end
+                  service_limit
+                end
 
-              [service_instance, service_count]
-            }.each do |service_instance, service_count|
-              service_count.times do |index|
-                manage_service(service_instance.dup)
+                [service_instance, service_count]
+              }.each do |service_instance, service_count|
+                service_count.times do |index|
+                  manage_service(service_instance.dup)
+                end
               end
             end
           end
