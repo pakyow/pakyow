@@ -6,7 +6,7 @@ module Pakyow
     #
     class Restart
       def call(connection)
-        if connection.path == "/pw-restart" && connection.method == :post && (environment = connection.params[:environment])
+        if connection.path == "/pw-restart" && connection.request_method == "POST" && (environment = connection.params[:environment])
           Pakyow.restart(env: environment)
 
           connection.halt
