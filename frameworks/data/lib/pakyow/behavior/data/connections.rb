@@ -60,6 +60,10 @@ module Pakyow
               }
             }
           end
+
+          on "fork", "fork.data.connections" do
+            @data_connections.values.flat_map(&:values).each(&:disconnect)
+          end
         end
       end
     end

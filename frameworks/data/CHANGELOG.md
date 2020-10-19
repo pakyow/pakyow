@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Disconnect data connections when the environment is forked.**
+
+    *Related links:*
+    - [Pull Request #534][pr-534]
+
   * `fix` **Don't attempt to auto migrate applications without the data framework.**
 
     *Related links:*
@@ -15,6 +20,7 @@
     *Related links:*
     - [Pull Request #381][pr-381]
 
+[pr-534]: https://github.com/pakyow/pakyow/pull/534
 [pr-532]: https://github.com/pakyow/pakyow/pull/532
 [pr-382]: https://github.com/pakyow/pakyow/pull/382
 [pr-381]: https://github.com/pakyow/pakyow/pull/381
