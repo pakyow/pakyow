@@ -9,6 +9,7 @@ module Pakyow
 
       def class_state(name, default: nil, inheritable: false, reader: true)
         ivar = :"@#{name}"
+
         @__class_state[ivar] = {
           default: default,
           inheritable: inheritable
@@ -16,8 +17,8 @@ module Pakyow
 
         instance_variable_set(ivar, default.deep_dup)
 
-        if reader
-          define_singleton_method name do
+        if reader && !methods(false).include?(name)
+          define_singleton_method(name) do
             instance_variable_get(ivar)
           end
         end
