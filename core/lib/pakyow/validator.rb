@@ -78,11 +78,11 @@ module Pakyow
       @validations << [validation_object, options]
     end
 
-    def call(values, context: nil)
+    def call(value, context: nil)
       result = Result.new(@key)
 
       @validations.each do |validation, options|
-        unless validation.valid?(values, key: @key, context: context, **options)
+        unless validation.valid?(value, key: @key, context: context, **options)
           result.error(validation, options)
         end
       end

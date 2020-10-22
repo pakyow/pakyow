@@ -184,6 +184,28 @@ RSpec.describe Pakyow::Verifier do
         expect(result.verified?).to be(true)
       end
     end
+
+    describe "validating a value that might be false" do
+      let(:verifier) {
+        described_class.new do
+          required :foo do
+            validate do |value|
+              value.is_a?(FalseClass)
+            end
+          end
+        end
+      }
+
+      let(:values) {
+        {
+          foo: false,
+        }
+      }
+
+      it "validates as expected" do
+        expect(result.verified?).to be(true)
+      end
+    end
   end
 
   describe "messages" do
