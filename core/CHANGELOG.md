@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Correctly validate values that might be false.**
+
+    *Related links:*
+    - [Pull Request #535][pr-535]
+
   * `fix` **Add fork events to the environment, called by containers.**
 
     *Related links:*
@@ -745,6 +750,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-535]: https://github.com/pakyow/pakyow/pull/535
 [pr-533]: https://github.com/pakyow/pakyow/pull/533
 [pr-530]: https://github.com/pakyow/pakyow/pull/530
 [pr-529]: https://github.com/pakyow/pakyow/pull/529

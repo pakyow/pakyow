@@ -164,55 +164,59 @@ module Pakyow
       end
     end
 
-    def call(values, context: nil)
-      values ||= {}
-
-      values_are_mutable = mutable?(values)
-
-      if values_are_mutable
-        typecast!(values)
-      end
-
+    def call(value, context: nil)
       result = Result.new
 
-      if validatable?(values)
-        result.validation = @validator.call(values, context: context)
+      if !value.nil? && @allowable_keys.any?
+        Array.ensure(value).each do |each_value|
+          @allowable_keys.each do |allowable_key|
+            # Typecase the value for each key.
+            #
+            if each_value.key?(allowable_key)
+              value_for_key = each_value[allowable_key]
+
+              if (type = @types[allowable_key])
+                value_for_key = type[value_for_key]
+              end
+
+              each_value[allowable_key] = value_for_key
+            end
+
+            if each_value[allowable_key].nil?
+              if default?(allowable_key)
+                result.default(allowable_key)
+                each_value[allowable_key] = default(allowable_key)
+              end
+
+              if @required_keys.include?(allowable_key)
+                result.error(allowable_key, @messages[allowable_key])
+              else
+                next
+              end
+            end
+
+            if (verifier_for_key = @verifiers_by_key[allowable_key])
+              result.nested(allowable_key, verifier_for_key.call(each_value[allowable_key], context: context))
+            end
+          end
+
+          sanitize!(each_value) if result.verified?
+        end
       end
 
-      @allowable_keys.each do |allowable_key|
-        if values[allowable_key].nil?
-          if default?(allowable_key)
-            result.default(allowable_key)
-            values[allowable_key] = default(allowable_key)
-          end
-
-          if @required_keys.include?(allowable_key)
-            result.error(allowable_key, @messages[allowable_key])
-          else
-            next
-          end
-        end
-
-        if (verifier_for_key = @verifiers_by_key[allowable_key])
-          Array.ensure(values[allowable_key]).each do |values_for_key|
-            result.nested(allowable_key, verifier_for_key.call(values_for_key, context: context))
-          end
-        end
-      end
-
-      if values_are_mutable && result.verified?
-        sanitize!(values)
+      if !value.nil? && @validator.any?
+        result.validation = @validator.call(value, context: context)
       end
 
       result
     end
 
-    def call!(values, context: nil)
-      result = call(values, context: context)
+    def call!(value, context: nil)
+      result = call(value, context: context)
 
       unless result.verified?
         error = InvalidData.new_with_message(:verification)
-        error.context = {object: values, result: result}
+        error.context = {object: value, result: result}
         raise error
       end
 
@@ -239,45 +243,12 @@ module Pakyow
       end
     end
 
-    private def sanitize!(values)
-      values.select! do |key, _|
+    private def sanitize!(value)
+      value.select! do |key, _|
         @allowable_keys.include?(key.to_sym)
       end
 
-      values
-    end
-
-    private def typecast!(values)
-      @allowable_keys.each do |key|
-        key = key.to_sym
-
-        if values.key?(key)
-          value = values[key]
-
-          if (type = @types[key])
-            value = type[value]
-          end
-
-          values[key] = value
-        end
-      end
-
-      values
-    end
-
-    # @api private
-    MUTATABLE_TYPES = %w[
-      Hash
-      Pakyow::Support::IndifferentHash
-      Pakyow::Connection::Params
-    ].freeze
-
-    private def mutable?(values)
-      MUTATABLE_TYPES.include?(values.class.name)
-    end
-
-    private def validatable?(values)
-      @validator.any? && !values.nil?
+      value
     end
   end
 end

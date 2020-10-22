@@ -54,7 +54,7 @@ RSpec.describe "submitting invalid form data via ui" do
         expect(type).to eq(:errors)
         expect(qualifications).to eq(form_id: "foo123")
       }.and_return(ephemeral_double)
-      expect(call("/posts", method: :post, params: { :"pw-form" => sign(id: "foo123", origin: "/") }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
+      expect(call("/posts", method: :post, params: { :"pw-form" => sign(id: "foo123", origin: "/"), post: {} }, headers: { "Pw-Ui" => "true" })[0]).to be(400)
     end
 
     it "does not reroute" do

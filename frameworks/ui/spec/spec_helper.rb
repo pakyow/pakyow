@@ -149,7 +149,7 @@ def save_ui_case(example, path:)
   case_name = example.metadata[:full_description].gsub(" ", "_").gsub(/_transforms$/, "")
 
   save_path = File.expand_path(
-    "../../../pakyow-js/__tests__/features/transformations/support/cases/#{case_name}",
+    "../../../../packages/js/__tests__/features/transformations/support/cases/#{case_name}",
     __FILE__
   )
 
