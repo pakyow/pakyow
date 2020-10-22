@@ -13,9 +13,13 @@ ignore:
     - Lint/InheritException
   - 'core/lib/pakyow/task.rb':
     - Security/Eval
+  - 'frameworks/data/lib/pakyow/data/sources/relational.rb':
+    - Style/ClassEqualityComparison
   - 'frameworks/mailer/lib/pakyow/mailer/framework.rb':
     - Lint/UnderscorePrefixedVariableName
   - 'frameworks/reflection/lib/pakyow/reflection/framework.rb':
     - Lint/NestedMethodDefinition
   - 'support/lib/pakyow/support/handleable.rb':
     - Lint/RescueException
+  - 'frameworks/ui/lib/pakyow/application/behavior/ui/rendering.rb':
+    - Style/ClassEqualityComparison
