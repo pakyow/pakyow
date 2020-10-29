@@ -24,8 +24,18 @@ RSpec.describe "disconnecting the database before forking", :repeatable, smoke: 
             end
           end
 
+          controller "/comments" do
+            default do
+              send data.comments.count.to_s
+            end
+          end
+
           source :posts do
             # intentionally empty
+          end
+
+          source :comments, connection: :memory do
+            attribute :content
           end
         end
       SOURCE
@@ -50,6 +60,13 @@ RSpec.describe "disconnecting the database before forking", :repeatable, smoke: 
 
   it "creates the database" do
     response = http.get("http://localhost:#{port}/")
+
+    expect(response.status).to eq(200)
+    expect(response.body.to_s).to eq("0")
+  end
+
+  it "maintains auto migrated state in the memory connection" do
+    response = http.get("http://localhost:#{port}/comments")
 
     expect(response.status).to eq(200)
     expect(response.body.to_s).to eq("0")
