@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Maintain memory database connections when forking.**
+
+    *Related links:*
+    - [Pull Request #536][pr-536]
+
   * `fix` **Correctly validate values that might be false.**
 
     *Related links:*
@@ -750,6 +755,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-536]: https://github.com/pakyow/pakyow/pull/536
 [pr-535]: https://github.com/pakyow/pakyow/pull/535
 [pr-533]: https://github.com/pakyow/pakyow/pull/533
 [pr-530]: https://github.com/pakyow/pakyow/pull/530

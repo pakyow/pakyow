@@ -62,7 +62,10 @@ module Pakyow
           end
 
           on "fork", "fork.data.connections" do
-            @data_connections.values.flat_map(&:values).each(&:disconnect)
+            @data_connections.values.flat_map(&:values).each do |connection|
+              next if connection.name == :memory
+              connection.disconnect
+            end
           end
         end
       end
