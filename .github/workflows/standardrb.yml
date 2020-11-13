@@ -14,7 +14,7 @@ jobs:
     name: Standard RB
 
     container:
-      image: pakyow/ci-ruby-2.7.1
+      image: pakyow/ci-ruby-2.5.8
 
     steps:
       - uses: actions/checkout@v1
