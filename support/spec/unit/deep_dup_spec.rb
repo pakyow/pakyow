@@ -76,4 +76,20 @@ RSpec.describe Pakyow::Support::DeepDup do
       end
     end
   end
+
+  describe "recursive deep dupes" do
+    using Pakyow::Support::DeepDup
+
+    let(:dupable) {
+      hash = {}
+      hash[:foo] = hash
+    }
+
+    it "deep dupes correctly" do
+      duped = dupable.deep_dup
+
+      expect(duped.object_id).to_not eq(dupable.object_id)
+      expect(duped[:foo].object_id).to_not eq(dupable[:foo].object_id)
+    end
+  end
 end

@@ -2,6 +2,8 @@
 
 require "delegate"
 
+require_relative "thread_localizer"
+
 module Pakyow
   module Support
     # Refines Object, Array, and Hash with support for deep_dup.
@@ -18,6 +20,25 @@ module Pakyow
     #   => false
     #
     module DeepDup
+      # @api private
+      def self.prevent_dup_recursion(object)
+        duped_objects[object.object_id] = true
+
+        yield
+      ensure
+        duped_objects.delete(object.object_id)
+      end
+
+      # @api private
+      def self.duping?(object)
+        duped_objects[object.object_id]
+      end
+
+      # @api private
+      def self.duped_objects
+        ThreadLocalizer.thread_localized_store[:__pw_duped_objects] ||= {}
+      end
+
       # Objects that can't be copied.
       UNDUPABLE = [Symbol, Integer, NilClass, TrueClass, FalseClass, Class, Module].freeze
 
@@ -26,10 +47,14 @@ module Pakyow
           # Returns a copy of the object.
           #
           def deep_dup
-            if UNDUPABLE.include?(self.class)
-              self
-            else
-              dup
+            unless DeepDup.duping?(self)
+              DeepDup.prevent_dup_recursion(self) do
+                if UNDUPABLE.include?(self.class)
+                  self
+                else
+                  dup
+                end
+              end
             end
           end
         end
@@ -39,7 +64,11 @@ module Pakyow
         # Returns a deep copy of the array.
         #
         def deep_dup
-          map(&:deep_dup)
+          unless DeepDup.duping?(self)
+            DeepDup.prevent_dup_recursion(self) do
+              map(&:deep_dup)
+            end
+          end
         end
       end
 
@@ -47,13 +76,17 @@ module Pakyow
         # Returns a deep copy of the hash.
         #
         def deep_dup
-          hash = dup
-          each_pair do |key, value|
-            hash.delete(key)
-            hash[key.deep_dup] = value.deep_dup
-          end
+          unless DeepDup.duping?(self)
+            DeepDup.prevent_dup_recursion(self) do
+              hash = dup
+              each_pair do |key, value|
+                hash.delete(key)
+                hash[key.deep_dup] = value.deep_dup
+              end
 
-          hash
+              hash
+            end
+          end
         end
       end
     end
