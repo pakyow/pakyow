@@ -25,18 +25,22 @@ module Pakyow
 
         using DeepDup
 
-        include DeepFreeze
-        insulate :configurable
+        extend Deprecatable
 
-        extend Pakyow::Support::Deprecatable
-
-        extend Pakyow::Support::ClassState
+        extend ClassState
         class_state :__settings, default: Concurrent::Hash.new, inheritable: true
         class_state :__defaults, default: Concurrent::Hash.new, inheritable: true
         class_state :__groups, default: Concurrent::Hash.new, inheritable: true
 
-        include Pakyow::Support::Hookable
-        include Pakyow::Support::Makeable
+        include Hookable
+        include Makeable
+
+        include DeepFreeze
+        insulate :configurable
+
+        before "freeze" do
+          ensure_state!
+        end
 
         after "make" do
           __settings.each_value do |setting|
@@ -142,12 +146,6 @@ module Pakyow
 
         def deprecate(target = self, solution: "do not use")
           self.class.deprecate(target, solution: solution)
-        end
-
-        def freeze
-          ensure_state!
-
-          super
         end
 
         def object_name

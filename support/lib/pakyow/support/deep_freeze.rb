@@ -75,6 +75,7 @@ module Pakyow
           def deep_freeze
             unless DeepFreeze.freezing?(self) || frozen? || !respond_to?(:freeze) || (respond_to?(:insulated?) && insulated?)
               DeepFreeze.prevent_freeze_recursion(self) do
+
                 if self.class.ancestors.include?(Hookable)
                   performing :freeze do
                     perform_deep_freeze

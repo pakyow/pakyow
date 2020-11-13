@@ -10,6 +10,14 @@ module Pakyow
       class Setting
         using DeepDup
 
+        include DeepFreeze
+
+        before "freeze" do
+          # Make sure the value is constructed before freezing.
+          #
+          value
+        end
+
         attr_reader :name
 
         def initialize(name:, default:, configurable:, envar_prefix: nil, &block)
@@ -22,14 +30,6 @@ module Pakyow
           if defined?(@value)
             @value = @value.deep_dup
           end
-
-          super
-        end
-
-        def freeze
-          # Make sure the value is constructed before freezing.
-          #
-          value
 
           super
         end
