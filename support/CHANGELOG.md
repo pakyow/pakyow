@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Correctly deep dup recursive objects.**
+
+    *Related links:*
+    - [Pull Request #537][pr-537]
+
   * `chg` **Add before/after freeze hooks to objects that include deep freeze.**
 
     *Related links:*
@@ -349,6 +354,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-537]: https://github.com/pakyow/pakyow/pull/537
 [pr-531]: https://github.com/pakyow/pakyow/pull/531
 [pr-527]: https://github.com/pakyow/pakyow/pull/527
 [pr-526]: https://github.com/pakyow/pakyow/pull/526
