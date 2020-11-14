@@ -37,13 +37,9 @@ module Pakyow
             end
 
             expose do |connection|
-              # Prevent state from leaking from the component to the rest of the app.
+              # Expose the connection for performing from each component.
               #
-              component_connection = connection.dup
-
-              # Expose the component connection for performing from each component.
-              #
-              connection.set(:__component_connection, component_connection)
+              connection.set(:__component_connection, connection)
             end
           end
 
@@ -92,15 +88,13 @@ module Pakyow
                 #
                 component_render = app.isolated(:Presenter).send(:render_proc, component_view) { |node, _context, string|
                   presentable_component_connection = presentables[:__component_connection]
-                  component_connection = presentable_component_connection.dup
+
+                  component_connection = presentable_component_connection.class.from_connection(
+                    presentable_component_connection,
+                    :@values => presentable_component_connection.values.dup
+                  )
 
                   components.each do |component|
-                    presentables.each do |key, value|
-                      if key.to_s.start_with?("__")
-                        component_connection.set(key, value)
-                      end
-                    end
-
                     # If the component was defined in an app but being called inside a plugin, set the app to the app instead of the plugin.
                     #
                     if component_connection.app.is_a?(Plugin) && component[:class].ancestors.include?(component_connection.app.parent.isolated(:Component))
