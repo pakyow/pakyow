@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Improve component rendering performance by avoiding connection duping.**
+
+    *Related links:*
+    - [Pull Request #538][pr-538]
+
   * `add` **Share common view templates with each application.**
 
     *Related links:*
@@ -31,6 +36,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+[pr-538]: https://github.com/pakyow/pakyow/pull/538
 [pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-502]: https://github.com/pakyow/pakyow/pull/502
 [pr-446]: https://github.com/pakyow/pakyow/pull/446
