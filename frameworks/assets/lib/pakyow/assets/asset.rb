@@ -214,15 +214,19 @@ module Pakyow
       end
 
       def load_content
-        content = process(File.read(@local_path)).to_s
+        working_content = process(File.read(@local_path)).to_s
+        content = working_content.dup
 
         if mime_suffix == "css" || mime_suffix == "javascript"
           # Update references to related assets with prefixed path, fingerprints.
           # Do this here rather than in post-processing so that the source maps reflect the changes.
           #
           @related.each do |asset|
-            if asset != self && content.include?(asset.logical_path)
-              content.gsub!(asset.logical_path, File.join(@config.host, asset.public_path))
+            if asset != self && working_content.include?(asset.logical_path)
+              full_public_path = File.join(@config.host, asset.public_path)
+              working_content.scan(/#{asset.logical_path}([^\w]|$)/) do
+                content.gsub!($~[0], full_public_path + $~[1])
+              end
             end
           end
         end

@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Correctly handle asset prefixes for clashing asset names.**
+
+    *Related links:*
+    - [Pull Request #539][pr-539]
+
   * `add` **Share common assets and asset packs with each application.**
 
     *Related links:*
@@ -60,6 +65,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-539]: https://github.com/pakyow/pakyow/pull/539
 [pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-514]: https://github.com/pakyow/pakyow/pull/514
 [pr-508]: https://github.com/pakyow/pakyow/pull/508

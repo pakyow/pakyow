@@ -1,3 +1,9 @@
 body {
   background: url("/images/test.png");
 }
+
+@font-face {
+  font-family: "apercu-mono";
+  src: url("/fonts/test.woff") format("woff"),
+       url("/fonts/test.woff2") format("woff2");
+}

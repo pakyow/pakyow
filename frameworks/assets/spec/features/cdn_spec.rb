@@ -31,4 +31,15 @@ RSpec.describe "configuring assets to serve content from a cdn" do
       HTML
     )
   end
+
+  it "correctly handles clashing assets" do
+    content = call("/assets/reference.css")[2]
+
+    expect(content).to include_sans_whitespace(
+      <<~HTML
+        src: url("//s.pakyow.com/assets/fonts/test.woff") format("woff"),
+             url("//s.pakyow.com/assets/fonts/test.woff2") format("woff2");
+      HTML
+    )
+  end
 end
