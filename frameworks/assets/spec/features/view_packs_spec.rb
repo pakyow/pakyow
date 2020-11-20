@@ -6,7 +6,7 @@ RSpec.describe "asset packs for views" do
   end
 
   it "includes the layout javascript" do
-    expect(call("/view_packs")[2]).to include("<script src=\"/assets/packs/layouts/view_packs.js\"></script>")
+    expect(call("/view_packs")[2]).to include("<script async src=\"/assets/packs/layouts/view_packs.js\"></script>")
   end
 
   it "includes the page stylesheet" do
@@ -14,7 +14,7 @@ RSpec.describe "asset packs for views" do
   end
 
   it "includes the page javascript" do
-    expect(call("/view_packs")[2]).to include("<script src=\"/assets/packs/pages/view_packs.js\"></script>")
+    expect(call("/view_packs")[2]).to include("<script async src=\"/assets/packs/pages/view_packs.js\"></script>")
   end
 
   describe "layout stylesheet" do

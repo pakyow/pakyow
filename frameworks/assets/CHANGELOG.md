@@ -1,5 +1,7 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Load JavaScript packs asynchronously by default.**
+
   * `add` **Share common assets and asset packs with each application.**
 
     *Related links:*

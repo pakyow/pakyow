@@ -17,7 +17,7 @@ module Pakyow
                     pack.public_path
                   }.each do |pack|
                     if pack.javascripts?
-                      head.object.append_html("<script src=\"#{File.join(app.top.config.assets.host, pack.public_path)}.js\"></script>\n")
+                      head.object.append_html("<script async src=\"#{File.join(app.top.config.assets.host, pack.public_path)}.js\"></script>\n")
                     end
 
                     if pack.stylesheets?

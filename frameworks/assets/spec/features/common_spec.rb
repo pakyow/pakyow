@@ -43,7 +43,7 @@ RSpec.describe "using common assets" do
           <head>
             <title>default</title>
 
-            <script src="/assets/packs/common.js"></script>
+            <script async src="/assets/packs/common.js"></script>
           </head>
           <body>
             index

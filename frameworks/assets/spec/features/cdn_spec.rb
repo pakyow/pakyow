@@ -18,7 +18,7 @@ RSpec.describe "configuring assets to serve content from a cdn" do
   it "builds pack paths correctly" do
     expect(call("/cdn")[2]).to include_sans_whitespace(
       <<~HTML
-        <script src="//s.pakyow.com/assets/packs/test.js"></script>
+        <script async src="//s.pakyow.com/assets/packs/test.js"></script>
         <link rel="stylesheet" type="text/css" media="all" href="//s.pakyow.com/assets/packs/test.css">
       HTML
     )

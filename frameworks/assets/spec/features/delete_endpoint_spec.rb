@@ -17,8 +17,8 @@ RSpec.describe "including components defined on a delete endpoint" do
   it "includes the packs" do
     expect(call("/posts/1")[2]).to include_sans_whitespace(
       <<~HTML
-        <script src="/assets/packs/test.js"></script>
-       <link rel="stylesheet" type="text/css" media="all" href="/assets/packs/test.css">
+        <script async src="/assets/packs/test.js"></script>
+        <link rel="stylesheet" type="text/css" media="all" href="/assets/packs/test.css">
       HTML
     )
   end

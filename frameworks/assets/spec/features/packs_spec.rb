@@ -8,7 +8,7 @@ RSpec.shared_context "loaded asset packs" do
   end
 
   it "includes the javascript" do
-    expect(call(request_path)[2]).to include("<script src=\"/assets/packs/#{included_pack_name}.js\"></script>")
+    expect(call(request_path)[2]).to include("<script async src=\"/assets/packs/#{included_pack_name}.js\"></script>")
   end
 end
 
@@ -66,7 +66,7 @@ RSpec.describe "asset packs for components" do
     end
 
     it "includes the javascript" do
-      expect(call(request_path)[2]).to include("<script src=\"/assets/packs/#{included_pack_name}.js\"></script>")
+      expect(call(request_path)[2]).to include("<script async src=\"/assets/packs/#{included_pack_name}.js\"></script>")
     end
   end
 end
