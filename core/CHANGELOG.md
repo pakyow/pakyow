@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Resolve a concurrency-related performance regression.**
+
+    *Related links:*
+    - [Pull Request #541][pr-541]
+
   * `chg` **Separate Pakyow's logging concerns from that of async.**
 
     *Related links:*
@@ -760,6 +765,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-541]: https://github.com/pakyow/pakyow/pull/541
 [pr-540]: https://github.com/pakyow/pakyow/pull/540
 [pr-536]: https://github.com/pakyow/pakyow/pull/536
 [pr-535]: https://github.com/pakyow/pakyow/pull/535
