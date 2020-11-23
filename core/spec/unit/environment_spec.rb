@@ -740,12 +740,26 @@ RSpec.describe Pakyow do
     }
 
     let(:default_logger) {
-      double(:default_logger)
+      double(:default_logger, target: default_logger_target)
     }
 
-    it "returns an async reactor with the default logger" do
-      expect(Async::Reactor).to receive(:run).with(logger: default_logger).and_return(async_context)
+    let(:default_logger_target) {
+      double(:default_logger_target)
+    }
+
+    it "returns an async reactor with the default logger target" do
+      expect(Async::Reactor).to receive(:run).and_return(async_context)
       expect(Pakyow.async).to be(async_context)
+    end
+
+    it "sets the logger for the async context" do
+      expect(Async::Reactor).to receive(:run) do |&block|
+        expect(Pakyow.logger).to receive(:set).with(default_logger_target)
+
+        block.call
+      end
+
+      Pakyow.async
     end
 
     context "passed a logger" do
@@ -753,9 +767,14 @@ RSpec.describe Pakyow do
         double(:logger)
       }
 
-      it "returns an async reactor with the given logger" do
-        expect(Async::Reactor).to receive(:run).with(logger: logger).and_return(async_context)
-        expect(Pakyow.async(logger: logger)).to be(async_context)
+      it "sets the logger for the async context" do
+        expect(Async::Reactor).to receive(:run) do |&block|
+          expect(Pakyow.logger).to receive(:set).with(logger)
+
+          block.call
+        end
+
+        Pakyow.async(logger: logger)
       end
     end
   end

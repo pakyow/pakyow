@@ -176,7 +176,7 @@ module Pakyow
                   raise Terminate
                 end
 
-                Pakyow.async logger: service.logger do
+                Pakyow.async do
                   service.run
                 rescue => error
                   Pakyow.houston(error)
