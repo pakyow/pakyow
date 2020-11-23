@@ -654,7 +654,7 @@ module Pakyow
 
     def call(input)
       connection = config.connection_class.new(input)
-      connection.async { super(connection) }.wait
+      super(connection)
       connection.finalize
     rescue => error
       houston(error)
