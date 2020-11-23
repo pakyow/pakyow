@@ -91,7 +91,7 @@ RSpec.shared_examples :connection do
     end
 
     it "creates a new http request logger" do
-      expect(connection.logger).to be_instance_of(Pakyow::Logger)
+      expect(connection.logger).to be_instance_of(Pakyow::Logger::ThreadLocal)
       expect(connection.logger.type).to be(:http)
       expect(connection.logger.id).to be(connection.id)
       expect(connection.logger.started_at).to be(connection.timestamp)
@@ -103,45 +103,14 @@ RSpec.shared_examples :connection do
       allow(Pakyow.output).to receive(:call)
     end
 
-    it "replaces the connection logger with the environment's thread local logger" do
-      connection.async {
-        expect(connection.logger).to be(Pakyow.logger)
-      }.wait
-    end
-
-    it "creates a task with the environment's thread local logger" do
-      expect(connection).to receive(:Async).with(logger: Pakyow.logger).and_call_original
-
-      ignore_warnings do
-        connection.async.wait
-      end
-    end
-
-    it "sets the connection logger to be the current thread local target" do
+    it "sets the connection logger to be the current fiber local target" do
       initial_logger = connection.logger
 
-      expect(initial_logger).to be_instance_of(Pakyow::Logger)
+      expect(initial_logger).to be_instance_of(Pakyow::Logger::ThreadLocal)
 
       connection.async {
-        expect(Pakyow.logger.target).to be(initial_logger)
+        expect(Pakyow.logger.target.type).to eq(:http)
       }.wait
-    end
-
-    it "sets the connection logger back after completing the task" do
-      initial_logger = connection.logger
-
-      expect(initial_logger).to be_instance_of(Pakyow::Logger)
-
-      connection.async.wait
-
-      expect(connection.logger).to be(initial_logger)
-    end
-
-    it "does not alter the thread local logger target for the main thread" do
-      original_target = Pakyow.logger.target
-      connection.async.wait
-
-      expect(Pakyow.logger.target).to be(original_target)
     end
 
     it "returns the created async task" do

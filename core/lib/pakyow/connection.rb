@@ -76,13 +76,20 @@ module Pakyow
       @subdomain_by_tld_length = {}
       @subdomains_by_tld_length = {}
 
-      @logger = Logger.new(
+      @__logger = Logger.new(
         :http,
         started_at: @timestamp,
         id: @id,
         output: Pakyow.output,
         level: Pakyow.config.logger.level
       )
+
+      Pakyow.logger.set(@__logger)
+
+      # Always log through the thread-local logger. The thread local gives us a thread-safe way to
+      # do things like silencing, so it's preferred over using the connection logger directly.
+      #
+      @logger = Pakyow.logger
     end
 
     def request_header?(key)
@@ -329,23 +336,10 @@ module Pakyow
     end
 
     def async
-      unless defined?(@initial_logger)
-        @initial_logger = @logger
-      end
-
-      Async(logger: Pakyow.logger) do |task|
-        original_logger = @logger
-
-        # Always log through the thread-local logger. The thread local gives us a thread-safe way to
-        # do things like silencing, so it's preferred over using the connection logger directly.
-        #
-        @logger = Pakyow.logger
-
-        Pakyow.logger.set(@initial_logger)
+      Async do |task|
+        Pakyow.logger.set(@__logger)
 
         yield task if block_given?
-      ensure
-        @logger = original_logger
       end
     end
 

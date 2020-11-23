@@ -2,6 +2,10 @@
 
 require "async"
 
+# Completely take over the responsibility of logging.
+#
+Console.logger.off!
+
 require "pakyow/support/core_refinements/array/ensurable"
 
 require "pakyow/support/hookable"
@@ -526,8 +530,6 @@ module Pakyow
           #
           logger.replace(Logger.new("pkyw", output: @output, level: config.logger.level))
 
-          Console.logger = Logger.new("asnc", output: @output, level: :warn)
-
           # Setup each app.
           #
           load_apps_common
@@ -640,8 +642,14 @@ module Pakyow
       env == name.to_sym
     end
 
-    def async(logger: self.logger, &block)
-      Async::Reactor.run(logger: logger, &block)
+    def async(logger: nil)
+      target = logger || self.logger.target
+
+      Async::Reactor.run do |task|
+        Pakyow.logger.set(target)
+
+        yield task if block_given?
+      end
     end
 
     def call(input)
