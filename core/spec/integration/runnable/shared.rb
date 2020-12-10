@@ -66,12 +66,14 @@ RSpec.shared_context "runnable container" do
 
   def write_to_parent(value)
     parent_socket.sendmsg(value)
+  rescue SystemCallError
   end
 
   def read_from_child
     with_timeout(3) do
       child_socket.recv(4096)
     end
+  rescue SystemCallError
   end
 
   def wait_for(length:, timeout: nil)

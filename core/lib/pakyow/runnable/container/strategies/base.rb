@@ -16,18 +16,20 @@ module Pakyow
           def initialize
             @services = []
             @statuses = []
-            @queue = Queue.new
-            @lock = Mutex.new
-            @notifier = nil
             @stopping = false
+            @notifier = nil
+            @backoff = nil
+            @handler = nil
           end
 
-          def run(container)
+          def prepare(container)
             @statuses = []
 
             @notifier&.stop
-            @notifier = Notifier.new(container: container, &method(:handle_notification).to_proc)
+            @notifier = Notifier.new
+          end
 
+          def run(container)
             container.performing :fork do
               container.formation.each.map { |service_name, desired_service_count|
                 service_instance = container.services(service_name).new(**container.options)
@@ -52,19 +54,27 @@ module Pakyow
           end
 
           def wait(container)
-            if @services.any?
-              while (message = @queue.pop)
-                event, service = message
+            return if @services.empty?
 
-                case event
-                when :restart
-                  if container.running?
-                    manage_service(service)
-                  end
-                when :exit
-                  @lock.synchronize do
-                    @services.delete(service)
-                  end
+            signal = "INT"
+
+            @notifier.listen do |event, **payload|
+              case event
+              when :restart
+                service_id = payload.delete(:service)
+
+                if container.running? && (service = @services.find { |each_service| each_service.object_id == service_id })
+                  manage_service(service)
+                end
+              when :reload
+                container.performing :restart, **payload do
+                  interrupt
+                end
+              when :exit
+                service_id = payload.delete(:service)
+
+                if (service = @services.find { |each_service| each_service.object_id == service_id })
+                  @services.delete(service)
 
                   if !stopping? && container.running? && service.restartable?
                     if service.status.success?
@@ -76,8 +86,31 @@ module Pakyow
                     break
                   end
                 end
+              when :stop
+                @stopping = true
+
+                @backoff&.stop
+                @backoff = nil
+
+                signal = payload[:signal]
+
+                break
               end
             end
+          ensure
+            # Handle ungraceful exits by ensuring that we stop all running services.
+            #
+            @services.each do |service|
+              stop_service(service, signal)
+            end
+
+            # Wait on the services to exit.
+            #
+            Async::Task.current.async { |task|
+              until !@services.any? { |service| service.status.unknown? }
+                task.sleep 0.1
+              end
+            }.wait
           end
 
           def interrupt
@@ -89,17 +122,11 @@ module Pakyow
           end
 
           def restart(**payload)
-            @notifier.notify(:restart, **payload)
+            @notifier.notify(:reload, **payload)
           end
 
           def stop(signal)
-            @stopping = true
-
-            @services.each do |service|
-              stop_service(service, signal)
-            end
-
-            @notifier&.stop
+            @notifier.notify(:stop, signal: signal)
           end
 
           def stopping?
@@ -137,24 +164,20 @@ module Pakyow
           end
 
           private def update_service_metadata(service)
-            @lock.synchronize do
-              if service.metadata.include?(:retries)
-                service.metadata[:retries] += 1
-              else
-                service.metadata[:retries] = 0
-              end
-
-              service.metadata[:started_at] = current_time
+            if service.metadata.include?(:retries)
+              service.metadata[:retries] += 1
+            else
+              service.metadata[:retries] = 0
             end
+
+            service.metadata[:started_at] = current_time
           end
 
           private def register_service_reference(service, reference)
-            @lock.synchronize do
-              service.reference = reference
+            service.reference = reference
 
-              @services << service
-              @statuses << service.status
-            end
+            @services << service
+            @statuses << service.status
 
             wait_for_service(service)
           end
@@ -176,13 +199,15 @@ module Pakyow
                   raise Terminate
                 end
 
-                Pakyow.async do
-                  service.run
-                rescue => error
-                  Pakyow.houston(error)
+                Pakyow.async {
+                  begin
+                    service.run
+                  rescue => error
+                    Pakyow.houston(error)
 
-                  service_failed!(service)
-                end
+                    service_failed!(service)
+                  end
+                }.wait
 
                 service.stop
               rescue Terminate
@@ -194,20 +219,12 @@ module Pakyow
             # Catch interrupts that occur before the fiber runs.
           end
 
-          private def handle_notification(event, **payload)
-            case event
-            when :restart
-              payload.delete(:container).performing :restart, **payload do
-                interrupt
-              end
-            end
-          end
-
           private def backoff_service(service)
-            Thread.new do
-              sleep current_service_backoff(service)
-              @queue.push([:restart, service])
-            end
+            @backoff = Async::Task.current.async { |task|
+              task.sleep(current_service_backoff(service))
+
+              manage_service(service)
+            }
           end
 
           MINIMUM_BACKOFF = 0.5

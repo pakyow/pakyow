@@ -1,49 +1,58 @@
 # frozen_string_literal: true
 
+require "async/io/socket"
+
+require "pakyow/support/deep_freeze"
+
 module Pakyow
   module Runnable
     # Send notifications to a container from any process.
     #
     # @api private
     class Notifier
-      def initialize(**callback_options, &callback)
-        @callback_options, @callback = callback_options, callback
-        @child, @parent = Socket.pair(:UNIX, :DGRAM, 0)
-        @thread = nil
-        @running = true
-
-        run
-      end
+      include Support::DeepFreeze
+      insulate :child, :parent
 
       attr_reader :child, :parent
 
+      def initialize
+        @stopped = false
+
+        @child, @parent = Async::IO::Socket.pair(:UNIX, :DGRAM, 0)
+      end
+
+
       def notify(event, **payload)
-        @child.send(Marshal.dump({event: event, payload: payload}), 0)
+        @child&.send(Marshal.dump({event: event, payload: payload}), 0)
+      rescue IOError, SystemCallError
+        stop
       end
 
       def stop
-        @running = false
+        return unless running?
+
+        @stopped = true
+
         @child.close
-        @thread.kill
+        @child = nil
+
+        @parent.close
+        @parent = nil
       end
 
-      private def run
-        @thread = Thread.new {
-          begin
-            while running? && (message = @parent.recv(4096))
-              message = Marshal.load(message)
+      def listen
+        while running? && (message = @parent&.recv(4096))
+          message = Marshal.load(message)
 
-              @callback.call(message[:event], **message[:payload].merge(@callback_options))
-            end
-          rescue Errno::ECONNRESET
-          ensure
-            @parent.close
-          end
-        }
+          yield message[:event], **message[:payload]
+        end
+      rescue Async::Wrapper::Cancelled, SystemCallError
+      ensure
+        @parent&.close
       end
 
       private def running?
-        @running == true
+        @stopped == false
       end
     end
   end

@@ -11,6 +11,10 @@ RSpec.describe Pakyow::Runnable::Container do
       @calls = []
     end
 
+    def prepare(container)
+      @calls << :prepare
+    end
+
     def run(container)
       @calls << :run
     end
@@ -145,10 +149,16 @@ RSpec.describe Pakyow::Runnable::Container do
       expect(strategy.calls.count(:wait)).to eq(3)
     end
 
+    it "prepares the strategy" do
+      instance.run
+
+      expect(strategy.calls.count(:prepare)).to eq(3)
+    end
+
     it "continues running until stopped" do
       instance.run
 
-      expect(strategy.calls).to eq([:run, :wait, :run, :wait, :run, :wait, :interrupt, :success])
+      expect(strategy.calls).to eq([:prepare, :run, :wait, :prepare, :run, :wait, :prepare, :run, :wait, :interrupt, :success])
     end
 
     describe "running strategies" do
@@ -192,7 +202,7 @@ RSpec.describe Pakyow::Runnable::Container do
         it "continues running until stopped" do
           instance.run
 
-          expect(strategy.calls).to eq([:run, :wait, :run, :wait, :run, :wait, :interrupt, :success])
+          expect(strategy.calls).to eq([:prepare, :run, :wait, :prepare, :run, :wait, :prepare, :run, :wait, :interrupt, :success])
         end
 
         context "restartable option is passed as false" do
@@ -203,7 +213,7 @@ RSpec.describe Pakyow::Runnable::Container do
           it "only runs once" do
             instance.run
 
-            expect(strategy.calls).to eq([:run, :wait, :interrupt, :success])
+            expect(strategy.calls).to eq([:prepare, :run, :wait, :interrupt, :success])
           end
         end
       end
@@ -216,7 +226,7 @@ RSpec.describe Pakyow::Runnable::Container do
         it "only runs once" do
           instance.run
 
-          expect(strategy.calls).to eq([:run, :wait, :interrupt, :success])
+          expect(strategy.calls).to eq([:prepare, :run, :wait, :interrupt, :success])
         end
 
         context "restartable option is passed as true" do
@@ -227,7 +237,7 @@ RSpec.describe Pakyow::Runnable::Container do
           it "only runs once" do
             instance.run
 
-            expect(strategy.calls).to eq([:run, :wait, :interrupt, :success])
+            expect(strategy.calls).to eq([:prepare, :run, :wait, :interrupt, :success])
           end
         end
       end

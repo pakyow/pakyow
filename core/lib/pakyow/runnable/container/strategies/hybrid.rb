@@ -16,9 +16,13 @@ module Pakyow
             @strategies = {
               forked: Forked.new, threaded: Threaded.new
             }
+          end
+
+          def prepare(*)
+            super
 
             @strategies.each_value do |strategy|
-              strategy.instance_variable_set(:@queue, @queue)
+              strategy.instance_variable_set(:@notifier, @notifier)
             end
           end
 

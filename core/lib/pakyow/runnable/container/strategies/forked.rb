@@ -8,6 +8,14 @@ module Pakyow
       module Strategies
         # @api private
         class Forked < Base
+          def initialize(*)
+            super
+
+            @lock = Mutex.new
+            @watching = false
+            @forked_services = {}
+          end
+
           private def stop_service(service, signal)
             ::Process.kill(signal, service.reference)
           rescue Errno::ESRCH
@@ -17,25 +25,44 @@ module Pakyow
             ::Process.exit(1)
           end
 
-          private def wait_for_service(service)
-            Thread.new do
-              case ::Process.wait2(service.reference)[1].to_i
-              when 0
-                service.success!
-              else
-                service.failed!
-              end
-
-              @queue.push([:exit, service])
-            rescue Errno::ECHILD
-              @queue.push([:exit, service])
-            end
-          end
-
           private def invoke_service(service)
-            ::Process.fork do
+            reference = ::Process.fork do
               yield
             end
+
+            watch_forks(service, reference)
+          end
+
+          private def watch_forks(service, service_reference)
+            @lock.synchronize do
+              @forked_services[service_reference] = service
+            end
+
+            unless @watching
+              @watching = true
+
+              Thread.new do
+                while (reference, status = ::Process.wait2(-1))
+                  next unless service = @lock.synchronize {
+                    @forked_services.delete(reference)
+                  }
+
+                  case status
+                  when 0
+                    service.success!
+                  else
+                    service.failed!
+                  end
+
+                  @notifier.notify(:exit, service: service.object_id)
+                end
+              rescue Errno::ECHILD
+              ensure
+                @watching = false
+              end
+            end
+
+            service_reference
           end
         end
       end

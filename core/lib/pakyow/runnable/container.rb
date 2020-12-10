@@ -183,14 +183,17 @@ module Pakyow
 
           yield self if block_given?
 
-          while running?
-            @strategy.run(self)
-            @strategy.wait(self)
+          Pakyow.async {
+            while running?
+              @strategy.prepare(self)
+              @strategy.run(self)
+              @strategy.wait(self)
 
-            unless restartable?
-              stop
+              unless restartable?
+                stop
+              end
             end
-          end
+          }.wait
 
           if toplevel_pid?
             success?

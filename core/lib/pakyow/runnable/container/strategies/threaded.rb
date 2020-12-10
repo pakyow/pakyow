@@ -11,6 +11,7 @@ module Pakyow
           def initialize(*)
             super
 
+            @lock = Mutex.new
             @failed_threads = []
           end
 
@@ -41,8 +42,10 @@ module Pakyow
                   service.success!
                 end
               end
+            ensure
+              @notifier.notify(:exit, service: service.object_id)
 
-              @queue.push([:exit, service])
+              @failed_threads.delete(service.reference)
             end
           end
         end
