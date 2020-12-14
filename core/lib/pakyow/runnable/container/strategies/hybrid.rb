@@ -30,10 +30,6 @@ module Pakyow
             service_strategy(service).send(:stop_service, service, signal)
           end
 
-          private def service_failed!(service)
-            service_strategy(service).send(:service_failed!, service)
-          end
-
           private def wait_for_service(service)
             service_strategy(service).send(:wait_for_service, service)
           end
@@ -42,6 +38,10 @@ module Pakyow
             service_strategy(service).send(:invoke_service, service) do
               yield
             end
+          end
+
+          private def service_finished(service)
+            service_strategy(service).send(:service_finished, service)
           end
 
           private def service_strategy(service)

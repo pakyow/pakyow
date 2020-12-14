@@ -1,15 +1,13 @@
 require_relative "../../shared"
 
-RSpec.describe "limiting the number of services", :repeatable do
+RSpec.describe "limiting the number of services", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo, restartable: false, limit: 2 do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
         end
       end
 
@@ -26,8 +24,8 @@ RSpec.describe "limiting the number of services", :repeatable do
 
     it "limits the number of services" do
       run_container do
-        wait_for length: 6, timeout: 1 do |result|
-          expect(result.scan(/foo/).count).to eq(2)
+        listen_for length: 2, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(2)
         end
       end
     end
@@ -70,6 +68,14 @@ RSpec.describe "limiting the number of services", :repeatable do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

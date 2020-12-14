@@ -6,6 +6,7 @@ RSpec.shared_context "runnable" do
     allow(::Process).to receive(:exit)
 
     @container_threads = []
+    @instances = []
 
     case runnable_mode
     when :single_service
@@ -14,6 +15,8 @@ RSpec.shared_context "runnable" do
       #
       Pakyow.containers.each do |container|
         allow(container).to receive(:new).and_wrap_original do |original, *parent_args, **kwargs, &block|
+          kwargs[:timeout] = 0
+
           instance = container.allocate
 
           allow(container).to receive(:load_strategy).and_wrap_original do |method, *args|
@@ -32,6 +35,7 @@ RSpec.shared_context "runnable" do
           end
 
           instance.send(:initialize, *parent_args, **kwargs, &block)
+          @instances << instance
           instance
         end
       end
@@ -46,6 +50,8 @@ RSpec.shared_context "runnable" do
       #
       Pakyow.containers.each do |container|
         allow(container).to receive(:new).and_wrap_original do |original_parent, *args, **kwargs, &parent_block|
+          kwargs[:timeout] = 0
+
           instance = original_parent.call(*args, **kwargs, &parent_block)
 
           allow(instance).to receive(:run).and_wrap_original do |original, &block|
@@ -54,6 +60,7 @@ RSpec.shared_context "runnable" do
             }
 
             @container_threads << container_thread
+            @instances << instance
 
             # Give the thread time to call the original implementation.
             #
@@ -69,8 +76,12 @@ RSpec.shared_context "runnable" do
   end
 
   after do
+    @instances.each do |instance|
+      instance.stop
+    end
+
     @container_threads.each do |thread|
-      thread.kill; thread.join
+      thread.join
     end
   end
 

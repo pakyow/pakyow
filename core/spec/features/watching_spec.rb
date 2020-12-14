@@ -41,7 +41,8 @@ RSpec.describe "watching files from the environment", :repeatable do
       end
     end
 
-    thread.kill; thread.join
+    Pakyow.shutdown
+    thread.join
   end
 
   let(:path) {

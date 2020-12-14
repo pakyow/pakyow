@@ -34,7 +34,6 @@ RSpec.configure do |config|
 
   if ENV.key?("CI")
     require "rspec/repeat"
-
     config.include RSpec::Repeat
 
     config.around :each, :repeatable do |example|

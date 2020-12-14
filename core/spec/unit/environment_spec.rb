@@ -1029,6 +1029,8 @@ RSpec.describe Pakyow do
 
     context "environment is already running" do
       before do
+        stub_container_run(:supervisor)
+
         Pakyow.run
       end
 

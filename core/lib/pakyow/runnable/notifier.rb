@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require "async/io/socket"
+require "async/notification"
+require "async/io/unix_endpoint"
 
 require "pakyow/support/deep_freeze"
 
@@ -17,42 +18,83 @@ module Pakyow
 
       def initialize
         @stopped = false
-
-        @child, @parent = Async::IO::Socket.pair(:UNIX, :DGRAM, 0)
+        @messages = []
+        @path = File.join(Dir.tmpdir, "pakyow-#{::Process.pid}-#{SecureRandom.hex(4)}.sock")
+        @notification = ::Async::Notification.new
+        @socket = Pakyow.async { ::Async::IO::Endpoint.unix(@path, :DGRAM).bind }.wait
+        @endpoint = ::Async::IO::Endpoint.unix(@path, ::Socket::SOCK_DGRAM)
       end
 
-
       def notify(event, **payload)
-        @child&.send(Marshal.dump({event: event, payload: payload}), 0)
-      rescue IOError, SystemCallError
-        stop
+        if running?
+          message = {event: event, payload: payload}
+
+          if ::Async::Task.current?
+            Pakyow.async {
+              @endpoint.connect do |connection|
+                connection.sendmsg(Marshal.dump(message))
+              end
+            }.wait
+          else
+            begin
+              socket = Socket.new(Socket::AF_UNIX, Socket::SOCK_DGRAM, 0)
+              socket.connect(Socket.pack_sockaddr_un(@path))
+              socket.sendmsg(Marshal.dump(message))
+            ensure
+              socket.close
+            end
+          end
+        end
+      end
+
+      def listen
+        Pakyow.async { |task|
+          receive
+
+          while running?
+            until @messages.empty?
+              message = @messages.shift
+              yield message[:event], **message[:payload]
+            end
+
+            break unless running?
+
+            @notification.wait
+          end
+        }.wait
       end
 
       def stop
         return unless running?
 
         @stopped = true
+        @notification.signal
 
-        @child.close
-        @child = nil
+        Pakyow.async {
+          @socket.close
+        }.wait
 
-        @parent.close
-        @parent = nil
-      end
-
-      def listen
-        while running? && (message = @parent&.recv(4096))
-          message = Marshal.load(message)
-
-          yield message[:event], **message[:payload]
+        if File.exist?(@path)
+          FileUtils.rm(@path)
         end
-      rescue Async::Wrapper::Cancelled, SystemCallError
-      ensure
-        @parent&.close
+
+        @socket = nil
+        @endpoint = nil
       end
 
       private def running?
         @stopped == false
+      end
+
+      private def receive
+        Pakyow.async do
+          while running?
+            message = Marshal.load(@socket.recvmsg(4096)[0])
+            @messages << message
+            @notification.signal
+          end
+        rescue Async::Wrapper::Cancelled, SystemCallError
+        end
       end
     end
   end

@@ -1,9 +1,25 @@
 require_relative "../shared"
 
-RSpec.describe "handling prerun and postrun work", :repeatable do
+RSpec.describe "handling prerun and postrun work", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
+    before do
+      FileUtils.mkdir_p(path)
+    end
+
+    after do
+      FileUtils.rm_r(path)
+    end
+
+    let(:path) {
+      Pathname.new(File.expand_path("../tmp/#{SecureRandom.hex(4)}", __FILE__))
+    }
+
+    let(:result_path) {
+      path.join("result.txt")
+    }
+
     before do
       definitions
       allow(Pakyow).to receive(:houston)
@@ -27,7 +43,9 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
         define_singleton_method :postrun do |options|
           options[:metadata][:postran] = true
 
-          local.write_to_parent(Marshal.dump(options[:metadata]))
+          local.result_path.open("a") do |file|
+            file.write(Marshal.dump(options[:metadata]))
+          end
         end
 
         define_method :perform do
@@ -37,11 +55,11 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
     }
 
     it "calls prerun on each service with options" do
-      expect(Marshal.load(result)[:preran]).to be(true)
+      expect(Marshal.load(result_path.read)[:preran]).to be(true)
     end
 
     it "calls postrun on each service with options" do
-      expect(Marshal.load(result)[:postran]).to be(true)
+      expect(Marshal.load(result_path.read)[:postran]).to be(true)
     end
 
     context "prerun fails for a service" do
@@ -58,7 +76,9 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
               postran_foo: true
             }
 
-            local.write_to_parent(Marshal.dump(options[:metadata]))
+            local.result_path.open("a") do |file|
+              file.write(Marshal.dump(options[:metadata]))
+            end
           end
 
           define_method :perform do
@@ -76,7 +96,9 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
           define_singleton_method :postrun do |options|
             options[:metadata][:postran_bar] = true
 
-            local.write_to_parent(Marshal.dump(options[:metadata]))
+            local.result_path.open("a") do |file|
+              file.write(Marshal.dump(options[:metadata]))
+            end
           end
 
           define_method :perform do
@@ -86,12 +108,12 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
       }
 
       it "does not call postrun for that service" do
-        expect(Marshal.load(result)[:postran_foo]).to be(nil)
+        expect(Marshal.load(result_path.read)[:postran_foo]).to be(nil)
       end
 
       it "calls postrun for services that did prerun" do
-        expect(Marshal.load(result)[:preran_bar]).to be(true)
-        expect(Marshal.load(result)[:postran_bar]).to be(true)
+        expect(Marshal.load(result_path.read)[:preran_bar]).to be(true)
+        expect(Marshal.load(result_path.read)[:postran_bar]).to be(true)
       end
 
       it "reports the error" do
@@ -119,7 +141,9 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
               postran_bar: true
             }
 
-            local.write_to_parent(Marshal.dump(options[:metadata]))
+            local.result_path.open("a") do |file|
+              file.write(Marshal.dump(options[:metadata]))
+            end
           end
 
           define_method :perform do
@@ -129,7 +153,7 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
       }
 
       it "calls postrun for other services" do
-        expect(Marshal.load(result)[:postran_bar]).to be(true)
+        expect(Marshal.load(result_path.read)[:postran_bar]).to be(true)
       end
 
       it "reports the error" do
@@ -161,12 +185,36 @@ RSpec.describe "handling prerun and postrun work", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "handling prerun and postrun work in nested services", :repeatable do
+RSpec.describe "handling prerun and postrun work in nested services", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
+    before do
+      FileUtils.mkdir_p(path)
+    end
+
+    after do
+      FileUtils.rm_r(path)
+    end
+
+    let(:path) {
+      Pathname.new(File.expand_path("../tmp/#{SecureRandom.hex(4)}", __FILE__))
+    }
+
+    let(:result_path) {
+      path.join("result.txt")
+    }
+
     before do
       definitions
       allow(Pakyow).to receive(:houston)
@@ -190,11 +238,13 @@ RSpec.describe "handling prerun and postrun work in nested services", :repeatabl
         define_singleton_method :postrun do |options|
           options[:metadata][:postran_foo] = true
 
-          local.write_to_parent(Marshal.dump(options[:metadata]))
+          local.result_path.open("a") do |file|
+            file.write(Marshal.dump(options[:metadata]))
+          end
         end
 
         define_method :perform do
-          local.run_container(local.container2, timeout: 1, parent: self)
+          local.run_container_raw(local.container2, context: self)
         end
       end
 
@@ -206,7 +256,9 @@ RSpec.describe "handling prerun and postrun work in nested services", :repeatabl
         define_singleton_method :postrun do |options|
           options[:metadata][:postran_bar] = true
 
-          local.write_to_parent(Marshal.dump(options[:metadata]))
+          local.result_path.open("a") do |file|
+            file.write(Marshal.dump(options[:metadata]))
+          end
         end
 
         define_method :perform do
@@ -220,10 +272,10 @@ RSpec.describe "handling prerun and postrun work in nested services", :repeatabl
     }
 
     it "only calls prerun and postrun for toplevel services" do
-      expect(Marshal.load(result)[:preran_foo]).to be(true)
-      expect(Marshal.load(result)[:postran_foo]).to be(true)
-      expect(Marshal.load(result)[:preran_bar]).to be(nil)
-      expect(Marshal.load(result)[:postran_bar]).to be(nil)
+      expect(Marshal.load(result_path.read)[:preran_foo]).to be(true)
+      expect(Marshal.load(result_path.read)[:postran_foo]).to be(true)
+      expect(Marshal.load(result_path.read)[:preran_bar]).to be(nil)
+      expect(Marshal.load(result_path.read)[:postran_bar]).to be(nil)
     end
   end
 
@@ -246,6 +298,14 @@ RSpec.describe "handling prerun and postrun work in nested services", :repeatabl
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

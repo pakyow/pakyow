@@ -1,5 +1,7 @@
 require "fileutils"
 
+require "pakyow/cli"
+
 RSpec.describe "calling a system command through the cli" do
   after do
     FileUtils.rm_f("./touched.txt")

@@ -1,21 +1,19 @@
 require_relative "../../shared"
 
-RSpec.describe "defining the service strategy", :repeatable do
+RSpec.describe "defining the service strategy", :repeatable, runnable: true do
   include_context "runnable container"
 
   before do
-    local = self
-
     container.service :foo, restartable: false, strategy: :forked do
       define_method :perform do
-        local.write_to_parent("foo #{Process.pid} #{Thread.current.object_id}")
+        options[:toplevel].notify("foo #{Process.pid} #{Thread.current.object_id}")
       end
     end
 
     container.service :bar, restartable: false, strategy: :threaded do
       define_method :perform do
-        sleep 0.25
-        local.write_to_parent("bar #{Process.pid} #{Thread.current.object_id}")
+        ::Async::Task.current.sleep 0.25
+        options[:toplevel].notify("bar #{Process.pid} #{Thread.current.object_id}")
       end
     end
   end
@@ -26,15 +24,16 @@ RSpec.describe "defining the service strategy", :repeatable do
 
   it "runs each service in its defined strategy" do
     run_container do
-      sleep 0.5
+      listen_for length: 2, timeout: 1 do |result|
+        foo, bar = result
 
-      foo, bar = result.split("bar")
-      _, foo_process, _ = foo.split(" ")
-      bar_process, bar_thread = bar.split(" ")
+        _, foo_process, _ = foo.split(" ")
+        _, bar_process, bar_thread = bar.split(" ")
 
-      expect(foo_process.to_i).not_to eq(Process.pid)
-      expect(bar_process.to_i).to eq(Process.pid)
-      expect(bar_thread.to_i).not_to eq(Thread.current.object_id)
+        expect(foo_process.to_i).not_to eq(Process.pid)
+        expect(bar_process.to_i).to eq(Process.pid)
+        expect(bar_thread.to_i).not_to eq(Thread.current.object_id)
+      end
     end
   end
 end

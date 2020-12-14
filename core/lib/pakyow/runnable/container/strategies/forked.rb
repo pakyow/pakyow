@@ -8,6 +8,12 @@ module Pakyow
       module Strategies
         # @api private
         class Forked < Base
+          SIGNAL_MAP = {
+            int: "INT",
+            term: "TERM",
+            quit: "KILL"
+          }.freeze
+
           def initialize(*)
             super
 
@@ -17,18 +23,33 @@ module Pakyow
           end
 
           private def stop_service(service, signal)
-            ::Process.kill(signal, service.reference)
+            ::Process.kill(SIGNAL_MAP[signal], service.reference)
           rescue Errno::ESRCH
           end
 
-          private def service_failed!(service)
-            ::Process.exit(1)
+          private def service_finished(service)
+            if service.status.unknown?
+              service.status.success!
+            end
+
+            # This seems to resolve an issue where services aren't identified as exited fast enough
+            # in `watch_forks`, so shutting down at the same time a service exits can cause the
+            # service to appear failed when it in fact succeeeded.
+            #
+            Pakyow.async {
+              @notifier.notify(:exit, service: service.id, status: service.status)
+            }.wait
+
+            ::Process.exit(service.status.success?)
           end
 
           private def invoke_service(service)
-            reference = ::Process.fork do
+            reference = ::Process.fork {
+              @watching = false
+              @forked_services = {}
+
               yield
-            end
+            }
 
             watch_forks(service, reference)
           end
@@ -43,18 +64,18 @@ module Pakyow
 
               Thread.new do
                 while (reference, status = ::Process.wait2(-1))
-                  next unless service = @lock.synchronize {
-                    @forked_services.delete(reference)
-                  }
+                  if (service = @lock.synchronize { @forked_services.delete(reference) })
+                    case status.success?
+                    when true
+                      service.success!
+                    when false
+                      service.failed!
+                    end
 
-                  case status
-                  when 0
-                    service.success!
-                  else
-                    service.failed!
+                    Pakyow.async {
+                      @notifier.notify(:exit, service: service.id, status: service.status)
+                    }.wait
                   end
-
-                  @notifier.notify(:exit, service: service.object_id)
                 end
               rescue Errno::ECHILD
               ensure

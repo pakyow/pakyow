@@ -1,6 +1,6 @@
 require_relative "../../shared"
 
-RSpec.describe "defining the number of services", :repeatable do
+RSpec.describe "defining the number of services", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -15,38 +15,34 @@ RSpec.describe "defining the number of services", :repeatable do
     }
 
     let(:definitions) {
-      local = self
-
       container.service :foo, restartable: false do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
         end
       end
     }
 
     it "defaults to one service" do
       run_container do
-        wait_for length: 3, timeout: 1 do |result|
-          expect(result.scan(/foo/).count).to eq(1)
+        listen_for length: 1, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(1)
         end
       end
     end
 
     context "service defines a count" do
       let(:definitions) {
-        local = self
-
         container.service :foo, restartable: false, count: 3 do
           define_method :perform do
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
           end
         end
       }
 
       it "runs the correct number of services" do
         run_container do
-          wait_for length: 9, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(3)
+          listen_for length: 3, timeout: 1 do |result|
+            expect(result.count("foo")).to eq(3)
           end
         end
       end
@@ -58,11 +54,9 @@ RSpec.describe "defining the number of services", :repeatable do
       }
 
       let(:definitions) {
-        local = self
-
         container.service :foo, restartable: false do
           define_method :perform do
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
           end
 
           define_method :count do
@@ -73,8 +67,8 @@ RSpec.describe "defining the number of services", :repeatable do
 
       it "runs the correct number of services" do
         run_container do
-          wait_for length: 18, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(6)
+          listen_for length: 6, timeout: 1 do |result|
+            expect(result.count("foo")).to eq(6)
           end
         end
       end
@@ -100,6 +94,14 @@ RSpec.describe "defining the number of services", :repeatable do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples
