@@ -82,7 +82,7 @@ module Pakyow
               namespace: namespace,
               context: context
             ) {
-              if block_given?
+              if block
                 instance_variable_set(:@source_location, block.source_location)
               end
 
@@ -117,7 +117,7 @@ module Pakyow
         end
 
         private def extend_with_block(object, &block)
-          if block_given?
+          if block
             object.class_exec(&block)
           end
         end

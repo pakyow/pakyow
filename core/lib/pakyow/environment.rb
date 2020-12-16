@@ -626,7 +626,7 @@ module Pakyow
         }
 
         @__setups[app] ||= []
-        @__setups[app] << block if block_given?
+        @__setups[app] << block if block
 
         mount_path = if mount
           path

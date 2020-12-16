@@ -241,7 +241,7 @@ module Pakyow
               end
             end
 
-            class_eval(&block) if block_given?
+            class_eval(&block) if block
           }
 
           namespace = if context.equal?(isolable_context)

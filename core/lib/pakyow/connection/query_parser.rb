@@ -22,7 +22,9 @@ module Pakyow
     # @api private
     class QueryParser
       class InvalidParameter < Error; end
+
       class KeySpaceLimitExceeded < Error; end
+
       class DepthLimitExceeded < Error; end
 
       DEFAULT_DELIMETER = /[&;,]/

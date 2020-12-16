@@ -127,7 +127,7 @@ module Pakyow
       # Yields each service and respective count.
       #
       def each(&block)
-        return enum_for(:each) unless block_given?
+        return enum_for(:each) unless block
 
         @services.each_pair(&block)
       end
@@ -135,7 +135,7 @@ module Pakyow
       # Yields each service.
       #
       def each_service(&block)
-        return enum_for(:each_service) unless block_given?
+        return enum_for(:each_service) unless block
 
         @services.each_key(&block)
       end
@@ -143,7 +143,7 @@ module Pakyow
       # Yields each nested formation.
       #
       def each_formation(&block)
-        return enum_for(:each_formation) unless block_given?
+        return enum_for(:each_formation) unless block
 
         @formations.each(&block)
       end

@@ -77,7 +77,7 @@ RSpec.configure do |config|
   end
 
   def create
-    timeout(60) do
+    Timeout.timeout(60) do
       FileUtils.mkdir_p(@working_path)
       Dir.chdir(@working_path)
 
@@ -90,7 +90,7 @@ RSpec.configure do |config|
   end
 
   def boot(environment: self.environment, envars: self.envars, port: self.port, host: self.host, wait: true, formation: nil)
-    timeout(60) do
+    Timeout.timeout(60) do
       Bundler.with_original_env do
         command = if formation
           "pakyow boot -e #{environment} -p #{port} --host #{host} -f #{formation}"
@@ -110,7 +110,7 @@ RSpec.configure do |config|
   end
 
   def cli_run(*command, envars: self.envars)
-    timeout(60) do
+    Timeout.timeout(60) do
       Bundler.with_original_env do
         Process.waitpid(Process.spawn(envars, "pakyow #{command.join(" ")}"))
         $?
@@ -134,7 +134,7 @@ RSpec.configure do |config|
   end
 
   def shutdown(signal = "INT")
-    timeout(60) do
+    Timeout.timeout(60) do
       if booted?
         Process.kill(signal, @server)
 
@@ -147,7 +147,7 @@ RSpec.configure do |config|
   end
 
   def ensure_bundled(gem_name)
-    timeout(60) do
+    Timeout.timeout(60) do
       gemfile_path = project_path.join("Gemfile")
 
       unless gemfile_path.read.include?(gem_name)

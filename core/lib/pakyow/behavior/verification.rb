@@ -33,7 +33,7 @@ module Pakyow
           end
         end
 
-        verifier = if block_given?
+        verifier = if block
           Pakyow::Verifier.new(&block)
         else
           self.class.__verifiers[name]
@@ -56,11 +56,11 @@ module Pakyow
         def verify(name = :default, &block)
           name = name.to_sym
           if (verifier = __verifiers[name])
-            if block_given?
+            if block
               verifier.instance_eval(&block)
             end
           else
-            verifier = if block_given?
+            verifier = if block
               Pakyow::Verifier.new(&block)
             else
               Pakyow::Verifier.new

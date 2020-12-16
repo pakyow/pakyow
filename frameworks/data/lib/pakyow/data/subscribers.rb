@@ -49,7 +49,7 @@ module Pakyow
         end
 
         ids = @adapter.register_subscriptions(subscriptions, subscriber: subscriber)
-        yield ids if block_given?
+        yield ids if block
         ids
       end
 

@@ -54,7 +54,7 @@ module Pakyow
       # Yields each changed path and modified time.
       #
       def each_change(&block)
-        return to_enum(:each_change) unless block_given?
+        return to_enum(:each_change) unless block
 
         @mtimes.each_pair(&block)
       end
@@ -63,7 +63,7 @@ module Pakyow
       # Yields each changed path.
       #
       def each_changed_path(&block)
-        return to_enum(:each_changed_path) unless block_given?
+        return to_enum(:each_changed_path) unless block
 
         @mtimes.each_key(&block)
       end

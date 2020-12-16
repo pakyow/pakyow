@@ -8,7 +8,7 @@ module Pakyow
           connection = @connection.dup
           mailer = app.mailer(path, __values: connection.values)
 
-          if block_given?
+          if block
             context = dup
             context.instance_variable_set(:@connection, connection)
             context.instance_exec(mailer, &block)

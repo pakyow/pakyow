@@ -101,7 +101,7 @@ module Pakyow
               included_source = included_source.send(association_to_include.query)
             end
 
-            final_source = if block_given?
+            final_source = if block
               included_source.instance_exec(&block) || included_source
             else
               included_source

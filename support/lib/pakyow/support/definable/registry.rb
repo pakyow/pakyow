@@ -61,7 +61,7 @@ module Pakyow
           namespace, object_name, opts = build_final_args(*namespace, object_name, **opts)
 
           if (found = find(*namespace, object_name))
-            if block_given?
+            if block
               found.class_eval(&block)
             end
 

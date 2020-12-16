@@ -120,7 +120,7 @@ module Pakyow
       end
 
       def each(&block)
-        return enum_for(:each) unless block_given?
+        return enum_for(:each) unless block
 
         @assets.each do |asset|
           asset.each(&block)

@@ -192,7 +192,7 @@ module Pakyow
 
     class << self
       def setup(environment: Pakyow.env, &block)
-        if block_given?
+        if block
           class_eval(&block)
         end
 

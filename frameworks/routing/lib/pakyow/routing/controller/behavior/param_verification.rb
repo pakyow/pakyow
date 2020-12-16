@@ -60,7 +60,7 @@ module Pakyow
 
         prepend_methods do
           def verify(*, &block)
-            if block_given?
+            if block
               local_allowed_params = self.class.__allowed_params
 
               super do

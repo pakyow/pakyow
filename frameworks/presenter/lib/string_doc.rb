@@ -182,7 +182,7 @@ class StringDoc
   include Enumerable
 
   def each(descend: false, &block)
-    return enum_for(:each, descend: descend) unless block_given?
+    return enum_for(:each, descend: descend) unless block
 
     @nodes.each do |node|
       case node
@@ -228,7 +228,7 @@ class StringDoc
   # Yields each node matching the significant type, without descending into nodes that are of that type.
   #
   def each_significant_node_without_descending_into_type(type, descend: false, &block)
-    return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block_given?
+    return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block
 
     @nodes.each do |node|
       if node.is_a?(Node) || node.is_a?(MetaNode)

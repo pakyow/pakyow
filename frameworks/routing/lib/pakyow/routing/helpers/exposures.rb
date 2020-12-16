@@ -7,7 +7,7 @@ module Pakyow
         # Expose a value by name.
         #
         def expose(name, default_value = default_omitted = true, &block)
-          value = if block_given?
+          value = if block
             yield
           elsif default_omitted
             __send__(name)

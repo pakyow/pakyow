@@ -246,7 +246,7 @@ class StringDoc
     end
 
     def each(descend: false, &block)
-      return enum_for(:each, descend: descend) unless block_given?
+      return enum_for(:each, descend: descend) unless block
 
       yield self
 
@@ -267,7 +267,7 @@ class StringDoc
     end
 
     def each_significant_node(type, descend: false, &block)
-      return enum_for(:each_significant_node, type, descend: descend) unless block_given?
+      return enum_for(:each_significant_node, type, descend: descend) unless block
 
       internal_nodes.each do |node|
         node.each_significant_node(type, descend: descend, &block)
@@ -275,7 +275,7 @@ class StringDoc
     end
 
     def each_significant_node_without_descending_into_type(type, descend: false, &block)
-      return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block_given?
+      return enum_for(:each_significant_node_without_descending_into_type, type, descend: descend) unless block
 
       internal_nodes.each do |node|
         node.each_significant_node_without_descending_into_type(type, descend: descend, &block)
@@ -283,7 +283,7 @@ class StringDoc
     end
 
     def each_significant_node_with_name(type, name, descend: false, &block)
-      return enum_for(:each_significant_node_with_name, type, name, descend: descend) unless block_given?
+      return enum_for(:each_significant_node_with_name, type, name, descend: descend) unless block
 
       internal_nodes.each do |node|
         node.each_significant_node_with_name(type, name, descend: descend, &block)

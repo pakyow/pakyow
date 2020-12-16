@@ -71,7 +71,7 @@ module Pakyow
         def trigger(event, *args, **kwargs, &block)
           if (handler = find_handler(event))
             handler.__pipeline.rcall(self, event, *args, **kwargs)
-          elsif block_given?
+          elsif block
             yield
           elsif event.is_a?(Exception)
             raise event

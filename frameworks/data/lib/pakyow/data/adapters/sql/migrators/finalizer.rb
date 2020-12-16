@@ -65,7 +65,7 @@ module Pakyow
               def method_missing(name, *args, **kwargs, &block)
                 method_call = "#{name} #{args_to_string(args, kwargs)}"
 
-                @content << if block_given?
+                @content << if block
                   writer = Writer.new
                   writer.instance_exec(&block)
 

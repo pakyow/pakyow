@@ -88,7 +88,7 @@ module Pakyow
             isolated_object.instance_variable_set(:@object_name, isolated_object_name)
           end
 
-          isolated_object.class_eval(&block) if block_given?
+          isolated_object.class_eval(&block) if block
 
           isolated_object
         end
@@ -110,7 +110,7 @@ module Pakyow
 
           if isolation_target && isolated?(class_name, context: isolation_target)
             isolated_class = isolation_target.const_get(class_name)
-            isolated_class.class_eval(&block) if block_given?
+            isolated_class.class_eval(&block) if block
             isolated_class
           end
         end

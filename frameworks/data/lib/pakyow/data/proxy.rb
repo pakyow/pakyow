@@ -45,7 +45,7 @@ module Pakyow
 
           result = @source.command(method_name).call(*args) { |yielded_result|
             duped_proxy.instance_variable_set(:@source, yielded_result)
-            yield duped_proxy if block_given?
+            yield duped_proxy if block
           }
 
           if @source.respond_to?(:transaction) && @source.transaction?
@@ -65,7 +65,7 @@ module Pakyow
           duped_proxy = dup
           nested_calls = []
 
-          new_source = if block_given? && @source.block_for_nested_source?(method_name)
+          new_source = if block && @source.block_for_nested_source?(method_name)
             # In this case a block has been passed that would, without intervention,
             # be called in context of a source instance. We don't want that, since
             # it would provide full access to the underlying dataset. Instead the

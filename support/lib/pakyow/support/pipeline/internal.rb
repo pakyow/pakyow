@@ -17,7 +17,7 @@ module Pakyow
           @actions = []
           @context = context
 
-          if block_given?
+          if block
             instance_exec(&block)
           end
         end

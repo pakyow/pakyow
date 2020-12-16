@@ -11,6 +11,7 @@ module Pakyow
   class Connection
     class MultipartParser
       class LimitExceeded < Error; end
+
       class ParseError < Error; end
 
       DEFAULT_MULTIPART_LIMIT = 100
