@@ -40,7 +40,7 @@ module Pakyow
       end
 
       # Objects that can't be copied.
-      UNDUPABLE = [Symbol, Integer, NilClass, TrueClass, FalseClass, Class, Module].freeze
+      UNDUPABLE = [Symbol, Integer, NilClass, TrueClass, FalseClass, Class, Module, Queue].freeze
 
       [Object, Delegator].each do |klass|
         refine klass do
