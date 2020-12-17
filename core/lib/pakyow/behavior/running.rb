@@ -28,8 +28,6 @@ module Pakyow
             options[:env] = env if env
           end
 
-          # Boots and deep freezes the environment, then runs the environment container.
-          #
           service :environment do
             include EnsureBooted
 
@@ -58,9 +56,46 @@ module Pakyow
         end
 
         container :environment do
-          # Boots the environment (if necessary), then runs the server.
-          #
           service :server do
+            include EnsureBooted
+
+            def count
+              handling do
+                # Load first so that the count is correctly configured.
+                #
+                Pakyow.load(env: options[:env])
+              end
+
+              options[:config].server.count
+            end
+
+            class << self
+              def prerun(options)
+                Pakyow.container(:server).services.each do |service|
+                  service.prerun(options)
+                end
+              end
+
+              def postrun(options)
+                Pakyow.container(:server).services.each do |service|
+                  service.postrun(options)
+                end
+              end
+            end
+
+            def perform
+              ensure_booted do
+                GC.start
+
+                options[:strategy] = :threaded
+                Pakyow.container(:server).run(parent: self, **options)
+              end
+            end
+          end
+        end
+
+        container :server do
+          service :endpoint do
             include EnsureBooted
 
             class << self
@@ -102,16 +137,6 @@ module Pakyow
                   text
                 end
               end
-            end
-
-            def count
-              handling do
-                # Load first so that the count is correctly configured.
-                #
-                Pakyow.load(env: options[:env])
-              end
-
-              options[:config].server.count
             end
 
             def logger
