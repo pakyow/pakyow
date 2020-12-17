@@ -19,79 +19,78 @@ RSpec.shared_context "runnable container" do
     {}
   }
 
-  let!(:sockets) {
-    Socket.pair(:UNIX, :STREAM, 0)
+  let(:messages) {
+    []
   }
 
-  let(:child_socket) {
-    sockets[0]
+  let(:container_timeout) {
+    1
   }
 
-  let(:parent_socket) {
-    sockets[1]
-  }
+  def run_container_raw(container, context:)
+    final_options = context.options.merge(
+      parent: context
+    )
 
-  let(:result) {
-    read_from_child
-  }
+    instance = container.new(**final_options)
+    instance.options[:container] = instance
+
+    Pakyow.async {
+      instance.run
+    }.wait
+  end
 
   def run_container(container = self.container, timeout: nil, **options)
     final_options = run_options.merge(options)
+    final_options[:timeout] ||= container_timeout
 
-    container_instance = container.new(**final_options)
-    container_instance.options[:container_instance] = container_instance
+    instance = container.new(**final_options)
+    instance.options[:toplevel] = instance
+    instance.options[:container] = instance
+
+    instance.listen do |message|
+      messages << message
+    end
 
     thread = Thread.new {
-      container_instance.run
+      Pakyow.async { |task|
+        instance.run
+      }.wait
     }
 
-    yield container_instance if block_given?
+    until instance.running?
+      sleep 0.25
+    end
+
+    yield instance if block_given?
     sleep timeout if timeout
 
-    container_instance.stop
-
-    begin
-      with_timeout 1 do
-        thread.join
-      end
-    rescue Timeout::Error
-      thread.kill
-    end
-
-    container_instance
-  rescue Timeout::Error => error
-    container_instance.stop
-    thread.kill; raise error
-  end
-
-  def write_to_parent(value)
-    parent_socket.sendmsg(value)
-  end
-
-  def read_from_child
-    with_timeout(3) do
-      child_socket.recv(4096)
+    Timeout.timeout(15) do
+      instance.stop
+      thread.join
+      instance
     end
   end
 
-  def wait_for(length:, timeout: nil)
-    with_timeout(timeout) do
+  def listen_for(length:, timeout: nil)
+    with_timeout(timeout) do |task|
       start = Time.now
-      result = String.new
 
-      until result.length >= length
-        result << child_socket.recv(4096)
+      until messages.length >= length
+        task.sleep 0.1
       end
 
-      if block_given?
-        yield result[0...length], Time.now - start
-      end
+      yield messages.take(length), Time.now - start if block_given?
     end
   end
 
-  def with_timeout(timeout, &block)
+  def with_timeout(timeout)
     if timeout
-      Timeout.timeout(timeout, &block)
+      Pakyow.async { |task|
+        task.with_timeout(timeout) do
+          yield task
+        end
+      }.wait
     else
       yield
     end

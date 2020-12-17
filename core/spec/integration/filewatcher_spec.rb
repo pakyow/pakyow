@@ -62,8 +62,7 @@ RSpec.describe "using the filewatcher", :repeatable do
     end
 
     filewatcher.stop
-    sleep 0.25
-    thread.kill; thread.join
+    thread.join
   end
 
   describe "watching a pattern" do

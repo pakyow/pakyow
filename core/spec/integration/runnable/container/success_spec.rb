@@ -2,7 +2,7 @@ require_relative "../shared"
 
 # TODO: Rename to status spec?
 #
-RSpec.describe "determining container success", :repeatable do
+RSpec.describe "determining container success", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -20,25 +20,23 @@ RSpec.describe "determining container success", :repeatable do
       end
 
       it "appears successful" do
-        run_container timeout: 1 do |container|
+        container = run_container timeout: 1 do
           # Give the container time to update its internal state.
           #
           sleep 0.5
-
-          expect(container.success?).to be(true)
         end
+
+        expect(container.success?).to be(true)
       end
     end
 
     context "service failed" do
       before do
-        local = self
-
         container.service :foo, restartable: false do
           define_method :perform do
             fail
           ensure
-            local.write_to_parent("failed")
+            options[:container].notify("failed")
           end
         end
 
@@ -46,18 +44,18 @@ RSpec.describe "determining container success", :repeatable do
       end
 
       it "appears unsuccessful" do
-        run_container do |container|
-          wait_for length: 6, timeout: 1 do |result|
-            expect(container.success?).to be(false)
+        container = run_container do
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq(["failed"])
           end
         end
+
+        expect(container.success?).to be(false)
       end
     end
 
     context "one service succeeded but another failed" do
       before do
-        local = self
-
         container.service :foo, restartable: false do
           define_method :perform do
             # noop
@@ -68,7 +66,7 @@ RSpec.describe "determining container success", :repeatable do
           define_method :perform do
             fail
           ensure
-            local.write_to_parent("failed")
+            options[:container].notify("failed")
           end
         end
 
@@ -76,11 +74,13 @@ RSpec.describe "determining container success", :repeatable do
       end
 
       it "appears unsuccessful" do
-        run_container do |container|
-          wait_for length: 6, timeout: 1 do |result|
-            expect(container.success?).to be(false)
+        container = run_container do
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq(["failed"])
           end
         end
+
+        expect(container.success?).to be(false)
       end
     end
 
@@ -90,13 +90,13 @@ RSpec.describe "determining container success", :repeatable do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.run_container(local.container2, restartable: false, parent: self)
+            local.run_container_raw(local.container2, context: self)
           end
         end
 
         container2.service :bar, restartable: false do
           define_method :perform do
-            local.write_to_parent("bar")
+            options[:toplevel].notify("bar")
           end
         end
       end
@@ -106,15 +106,15 @@ RSpec.describe "determining container success", :repeatable do
       }
 
       it "appears successful" do
-        run_container do |container|
-          wait_for length: 3, timeout: 1 do
-            # Give the container time to update its internal state.
-            #
-            sleep 0.5
-
-            expect(container.success?).to be(true)
+        container = run_container do
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq(["bar"])
           end
+
+          # sleep 1
         end
+
+        expect(container.success?).to be(true)
       end
     end
 
@@ -124,7 +124,7 @@ RSpec.describe "determining container success", :repeatable do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.run_container(local.container2, timeout: 0.1, restartable: false, parent: self)
+            local.run_container_raw(local.container2, context: self)
           end
         end
 
@@ -132,7 +132,7 @@ RSpec.describe "determining container success", :repeatable do
           define_method :perform do
             fail
           ensure
-            local.write_to_parent("failed")
+            options[:toplevel].notify("failed")
           end
         end
 
@@ -144,11 +144,15 @@ RSpec.describe "determining container success", :repeatable do
       }
 
       it "appears unsuccessful" do
-        run_container do |container|
-          wait_for length: 6, timeout: 1 do |result|
-            expect(container.success?).to be(false)
+        container = run_container do
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq(["failed"])
           end
+
+          # sleep 1
         end
+
+        expect(container.success?).to be(false)
       end
     end
 
@@ -158,7 +162,7 @@ RSpec.describe "determining container success", :repeatable do
 
         container.service :foo, restartable: false do
           define_method :perform do
-            local.run_container(local.container2, timeout: 0.1, restartable: false, parent: self)
+            local.run_container_raw(local.container2, context: self)
           end
         end
 
@@ -172,7 +176,7 @@ RSpec.describe "determining container success", :repeatable do
           define_method :perform do
             fail
           ensure
-            local.write_to_parent("failed")
+            options[:toplevel].notify("failed")
           end
         end
 
@@ -184,11 +188,15 @@ RSpec.describe "determining container success", :repeatable do
       }
 
       it "appears unsuccessful" do
-        run_container do |container|
-          wait_for length: 6, timeout: 1 do |result|
-            expect(container.success?).to be(false)
+        container = run_container do
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq(["failed"])
           end
+
+          # sleep 1
         end
+
+        expect(container.success?).to be(false)
       end
     end
   end
@@ -212,6 +220,14 @@ RSpec.describe "determining container success", :repeatable do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

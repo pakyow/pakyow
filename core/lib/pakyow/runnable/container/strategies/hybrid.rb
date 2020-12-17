@@ -16,18 +16,18 @@ module Pakyow
             @strategies = {
               forked: Forked.new, threaded: Threaded.new
             }
+          end
+
+          def prepare(*)
+            super
 
             @strategies.each_value do |strategy|
-              strategy.instance_variable_set(:@queue, @queue)
+              strategy.instance_variable_set(:@notifier, @notifier)
             end
           end
 
           private def stop_service(service, signal)
             service_strategy(service).send(:stop_service, service, signal)
-          end
-
-          private def service_failed!(service)
-            service_strategy(service).send(:service_failed!, service)
           end
 
           private def wait_for_service(service)
@@ -38,6 +38,10 @@ module Pakyow
             service_strategy(service).send(:invoke_service, service) do
               yield
             end
+          end
+
+          private def service_finished(service)
+            service_strategy(service).send(:service_finished, service)
           end
 
           private def service_strategy(service)

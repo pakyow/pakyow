@@ -1,6 +1,6 @@
 require_relative "../../shared"
 
-RSpec.describe "overriding functionality in process subclasses", :repeatable do
+RSpec.describe "overriding functionality in process subclasses", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -10,11 +10,9 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
       end
 
       let(:definitions) {
-        local = self
-
         container.service :foo do
           define_method :perform do
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
           end
 
           define_method :restartable? do
@@ -35,8 +33,8 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
         it "can disable restarts" do
           run_container do
             expect {
-              wait_for length: 6, timeout: 0.1 do; end
-            }.to raise_error(Timeout::Error)
+              listen_for length: 2, timeout: 1
+            }.to raise_error(Async::TimeoutError)
           end
         end
       end
@@ -48,8 +46,8 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
         it "can enable restarts" do
           run_container do
-            wait_for length: 6, timeout: 1 do |result|
-              expect(result.scan(/foo/).count).to eq(2)
+            listen_for length: 2, timeout: 1 do |result|
+              expect(result.count("foo")).to eq(2)
             end
           end
         end
@@ -57,11 +55,9 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
       describe "calling super" do
         let(:definitions) {
-          local = self
-
           container.service :foo do
             define_method :perform do
-              local.write_to_parent("foo")
+              options[:toplevel].notify("foo")
             end
 
             define_method :restartable? do
@@ -72,8 +68,8 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
         it "has the default behavior" do
           run_container do
-            wait_for length: 6, timeout: 1 do |result|
-              expect(result.scan(/foo/).count).to eq(2)
+            listen_for length: 2, timeout: 1 do |result|
+              expect(result.count("foo")).to eq(2)
             end
           end
         end
@@ -88,11 +84,9 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
       end
 
       let(:definitions) {
-        local = self
-
         container.service :foo, restartable: false do
           define_method :perform do
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
           end
 
           define_method :limit do
@@ -111,19 +105,17 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
       it "can define its own limiting logic" do
         run_container do
-          wait_for length: 6, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(2)
+          listen_for length: 2, timeout: 1 do |result|
+            expect(result.count("foo")).to eq(2)
           end
         end
       end
 
       describe "calling super" do
         let(:definitions) {
-          local = self
-
           container.service :foo, restartable: false do
             define_method :perform do
-              local.write_to_parent("foo")
+              options[:toplevel].notify("foo")
             end
 
             define_method :limit do
@@ -134,8 +126,8 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
         it "has the default behavior" do
           run_container do
-            wait_for length: 9, timeout: 1 do |result|
-              expect(result.scan(/foo/).count).to eq(3)
+            listen_for length: 3, timeout: 1 do |result|
+              expect(result.count("foo")).to eq(3)
             end
           end
         end
@@ -150,11 +142,9 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
       end
 
       let(:definitions) {
-        local = self
-
         container.service :foo, restartable: false do
           define_method :perform do
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
           end
 
           define_method :count do
@@ -173,19 +163,17 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
       it "can define its own count logic" do
         run_container do
-          wait_for length: 6, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(2)
+          listen_for length: 2, timeout: 1 do |result|
+            expect(result.count("foo")).to eq(2)
           end
         end
       end
 
       describe "calling super" do
         let(:definitions) {
-          local = self
-
           container.service :foo, restartable: false do
             define_method :perform do
-              local.write_to_parent("foo")
+              options[:toplevel].notify("foo")
             end
 
             define_method :count do
@@ -196,8 +184,8 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
         it "has the default behavior" do
           run_container do
-            wait_for length: 3, timeout: 1 do |result|
-              expect(result.scan(/foo/).count).to eq(1)
+            listen_for length: 1, timeout: 1 do |result|
+              expect(result.count("foo")).to eq(1)
             end
           end
         end
@@ -212,11 +200,9 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
       end
 
       let(:definitions) {
-        local = self
-
         container.service :foo, restartable: false do
           define_method :perform do
-            local.write_to_parent(logger.class.name[0])
+            options[:toplevel].notify(logger.class.name)
           end
 
           define_method :logger do
@@ -235,19 +221,17 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
       it "can define its own logger" do
         run_container do
-          wait_for length: 1, timeout: 1 do |result|
-            expect(result).to eq("N")
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq(["NilClass"])
           end
         end
       end
 
       describe "calling super" do
         let(:definitions) {
-          local = self
-
           container.service :foo, restartable: false do
             define_method :perform do
-              local.write_to_parent(logger.class.name[0])
+              options[:toplevel].notify(logger.class.name)
             end
 
             define_method :logger do
@@ -258,8 +242,8 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
 
         it "has the default behavior" do
           run_container do
-            wait_for length: 1, timeout: 1 do |result|
-              expect(result).to eq("P")
+            listen_for length: 1, timeout: 1 do |result|
+              expect(result).to eq(["Pakyow::Logger::ThreadLocal"])
             end
           end
         end
@@ -286,6 +270,14 @@ RSpec.describe "overriding functionality in process subclasses", :repeatable do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

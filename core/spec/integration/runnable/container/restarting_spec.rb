@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "restarting runnable containers", :repeatable do
+RSpec.describe "restarting runnable containers", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -12,8 +12,8 @@ RSpec.describe "restarting runnable containers", :repeatable do
       container.service :foo do
         define_method :perform do
           message = local.message.dup
-          local.write_to_parent(message)
-          sleep
+          options[:toplevel].notify(message)
+          ::Async::Task.current.sleep 10
         end
       end
     end
@@ -29,14 +29,14 @@ RSpec.describe "restarting runnable containers", :repeatable do
     context "container is restartable" do
       it "restarts the container" do
         run_container do |instance|
-          wait_for length: 3, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(1)
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result.count("foo")).to eq(1)
           end
 
           restart(instance)
 
-          wait_for length: 3, timeout: 1 do |result|
-            expect(result.scan(/bar/).count).to eq(1)
+          listen_for length: 2, timeout: 1 do |result|
+            expect(result.count("bar")).to eq(1)
           end
         end
       end
@@ -51,8 +51,8 @@ RSpec.describe "restarting runnable containers", :repeatable do
         run_container do |instance|
           restart(instance)
 
-          wait_for length: 3, timeout: 1 do |result|
-            expect(result.scan(/foo/).count).to eq(1)
+          with_timeout 1 do
+            expect(messages).to eq(["foo"])
           end
         end
       end
@@ -82,26 +82,32 @@ RSpec.describe "restarting runnable containers", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "restarting a service that exits successfully", :repeatable do
+RSpec.describe "restarting a service that exits successfully", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
         end
       end
     end
 
     it "restarts the service until the container is stopped" do
       run_container do
-        wait_for length: 9, timeout: 1 do |result|
-          expect(result.scan(/foo/).count).to eq(3)
+        listen_for length: 3, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(3)
         end
       end
     end
@@ -130,18 +136,24 @@ RSpec.describe "restarting a service that exits successfully", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "restarting a failing service", :repeatable do
+RSpec.describe "restarting a failing service", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
 
           fail "something went wrong"
         end
@@ -154,9 +166,9 @@ RSpec.describe "restarting a failing service", :repeatable do
 
     it "restarts the service with backoff until the container is stopped" do
       run_container do
-        wait_for length: 9, timeout: 1 do |result, elapsed|
-          expect(result.scan(/foo/).count).to eq(3)
-          expect(elapsed).to be > 0.5
+        listen_for length: 3, timeout: 1 do |result, elapsed|
+          expect(result.count("foo")).to eq(3)
+          expect(elapsed).to be > 0.2
         end
       end
     end
@@ -185,18 +197,24 @@ RSpec.describe "restarting a failing service", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "restarting a failing service alongside a running service", :repeatable do
+RSpec.describe "restarting a failing service alongside a running service", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
 
           fail "something went wrong"
         end
@@ -205,7 +223,9 @@ RSpec.describe "restarting a failing service alongside a running service", :repe
       container.service :bar do
         define_method :perform do
           loop do
-            local.write_to_parent("bar")
+            options[:toplevel].notify("bar")
+
+            ::Async::Task.current.sleep 0.25
           end
         end
       end
@@ -217,9 +237,9 @@ RSpec.describe "restarting a failing service alongside a running service", :repe
 
     it "runs the service and backs off the failing service until the container is stopped" do
       run_container do
-        wait_for length: 21, timeout: 1 do |result, elapsed|
-          expect(result.scan(/foo/).count).to be < 4
-          expect(result.scan(/bar/).count).to be > 4
+        listen_for length: 7, timeout: 1 do |result|
+          expect(result.count("foo")).to be <= 4
+          expect(result.count("bar")).to be >= 4
         end
       end
     end
@@ -248,18 +268,24 @@ RSpec.describe "restarting a failing service alongside a running service", :repe
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "running an unrestartable container", :repeatable do
+RSpec.describe "running an unrestartable container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo, restartable: false do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
         end
       end
     end
@@ -270,7 +296,9 @@ RSpec.describe "running an unrestartable container", :repeatable do
 
     it "does not restart" do
       run_container timeout: 0.1 do
-        expect(read_from_child).to eq("foo")
+        sleep 1
+
+        expect(messages).to eq(["foo"])
       end
     end
 
@@ -304,24 +332,30 @@ RSpec.describe "running an unrestartable container", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "running an unrestartable service in a restartable container", :repeatable do
+RSpec.describe "running an unrestartable service in a restartable container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo, restartable: false do
         define_method :perform do
-          local.write_to_parent(options[:message])
+          options[:toplevel].notify(options[:message])
         end
       end
 
       container.service :bar do
         define_method :perform do
-          sleep
+          ::Async::Task.current.sleep 10
         end
       end
     end
@@ -332,23 +366,23 @@ RSpec.describe "running an unrestartable service in a restartable container", :r
 
     it "only runs the service once" do
       run_container do
-        wait_for length: 3, timeout: 1 do |result|
-          expect(result).to eq("foo")
+        listen_for length: 1, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(1)
         end
       end
     end
 
     it "restarts the service along with the container" do
       run_container do |instance|
-        wait_for length: 3, timeout: 1 do |result|
-          expect(result).to eq("foo")
+        listen_for length: 1, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(1)
         end
 
         instance.options[:message] = "bar"
         instance.restart
 
-        wait_for length: 3, timeout: 1 do |result|
-          expect(result).to eq("bar")
+        listen_for length: 2, timeout: 1 do |result|
+          expect(result.count("bar")).to eq(1)
         end
       end
     end
@@ -377,19 +411,27 @@ RSpec.describe "running an unrestartable service in a restartable container", :r
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "running a restartable service in an unrestartable container", :repeatable do
+RSpec.describe "running a restartable service in an unrestartable container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo do
         define_method :perform do
           loop do
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
+
+            ::Async::Task.current.sleep 0.25
           end
         end
       end
@@ -401,8 +443,8 @@ RSpec.describe "running a restartable service in an unrestartable container", :r
 
     it "runs the service until the container is stopped" do
       run_container do
-        wait_for length: 9, timeout: 1 do |result|
-          expect(result).to eq("foofoofoo")
+        listen_for length: 3, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(3)
         end
       end
     end
@@ -431,9 +473,17 @@ RSpec.describe "running a restartable service in an unrestartable container", :r
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "restarting runnable containers from other processes", :repeatable do
+RSpec.describe "restarting runnable containers from other processes", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -449,19 +499,15 @@ RSpec.describe "restarting runnable containers from other processes", :repeatabl
       container.service :foo do
         define_method :perform do
           message = local.message.dup
-
-          loop do
-            sleep 0.1
-
-            local.write_to_parent(message)
-          end
+          options[:toplevel].notify(message)
+          ::Async::Task.current.sleep 10
         end
       end
 
       container.service :bar, restartable: false do
         define_method :perform do
-          sleep 0.15
-          options[:container_instance].restart
+          ::Async::Task.current.sleep 0.5
+          options[:toplevel].restart
         end
       end
     }
@@ -470,11 +516,13 @@ RSpec.describe "restarting runnable containers from other processes", :repeatabl
 
     it "restarts the container" do
       run_container do
-        sleep 0.15
+        sleep 0.25
+
         @message = "bar"
-        wait_for length: 9, timeout: 1 do |result|
-          expect(result.scan(/foo/).count).to eq(1)
-          expect(result.scan(/bar/).count).to eq(2)
+
+        listen_for length: 3, timeout: 3 do |result|
+          expect(result.count("foo")).to eq(1)
+          expect(result.count("bar")).to eq(2)
         end
       end
     end
@@ -483,13 +531,13 @@ RSpec.describe "restarting runnable containers from other processes", :repeatabl
       let(:definitions) {
         @message = "foo"
 
-        container.on :restart, exec: false do |**payload|
-          @payload = payload
+        container.on :restart do |**payload|
+          options[:toplevel].notify(payload)
         end
 
         container.service :foo, restartable: false do
           define_method :perform do
-            options[:container_instance].restart(foo: "bar")
+            options[:container].restart(foo: "bar")
           end
         end
       }
@@ -498,9 +546,9 @@ RSpec.describe "restarting runnable containers from other processes", :repeatabl
 
       it "calls the hook with provided options" do
         run_container do
-          sleep 0.1
-
-          expect(@payload).to eq(foo: "bar")
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result).to eq([{foo: "bar"}])
+          end
         end
       end
     end
@@ -523,6 +571,14 @@ RSpec.describe "restarting runnable containers from other processes", :repeatabl
   end
 
   context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
     let(:run_options) {
       { strategy: :hybrid }
     }

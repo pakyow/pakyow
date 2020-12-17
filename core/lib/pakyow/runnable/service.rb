@@ -116,12 +116,13 @@ module Pakyow
       include Support::Inspectable
       inspectable :@options, :@metadata, :@status
 
-      attr_reader :options, :metadata, :reference, :status
+      attr_reader :id, :options, :metadata, :reference, :status
 
       # @api private
       attr_writer :reference
 
       def initialize(**options)
+        @id = SecureRandom.hex(4)
         @options = options
         @metadata = {}
         @reference = nil

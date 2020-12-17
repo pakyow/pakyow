@@ -1,6 +1,6 @@
 require_relative "../shared"
 
-RSpec.describe "hooking into fork events" do
+RSpec.describe "hooking into fork events", runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -59,6 +59,14 @@ RSpec.describe "hooking into fork events" do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

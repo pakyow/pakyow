@@ -4,6 +4,8 @@ require "pakyow/cli"
 require "pakyow/logger/thread_local"
 
 RSpec.describe Pakyow do
+  include_context "runnable"
+
   describe "::register_framework" do
     it "registers a framework by name and module" do
       class FooFramework
@@ -906,8 +908,6 @@ RSpec.describe Pakyow do
   end
 
   describe "::run" do
-    include_context "runnable"
-
     it "runs the supervisor container with the expected options" do
       stub_container_run(:supervisor)
 
@@ -1029,6 +1029,8 @@ RSpec.describe Pakyow do
 
     context "environment is already running" do
       before do
+        stub_container_run(:supervisor)
+
         Pakyow.run
       end
 

@@ -1,16 +1,16 @@
 require_relative "../shared"
 
-RSpec.describe "running a single service in a container", :repeatable do
+RSpec.describe "running a single service in a container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo do
         define_method :perform do
           loop do
-            local.write_to_parent("foo")
+            options[:container].notify("foo")
+
+            ::Async::Task.current.sleep 0.25
           end
         end
       end
@@ -18,15 +18,15 @@ RSpec.describe "running a single service in a container", :repeatable do
 
     it "runs the service until the container is stopped" do
       run_container do
-        wait_for length: 6, timeout: 1 do |result|
-          expect(result).to eq("foofoo")
+        listen_for length: 2, timeout: 1 do |result|
+          expect(result).to eq(["foo", "foo"])
         end
       end
     end
   end
 
   context "forked container" do
-    let(:container_options) {
+    let(:run_options) {
       { strategy: :forked }
     }
 
@@ -34,7 +34,7 @@ RSpec.describe "running a single service in a container", :repeatable do
   end
 
   context "threaded container" do
-    let(:container_options) {
+    let(:run_options) {
       { strategy: :threaded }
     }
 
@@ -48,9 +48,17 @@ RSpec.describe "running a single service in a container", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "running a single nested service in a container", :repeatable do
+RSpec.describe "running a single nested service in a container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -59,16 +67,18 @@ RSpec.describe "running a single nested service in a container", :repeatable do
 
       container.service :foo do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:container].notify("foo")
 
-          local.run_container(local.container2, timeout: 1, parent: self)
+          local.run_container_raw(local.container2, context: self)
         end
       end
 
       container2.service :bar do
         define_method :perform do
           loop do
-            local.write_to_parent("bar")
+            options[:toplevel].notify("bar")
+
+            ::Async::Task.current.sleep 0.25
           end
         end
       end
@@ -80,8 +90,8 @@ RSpec.describe "running a single nested service in a container", :repeatable do
 
     it "runs the nested service until the top-level container is stopped" do
       run_container do
-        wait_for length: 9, timeout: 1 do |result|
-          expect(result).to eq("foobarbar")
+        listen_for length: 3, timeout: 1 do |result|
+          expect(result).to eq(["foo", "bar", "bar"])
         end
       end
     end
@@ -106,6 +116,14 @@ RSpec.describe "running a single nested service in a container", :repeatable do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

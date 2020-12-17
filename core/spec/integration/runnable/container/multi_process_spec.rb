@@ -1,18 +1,16 @@
 require_relative "../shared"
 
-RSpec.describe "running multiple services in a container", :repeatable do
+RSpec.describe "running multiple services in a container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
     before do
-      local = self
-
       container.service :foo do
         define_method :perform do
           loop do
-            sleep 0.1
+            ::Async::Task.current.sleep 0.1
 
-            local.write_to_parent("foo")
+            options[:toplevel].notify("foo")
           end
         end
       end
@@ -20,9 +18,9 @@ RSpec.describe "running multiple services in a container", :repeatable do
       container.service :bar do
         define_method :perform do
           loop do
-            sleep 0.1
+            ::Async::Task.current.sleep 0.1
 
-            local.write_to_parent("bar")
+            options[:toplevel].notify("bar")
           end
         end
       end
@@ -30,9 +28,9 @@ RSpec.describe "running multiple services in a container", :repeatable do
 
     it "runs each service until the container is stopped" do
       run_container do
-        wait_for length: 12, timeout: 1 do |result|
-          expect(result.scan(/foo/).count).to eq(2)
-          expect(result.scan(/bar/).count).to eq(2)
+        listen_for length: 4, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(2)
+          expect(result.count("bar")).to eq(2)
         end
       end
     end
@@ -61,9 +59,17 @@ RSpec.describe "running multiple services in a container", :repeatable do
 
     include_examples :examples
   end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
 end
 
-RSpec.describe "running multiple nested service in a container", :repeatable do
+RSpec.describe "running multiple nested service in a container", :repeatable, runnable: true do
   include_context "runnable container"
 
   shared_examples :examples do
@@ -72,18 +78,18 @@ RSpec.describe "running multiple nested service in a container", :repeatable do
 
       container.service :foo do
         define_method :perform do
-          local.write_to_parent("foo")
+          options[:toplevel].notify("foo")
 
-          local.run_container(local.container2, timeout: 1, parent: self)
+          local.run_container_raw(local.container2, context: self)
         end
       end
 
       container2.service :bar do
         define_method :perform do
           loop do
-            sleep 0.1
+            ::Async::Task.current.sleep 0.1
 
-            local.write_to_parent("bar")
+            options[:toplevel].notify("bar")
           end
         end
       end
@@ -91,9 +97,9 @@ RSpec.describe "running multiple nested service in a container", :repeatable do
       container2.service :baz do
         define_method :perform do
           loop do
-            sleep 0.1
+            ::Async::Task.current.sleep 0.1
 
-            local.write_to_parent("baz")
+            options[:toplevel].notify("baz")
           end
         end
       end
@@ -105,10 +111,10 @@ RSpec.describe "running multiple nested service in a container", :repeatable do
 
     it "runs the nested services until the top-level container is stopped" do
       run_container do
-        wait_for length: 15, timeout: 1 do |result|
-          expect(result.scan(/foo/).count).to eq(1)
-          expect(result.scan(/bar/).count).to eq(2)
-          expect(result.scan(/baz/).count).to eq(2)
+        listen_for length: 5, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(1)
+          expect(result.count("bar")).to eq(2)
+          expect(result.count("baz")).to eq(2)
         end
       end
     end
@@ -133,6 +139,14 @@ RSpec.describe "running multiple nested service in a container", :repeatable do
   context "hybrid container" do
     let(:run_options) {
       { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
     }
 
     include_examples :examples

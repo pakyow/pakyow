@@ -7,9 +7,9 @@ module Pakyow
     class Container
       module Strategies
         # @api private
-        class Threaded < Base
-          private def invoke_service(service)
-            Thread.new do
+        class Async < Base
+          private def invoke_service(service, &block)
+            Pakyow.async do |t|
               yield
             ensure
               if service.status.unknown?
@@ -20,8 +20,12 @@ module Pakyow
             end
           end
 
-          private def stop_service(service, _signal)
-            service.reference.kill
+          private def stop_service(service, signal)
+            service.reference.stop
+          end
+
+          private def wrap_service_run
+            yield
           end
         end
       end

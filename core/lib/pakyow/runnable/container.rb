@@ -19,11 +19,13 @@ module Pakyow
     #
     # = Management Strategy
     #
-    # Processes are managed with one of two strategies:
+    # Processes are managed with one of four strategies:
     #
     #   * `:forked` - Each service runs in a fork of the current service.
     #
     #   * `:threaded` - Each service runs in a thread within the current service.
+    #
+    #   * `:async` - Each service runs in separate async task within the container's reactor.
     #
     #   * `:hybrid` - Each service runs in its defined strategy, or the best available default.
     #
@@ -103,6 +105,8 @@ module Pakyow
         end
       end
 
+      DEFAULT_TIMEOUT_IN_SECONDS = 5
+
       extend Support::ClassState
       class_state :restartable, default: true, inheritable: true
       class_state :toplevel_pid, default: ::Process.pid, inheritable: true
@@ -135,7 +139,8 @@ module Pakyow
       #
       #   * strategy: `:forked`, `:threaded`, or `:hybrid` (defaults to `:hybrid`)
       #   * formation: the formation to run (defaults to `Pakyow::Runnable::Formation.all`)
-      #   * parent: the parent service or container that this container is running in
+      #   * parent: the parent service that this container is running in
+      #   * timeout: how long to wait on services to stop before escalating the shutdown phase (defaults to `5`)
       #
       # All options are passed through to the `perform` method of each service run within this container.
       #
@@ -183,14 +188,17 @@ module Pakyow
 
           yield self if block_given?
 
-          while running?
-            @strategy.run(self)
-            @strategy.wait(self)
+          Pakyow.async {
+            while running?
+              @strategy.prepare(self)
+              @strategy.run(self)
+              @strategy.wait(self)
 
-            unless restartable?
-              stop
+              unless restartable?
+                stop
+              end
             end
-          end
+          }.wait
 
           if toplevel_pid?
             success?
@@ -247,6 +255,18 @@ module Pakyow
         else
           @options[:formation]
         end
+      end
+
+      # Sends a message to the container.
+      #
+      def notify(message)
+        @strategy.notify(message)
+      end
+
+      # Listens for messages sent to this container.
+      #
+      def listen(&block)
+        @strategy.listen(&block)
       end
 
       private def restartable?
@@ -308,6 +328,7 @@ module Pakyow
       private def finalize_options(options)
         options[:strategy] = strategy_option(options[:strategy])
         options[:formation] = formation_option(options[:formation])
+        options[:timeout] ||= DEFAULT_TIMEOUT_IN_SECONDS
         options
       end
 

@@ -75,6 +75,12 @@ RSpec.describe Pakyow::Support::DeepDup do
         expect(Pakyow::Support::DeepDup::UNDUPABLE).to include Module
       end
     end
+
+    describe "Queue" do
+      it "is undupable" do
+        expect(Pakyow::Support::DeepDup::UNDUPABLE).to include Queue
+      end
+    end
   end
 
   describe "recursive deep dupes" do

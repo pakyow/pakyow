@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "pakyow/support/deep_freeze"
 require "pakyow/support/inspectable"
 
 require_relative "../../notifier"
@@ -10,24 +11,32 @@ module Pakyow
       module Strategies
         # @api private
         class Base
+          include Support::DeepFreeze
+          insulate :backoff, :resolver
+
           include Support::Inspectable
           inspectable :@services
 
           def initialize
             @services = []
-            @statuses = []
-            @queue = Queue.new
-            @lock = Mutex.new
-            @notifier = nil
+            @listeners = []
+            @failed = false
             @stopping = false
+            @notifier = nil
+            @backoff = nil
+            @handler = nil
+            @resolver = nil
+            @resolving = nil
+          end
+
+          def prepare(container)
+            @notifier&.stop
+            @notifier = Notifier.new
+
+            @failed = false
           end
 
           def run(container)
-            @statuses = []
-
-            @notifier&.stop
-            @notifier = Notifier.new(container: container, &method(:handle_notification).to_proc)
-
             container.performing :fork do
               container.formation.each.map { |service_name, desired_service_count|
                 service_instance = container.services(service_name).new(**container.options)
@@ -52,19 +61,35 @@ module Pakyow
           end
 
           def wait(container)
-            if @services.any?
-              while (message = @queue.pop)
-                event, service = message
+            return if @services.empty?
 
-                case event
-                when :restart
-                  if container.running?
-                    manage_service(service)
+            @notifier.listen do |event, **payload|
+              case event
+              when :message
+                @listeners.each do |listener|
+                  listener.call(payload[:message])
+                end
+              when :restart
+                service_id = payload.delete(:service)
+
+                if container.running? && (service = @services.find { |each_service| each_service.id == service_id })
+                  manage_service(service)
+                end
+              when :reload
+                container.performing :restart, **payload do
+                  interrupt
+                end
+              when :exit
+                service_id, service_status = payload.values_at(:service, :status)
+
+                if (service = @services.find { |each_service| each_service.id == service_id })
+                  unless service_status.success?
+                    service.failed!
+
+                    @failed = true
                   end
-                when :exit
-                  @lock.synchronize do
-                    @services.delete(service)
-                  end
+
+                  @services.delete(service)
 
                   if !stopping? && container.running? && service.restartable?
                     if service.status.success?
@@ -72,34 +97,44 @@ module Pakyow
                     else
                       backoff_service(service)
                     end
-                  elsif @services.empty?
-                    break
                   end
                 end
+              when :stop
+                @stopping = true
+
+                @backoff&.stop
+                @backoff = nil
+
+                resolve(payload[:signal], timeout: container.options[:timeout])
               end
             end
+          ensure
+            @resolver&.stop
+            @resolver = nil
+          end
+
+          def notify(message)
+            @notifier.notify(:message, message: message)
+          end
+
+          def listen(&block)
+            @listeners << block
           end
 
           def interrupt
-            stop("INT")
+            stop(:int)
           end
 
           def terminate
-            stop("TERM")
+            stop(:term)
           end
 
           def restart(**payload)
-            @notifier.notify(:restart, **payload)
+            @notifier.notify(:reload, **payload)
           end
 
           def stop(signal)
-            @stopping = true
-
-            @services.each do |service|
-              stop_service(service, signal)
-            end
-
-            @notifier&.stop
+            @notifier.notify(:stop, signal: signal)
           end
 
           def stopping?
@@ -107,7 +142,7 @@ module Pakyow
           end
 
           def success?
-            @statuses.all?(&:success?)
+            @failed == false
           end
 
           def finish
@@ -126,7 +161,7 @@ module Pakyow
             # Implemented by subclasses.
           end
 
-          private def service_failed!
+          private def service_finished(service)
             # Implemented by subclasses.
           end
 
@@ -137,77 +172,106 @@ module Pakyow
           end
 
           private def update_service_metadata(service)
-            @lock.synchronize do
-              if service.metadata.include?(:retries)
-                service.metadata[:retries] += 1
-              else
-                service.metadata[:retries] = 0
-              end
-
-              service.metadata[:started_at] = current_time
+            if service.metadata.include?(:retries)
+              service.metadata[:retries] += 1
+            else
+              service.metadata[:retries] = 0
             end
+
+            service.metadata[:started_at] = current_time
           end
 
           private def register_service_reference(service, reference)
-            @lock.synchronize do
-              service.reference = reference
+            service.reference = reference
 
-              @services << service
-              @statuses << service.status
-            end
+            @services << service
 
             wait_for_service(service)
           end
 
           private def run_service(service)
-            Fiber.new {
-              begin
-                Signal.trap(:HUP) do
-                  if container.restartable?
-                    raise Restart
-                  end
-                end
+            wrap_service_run do
+              terminating = false
 
-                Signal.trap(:INT) do
-                  raise Interrupt
-                end
+              Signal.trap(:INT) do
+                raise Interrupt
+              end
 
-                Signal.trap(:TERM) do
-                  raise Terminate
-                end
+              Signal.trap(:TERM) do
+                terminating = true
 
-                Pakyow.async do
+                raise Terminate
+              end
+
+              Pakyow.async { |t|
+                begin
                   service.run
                 rescue => error
                   Pakyow.houston(error)
 
-                  service_failed!(service)
+                  service.failed!
                 end
-
-                service.stop
-              rescue Terminate
-              rescue Interrupt
+              }.wait
+            rescue Interrupt, Terminate
+            ensure
+              unless terminating
                 service.stop
               end
+
+              service_finished(service)
+            end
+          end
+
+          private def wrap_service_run
+            Fiber.new {
+              yield
             }.resume
           rescue Interrupt
             # Catch interrupts that occur before the fiber runs.
           end
 
-          private def handle_notification(event, **payload)
-            case event
-            when :restart
-              payload.delete(:container).performing :restart, **payload do
-                interrupt
-              end
-            end
+          private def backoff_service(service)
+            @backoff = Pakyow.async { |task|
+              task.sleep(current_service_backoff(service))
+
+              manage_service(service)
+            }
           end
 
-          private def backoff_service(service)
-            Thread.new do
-              sleep current_service_backoff(service)
-              @queue.push([:restart, service])
+          private def resolve(event, timeout:)
+            if @resolving
+              event = case event
+              when :int
+                :term
+              when :term
+                :quit
+              else
+                event
+              end
             end
+
+            @failed = true if event == :quit
+
+            @resolving = event
+
+            @resolver&.stop
+            @resolver = Pakyow.async { |task|
+              start = current_time
+
+              @services.each do |service|
+                stop_service(service, event)
+              end
+
+              until (current_time - start) > timeout || @services.empty?
+                task.sleep 0.25
+              end
+
+              if @services.empty?
+                @notifier.stop
+              else
+                stop(event)
+              end
+            }
           end
 
           MINIMUM_BACKOFF = 0.5
