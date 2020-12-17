@@ -1,5 +1,15 @@
 # v1.1.0 (unreleased)
 
+  * `add` **Introduce an async container strategy.**
+
+    *Related links:*
+    - [Pull Request #542][pr-542]
+
+  * `chg` **Make containers compatible with fiber-based reactors.**
+
+    *Related links:*
+    - [Pull Request #542][pr-542]
+
   * `fix` **Resolve a concurrency-related performance regression.**
 
     *Related links:*
@@ -765,6 +775,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-542]: https://github.com/pakyow/pakyow/pull/542
 [pr-541]: https://github.com/pakyow/pakyow/pull/541
 [pr-540]: https://github.com/pakyow/pakyow/pull/540
 [pr-536]: https://github.com/pakyow/pakyow/pull/536
