@@ -6,7 +6,7 @@ module Pakyow
       module Realtime
         module Broadcasting
           def broadcast(message)
-            app.websocket_server.subscription_broadcast(socket_client_id, message)
+            Pakyow::Realtime::Server.subscription_broadcast(socket_client_id, message)
           end
         end
       end

@@ -22,6 +22,10 @@ RSpec.configure do |spec_config|
       block.call
     end
   end
+
+  spec_config.after do
+    Pakyow::Realtime::Server.instance_variable_set(:@queue, Queue.new)
+  end
 end
 
 require_relative "context/websocket_context"

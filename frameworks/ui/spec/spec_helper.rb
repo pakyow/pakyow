@@ -26,14 +26,12 @@ RSpec.configure do |spec_config|
 
     allow_any_instance_of(Pakyow::Data::Subscribers).to receive(:expire)
 
-    if $booted
-      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
-        block.call
-      end
+    allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:<<) do |_, block|
+      block.call
+    end
 
-      allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:post) do |_, *args, &block|
-        block.call(*args)
-      end
+    allow_any_instance_of(Concurrent::ThreadPoolExecutor).to receive(:post) do |_, *args, &block|
+      block.call(*args)
     end
   end
 
@@ -68,12 +66,6 @@ RSpec.configure do |spec_config|
       end
     end
   end
-end
-
-$booted = false
-require "pakyow/application"
-Pakyow::Application.after "boot" do
-  $booted = true
 end
 
 require_relative "../../../spec/context/app_context"
@@ -131,7 +123,7 @@ def process_ui_case_transformations(transformations)
   JSON.pretty_generate(transformations)
 end
 
-def save_ui_case(example, path:)
+def save_ui_case(example, path:, result: nil)
   initial_response = call(path)
   expect(initial_response[0]).to eq(200)
   initial = initial_response[2]
@@ -140,11 +132,16 @@ def save_ui_case(example, path:)
     yield
   end
 
-  result_response = call(path)
-  expect(result_response[0]).to eq(200)
-  result = result_response[2]
-
-  sleep 0.1
+  result = case result
+  when nil
+    result_response = call(path)
+    expect(result_response[0]).to eq(200)
+    result_response[2]
+  when Proc
+    result.call
+  else
+    result
+  end
 
   case_name = example.metadata[:full_description].gsub(" ", "_").gsub(/_transforms$/, "")
 

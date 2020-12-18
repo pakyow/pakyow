@@ -47,7 +47,7 @@ RSpec.describe "ui state timeout behavior" do
     it "expires the socket id data subscription, using the disconnect timeout" do
       expect(
         Pakyow.app(:test).data
-      ).to receive(:expire).with(socket_id, Pakyow.app(:test).config.realtime.timeouts.disconnect)
+      ).to receive(:expire).with(socket_id, Pakyow.config.realtime.timeouts.disconnect)
 
       socket.send(:trigger_presence, :leave)
     end
@@ -95,7 +95,7 @@ RSpec.describe "ui state timeout behavior" do
     it "expires the socket id data subscription, using the initial timeout" do
       expect(
         Pakyow.app(:test).data
-      ).to receive(:expire).with(socket_id, Pakyow.app(:test).config.realtime.timeouts.initial)
+      ).to receive(:expire).with(socket_id, Pakyow.config.realtime.timeouts.initial)
 
       view_renderer.perform
     end
