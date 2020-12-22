@@ -19,7 +19,9 @@ module Pakyow
         ThreadLocalizer.thread_localized_store[key] = value
 
         unless frozen?
-          ObjectSpace.define_finalizer(self, ThreadLocalizer.cleanup_thread_localized(key))
+          keys = thread_localized_keys
+          ObjectSpace.define_finalizer(self, method(:cleanup_thread_localized_keys)) if keys.empty?
+          keys << key
         end
       end
 
@@ -41,13 +43,20 @@ module Pakyow
         :"__pw_#{object_id}_#{name}"
       end
 
-      def self.thread_localized_store
-        Thread.current[:__pw] ||= Store.new
+      private def thread_localized_keys
+        @_thread_localized_keys ||= []
       end
 
-      # @api private
-      def self.cleanup_thread_localized(key)
-        proc { ThreadLocalizer.thread_localized_store.delete(key) }
+      private def cleanup_thread_localized_keys
+        @_thread_localized_keys.each do |key|
+          ThreadLocalizer.thread_localized_store.delete(key)
+        end
+
+        @_thread_localized_keys.clear
+      end
+
+      def self.thread_localized_store
+        Thread.current[:__pw] ||= Store.new
       end
     end
   end

@@ -31,8 +31,10 @@ RSpec.describe Pakyow::Support::ThreadLocalizer do
     end
 
     it "defines a finalizer for the key" do
-      allow(described_class).to receive(:cleanup_thread_localized).with(:"__pw_#{instance.object_id}_#{key}").and_return(:proc)
-      expect(ObjectSpace).to receive(:define_finalizer).with(instance, :proc)
+      expect(ObjectSpace).to receive(:define_finalizer) do |finalizable_instance, callable|
+        expect(finalizable_instance).to be(instance)
+        expect(callable.name).to eq(:cleanup_thread_localized_keys)
+      end
 
       instance.thread_localize(key, value)
     end
@@ -43,17 +45,13 @@ RSpec.describe Pakyow::Support::ThreadLocalizer do
       }
 
       before do
-        allow(described_class).to receive(:cleanup_thread_localized).with(:"__pw_#{instance.object_id}_#{key}").and_wrap_original do |method|
-          @finalizer = method.call(:"__pw_#{instance.object_id}_#{key}")
-        end
-
         instance.thread_localize(key, value)
       end
 
       it "removes the localized value" do
         expect(described_class.thread_localized_store).to receive(:delete).with(:"__pw_#{instance.object_id}_#{key}")
 
-        finalizer.call
+        instance.send(:cleanup_thread_localized_keys)
       end
     end
   end
