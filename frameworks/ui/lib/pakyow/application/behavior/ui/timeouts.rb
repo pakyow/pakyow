@@ -15,7 +15,7 @@ module Pakyow
             end
 
             on :leave do
-              @connection.app.data.expire(@id, config.realtime.timeouts.disconnect)
+              @connection.app.data.expire(@id, Pakyow.config.realtime.timeouts.disconnect)
             end
           end
         end

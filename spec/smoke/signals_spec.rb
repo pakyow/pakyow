@@ -16,7 +16,6 @@ RSpec.describe "signaling a running project", :repeatable, smoke: true do
 
     it "invokes the shutdown sequence" do
       expect(Dir.glob(project_path.join("tmp/state/**/*"))).to include(project_path.join("tmp/state/smoke_test-subscribers.pwstate").to_s)
-      expect(Dir.glob(project_path.join("tmp/state/**/*"))).to include(project_path.join("tmp/state/smoke_test-realtime.pwstate").to_s)
     end
   end
 
@@ -35,7 +34,6 @@ RSpec.describe "signaling a running project", :repeatable, smoke: true do
 
     it "does not invoke the shutdown sequence" do
       expect(Dir.glob(project_path.join("tmp/state/**/*"))).not_to include(project_path.join("tmp/state/smoke_test-subscribers.pwstate").to_s)
-      expect(Dir.glob(project_path.join("tmp/state/**/*"))).not_to include(project_path.join("tmp/state/smoke_test-realtime.pwstate").to_s)
     end
   end
 

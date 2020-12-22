@@ -33,7 +33,7 @@ module Pakyow
 
         renderer.perform
 
-        @app.websocket_server.subscription_broadcast(
+        Realtime::Server.subscription_broadcast(
           Realtime::Channel.new(:transformation, subscription[:id]),
           {id: args[:transformation_id], calls: renderer.presenter}
         )

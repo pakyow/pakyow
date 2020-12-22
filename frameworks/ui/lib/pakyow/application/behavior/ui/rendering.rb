@@ -90,7 +90,7 @@ module Pakyow
                     # because the same socket client id applies for every render.
                     #
                     if @composer.class == Pakyow::Presenter::Composers::View
-                      context.app.data.expire(context.socket_client_id, context.app.config.realtime.timeouts.initial)
+                      context.app.data.expire(context.socket_client_id, Pakyow.config.realtime.timeouts.initial)
                     end
                   rescue => error
                     logger.error {

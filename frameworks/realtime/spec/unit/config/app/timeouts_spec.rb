@@ -1,10 +1,6 @@
 RSpec.describe "realtime config", "timeouts" do
-  let :app do
-    Pakyow.app(:test)
-  end
-
   let :config do
-    app.config.realtime.timeouts
+    Pakyow.config.realtime.timeouts
   end
 
   describe "initial" do

@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Refactor the websocket server to a service.**
+
+    *Related links:*
+    - [Pull Request #545][pr-545]
+
   * `chg` **Installed WebSocket is now configured to be a global socket.**
 
     *Related links:*
@@ -19,6 +24,7 @@
     *Related links:*
     - [Pull Request #296][pr-296]
 
+[pr-545]: https://github.com/pakyow/pakyow/pull/545
 [pr-304]: https://github.com/pakyow/pakyow/pull/304
 [pr-296]: https://github.com/pakyow/pakyow/pull/296
 [c4b0271]: https://github.com/pakyow/pakyow/commit/c4b02716363a098a2367a255b04edf0dfe1fb6f5

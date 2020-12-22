@@ -43,7 +43,6 @@ module Pakyow
       def initialize(id, connection)
         @id, @connection, @open = id, connection, false
         @logger = Logger.new(:sock, id: @id[0..7], output: Pakyow.output, level: Pakyow.config.logger.level)
-        @server = @connection.app.websocket_server
         open
       end
 
@@ -70,7 +69,7 @@ module Pakyow
       def shutdown
         if open?
           stop_heartbeat
-          @server.socket_disconnect(self)
+          Server.socket_disconnect(self)
           @open = false
           @logger.info "shutdown"
         end
@@ -109,7 +108,7 @@ module Pakyow
       end
 
       def handle_open
-        @server.socket_connect(self)
+        Server.socket_connect(self)
         @open = true
         trigger_presence(:join)
         @logger.info "opened"

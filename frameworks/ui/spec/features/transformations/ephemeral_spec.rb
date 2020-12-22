@@ -8,18 +8,19 @@ RSpec.describe "mutating a presented ephemeral" do
         disable_protection :csrf
 
         list do
-          expose :posts, data.ephemeral(:posts).set([])
+          expose :posts, data.ephemeral(:posts).set(params[:posts].to_a)
           render "/simple/posts"
         end
 
         create do
           verify do
-            required :post do
+            required :posts do
+              optional :id
               required :title
             end
           end
 
-          data.ephemeral(:posts).set([params[:post]])
+          data.ephemeral(:posts).set(params[:posts])
         end
       end
 
@@ -32,8 +33,8 @@ RSpec.describe "mutating a presented ephemeral" do
   end
 
   it "transforms" do |x|
-    save_ui_case(x, path: "/posts") do
-      call("/posts", method: :post, params: { post: { title: "foo" } })
+    save_ui_case(x, path: "/posts", result: -> { call("/posts", params: { posts: [{ id: 1, title: "foo" }] })[2] }) do
+      call("/posts", method: :post, params: { posts: [{ id: 1, title: "foo" }] })
     end
   end
 end

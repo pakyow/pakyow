@@ -16,7 +16,7 @@ module Pakyow
               }
             end
 
-            app.websocket_server.socket_subscribe(socket_client_id, *channels)
+            Pakyow::Realtime::Server.socket_subscribe(socket_client_id, *channels)
           end
 
           def unsubscribe(channel, *qualifiers)
@@ -28,7 +28,7 @@ module Pakyow
               }
             end
 
-            app.websocket_server.socket_unsubscribe(*channels)
+            Pakyow::Realtime::Server.socket_unsubscribe(*channels)
           end
         end
       end
