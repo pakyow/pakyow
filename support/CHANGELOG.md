@@ -1,10 +1,5 @@
 # v1.1.0 (unreleased)
 
-  * `chg` **Improve thread localizer performance.**
-
-    *Related links:*
-    - [Pull Request #544][pr-544]
-
   * `fix` **Correctly deep dup recursive objects.**
 
     *Related links:*
@@ -359,7 +354,6 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
-[pr-544]: https://github.com/pakyow/pakyow/pull/544
 [pr-537]: https://github.com/pakyow/pakyow/pull/537
 [pr-531]: https://github.com/pakyow/pakyow/pull/531
 [pr-527]: https://github.com/pakyow/pakyow/pull/527
