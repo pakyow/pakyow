@@ -10,7 +10,7 @@ RSpec.describe Pakyow::Server do
   }
 
   let(:endpoint) {
-    instance_double(Async::HTTP::Endpoint, accept: nil)
+    instance_double(Async::HTTP::Endpoint, bind: nil)
   }
 
   let(:protocol) {

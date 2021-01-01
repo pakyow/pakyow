@@ -221,8 +221,7 @@ module Pakyow
         def run(**options)
           instance = new(**options)
           instance.run
-        ensure
-          instance.stop
+          instance
         end
 
         def prerun(options)

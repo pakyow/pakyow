@@ -18,7 +18,7 @@ RSpec.describe "server.endpoint service" do
 
     let(:options) {
       super().tap do |options|
-        options[:endpoint] = double(:endpoint, accept: nil)
+        options[:endpoint] = double(:endpoint, bind: nil)
       end
     }
   end
@@ -59,7 +59,7 @@ RSpec.describe "server.endpoint service" do
   }
 
   let(:bound_endpoint) {
-    double(:bound_endpoint, accept: nil)
+    double(:bound_endpoint, bind: nil)
   }
 
   let(:options) {
@@ -197,11 +197,24 @@ RSpec.describe "server.endpoint service" do
   describe "#shutdown" do
     before do
       allow(Pakyow).to receive(:apps).and_return(apps)
+      allow(Pakyow::Server).to receive(:run).and_return(server)
+      service.prerun(options)
+      instance.perform
     end
 
     let(:apps) {
-      [instance_double(Pakyow::Application)]
+      [instance_double(Pakyow::Application, shutdown: nil)]
     }
+
+    let(:server) {
+      instance_double(Pakyow::Server, shutdown: nil)
+    }
+
+    it "shuts down the server" do
+      expect(server).to receive(:shutdown)
+
+      instance.shutdown
+    end
 
     it "shuts down each application" do
       apps.each do |app|

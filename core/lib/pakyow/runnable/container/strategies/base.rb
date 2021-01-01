@@ -191,19 +191,7 @@ module Pakyow
 
           private def run_service(service)
             wrap_service_run do
-              terminating = false
-
-              Signal.trap(:INT) do
-                raise Interrupt
-              end
-
-              Signal.trap(:TERM) do
-                terminating = true
-
-                raise Terminate
-              end
-
-              Pakyow.async { |t|
+              Pakyow.async {
                 begin
                   service.run
                 rescue => error
@@ -212,12 +200,7 @@ module Pakyow
                   service.failed!
                 end
               }.wait
-            rescue Interrupt, Terminate
             ensure
-              unless terminating
-                service.stop
-              end
-
               service_finished(service)
             end
           end
@@ -226,8 +209,6 @@ module Pakyow
             Fiber.new {
               yield
             }.resume
-          rescue Interrupt
-            # Catch interrupts that occur before the fiber runs.
           end
 
           private def backoff_service(service)

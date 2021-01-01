@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Gracefully shutdown containers and their services.**
+
+    *Related links:*
+    - [Pull Request #546][pr-546]
+
   * `chg` **Restructure containers to support running other services alongside servers.**
 
     *Related links:*
@@ -780,6 +785,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-546]: https://github.com/pakyow/pakyow/pull/546
 [pr-543]: https://github.com/pakyow/pakyow/pull/543
 [pr-542]: https://github.com/pakyow/pakyow/pull/542
 [pr-541]: https://github.com/pakyow/pakyow/pull/541

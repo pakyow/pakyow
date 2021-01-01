@@ -11,9 +11,18 @@ RSpec.describe "restarting runnable containers", :repeatable, runnable: true do
 
       container.service :foo do
         define_method :perform do
+          @stopped = false
+
           message = local.message.dup
           options[:toplevel].notify(message)
-          ::Async::Task.current.sleep 10
+
+          until @stopped do
+            ::Async::Task.current.sleep(0.25)
+          end
+        end
+
+        define_method :stop do
+          @stopped = true
         end
       end
     end
@@ -355,7 +364,15 @@ RSpec.describe "running an unrestartable service in a restartable container", :r
 
       container.service :bar do
         define_method :perform do
-          ::Async::Task.current.sleep 10
+          @stopped = false
+
+          until @stopped do
+            ::Async::Task.current.sleep(0.25)
+          end
+        end
+
+        define_method :stop do
+          @stopped = true
         end
       end
     end
