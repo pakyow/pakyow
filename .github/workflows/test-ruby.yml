@@ -20,7 +20,7 @@ jobs:
       matrix:
         ruby:
           - 2.6.6
-          - 2.7.1
+          - 2.7.2
 
         gem:
           - assets
@@ -65,7 +65,7 @@ jobs:
       matrix:
         ruby:
           - 2.6.6
-          - 2.7.1
+          - 2.7.2
 
         gem:
           - form
@@ -126,7 +126,7 @@ jobs:
       matrix:
         ruby:
           - 2.6.6
-          - 2.7.1
+          - 2.7.2
 
         gem:
           - data
@@ -186,7 +186,7 @@ jobs:
       matrix:
         ruby:
           - 2.6.6
-          - 2.7.1
+          - 2.7.2
 
         gem:
           - data
