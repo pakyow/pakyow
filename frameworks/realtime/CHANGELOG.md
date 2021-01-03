@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `fix` **Refactor the websocket server to a service.**
 
     *Related links:*
@@ -24,6 +29,7 @@
     *Related links:*
     - [Pull Request #296][pr-296]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-545]: https://github.com/pakyow/pakyow/pull/545
 [pr-304]: https://github.com/pakyow/pakyow/pull/304
 [pr-296]: https://github.com/pakyow/pakyow/pull/296

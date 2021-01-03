@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `chg` **Gracefully shutdown containers and their services.**
 
     *Related links:*
@@ -785,6 +790,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-546]: https://github.com/pakyow/pakyow/pull/546
 [pr-543]: https://github.com/pakyow/pakyow/pull/543
 [pr-542]: https://github.com/pakyow/pakyow/pull/542

@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `fix` **Update reflection to support presenter templates defined with multiple paths.**
 
     *Related links:*
@@ -10,6 +15,7 @@
     *Related links:*
     - [Commit ce9a018][ce9a018]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-524]: https://github.com/pakyow/pakyow/pull/524
 [ce9a018]: https://github.com/pakyow/pakyow/commit/ce9a0186b70f99aadb173fc37e1d9541ce9834da
 

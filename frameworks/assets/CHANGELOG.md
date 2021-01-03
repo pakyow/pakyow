@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `fix` **Correctly handle asset prefixes for clashing asset names.**
 
     *Related links:*
@@ -65,6 +70,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-539]: https://github.com/pakyow/pakyow/pull/539
 [pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-514]: https://github.com/pakyow/pakyow/pull/514
