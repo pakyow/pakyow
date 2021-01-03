@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `chg` **Improve component rendering performance by avoiding connection duping.**
 
     *Related links:*
@@ -36,6 +41,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-538]: https://github.com/pakyow/pakyow/pull/538
 [pr-515]: https://github.com/pakyow/pakyow/pull/515
 [pr-502]: https://github.com/pakyow/pakyow/pull/502

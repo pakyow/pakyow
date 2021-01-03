@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `fix` **Correctly deep dup recursive objects.**
 
     *Related links:*
@@ -354,6 +359,7 @@
     *Related links:*
     - [Pull Request #364][pr-364]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-537]: https://github.com/pakyow/pakyow/pull/537
 [pr-531]: https://github.com/pakyow/pakyow/pull/531
 [pr-527]: https://github.com/pakyow/pakyow/pull/527

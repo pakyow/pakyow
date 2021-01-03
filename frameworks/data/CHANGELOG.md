@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Drop Ruby 2.5 support.**
+
+    *Related links:*
+    - [Pull Request #547][pr-547]
+
   * `fix` **Disconnect data connections when the environment is forked.**
 
     *Related links:*
@@ -20,6 +25,7 @@
     *Related links:*
     - [Pull Request #381][pr-381]
 
+[pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-534]: https://github.com/pakyow/pakyow/pull/534
 [pr-532]: https://github.com/pakyow/pakyow/pull/532
 [pr-382]: https://github.com/pakyow/pakyow/pull/382
