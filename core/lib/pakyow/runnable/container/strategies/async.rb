@@ -21,7 +21,14 @@ module Pakyow
           end
 
           private def stop_service(service, signal)
-            service.reference.stop
+            case signal
+            when :int
+              Pakyow.async {
+                service.stop
+              }
+            else
+              service.reference.stop
+            end
           end
 
           private def wrap_service_run

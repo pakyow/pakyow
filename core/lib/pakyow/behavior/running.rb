@@ -139,13 +139,19 @@ module Pakyow
               end
             end
 
+            def initialize(*, **)
+              super
+
+              @server = nil
+            end
+
             def logger
               nil
             end
 
             def perform
               ensure_booted do
-                Server.run(
+                @server = Server.run(
                   Pakyow,
                   endpoint: options[:endpoint],
                   protocol: options[:protocol],
@@ -155,6 +161,8 @@ module Pakyow
             end
 
             def shutdown
+              @server&.shutdown
+
               Pakyow.apps.each do |app|
                 app.shutdown
               rescue ApplicationError => error

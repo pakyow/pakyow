@@ -61,10 +61,10 @@ RSpec.describe "external asset fetching service" do
       expect(File.exist?(File.join(tmp, "frontend/assets/packs/vendor", "jquery@3.3.1.js"))).to be(true)
     end
 
-    it "restarts" do
+    it "restarts on shutdown" do
       expect(Pakyow).to receive(:restart)
 
-      run_externals_service
+      run_externals_service.shutdown
     end
 
     context "external exists" do

@@ -45,13 +45,28 @@ module Pakyow
 
           private def invoke_service(service)
             reference = ::Process.fork {
-              @watching = false
-              @forked_services = {}
+              begin
+                Signal.trap(:INT) do
+                  service.stop
 
-              yield
+                  # raise Interrupt
+                end
+
+                Signal.trap(:TERM) do
+                  raise Terminate
+                end
+
+                @watching = false
+                @forked_services = {}
+
+                yield
+              rescue Terminate
+                # fin
+              end
             }
 
             watch_forks(service, reference)
+          rescue Terminate
           end
 
           private def watch_forks(service, service_reference)

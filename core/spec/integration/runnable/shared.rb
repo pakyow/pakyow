@@ -27,10 +27,10 @@ RSpec.shared_context "runnable container" do
     1
   }
 
-  def run_container_raw(container, context:)
+  def run_container_raw(container, context:, **options)
     final_options = context.options.merge(
       parent: context
-    )
+    ).merge(options)
 
     instance = container.new(**final_options)
     instance.options[:container] = instance
