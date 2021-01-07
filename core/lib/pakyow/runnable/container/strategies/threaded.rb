@@ -20,15 +20,8 @@ module Pakyow
             end
           end
 
-          private def stop_service(service, signal)
-            case signal
-            when :int
-              Pakyow.async {
-                service.stop
-              }
-            else
-              service.reference.kill
-            end
+          private def terminate_service(service)
+            service.reference.kill
           end
         end
       end

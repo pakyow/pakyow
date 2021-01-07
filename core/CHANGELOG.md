@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Stop services with the notifier pattern.**
+
+    *Related links:*
+    - [Pull Request #548][pr-548]
+
   * `chg` **Drop Ruby 2.5 support.**
 
     *Related links:*
@@ -790,6 +795,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-548]: https://github.com/pakyow/pakyow/pull/548
 [pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-546]: https://github.com/pakyow/pakyow/pull/546
 [pr-543]: https://github.com/pakyow/pakyow/pull/543

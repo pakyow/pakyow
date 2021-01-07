@@ -49,8 +49,14 @@ module Pakyow
               ensure_booted do
                 GC.start
 
-                Pakyow.container(:environment).run(parent: self, **options)
+                Pakyow.container(:environment).run(parent: self, **options) do |instance|
+                  @container = instance
+                end
               end
+            end
+
+            def shutdown
+              @container&.stop
             end
           end
         end
@@ -88,8 +94,14 @@ module Pakyow
                 GC.start
 
                 options[:strategy] = :threaded
-                Pakyow.container(:server).run(parent: self, **options)
+                Pakyow.container(:server).run(parent: self, **options) do |instance|
+                  @container = instance
+                end
               end
+            end
+
+            def shutdown
+              @container&.stop
             end
           end
         end

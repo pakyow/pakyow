@@ -8,12 +8,6 @@ module Pakyow
       module Strategies
         # @api private
         class Forked < Base
-          SIGNAL_MAP = {
-            int: "INT",
-            term: "TERM",
-            quit: "KILL"
-          }.freeze
-
           def initialize(*)
             super
 
@@ -22,8 +16,13 @@ module Pakyow
             @forked_services = {}
           end
 
-          private def stop_service(service, signal)
-            ::Process.kill(SIGNAL_MAP[signal], service.reference)
+          private def terminate_service(service)
+            ::Process.kill(:TERM, service.reference)
+          rescue Errno::ESRCH
+          end
+
+          private def quit_service(service)
+            ::Process.kill(:KILL, service.reference)
           rescue Errno::ESRCH
           end
 
@@ -48,16 +47,13 @@ module Pakyow
               begin
                 Signal.trap(:INT) do
                   service.stop
-
-                  # raise Interrupt
                 end
 
                 Signal.trap(:TERM) do
                   raise Terminate
                 end
 
-                @watching = false
-                @forked_services = {}
+                reset_fork_state
 
                 yield
               rescue Terminate
@@ -99,6 +95,11 @@ module Pakyow
             end
 
             service_reference
+          end
+
+          private def reset_fork_state
+            @watching = false
+            @forked_services = {}
           end
         end
       end

@@ -13,6 +13,21 @@ RSpec.describe Pakyow::Runnable::Service do
     {}
   }
 
+  def start_service
+    instance.prepare
+
+    @notifier = Thread.new do
+      instance.run
+    end
+
+    sleep(0.25)
+  end
+
+  def stop_service
+    instance.stop
+    @notifier.join
+  end
+
   describe "options" do
     let(:options) {
       { foo: 'bar' }
@@ -33,18 +48,18 @@ RSpec.describe Pakyow::Runnable::Service do
 
   describe "#stop" do
     before do
-      instance.run
+      start_service
     end
 
     it "shuts down" do
       expect(instance).to receive(:shutdown)
 
-      instance.stop
+      stop_service
     end
 
     it "causes the service to appear stopped" do
       expect {
-        instance.stop
+        stop_service
       }.to change {
         instance.stopped?
       }.from(false).to(true)
@@ -52,13 +67,13 @@ RSpec.describe Pakyow::Runnable::Service do
 
     context "service is already stopped" do
       before do
-        instance.stop
+        stop_service
       end
 
       it "does not shut down" do
         expect(instance).not_to receive(:shutdown)
 
-        instance.stop
+        stop_service
       end
     end
   end
@@ -70,7 +85,8 @@ RSpec.describe Pakyow::Runnable::Service do
 
     context "service is stopped" do
       before do
-        instance.stop
+        start_service
+        stop_service
       end
 
       it "is true" do

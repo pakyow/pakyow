@@ -62,7 +62,7 @@ RSpec.describe "signaling runnable containers", :repeatable, runnable: true do
           end
         end
 
-        define_method :stop do
+        define_method :shutdown do
           @stopped = true
 
           options[:toplevel].notify("bar: stop")
@@ -188,7 +188,7 @@ RSpec.describe "signaling runnable containers", :repeatable, runnable: true do
               end
             end
 
-            define_method :stop do
+            define_method :shutdown do
               ::Async::Task.current.sleep(10)
             end
           end

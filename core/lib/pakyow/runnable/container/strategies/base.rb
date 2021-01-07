@@ -149,10 +149,6 @@ module Pakyow
             # Implemented by subclasses.
           end
 
-          private def stop_service(service, signal)
-            # Implemented by subclasses.
-          end
-
           private def wait_for_service(service)
             # Implemented by subclasses.
           end
@@ -165,9 +161,21 @@ module Pakyow
             # Implemented by subclasses.
           end
 
-          private def manage_service(service)
-            update_service_metadata(service)
+          private def terminate_service(service)
+            # Implemented by subclasses.
+          end
 
+          private def quit_service(service)
+            # Implemented by subclasses.
+          end
+
+          private def stop_service(service)
+            service.stop
+          end
+
+          private def manage_service(service)
+            service.prepare
+            update_service_metadata(service)
             register_service_reference(service, invoke_service(service) { run_service(service) })
           end
 
@@ -192,13 +200,7 @@ module Pakyow
           private def run_service(service)
             wrap_service_run do
               Pakyow.async {
-                begin
-                  service.run
-                rescue => error
-                  Pakyow.houston(error)
-
-                  service.failed!
-                end
+                service.run
               }.wait
             ensure
               service_finished(service)
@@ -240,7 +242,14 @@ module Pakyow
               start = current_time
 
               @services.each do |service|
-                stop_service(service, event)
+                case event
+                when :int
+                  stop_service(service)
+                when :term
+                  terminate_service(service)
+                when :quit
+                  quit_service(service)
+                end
               end
 
               until (current_time - start) > timeout || @services.empty?
