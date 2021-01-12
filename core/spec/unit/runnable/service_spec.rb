@@ -2,7 +2,16 @@ require "pakyow/runnable/service"
 
 RSpec.describe Pakyow::Runnable::Service do
   let(:service) {
-    described_class.make(:test)
+    described_class.make(:test) do
+      def perform
+        @condition = Async::Condition.new
+        @condition.wait
+      end
+
+      def shutdown
+        @condition.signal
+      end
+    end
   }
 
   let(:instance) {
@@ -17,7 +26,9 @@ RSpec.describe Pakyow::Runnable::Service do
     instance.prepare
 
     @notifier = Thread.new do
-      instance.run
+      Pakyow.async do
+        instance.run
+      end
     end
 
     sleep(0.25)
@@ -52,7 +63,7 @@ RSpec.describe Pakyow::Runnable::Service do
     end
 
     it "shuts down" do
-      expect(instance).to receive(:shutdown)
+      expect(instance).to receive(:shutdown).and_call_original
 
       stop_service
     end
@@ -114,6 +125,10 @@ RSpec.describe Pakyow::Runnable::Service do
   end
 
   describe "#perform" do
+    let(:service) {
+      described_class.make(:test)
+    }
+
     it "can be called" do
       expect {
         instance.perform
@@ -122,6 +137,10 @@ RSpec.describe Pakyow::Runnable::Service do
   end
 
   describe "#shutdown" do
+    let(:service) {
+      described_class.make(:test)
+    }
+
     it "can be called" do
       expect {
         instance.shutdown
