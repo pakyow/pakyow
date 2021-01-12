@@ -196,13 +196,11 @@ module Pakyow
 
         Pakyow.async { |task|
           task.async do
-            begin
-              perform
-            rescue => error
-              Pakyow.houston(error)
+            perform
+          rescue => error
+            Pakyow.houston(error)
 
-              failed!
-            end
+            failed!
           end
 
           @__blocked = false
