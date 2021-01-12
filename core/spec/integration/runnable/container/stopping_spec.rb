@@ -132,6 +132,48 @@ RSpec.describe "stopping down runnable containers", :repeatable, runnable: true 
         end
       end
     end
+
+    context "service is blocking the reactor" do
+      let(:perform_block) {
+        Proc.new {
+          @stopped = false
+
+          options[:toplevel].notify("started")
+
+          until @stopped
+            sleep 0.25
+          end
+
+          options[:toplevel].notify("finished")
+        }
+      }
+
+      let(:shutdown_block) {
+        Proc.new {
+          options[:toplevel].notify("shutdown")
+
+          @stopped = true
+        }
+      }
+
+      it "still calls shutdown" do
+        # Blocked services won't work at all in the async strategy.
+        #
+        next if run_options[:strategy] == :async
+
+        run_container do |instance|
+          listen_for length: 1, timeout: 1 do |result|
+            expect(result.count("started")).to eq(1)
+          end
+
+          stop(instance)
+
+          listen_for length: 3, timeout: 1 do |result|
+            expect(result).to eq(%w(started shutdown finished))
+          end
+        end
+      end
+    end
   end
 
   context "forked container" do

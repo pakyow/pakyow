@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Gracefully stop services that have blocked the reactor.**
+
+    *Related links:*
+    - [Pull Request #549][pr-549]
+
   * `chg` **Stop services with the notifier pattern.**
 
     *Related links:*
@@ -795,6 +800,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-549]: https://github.com/pakyow/pakyow/pull/549
 [pr-548]: https://github.com/pakyow/pakyow/pull/548
 [pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-546]: https://github.com/pakyow/pakyow/pull/546

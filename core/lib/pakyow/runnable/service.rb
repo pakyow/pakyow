@@ -130,6 +130,7 @@ module Pakyow
         @notifier = nil
         @__stopped = false
         @__retries = 0
+        @__blocked = true
       end
 
       def initialize_copy(_)
@@ -188,20 +189,23 @@ module Pakyow
             case event
             when :stop
               @notifier.stop
-              @__stopped = true
-              shutdown
+              perform_stop
             end
           end
         end
 
-        Pakyow.async {
-          begin
-            perform
-          rescue => error
-            Pakyow.houston(error)
+        Pakyow.async { |task|
+          task.async do
+            begin
+              perform
+            rescue => error
+              Pakyow.houston(error)
 
-            failed!
+              failed!
+            end
           end
+
+          @__blocked = false
 
           # Wait for every child and subchild task to complete.
           #
@@ -217,7 +221,16 @@ module Pakyow
       # Stops the service, calling `shutdown`.
       #
       def stop
-        @notifier&.notify(:stop)
+        if @__blocked
+          perform_stop
+        else
+          @notifier&.notify(:stop)
+        end
+      end
+
+      private def perform_stop
+        @__stopped = true
+        shutdown
       end
 
       # Returns true if the service is restartable.

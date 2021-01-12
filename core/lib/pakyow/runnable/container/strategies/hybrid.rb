@@ -26,6 +26,10 @@ module Pakyow
             end
           end
 
+          private def stop_service(service)
+            service_strategy(service).send(:stop_service, service)
+          end
+
           private def terminate_service(service)
             service_strategy(service).send(:terminate_service, service)
           end
