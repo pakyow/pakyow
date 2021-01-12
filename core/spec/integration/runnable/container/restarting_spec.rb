@@ -21,7 +21,7 @@ RSpec.describe "restarting runnable containers", :repeatable, runnable: true do
           end
         end
 
-        define_method :stop do
+        define_method :shutdown do
           @stopped = true
         end
       end
@@ -371,7 +371,7 @@ RSpec.describe "running an unrestartable service in a restartable container", :r
           end
         end
 
-        define_method :stop do
+        define_method :shutdown do
           @stopped = true
         end
       end

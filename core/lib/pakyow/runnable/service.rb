@@ -127,6 +127,7 @@ module Pakyow
         @metadata = {}
         @reference = nil
         @status = Status.new
+        @notifier = nil
         @__stopped = false
         @__retries = 0
       end
@@ -171,20 +172,52 @@ module Pakyow
         self.class.count
       end
 
+      # Prepares the service for running. Expected to be called from the container process.
+      #
+      def prepare
+        @notifier = Notifier.new
+
+        self
+      end
+
       # Runs the service, calling `perform`.
       #
       def run
-        perform
+        Pakyow.async do
+          @notifier.listen do |event|
+            case event
+            when :stop
+              @notifier.stop
+              @__stopped = true
+              shutdown
+            end
+          end
+        end
+
+        Pakyow.async {
+          begin
+            perform
+          rescue => error
+            Pakyow.houston(error)
+
+            failed!
+          end
+
+          # Wait for every child and subchild task to complete.
+          #
+        }.traverse do |task|
+          task.wait
+        end
+
+        if @notifier&.running?
+          @notifier.stop
+        end
       end
 
       # Stops the service, calling `shutdown`.
       #
       def stop
-        unless stopped?
-          @__stopped = true
-
-          shutdown
-        end
+        @notifier&.notify(:stop)
       end
 
       # Returns true if the service is restartable.

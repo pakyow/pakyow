@@ -26,8 +26,12 @@ module Pakyow
             end
           end
 
-          private def stop_service(service, signal)
-            service_strategy(service).send(:stop_service, service, signal)
+          private def terminate_service(service)
+            service_strategy(service).send(:terminate_service, service)
+          end
+
+          private def quit_service(service)
+            service_strategy(service).send(:quit_service, service)
           end
 
           private def wait_for_service(service)

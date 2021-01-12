@@ -7,7 +7,7 @@ require "pakyow/support/deep_freeze"
 
 module Pakyow
   module Runnable
-    # Send notifications to a container from any process.
+    # Send notifications to a container or service from any process.
     #
     # @api private
     class Notifier
@@ -17,7 +17,6 @@ module Pakyow
       attr_reader :child, :parent
 
       def initialize
-        @stopped = false
         @messages = []
         @path = File.join(Dir.tmpdir, "pakyow-#{::Process.pid}-#{SecureRandom.hex(4)}.sock")
         @notification = ::Async::Notification.new
@@ -67,7 +66,6 @@ module Pakyow
       def stop
         return unless running?
 
-        @stopped = true
         @notification.signal
 
         Pakyow.async {
@@ -82,8 +80,8 @@ module Pakyow
         @endpoint = nil
       end
 
-      private def running?
-        @stopped == false
+      def running?
+        File.exist?(@path)
       end
 
       private def receive
