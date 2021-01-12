@@ -13,14 +13,15 @@ module Pakyow
     def initialize(context, endpoint:, protocol:, scheme:)
       super(context, endpoint, protocol, scheme)
 
-      @server = nil
+      @wrappers = []
     end
 
     def run
-      @endpoint.bind do |server|
-        @server = server
-        @server.listen(Socket::SOMAXCONN)
-        @server.accept_each(&method(:accept))
+      @endpoint.bind do |wrapper|
+        @wrappers << wrapper
+
+        wrapper.listen(Socket::SOMAXCONN)
+        wrapper.accept_each(&method(:accept))
       rescue Async::Wrapper::Cancelled
         # the endpoint was closed
       end
@@ -29,7 +30,7 @@ module Pakyow
     end
 
     def shutdown
-      @server&.io&.close
+      @wrappers.each(&:close)
     end
   end
 end
