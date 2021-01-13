@@ -16,6 +16,11 @@ module Pakyow
             @forked_services = {}
           end
 
+          private def stop_service(service)
+            ::Process.kill(:INT, service.reference)
+          rescue Errno::ESRCH
+          end
+
           private def terminate_service(service)
             ::Process.kill(:TERM, service.reference)
           rescue Errno::ESRCH

@@ -34,12 +34,18 @@ module Pakyow
   end
 
   container(:server).service(:websockets) do
-    def perform
-      @server = Realtime::Server.run(
+    def initialize(*, **)
+      super
+
+      @server = Realtime::Server.new(
         Pakyow.config.realtime.adapter,
         Pakyow.config.realtime.adapter_settings.to_h,
         Pakyow.config.realtime.timeouts
       )
+    end
+
+    def perform
+      @server.run
     end
 
     def shutdown

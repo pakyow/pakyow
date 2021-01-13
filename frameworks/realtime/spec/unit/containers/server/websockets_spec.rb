@@ -12,20 +12,20 @@ RSpec.describe "server.websockets service" do
   }
 
   let(:server) {
-    instance_double(Pakyow::Realtime::Server)
+    instance_double(Pakyow::Realtime::Server, run: nil)
   }
 
   before do
-    allow(Pakyow::Realtime::Server).to receive(:run).and_return(server)
+    allow(Pakyow::Realtime::Server).to receive(:new).with(
+      Pakyow.config.realtime.adapter,
+      Pakyow.config.realtime.adapter_settings.to_h,
+      Pakyow.config.realtime.timeouts
+    ).and_return(server)
   end
 
   describe "#perform" do
     it "runs the realtime server" do
-      expect(Pakyow::Realtime::Server).to receive(:run).with(
-        Pakyow.config.realtime.adapter,
-        Pakyow.config.realtime.adapter_settings.to_h,
-        Pakyow.config.realtime.timeouts
-      )
+      expect(server).to receive(:run)
 
       instance.perform
     end
