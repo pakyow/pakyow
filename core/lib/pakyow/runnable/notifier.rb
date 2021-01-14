@@ -40,7 +40,7 @@ module Pakyow
               socket.connect(Socket.pack_sockaddr_un(@path))
               socket.sendmsg(Marshal.dump(message))
             ensure
-              socket.close
+              socket&.close
             end
           end
         end
