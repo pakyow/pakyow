@@ -62,6 +62,7 @@ RSpec.describe Pakyow::Runnable::Container do
 
     before do
       allow(::Process).to receive(:pid).and_return(4242)
+      allow(::Process).to receive(:setsid)
     end
   end
 

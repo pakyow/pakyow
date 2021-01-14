@@ -186,6 +186,10 @@ module Pakyow
             @strategy.terminate
           end
 
+          unless toplevel_pid?
+            ::Process.setsid
+          end
+
           yield self if block_given?
 
           Pakyow.async {

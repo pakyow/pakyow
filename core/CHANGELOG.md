@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Run containers in their own process groups.**
+
+    *Related links:*
+    - [Pull Request #550][pr-550]
+
   * `chg` **Gracefully stop services that have blocked the reactor.**
 
     *Related links:*
@@ -800,6 +805,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-550]: https://github.com/pakyow/pakyow/pull/550
 [pr-549]: https://github.com/pakyow/pakyow/pull/549
 [pr-548]: https://github.com/pakyow/pakyow/pull/548
 [pr-547]: https://github.com/pakyow/pakyow/pull/547
