@@ -14,7 +14,7 @@ RSpec.shared_context "runnable" do
       # depend on actual running services.
       #
       Pakyow.containers.each do |container|
-        allow(container).to receive(:new).and_wrap_original do |original, *parent_args, **kwargs, &block|
+        allow(container).to receive(:new).and_wrap_original do |original, **kwargs, &block|
           kwargs[:timeout] = 0
 
           instance = container.allocate
@@ -34,7 +34,7 @@ RSpec.shared_context "runnable" do
             end
           end
 
-          instance.send(:initialize, *parent_args, **kwargs, &block)
+          instance.send(:initialize, **kwargs, &block)
           @instances << instance
           instance
         end

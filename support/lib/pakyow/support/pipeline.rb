@@ -2,7 +2,6 @@
 
 require_relative "class_state"
 require_relative "extension"
-require_relative "system"
 
 module Pakyow
   module Support
@@ -72,20 +71,10 @@ module Pakyow
       end
 
       prepend_methods do
-        if System.ruby_version < "2.7.0"
-          def initialize(*)
-            __common_pipeline_initialize
-            super
-          end
-        else
-          def initialize(*, **)
-            __common_pipeline_initialize
-            super
-          end
-        end
-
-        private def __common_pipeline_initialize
+        def initialize(...)
           @__pipeline = self.class.__pipeline.dup
+
+          super
         end
       end
 

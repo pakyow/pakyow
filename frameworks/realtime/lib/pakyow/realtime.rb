@@ -34,7 +34,7 @@ module Pakyow
   end
 
   container(:server).service(:websockets) do
-    def initialize(*, **)
+    def initialize(...)
       super
 
       @server = Realtime::Server.new(

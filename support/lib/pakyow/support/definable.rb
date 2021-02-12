@@ -5,7 +5,6 @@ require_relative "deep_dup"
 require_relative "extension"
 require_relative "isolable"
 require_relative "makeable"
-require_relative "system"
 
 require_relative "definable/registry"
 require_relative "definable/state"
@@ -320,25 +319,14 @@ module Pakyow
       end
 
       prepend_methods do
-        # @api private
-        if System.ruby_version < "2.7.0"
-          def initialize(*, &block)
-            __common_definable_initialize
-            super
-          end
-        else
-          def initialize(*, **, &block)
-            __common_definable_initialize
-            super
-          end
-        end
-
-        private def __common_definable_initialize
+        def initialize(...)
           @__definable_registries = self.class.__definable_registries.deep_dup
 
           @__definable_registries.each_value do |registry|
             registry.reparent(self)
           end
+
+          super
         end
       end
 

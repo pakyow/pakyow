@@ -21,21 +21,11 @@ module Pakyow
       end
 
       prepend_methods do
-        if System.ruby_version < "2.7.0"
-          def initialize(*)
-            __common_handleable_initialize
-            super
-          end
-        else
-          def initialize(*, **)
-            __common_handleable_initialize
-            super
-          end
-        end
-
-        private def __common_handleable_initialize
+        def initialize(...)
           @__handlers = self.class.__handlers.dup
           @__handler_events = self.class.__handler_events.dup
+
+          super
         end
       end
 

@@ -63,7 +63,7 @@ module Pakyow
       super(**options)
     end
 
-    def perform(destination, *, **)
+    def perform(destination, *args, **kwargs)
       destination = Pathname.new(destination)
 
       thread_localize(:destination, destination)

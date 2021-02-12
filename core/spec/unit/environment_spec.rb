@@ -592,12 +592,7 @@ RSpec.describe Pakyow do
     end
 
     it "calls after boot hooks" do
-      if Pakyow::Support::System.ruby_version < "2.7.1"
-        expect(Pakyow).to receive(:call_hooks).with(:after, :boot, {})
-      else
-        expect(Pakyow).to receive(:call_hooks).with(:after, :boot)
-      end
-
+      expect(Pakyow).to receive(:call_hooks).with(:after, :boot)
       perform
     end
 

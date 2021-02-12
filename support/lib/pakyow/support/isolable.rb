@@ -64,11 +64,15 @@ module Pakyow
             isolation_target = ensure_isolable_namespace(*isolated_object_name.namespace.parts).inject(context) { |target_for_part, object_name_part|
               constant_name = Support.inflector.camelize(object_name_part.to_s)
 
-              unless constant_defined_on_target?(constant_name, target_for_part)
-                target_for_part.const_set(constant_name, Module.new)
-              end
+              if constant_name.start_with?("#<")
+                Module.new
+              else
+                unless constant_defined_on_target?(constant_name, target_for_part)
+                  target_for_part.const_set(constant_name, Module.new)
+                end
 
-              target_for_part.const_get(constant_name)
+                target_for_part.const_get(constant_name)
+              end
             }
 
             isolated_constant_name = Support.inflector.demodulize(isolated_object_name.constant)

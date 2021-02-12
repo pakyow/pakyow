@@ -11,7 +11,7 @@ module Pakyow
         class Migrator < Sources::Relational::Migrator
           require_relative "migrator/adapter_methods"
 
-          def initialize(*, **)
+          def initialize(...)
             super
 
             extend self.class.adapter_methods_for_adapter(

@@ -113,7 +113,7 @@ module Pakyow::Support
       end
 
       # methods that do not take a key or hash argument
-      %i(any? assoc compare_by_identity compare_by_identity default= default_proc default_proc= each each_key each_pair each_value empty? flatten hash include? index inspect key keys length rassoc rehash size shift to_a to_proc to_s value? values).each do |method|
+      %i(any? assoc compare_by_identity compare_by_identity default= default_proc default_proc= each each_key each_pair each_value empty? flatten hash include? inspect key keys length rassoc rehash size shift to_a to_proc to_s value? values).each do |method|
         it "passes calls to #{method} to the internal hash" do
           internal = indifferent.internal_hash
           arity = Hash.public_instance_method(method).arity

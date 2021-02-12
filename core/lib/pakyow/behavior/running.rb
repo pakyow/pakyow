@@ -150,7 +150,7 @@ module Pakyow
               end
             end
 
-            def initialize(*, **)
+            def initialize(...)
               super
 
               @server = nil

@@ -541,7 +541,11 @@ RSpec.describe "isolating objects" do
       }
 
       it "creates an anonymous child" do
-        expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).name).to be(nil)
+        if RbConfig::CONFIG["RUBY_PROGRAM_VERSION"] < "3.0.0"
+          expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).name).to be(nil)
+        else
+          expect(isolable.isolate(State, as: :baz, namespace: [:foo, :bar]).name).to eq("#{isolable}::Foo::Bar::Baz")
+        end
       end
 
       it "sets the object name" do

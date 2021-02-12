@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support Ruby 3, Drop 2.6.**
+
+    *Related links:*
+    - [Pull Request #553][pr-553]
+
   * `fix` **Improve the reliability of container/service notifiers.**
 
     *Related links:*
@@ -815,6 +820,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-553]: https://github.com/pakyow/pakyow/pull/553
 [pr-551]: https://github.com/pakyow/pakyow/pull/551
 [pr-550]: https://github.com/pakyow/pakyow/pull/550
 [pr-549]: https://github.com/pakyow/pakyow/pull/549
