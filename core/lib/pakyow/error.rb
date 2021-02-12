@@ -220,7 +220,7 @@ module Pakyow
       end
 
       def message
-        message = Support::CLI.style.white.on_red.bold(header)
+        message = Support::CLI.style.white.on_red.bold(header).dup
         message_lines = @error.message.split("\n")
         if message_lines.any?
           message << "\n\n#{self.class.indent(Support::CLI.style.red("›") + Support::CLI.style.bright_black(" #{self.class.format(message_lines.shift)}"))}\n"

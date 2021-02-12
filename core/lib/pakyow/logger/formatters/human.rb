@@ -36,7 +36,7 @@ module Pakyow
             entry << event.to_s
           end
 
-          @output.call(Colorizer.colorize(entry, options[:severity]) << "\n")
+          @output.call(Colorizer.colorize(entry, options[:severity]) + "\n")
         end
 
         def format_logger_message(logger_message, entry)
