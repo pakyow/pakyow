@@ -151,11 +151,7 @@ module Pakyow
 
     def call(command, **options)
       with(command, debug: options[:debug]) do |callable_command|
-        # TODO: Once `Pakyow::Task` is removed, always pass `cli` as an option.
-        #
-        if callable_command.cli?
-          options[:cli] = self
-        end
+        options[:cli] = self
 
         if callable_command.app?
           setup_options_for_app_command(options)
@@ -188,7 +184,7 @@ module Pakyow
     end
 
     private def commands
-      (Pakyow.commands.definitions + Pakyow.tasks).select { |command|
+      Pakyow.commands.definitions.select { |command|
         (command.global? && !Pakyow.project?) || (!command.global? && Pakyow.project?)
       }
     end
@@ -201,8 +197,8 @@ module Pakyow
     end
 
     private def handle_unknown_command(command_name)
-      if (task = (Pakyow.commands.definitions + Pakyow.tasks).find { |command| command.cli_name == command_name })
-        if task.global?
+      if (command = Pakyow.commands.definitions.find { |command| command.cli_name == command_name })
+        if command.global?
           raise UnknownCommand.new_with_message(
             :not_in_global_context,
             command: command_name
@@ -238,11 +234,7 @@ module Pakyow
     end
 
     private def call_command(command, options)
-      if command.is_a?(Pakyow::Task)
-        command.call({}, [], **options)
-      else
-        command.call(**options)
-      end
+      command.call(**options)
     end
 
     class << self

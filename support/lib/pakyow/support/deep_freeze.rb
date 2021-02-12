@@ -4,8 +4,6 @@ require "delegate"
 require "socket"
 
 require_relative "class_state"
-require_relative "deprecator"
-require_relative "deprecatable"
 require_relative "extension"
 require_relative "hookable"
 
@@ -24,8 +22,6 @@ module Pakyow
       end
 
       class_methods do
-        extend Deprecatable
-
         def insulate(*instance_variables)
           @__insulated_variables.concat(
             instance_variables.map { |instance_variable|
@@ -33,11 +29,6 @@ module Pakyow
             }
           ).uniq!
         end
-
-        def unfreezable(*instance_variables)
-          insulate(*instance_variables)
-        end
-        deprecate :unfreezable, solution: "use `insulate'"
       end
 
       [Object, Delegator].each do |klass|

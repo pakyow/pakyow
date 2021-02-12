@@ -760,31 +760,6 @@ RSpec.describe "pipelines" do
         expect(pipelined.new.call(result.new)).to eq(["current"])
       end
     end
-
-    context "using the deprecated approach" do
-      let(:pipeline_module) {
-        Module.new do
-          extend Pakyow::Support::Pipeline
-        end
-      }
-
-      before do
-        allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
-      end
-
-      it "is deprecated" do
-        expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
-          "using `extend Pakyow::Support::Pipeline'",
-          solution: "use `extend Pakyow::Support::Pipeline::Extension'"
-        )
-
-        pipeline_module
-      end
-
-      it "extends with Pipeline::Extension" do
-        expect(pipeline_module.ancestors).to include(Pakyow::Support::Pipeline::Extension)
-      end
-    end
   end
 
   describe "adding an action after another action" do

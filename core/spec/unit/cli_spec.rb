@@ -42,10 +42,6 @@ RSpec.describe Pakyow::CLI do
           allow(registry).to receive(:definitions).and_return(definitions)
         end
       end
-
-      allow(Pakyow).to receive(:tasks) do
-        []
-      end
     end
 
     let(:definitions) {
@@ -134,96 +130,6 @@ RSpec.describe Pakyow::CLI do
           expect(::Process).to receive(:exit).with(1)
           Pakyow::CLI.run([], output: output)
         end
-      end
-    end
-  end
-
-  describe "calling the task" do
-    before do
-      allow(Pakyow).to receive(:tasks) do
-        [].tap do |tasks|
-          tasks << task_instance
-        end
-      end
-    end
-
-    let :task do
-      Class.new do
-        def cli_name
-          "test"
-        end
-
-        def global?
-          true
-        end
-
-        def app?
-          false
-        end
-
-        def cli?
-          false
-        end
-
-        def boot?
-          true
-        end
-
-        def call(*args)
-        end
-
-        def flags
-          {}
-        end
-
-        def options
-          {
-            bar: {},
-            qux: {}
-          }
-        end
-
-        def arguments
-          {
-            foo: {}
-          }
-        end
-
-        def short_names
-          {
-            bar: "b"
-          }
-        end
-
-        def args
-          [:foo, :bar, :qux]
-        end
-
-        def short?(key)
-          short_names.include?(key)
-        end
-
-        def short(key)
-          short_names[key]
-        end
-      end
-    end
-
-    let :task_instance do
-      task.new
-    end
-
-    let :commands do
-      Pakyow::CLI.new(feedback: feedback).send(:commands)
-    end
-
-    it "retains the argument order" do
-      expect(task_instance).to receive(:call) do |*, **kwargs|
-        expect(**kwargs).to eq({:env=>"development", :foo=>"foo_value", :bar=>"bar_value", :qux=>"qux_value"})
-      end
-
-      ignore_warnings do
-        Pakyow::CLI.run(["test", "foo_value", "-b", "bar_value", "--qux", "qux_value", "-e", "development"], output: output)
       end
     end
   end

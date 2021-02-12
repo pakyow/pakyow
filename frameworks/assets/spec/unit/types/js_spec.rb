@@ -72,7 +72,7 @@ RSpec.describe Pakyow::Application::Behavior::Assets::Types::Js do
       end
 
       it "does not transpile" do
-        expect(Pakyow::Assets::Babel).not_to receive(:transform)
+        expect(Pakyow::Assets::Scripts::Babel).not_to receive(:transform)
         instance.process(content)
       end
 

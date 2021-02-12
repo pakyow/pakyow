@@ -42,15 +42,6 @@ module Pakyow
           end
         end
       end
-
-      class_methods do
-        def respawn(env: Pakyow.env)
-          restart(env: env)
-        end
-
-        extend Support::Deprecatable
-        deprecate :respawn, solution: "prefer `Pakyow.restart'"
-      end
     end
   end
 end

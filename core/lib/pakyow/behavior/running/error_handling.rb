@@ -29,12 +29,6 @@ module Pakyow
 
         private def handle_error(error)
           Pakyow.rescue!(error)
-
-          Pakyow.deprecator.ignore do
-            if Pakyow.config.exit_on_boot_failure
-              ::Process.exit(false)
-            end
-          end
         end
       end
     end

@@ -81,13 +81,6 @@ module Pakyow
           (__filewatcher_changes[matcher] ||= []) << {block: block, snapshot: snapshot}
         end
 
-        def on_change(matcher = nil, &block)
-          change(matcher, &block)
-        end
-
-        extend Support::Deprecatable
-        deprecate :on_change, solution: "prefer `changed'"
-
         # Register one or more path for changes.
         #
         def watch(*paths, &block)

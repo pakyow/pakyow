@@ -1,5 +1,4 @@
 require "pakyow/cli"
-require "pakyow/task"
 
 RSpec.describe "cli: prototype" do
   include_context "command"
@@ -29,11 +28,6 @@ RSpec.describe "cli: prototype" do
     context "without any arguments" do
       it "boots with defaults" do
         run_command(command, project: true)
-
-        Pakyow::Support::Deprecator.global.ignore do
-          expect(Pakyow.config.server.proxy).to eq(true)
-        end
-
         expect(Pakyow.config.runnable.server.host).to eq("localhost")
         expect(Pakyow.config.runnable.server.port).to eq(3000)
       end
