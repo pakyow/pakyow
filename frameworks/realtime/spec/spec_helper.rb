@@ -18,6 +18,8 @@ RSpec.configure do |spec_config|
   end
 
   spec_config.before do |example|
+    require "concurrent/executor/single_thread_executor"
+
     allow_any_instance_of(Concurrent::SingleThreadExecutor).to receive(:<<) do |_, block|
       block.call
     end

@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "concurrent-ruby", "~> 1.1"
   spec.add_dependency "connection_pool", "~> 2.2"
-  spec.add_dependency "dry-types", "~> 1.4"
+  spec.add_dependency "dry-types", "~> 1.5"
   spec.add_dependency "redis", "~> 4.2"
-  spec.add_dependency "sequel", "~> 5.36"
+  spec.add_dependency "sequel", "~> 5.41"
 end
