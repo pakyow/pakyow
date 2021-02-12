@@ -11,7 +11,7 @@ module Pakyow
     end
 
     def initialize(context, endpoint:, protocol:, scheme:)
-      super(context, endpoint, protocol, scheme)
+      super(context, endpoint, protocol: protocol, scheme: scheme)
 
       @wrappers = []
     end
