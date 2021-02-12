@@ -21,12 +21,7 @@ module Pakyow
           unless Pakyow.booted? || Pakyow.rescued?
             handling do
               Pakyow.boot(env: options[:env])
-
-              Pakyow.deprecator.ignore do
-                if Pakyow.config.freeze_on_boot
-                  Pakyow.deep_freeze
-                end
-              end
+              Pakyow.deep_freeze
             end
           end
         ensure

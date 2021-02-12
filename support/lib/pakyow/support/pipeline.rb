@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "class_state"
-require_relative "deprecator"
 require_relative "extension"
 require_relative "system"
 
@@ -41,12 +40,6 @@ module Pakyow
       extend Support::Extension
 
       extend_dependency ClassState
-
-      def self.extended(base)
-        Pakyow::Support::Deprecator.global.deprecated "using `extend Pakyow::Support::Pipeline'", solution: "use `extend Pakyow::Support::Pipeline::Extension'"
-
-        base.extend Pipeline::Extension
-      end
 
       # @api private
       attr_reader :__pipeline

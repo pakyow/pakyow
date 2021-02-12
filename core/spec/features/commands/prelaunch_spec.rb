@@ -201,51 +201,5 @@ RSpec.describe "cli: prelaunch" do
         expect(calls).to eq([:foo, :bar])
       end
     end
-
-    describe "running defined tasks" do
-      before do
-        local = self
-
-        Pakyow::Support::Deprecator.global.ignore do
-          Pakyow.config.tasks.prelaunch << :foo
-        end
-
-        Pakyow.command :foo do
-          action do
-            local.calls << :foo
-          end
-        end
-      end
-
-      let(:app_def) {
-        local = self
-
-        Proc.new {
-          configure do
-            Pakyow::Support::Deprecator.global.ignore do
-              config.tasks.prelaunch << :app_foo
-            end
-          end
-
-          Pakyow.command :app_foo do
-            action do
-              local.calls << :app_foo
-            end
-          end
-        }
-      }
-
-      it "runs prelaunch tasks defined for the environment" do
-        run_command(command, project: true, tty: false)
-
-        expect(calls).to include(:foo)
-      end
-
-      it "runs prelaunch tasks defined for an application" do
-        run_command(command, project: true, tty: false)
-
-        expect(calls).to include(:app_foo)
-      end
-    end
   end
 end

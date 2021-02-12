@@ -26,10 +26,6 @@ RSpec.describe "cli: boot" do
         expect(Pakyow).to receive(:run).with(env: :test, formation: Pakyow.config.runnable.formation)
         run_command(command, project: true)
 
-        Pakyow::Support::Deprecator.global.ignore do
-          expect(Pakyow.config.server.proxy).to eq(true)
-        end
-
         expect(Pakyow.config.runnable.server.host).to eq("localhost")
         expect(Pakyow.config.runnable.server.port).to eq(3000)
       end

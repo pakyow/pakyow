@@ -30,7 +30,6 @@ require_relative "behavior/plugins"
 require_relative "behavior/release_channels"
 require_relative "behavior/rescuing"
 require_relative "behavior/silencing"
-require_relative "behavior/tasks"
 require_relative "behavior/timezone"
 require_relative "behavior/running"
 require_relative "behavior/watching"
@@ -116,8 +115,6 @@ module Pakyow
   envar :pwenv
 
   setting :default_env, :development
-  setting :freeze_on_boot, true
-  setting :exit_on_boot_failure, false
   setting :timezone, :utc
   setting :secrets, ["pakyow"]
   setting :channel, :default
@@ -146,16 +143,9 @@ module Pakyow
     :all
   end
 
-  defaults :test do
-    setting :exit_on_boot_failure, false
-  end
-
   defaults :production do
     setting :secrets, [ENV["SECRET"].to_s.strip]
   end
-
-  config.deprecate :freeze_on_boot
-  config.deprecate :exit_on_boot_failure
 
   configurable :runnable do
     setting :formation do
@@ -197,39 +187,6 @@ module Pakyow
       defaults :ludicrous do
         setting :enabled, false
       end
-    end
-  end
-
-  configurable :server do
-    setting :restartable, true
-    deprecate :restartable
-
-    setting :host, "localhost"
-    remove_method :host=
-    def host=(value)
-      Pakyow.config.runnable.server.host = value
-    end
-    deprecate :host, solution: "use `config.runnable.server.host'"
-
-    setting :port, 3000
-    remove_method :port=
-    def port=(value)
-      Pakyow.config.runnable.server.port = value
-    end
-    deprecate :port, solution: "use `config.runnable.server.port'"
-
-    setting :count, 1
-    remove_method :count=
-    def count=(value)
-      Pakyow.config.runnable.server.count = value
-    end
-    deprecate :count, solution: "use `config.runnable.server.count'"
-
-    setting :proxy, true
-    deprecate :proxy
-
-    defaults :production do
-      setting :proxy, false
     end
   end
 
@@ -357,7 +314,6 @@ module Pakyow
   include Behavior::ReleaseChannels
   include Behavior::Rescuing
   include Behavior::Silencing
-  include Behavior::Tasks
   include Behavior::Timezone
   include Behavior::Running
   include Behavior::Watching
@@ -420,13 +376,6 @@ module Pakyow
 
       @output
     end
-
-    # @deprecated Use {output} instead.
-    #
-    def global_logger
-      output
-    end
-    deprecate :global_logger, solution: "use `output'"
 
     # Logger instance for the environment.
     #
@@ -665,12 +614,6 @@ module Pakyow
         )
       )
     end
-
-    # @deprecated
-    def load_apps
-      load_apps_common
-    end
-    deprecate :load_apps
 
     private def load_apps_common
       application_path = File.join(config.root, "config/application.rb")

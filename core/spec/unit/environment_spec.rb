@@ -379,11 +379,6 @@ RSpec.describe Pakyow do
         expect(Kernel).to_not receive(:load).with(Pakyow.config.environment_path + "rb")
         Pakyow.load
       end
-
-      it "does not call load_apps" do
-        expect(Pakyow).to_not receive(:load_apps)
-        Pakyow.load
-      end
     end
 
     describe "idempotence" do
@@ -398,16 +393,6 @@ RSpec.describe Pakyow do
 
         expect(Pakyow).to have_received(:performing).with(:load).exactly(:once)
       end
-    end
-  end
-
-  describe "::load_apps" do
-    after do
-      Pakyow.load_apps
-    end
-
-    it "is deprecated" do
-      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(Pakyow, :load_apps, { solution: "do not use" })
     end
   end
 
@@ -886,24 +871,6 @@ RSpec.describe Pakyow do
   describe "::logger" do
     it "is memoized" do
       expect(Pakyow.logger).to be(Pakyow.logger)
-    end
-  end
-
-  describe "::global_logger" do
-    it "is deprecated" do
-      expect(Pakyow::Support::Deprecator.global).to receive(:deprecated).with(
-        Pakyow, :global_logger, solution: "use `output'"
-      )
-
-      Pakyow.global_logger
-    end
-
-    it "calls ::output" do
-      expect(Pakyow).to receive(:output).at_least(:once).and_call_original
-
-      Pakyow::Support::Deprecator.global.ignore do
-        Pakyow.global_logger
-      end
     end
   end
 

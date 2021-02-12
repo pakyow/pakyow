@@ -1,7 +1,6 @@
 require "irb"
 
 require "pakyow/cli"
-require "pakyow/task"
 
 RSpec.describe "cli: irb" do
   include_context "command"

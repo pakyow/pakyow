@@ -4,7 +4,6 @@ require "async/reactor"
 require "async/io/shared_endpoint"
 require "async/http/endpoint"
 
-require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
 require_relative "../errors"
@@ -186,18 +185,6 @@ module Pakyow
       end
 
       class_methods do
-        extend Support::Deprecatable
-
-        def process(name, restartable: true, &block)
-          container(:environment).service(name, restartable: restartable) do
-            def perform
-              block.call
-            end
-          end
-        end
-
-        deprecate :process, solution: "define services directly on `Pakyow.container(:environment)'"
-
         # Runs the environment by defining the shared endpoint and running the top-level container.
         #
         # @param env [Symbol] the environment to run

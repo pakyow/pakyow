@@ -60,12 +60,6 @@ module Pakyow
       File.join(config.src, "lib")
     end
 
-    configurable :tasks do
-      setting :prelaunch, []
-
-      deprecate :prelaunch
-    end
-
     include Support::Definable
     include Support::Handleable
     include Support::Hookable

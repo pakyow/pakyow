@@ -2,7 +2,6 @@
 
 require_relative "class_state"
 require_relative "deep_dup"
-require_relative "deprecatable"
 require_relative "extension"
 require_relative "isolable"
 require_relative "makeable"
@@ -211,8 +210,6 @@ module Pakyow
       end
 
       class_methods do
-        extend Deprecatable
-
         # Register a type of state that can be defined by `name`.
         #
         # = Argument Building
@@ -307,11 +304,6 @@ module Pakyow
         def define(&block)
           class_eval(&block)
         end
-
-        def state(type)
-          __definable_registries[type.to_sym]
-        end
-        deprecate :state, solution: "call the corresponding method for `type'"
 
         # @api private
         def inherited(subclass)

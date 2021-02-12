@@ -59,19 +59,6 @@ module Pakyow
       super(output, level: level)
     end
 
-    # Temporarily silences logs, up to +temporary_level+.
-    #
-    # @deprecated Use {Pakyow::Logger::ThreadLocal#silence} instead.
-    #
-    def silence(temporary_level = :error)
-      original_level = @level
-      self.level = self.class.const_get(:LEVELS)[temporary_level]
-      yield
-    ensure
-      self.level = original_level
-    end
-    deprecate :silence, solution: "use `Pakyow::Logger::ThreadLocal#silence'"
-
     LEVELS.keys.each do |method|
       class_eval <<~CODE, __FILE__, __LINE__ + 1
         def #{method}(message = nil, &block)

@@ -156,26 +156,6 @@ RSpec.describe Pakyow::Support::DeepFreeze do
     end
   end
 
-  describe "::unfreezeable" do
-    before do
-      allow(Pakyow::Support::Deprecator.global).to receive(:deprecated)
-    end
-
-    it "is deprecated" do
-      expect(
-        Pakyow::Support::Deprecator.global
-      ).to receive(:deprecated).with(unfreezable_class, :unfreezable, solution: "use `insulate'")
-
-      unfreezable_class.unfreezable :foo
-    end
-
-    it "calls ::insulate" do
-      expect(unfreezable_class).to receive(:insulate).with(:foo)
-
-      unfreezable_class.unfreezable :foo
-    end
-  end
-
   describe "freeze hooks" do
     let(:hooked_object) {
       hooked_class.new

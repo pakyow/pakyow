@@ -36,15 +36,6 @@ module Pakyow
       @endpoints << endpoint
     end
 
-    def load(object_with_endpoints)
-      if object_with_endpoints.respond_to?(:endpoints)
-        object_with_endpoints.endpoints.each do |endpoint|
-          self << endpoint
-        end
-      end
-    end
-    deprecate :load, solution: "build endpoints explicitly"
-
     # Builds the path to a named route.
     #
     # @example Build the path to the +new+ route within the +post+ group:

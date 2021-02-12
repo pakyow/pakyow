@@ -89,11 +89,6 @@ module Pakyow
       @__values.key?(value_key) || super
     end
 
-    def values
-      @__values
-    end
-    deprecate :values, solution: "prefer value methods"
-
     private def deprecated_method_reference(target)
       target = if target.is_a?(Symbol) && target.to_s[-1] == "="
         target[0..-2].to_sym

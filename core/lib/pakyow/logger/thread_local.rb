@@ -13,13 +13,7 @@ module Pakyow
     class ThreadLocal
       include Support::ThreadLocalizer
 
-      def initialize(default_logger, key: nil)
-        if key.nil?
-          Pakyow.deprecated "default value for `#{self.class}' argument `key'", solution: "pass value for `key'"
-
-          key = :pakyow_logger
-        end
-
+      def initialize(default_logger, key:)
         @default, @key = default_logger, :"logger_thread_local_#{key}"
       end
 

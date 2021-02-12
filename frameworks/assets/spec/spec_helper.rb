@@ -9,7 +9,6 @@ start_simplecov do
 end
 
 require "pakyow/assets"
-require "pakyow/assets/babel"
 
 require_relative "../../../spec/helpers/command_helpers"
 require_relative "../../../spec/helpers/mock_handler"
@@ -46,10 +45,6 @@ RSpec.configure do |spec_config|
         end
       end
     end
-  end
-
-  spec_config.after do
-    Pakyow::Assets::Babel.instance_variable_set(:@context, nil)
   end
 
   spec_config.include CommandHelpers

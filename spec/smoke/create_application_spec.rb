@@ -64,23 +64,10 @@ RSpec.describe "creating an application in an existing project", :repeatable, sm
           end
         SOURCE
       end
-
-      default_application_lib_test_path = default_application_lib_path.join("test.rb")
-      FileUtils.mkdir_p(default_application_lib_test_path.dirname)
-
-      File.open(default_application_lib_test_path, "w+") do |file|
-        file.write <<~SOURCE
-          # intentionally empty
-        SOURCE
-      end
     end
 
     let(:default_application_backend_path) {
       project_path.join("backend")
-    }
-
-    let(:default_application_lib_path) {
-      project_path.join("backend/lib")
     }
 
     it "relocates config" do
@@ -89,10 +76,6 @@ RSpec.describe "creating an application in an existing project", :repeatable, sm
 
     it "relocates initializers" do
       expect(project_path.join("apps/smoke_test/config/initializers/application/test.rb").exist?).to be(true)
-    end
-
-    it "relocates lib" do
-      expect(project_path.join("apps/smoke_test/backend/lib/test.rb").exist?).to be(true)
     end
 
     it "relocates backend" do
@@ -129,7 +112,6 @@ RSpec.describe "creating an application in an existing project", :repeatable, sm
             Pakyow.app :smoke_test do
               configure do
                 config.src = File.join(config.root, "custom-backend")
-                config.lib = File.join(config.root, "custom-lib")
                 config.presenter.path = File.join(config.root, "custom-frontend")
                 config.assets.path = File.join(config.presenter.path, "custom-assets")
                 config.assets.public_path = File.join(config.root, "custom-public")
@@ -146,14 +128,6 @@ RSpec.describe "creating an application in an existing project", :repeatable, sm
       let(:default_application_backend_path) {
         project_path.join("custom-backend")
       }
-
-      let(:default_application_lib_path) {
-        project_path.join("custom-lib")
-      }
-
-      it "relocates lib" do
-        expect(project_path.join("apps/smoke_test/custom-lib/test.rb").exist?).to be(true)
-      end
 
       it "relocates backend" do
         expect(project_path.join("apps/smoke_test/custom-backend/controllers/root.rb").exist?).to be(true)

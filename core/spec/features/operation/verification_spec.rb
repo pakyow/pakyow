@@ -23,9 +23,11 @@ RSpec.describe "verifying operation values" do
   context "verification succeeds" do
     it "calls the pipeline with sanitized values" do
       Pakyow.app(:test).operations.test(foo: "foo", bar: "bar", baz: "baz").tap do |operation|
-        Pakyow::Support::Deprecator.global.ignore do
-          expect(operation.values).to eq(foo: "foo", bar: "bar")
-        end
+        expect {
+          operation.baz
+        }.to raise_error(NoMethodError)
+
+        expect(operation.instance_variable_defined?(:@baz)).to be(false)
       end
     end
   end
