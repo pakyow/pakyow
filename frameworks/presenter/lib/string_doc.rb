@@ -635,7 +635,7 @@ class StringDoc
       end
 
       labels[:plug] = {
-        name: plug_name[1..-1].to_sym,
+        name: plug_name[1..].to_sym,
         instance: plug_instance.to_sym
       }
 
@@ -659,7 +659,7 @@ class StringDoc
       labels[:binding_prop] = binding_prop
     end
 
-    channel.concat(binding_parts[1..-1])
+    channel.concat(binding_parts[1..])
     labels[:channeled_binding] = [binding_name].concat(channel).join(":").to_sym
     labels[:plural_channeled_binding] = [plural_binding_name].concat(channel).join(":").to_sym
     labels[:singular_channeled_binding] = [singular_binding_name].concat(channel).join(":").to_sym

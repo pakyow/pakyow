@@ -78,9 +78,9 @@ module Pakyow
                 case @options_args[0]
                 when Class
                   if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
-                    build_object(@options_args[0].new(*@options_args[1..-1]))
+                    build_object(@options_args[0].new(*@options_args[1..]))
                   else
-                    build_object(@options_args[0].new(*@options_args[1..-1], **@options_kwargs))
+                    build_object(@options_args[0].new(*@options_args[1..], **@options_kwargs))
                   end
                 when Proc
                   build_block(@target, @options_args[0])

@@ -51,7 +51,7 @@ module Pakyow
       def create_matcher_from_path(path)
         converted_path = String.normalize_path(path.split("/").map { |segment|
           if segment.include?(":")
-            "(?<#{segment[(segment.index(":") + 1)..-1]}>(\\w|[-~:@!$\\'\\(\\)\\*\\+,;])+)"
+            "(?<#{segment[(segment.index(":") + 1)..]}>(\\w|[-~:@!$\\'\\(\\)\\*\\+,;])+)"
           else
             segment
           end
@@ -68,7 +68,7 @@ module Pakyow
           @params = String.normalize_path(File.join(@path.to_s, @route.path)).split("/").select { |segment|
             segment.include?(":")
           }.map { |segment|
-            segment[(segment.index(":") + 1)..-1].to_sym
+            segment[(segment.index(":") + 1)..].to_sym
           }
         end
 

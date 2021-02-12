@@ -44,7 +44,7 @@ module Pakyow
 
       def packed(path)
         if path.start_with?(@public_path + ".")
-          @packed[File.extname(path)[1..-1].to_sym]
+          @packed[File.extname(path)[1..].to_sym]
         end
       end
 

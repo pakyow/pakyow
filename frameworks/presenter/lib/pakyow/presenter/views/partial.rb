@@ -11,7 +11,7 @@ module Pakyow
         class << self
           def load(path, content: nil, **args)
             name = File.basename(path, ".*")
-            name = name[1..-1] if name.start_with?("_")
+            name = name[1..] if name.start_with?("_")
             new(name.to_sym, content || File.read(path), **args)
           end
 

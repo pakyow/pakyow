@@ -109,7 +109,7 @@ module Pakyow
               template_store.paths.each do |view_path|
                 template_info = template_store.info(view_path)
 
-                page_pack = isolated(:Pack).new(:"#{template_info[:page].logical_path[1..-1]}", config.assets)
+                page_pack = isolated(:Pack).new(:"#{template_info[:page].logical_path[1..]}", config.assets)
                 register_pack_with_view(page_pack, template_info[:page])
 
                 # Find all partials used by the page.

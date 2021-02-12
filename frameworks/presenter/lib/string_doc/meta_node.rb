@@ -20,7 +20,7 @@ class StringDoc
           parent.replace_node(children.first, self)
         end
 
-        children[1..-1].each do |node|
+        children[1..].each do |node|
           # Remove the node, but don't make it appear to have been removed for transforms.
           #
           node.remove(false, false)

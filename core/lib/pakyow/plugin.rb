@@ -39,7 +39,7 @@ module Pakyow
       if object_name
         if object_name.namespace.parts.any?
           parts = object_name.namespace.parts
-          parts = parts[parts.index(plugin_name)..-1]
+          parts = parts[parts.index(plugin_name)..]
           parts.pop if parts.last == :default
           parts.join("_").to_sym
         else

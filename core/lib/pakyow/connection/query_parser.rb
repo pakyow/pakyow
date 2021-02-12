@@ -133,7 +133,7 @@ module Pakyow
               if (next_char = key[j]) && next_char != "["
                 raise InvalidParameter, "expected `#{nested}' to be #{params.class} (got String)"
               else
-                add_value_for_key(value, (nested || +"") << key[j..-1], nested_value, depth + 1)
+                add_value_for_key(value, (nested || +"") << key[j..], nested_value, depth + 1)
                 break
               end
             elsif opened

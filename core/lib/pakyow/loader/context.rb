@@ -94,7 +94,7 @@ module Pakyow
         if lines.empty? || line_number == 1
           ["", code]
         else
-          [lines[0...(line_number - 1)].join, lines[(line_number - 1)..-1].join]
+          [lines[0...(line_number - 1)].join, lines[(line_number - 1)..].join]
         end
       end
 

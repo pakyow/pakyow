@@ -240,7 +240,7 @@ module Pakyow
                 opts[:path]
               end
             else
-              String.normalize_path(opts[:path])[1..-1]
+              String.normalize_path(opts[:path])[1..]
             end
 
             opts[:path] = database

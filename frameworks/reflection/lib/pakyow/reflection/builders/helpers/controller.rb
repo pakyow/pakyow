@@ -50,7 +50,7 @@ module Pakyow
             controller_name = if path == "/"
               :root
             else
-              String.normalize_path(path)[1..-1].tr("/", "_").to_sym
+              String.normalize_path(path)[1..].tr("/", "_").to_sym
             end
 
             method = if context.is_a?(Class) && context.ancestors.include?(Pakyow::Routing::Controller)
