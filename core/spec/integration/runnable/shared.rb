@@ -1,3 +1,5 @@
+require "timeout"
+
 RSpec.shared_context "runnable container" do
   before do
     if run_options[:strategy] == :threaded

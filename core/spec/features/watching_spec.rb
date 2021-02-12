@@ -1,4 +1,5 @@
 require "fileutils"
+require "timeout"
 
 RSpec.describe "watching files from the environment", :repeatable do
   before do
