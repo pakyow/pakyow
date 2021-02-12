@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Improve the reliability of container/service notifiers.**
+
+    *Related links:*
+    - [Pull Request #552][pr-552]
+
   * `chg` **Remove v1.0 deprecations.**
 
     *Related links:*

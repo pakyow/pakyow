@@ -21,29 +21,16 @@ module Pakyow
         @path = File.join(Dir.tmpdir, "pakyow-#{::Process.pid}-#{SecureRandom.hex(4)}.sock")
         @notification = ::Async::Notification.new
         @socket = Pakyow.async { ::Async::IO::Endpoint.unix(@path, :DGRAM).bind }.wait
-        @endpoint = ::Async::IO::Endpoint.unix(@path, ::Socket::SOCK_DGRAM)
       end
 
       def notify(event, **payload)
-        if running?
-          message = {event: event, payload: payload}
-
-          if ::Async::Task.current?
-            Pakyow.async {
-              @endpoint.connect do |connection|
-                connection.sendmsg(Marshal.dump(message))
-              end
-            }.wait
-          else
-            begin
-              socket = Socket.new(Socket::AF_UNIX, Socket::SOCK_DGRAM, 0)
-              socket.connect(Socket.pack_sockaddr_un(@path))
-              socket.sendmsg(Marshal.dump(message))
-            ensure
-              socket&.close
-            end
-          end
-        end
+        message = {event: event, payload: payload}
+        socket = Socket.new(Socket::AF_UNIX, Socket::SOCK_DGRAM, 0)
+        socket.connect(Socket.pack_sockaddr_un(@path))
+        socket.sendmsg(Marshal.dump(message))
+      rescue SystemCallError
+      ensure
+        socket&.close
       end
 
       def listen
@@ -72,16 +59,11 @@ module Pakyow
           @socket.close
         }.wait
 
-        if File.exist?(@path)
-          FileUtils.rm(@path)
-        end
-
         @socket = nil
-        @endpoint = nil
       end
 
       def running?
-        File.exist?(@path)
+        @socket&.connected?
       end
 
       private def receive
