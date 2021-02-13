@@ -32,7 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "method_source", "~> 1.0"
   spec.add_dependency "mini_mime", "~> 1.0"
   spec.add_dependency "multipart-parser", "~> 0.1.1"
-  spec.add_dependency "process-group", "~> 1.2"
   spec.add_dependency "rake", "~> 13.0"
   spec.add_dependency "tty-command", "~> 0.10.0"
 end
