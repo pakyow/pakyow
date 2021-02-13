@@ -11,7 +11,7 @@ module Pakyow
           class Finalizer < Migrator
             attr_reader :migrations
 
-            def initialize(*, **)
+            def initialize(...)
               super
 
               @migrations = []

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "../extension"
-require_relative "../system"
 
 module Pakyow
   module Support
@@ -12,20 +11,10 @@ module Pakyow
         extend Support::Extension
 
         prepend_methods do
-          if System.ruby_version < "2.7.0"
-            def initialize(*)
-              __common_pipeline_object_initialize
-              super
-            end
-          else
-            def initialize(*, **)
-              __common_pipeline_object_initialize
-              super
-            end
-          end
-
-          private def __common_pipeline_object_initialize
+          def initialize(...)
             @__halted = @__rejected = false
+
+            super
           end
         end
 

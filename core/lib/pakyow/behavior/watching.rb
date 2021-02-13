@@ -2,7 +2,6 @@
 
 require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
-require "pakyow/support/system"
 
 require_relative "../filewatcher"
 require_relative "running/ensure_booted"
@@ -24,20 +23,10 @@ module Pakyow
         container(:environment).service :watcher, restartable: false, limit: 1 do
           include Running::EnsureBooted
 
-          if Support::System.ruby_version < "2.7.0"
-            def initialize(*)
-              __common_watching_behavior_initializer
-              super
-            end
-          else
-            def initialize(*, **)
-              __common_watching_behavior_initializer
-              super
-            end
-          end
-
-          private def __common_watching_behavior_initializer
+          def initialize(...)
             @filewatcher = Filewatcher.new
+
+            super
           end
 
           def count

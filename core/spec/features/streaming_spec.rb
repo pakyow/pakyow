@@ -63,36 +63,6 @@ RSpec.describe "streaming responses" do
     end
   end
 
-  context "blocking during a stream" do
-    let :action do
-      Proc.new do |connection|
-        connection.stream do |task|
-          sleep(0.01)
-          connection << "foo"
-        end
-      end
-    end
-
-    before do
-      Pakyow::Connection.before "finalize" do
-        write "finalize"
-      end
-    end
-
-    after do
-      Pakyow::Connection.__hook_hash[:before].clear
-      Pakyow::Connection.__hook_pipeline[:before].clear
-    end
-
-    it "blocks the connection from being finalized" do
-      response = call("/", tuple: false)
-
-      expect(response.body.read).to eq("foo")
-      expect(response.body.read).to eq("finalize")
-      expect(response.body.read).to be(nil)
-    end
-  end
-
   describe "streaming multiple times" do
     let :action do
       Proc.new do |connection|

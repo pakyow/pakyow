@@ -121,14 +121,14 @@ module Pakyow
       end
 
       # @api private
-      def required(*)
+      def required(...)
         return_value = super
         define_attributes_for_verifier(__verifiers[:default])
         return_value
       end
 
       # @api private
-      def optional(*)
+      def optional(...)
         return_value = super
         define_attributes_for_verifier(__verifiers[:default])
         return_value

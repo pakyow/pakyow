@@ -7,7 +7,6 @@ require_relative "../core_refinements/unbound_method/introspection"
 require_relative "../core_refinements/proc/introspection"
 
 require_relative "../inspectable"
-require_relative "../system"
 
 module Pakyow
   module Support
@@ -39,22 +38,12 @@ module Pakyow
           callable.call(context, *args, **kwargs, &next_action)
         end
 
-        if System.ruby_version < "2.7.0"
-          def freeze(*)
-            __common_pipeline_action_freeze
-            super
-          end
-        else
-          def freeze(*, **)
-            __common_pipeline_action_freeze
-            super
-          end
-        end
-
-        private def __common_pipeline_action_freeze
+        def freeze(...)
           # Finalize the action before it's frozen.
           #
           callable
+
+          super
         end
 
         # @api private
@@ -77,11 +66,7 @@ module Pakyow
               if @options_args[0]
                 case @options_args[0]
                 when Class
-                  if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
-                    build_object(@options_args[0].new(*@options_args[1..]))
-                  else
-                    build_object(@options_args[0].new(*@options_args[1..], **@options_kwargs))
-                  end
+                  build_object(@options_args[0].new(*@options_args[1..], **@options_kwargs))
                 when Proc
                   build_block(@target, @options_args[0])
                 else
@@ -91,11 +76,7 @@ module Pakyow
                 build_method(@def_context.instance_method(@target))
               end
             when Class
-              if Support::System.ruby_version < "2.7.0" && @options_kwargs.empty?
-                build_object(@target.new(*@options_args))
-              else
-                build_object(@target.new(*@options_args, **@options_kwargs))
-              end
+              build_object(@target.new(*@options_args, **@options_kwargs))
             when Proc
               build_block(nil, @target)
             else

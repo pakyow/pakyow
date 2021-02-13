@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `chg` **Support Ruby 3, Drop 2.6.**
+
+    *Related links:*
+    - [Pull Request #553][pr-553]
+
   * `chg` **Remove v1.0 deprecations.**
 
     *Related links:*
@@ -75,6 +80,7 @@
     - [Pull Request #376][pr-376]
     - [Commit ec13cdd][ec13cdd]
 
+[pr-553]: https://github.com/pakyow/pakyow/pull/553
 [pr-551]: https://github.com/pakyow/pakyow/pull/551
 [pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-539]: https://github.com/pakyow/pakyow/pull/539

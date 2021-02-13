@@ -6,7 +6,6 @@ require "concurrent/hash"
 
 require_relative "class_state"
 require_relative "extension"
-require_relative "system"
 
 require_relative "configurable/config"
 
@@ -163,20 +162,10 @@ module Pakyow
       end
 
       prepend_methods do
-        if System.ruby_version < "2.7.0"
-          def initialize(*)
-            __common_configurable_initialize
-            super
-          end
-        else
-          def initialize(*, **)
-            __common_configurable_initialize
-            super
-          end
-        end
-
-        private def __common_configurable_initialize
+        def initialize(...)
           @config = self.class.config.dup.update_configurable(self)
+
+          super
         end
       end
 

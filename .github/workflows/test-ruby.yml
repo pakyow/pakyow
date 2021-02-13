@@ -19,8 +19,8 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - 2.6.6
           - 2.7.2
+          - 3.0.0
 
         gem:
           - assets
@@ -64,8 +64,8 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - 2.6.6
           - 2.7.2
+          - 3.0.0
 
         gem:
           - form
@@ -125,8 +125,8 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - 2.6.6
           - 2.7.2
+          - 3.0.0
 
         gem:
           - data
@@ -185,8 +185,8 @@ jobs:
     strategy:
       matrix:
         ruby:
-          - 2.6.6
           - 2.7.2
+          - 3.0.0
 
         gem:
           - data

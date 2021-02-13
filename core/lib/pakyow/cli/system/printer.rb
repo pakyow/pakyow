@@ -7,7 +7,7 @@ module Pakyow
     module System
       # @api private
       class Printer < TTY::Command::Printers::Abstract
-        def initialize(*, **)
+        def initialize(...)
           super
 
           @buffer = +""
