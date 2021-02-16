@@ -43,7 +43,7 @@ command :create, :application do
       Pakyow.generator(:application, template.to_sym)
     end
 
-    generatable_name = Generator.generatable_name(@name)
+    generatable_name = Pakyow::Generator.generatable_name(@name)
     generator.generate(multiapp_path.join(generatable_name), name: generatable_name, path: @path)
   end
 

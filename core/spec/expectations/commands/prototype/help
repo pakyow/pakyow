@@ -5,7 +5,7 @@
 
 [1mOPTIONS[0m
   -e, --env=env        [33mThe environment to run this command under[0m
+  -c, --config=config  [33mPath to the environment config file (default: config/environment)[0m
       --host=host      [33mThe host the server runs on (default: localhost)[0m
   -p, --port=port      [33mThe port the server runs on (default: 3000)[0m
-  -c, --config=config  [33mPath to the environment config file (default: config/environment)[0m
       --debug          [33mShow low-level debugging information[0m

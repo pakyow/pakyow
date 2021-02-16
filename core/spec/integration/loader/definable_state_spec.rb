@@ -69,6 +69,16 @@ RSpec.describe "loading definable state" do
     end
   end
 
+  describe "comments only definition" do
+    let(:loader_path) {
+      File.expand_path("../support/definable_state/comments_only.rb", __FILE__)
+    }
+
+    it "defines correctly" do
+      expect(target.state.definitions).to be_empty
+    end
+  end
+
   describe "unnamed target" do
     let(:target) {
       Class.new(super())

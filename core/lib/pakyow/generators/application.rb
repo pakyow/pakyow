@@ -25,6 +25,6 @@ generator :application do
   end
 
   def human_name
-    Support.inflector.humanize(name)
+    Pakyow::Support.inflector.humanize(name)
   end
 end

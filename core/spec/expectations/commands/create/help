@@ -8,6 +8,6 @@
 
 [1mOPTIONS[0m
   -e, --env=env            [33mThe environment to run this command under[0m
-  -t, --template=template  [33mThe template to create the project from (default: default)[0m
   -c, --config=config      [33mPath to the environment config file (default: config/environment)[0m
+  -t, --template=template  [33mThe template to create the project from (default: default)[0m
       --debug              [33mShow low-level debugging information[0m
