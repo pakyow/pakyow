@@ -33,6 +33,16 @@ RSpec.describe "loading in the correct lexical scope" do
     end
   end
 
+  describe "nesting" do
+    let(:loader_path) {
+      File.expand_path("../support/lexical_scope/nesting.rb", __FILE__)
+    }
+
+    it "is correctly nested" do
+      expect(target.state(:foo).nesting).to eq([Target::States::Foo])
+    end
+  end
+
   context "with brackets" do
     let(:loader_path) {
       File.expand_path("../support/lexical_scope/brackets.rb", __FILE__)

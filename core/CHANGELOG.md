@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Load files with the expected module nesting.**
+
+    *Related links:*
+    - [Pull Request #554][pr-554]
+
   * `chg` **Support Ruby 3, Drop 2.6.**
 
     *Related links:*
@@ -820,6 +825,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-554]: https://github.com/pakyow/pakyow/pull/554
 [pr-553]: https://github.com/pakyow/pakyow/pull/553
 [pr-551]: https://github.com/pakyow/pakyow/pull/551
 [pr-550]: https://github.com/pakyow/pakyow/pull/550

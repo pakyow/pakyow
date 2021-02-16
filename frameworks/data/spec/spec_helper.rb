@@ -1,3 +1,6 @@
+require "timeout"
+require "concurrent/executor/thread_pool_executor"
+
 start_simplecov do
   lib_path = File.expand_path("../../lib", __FILE__)
 

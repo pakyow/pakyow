@@ -10,10 +10,6 @@ command :boot, boot: false do
 
   option :mounts, "The application(s) to mount", default: -> { Pakyow.config.mounts }
 
-  verify do
-    optional :env
-  end
-
   action do
     Pakyow.config.mounts = case @mounts
     when String
