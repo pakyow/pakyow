@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Load comment-only files.**
+
+    *Related links:*
+    - [Pull Request #555][pr-555]
+
   * `fix` **Load files with the expected module nesting.**
 
     *Related links:*
@@ -825,6 +830,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-555]: https://github.com/pakyow/pakyow/pull/555
 [pr-554]: https://github.com/pakyow/pakyow/pull/554
 [pr-553]: https://github.com/pakyow/pakyow/pull/553
 [pr-551]: https://github.com/pakyow/pakyow/pull/551
