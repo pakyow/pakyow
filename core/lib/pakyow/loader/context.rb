@@ -114,12 +114,14 @@ module Pakyow
       private def split_comments(code)
         lines = code.lines
 
-        line_number = first_nonblank_or_commented_line_number(lines)
-
-        if lines.empty? || line_number == 1
-          ["", code]
+        if (line_number = first_nonblank_or_commented_line_number(lines))
+          if lines.empty? || line_number == 1
+            ["", code]
+          else
+            [lines[0...(line_number - 1)].join, lines[(line_number - 1)..].join]
+          end
         else
-          [lines[0...(line_number - 1)].join, lines[(line_number - 1)..].join]
+          [lines.join, ""]
         end
       end
 
