@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't wrap nil request bodies.**
+
+    *Related links:*
+    - [Pull Request #556][pr-556]
+
   * `fix` **Load comment-only files.**
 
     *Related links:*
@@ -830,6 +835,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-556]: https://github.com/pakyow/pakyow/pull/556
 [pr-555]: https://github.com/pakyow/pakyow/pull/555
 [pr-554]: https://github.com/pakyow/pakyow/pull/554
 [pr-553]: https://github.com/pakyow/pakyow/pull/553
