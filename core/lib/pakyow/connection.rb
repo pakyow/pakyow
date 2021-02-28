@@ -128,7 +128,9 @@ module Pakyow
 
     # @api private
     def wrap_input
-      @__input = yield(@request.body)
+      if @request.body
+        @__input = yield(@request.body)
+      end
     end
 
     def parsed_input
