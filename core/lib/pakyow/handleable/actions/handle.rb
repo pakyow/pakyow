@@ -9,10 +9,10 @@ module Pakyow
             yield
           rescue => error
             connection.error = error
-            Pakyow.houston(error)
             raise error
           end
-        rescue
+        rescue => error
+          Pakyow.houston(error)
           connection.trigger 500
         end
       end

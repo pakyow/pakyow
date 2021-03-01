@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Report errors to houston only when they are unhandled.**
+
+    *Related links:*
+    - [Pull Request #557][pr-557]
+
   * `fix` **Don't wrap nil request bodies.**
 
     *Related links:*
@@ -835,6 +840,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-557]: https://github.com/pakyow/pakyow/pull/557
 [pr-556]: https://github.com/pakyow/pakyow/pull/556
 [pr-555]: https://github.com/pakyow/pakyow/pull/555
 [pr-554]: https://github.com/pakyow/pakyow/pull/554
