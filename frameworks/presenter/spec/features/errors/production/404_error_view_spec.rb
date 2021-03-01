@@ -14,6 +14,12 @@ RSpec.describe "404 error views in production" do
     expect(call("/missing")[2]).to include("404 (Not Found)")
   end
 
+  it "does not report to houston" do
+    expect(Pakyow).not_to receive(:houston)
+
+    call("/missing")
+  end
+
   context "app defines its own 404 page" do
     let :app_def do
       Proc.new do
