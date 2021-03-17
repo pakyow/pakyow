@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
+require "core/async"
+
 require "pakyow/support/cli/runner"
 
 module Pakyow
   module Assets
     # @api private
     class External
+      include Is::Async
+
       attr_reader :name, :version, :package
 
       def initialize(name, version:, package:, files:, config:)
@@ -55,7 +59,7 @@ module Pakyow
           @package.to_s
         end
 
-        Pakyow.async(logger: Logger.null) {
+        await do
           downloader = Downloader.new(
             File.join(@config.externals.provider, CGI.escape(package_with_version), CGI.escape(file.to_s))
           ).perform
@@ -80,7 +84,7 @@ module Pakyow
           File.open(local_path, "w") do |fp|
             fp.write(downloader.body.to_s)
           end
-        }.result
+        end
       end
 
       require "uri"
