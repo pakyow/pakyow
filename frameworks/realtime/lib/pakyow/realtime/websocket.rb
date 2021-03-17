@@ -3,6 +3,8 @@
 require "json"
 require "securerandom"
 
+require "core/async"
+
 require "pakyow/application/helpers/app"
 require "pakyow/application/helpers/connection"
 
@@ -34,6 +36,8 @@ module Pakyow
           close
         end
       end
+
+      include Is::Async
 
       include Pakyow::Application::Helpers::Application
       include Pakyow::Application::Helpers::Connection
@@ -147,16 +151,16 @@ module Pakyow
       HEARTBEAT_INTERVAL = 1
 
       def start_heartbeat
-        @heartbeat = Async { |task|
+        @heartbeat = async {
           loop do
-            task.sleep(HEARTBEAT_INTERVAL)
+            sleep(HEARTBEAT_INTERVAL)
             beat
           end
         }
       end
 
       def stop_heartbeat
-        @heartbeat&.stop
+        @heartbeat&.cancel
       end
     end
   end
