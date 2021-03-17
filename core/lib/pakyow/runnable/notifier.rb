@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "core/async"
+
 require "async/notification"
 require "async/io/unix_endpoint"
 
@@ -11,6 +13,8 @@ module Pakyow
     #
     # @api private
     class Notifier
+      include Is::Async
+
       include Support::DeepFreeze
       insulate :child, :parent
 
@@ -20,7 +24,7 @@ module Pakyow
         @messages = []
         @path = File.join(Dir.tmpdir, "pakyow-#{::Process.pid}-#{SecureRandom.hex(4)}.sock")
         @notification = ::Async::Notification.new
-        @socket = Pakyow.async { ::Async::IO::Endpoint.unix(@path, :DGRAM).bind }.wait
+        @socket = await { ::Async::IO::Endpoint.unix(@path, :DGRAM).bind }
       end
 
       def notify(event, **payload)
@@ -34,7 +38,7 @@ module Pakyow
       end
 
       def listen
-        Pakyow.async { |task|
+        await do
           receive
 
           while running?
@@ -47,7 +51,7 @@ module Pakyow
 
             @notification.wait
           end
-        }.wait
+        end
       end
 
       def stop
@@ -55,9 +59,9 @@ module Pakyow
 
         @notification.signal
 
-        Pakyow.async {
+        await do
           @socket.close
-        }.wait
+        end
 
         @socket = nil
       end
@@ -67,7 +71,7 @@ module Pakyow
       end
 
       private def receive
-        Pakyow.async do
+        async do
           while running?
             message = Marshal.load(@socket.recvmsg(4096)[0])
             @messages << message

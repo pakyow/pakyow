@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "async"
+require "core/async"
 
 require "pakyow/support/inspectable"
 
@@ -12,6 +12,8 @@ module Pakyow
     require "pakyow/filewatcher/diff"
     require "pakyow/filewatcher/snapshot"
     require "pakyow/filewatcher/status"
+
+    include Is::Async
 
     include Support::Inspectable
     inspectable :@status, :@interval
@@ -73,7 +75,9 @@ module Pakyow
     # Runs the filewatcher.
     #
     def perform
-      run
+      await do
+        run
+      end
     end
     alias_method :start, :perform
 
@@ -101,42 +105,40 @@ module Pakyow
       @status.running! do
         snapshot = build_snapshot(@watched, @ignored)
 
-        Pakyow.async do |task|
-          until @status.stopped?
-            task.sleep(@interval)
+        until @status.stopped?
+          sleep(@interval)
 
-            if @status.running?
-              # Rebuild the snapshot if watched paths have changed.
-              #
-              unless snapshot.paths == @watched && snapshot.ignored == @ignored
-                snapshot = build_snapshot(@watched, @ignored)
-              end
+          if @status.running?
+            # Rebuild the snapshot if watched paths have changed.
+            #
+            unless snapshot.paths == @watched && snapshot.ignored == @ignored
+              snapshot = build_snapshot(@watched, @ignored)
+            end
 
-              # Lets us keep track of callbacks that were called in this tick.
-              #
-              called_callbacks = []
+            # Lets us keep track of callbacks that were called in this tick.
+            #
+            called_callbacks = []
 
-              # Look for changes.
+            # Look for changes.
+            #
+            snapshot = detect_changes(snapshot) { |(path, event), diff|
+              # Double check that we haven't paused or stopped when processing each change.
               #
-              snapshot = detect_changes(snapshot) { |(path, event), diff|
-                # Double check that we haven't paused or stopped when processing each change.
-                #
-                if @status.running?
-                  @callbacks.each do |callback|
-                    if callback.match?(path)
-                      if callback.snapshot?
-                        unless called_callbacks.include?(callback)
-                          called_callbacks << callback
-                          callback.call(diff)
-                        end
-                      else
-                        callback.call(path, event)
+              if @status.running?
+                @callbacks.each do |callback|
+                  if callback.match?(path)
+                    if callback.snapshot?
+                      unless called_callbacks.include?(callback)
+                        called_callbacks << callback
+                        callback.call(diff)
                       end
+                    else
+                      callback.call(path, event)
                     end
                   end
                 end
-              }
-            end
+              end
+            }
           end
         end
       end

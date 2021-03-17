@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "core/async"
+
 require "pakyow/support/class_state"
 require "pakyow/support/handleable"
 require "pakyow/support/inspectable"
@@ -104,6 +106,8 @@ module Pakyow
         end
       end
 
+      include Is::Async
+
       extend Support::ClassState
       class_state :strategy, default: nil, inheritable: true
       class_state :restartable, default: true, inheritable: true
@@ -184,7 +188,7 @@ module Pakyow
       # Runs the service, calling `perform`.
       #
       def run
-        Pakyow.async do
+        async do
           @notifier.listen do |event|
             case event
             when :stop
@@ -194,8 +198,8 @@ module Pakyow
           end
         end
 
-        Pakyow.async { |task|
-          task.async do
+        await do
+          async do
             perform
           rescue => error
             Pakyow.houston(error)
@@ -204,11 +208,6 @@ module Pakyow
           end
 
           @__blocked = false
-
-          # Wait for every child and subchild task to complete.
-          #
-        }.traverse do |task|
-          task.wait
         end
 
         if @notifier&.running?

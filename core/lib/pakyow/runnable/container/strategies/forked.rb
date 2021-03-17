@@ -40,9 +40,9 @@ module Pakyow
             # in `watch_forks`, so shutting down at the same time a service exits can cause the
             # service to appear failed when it in fact succeeeded.
             #
-            Pakyow.async {
+            await do
               @notifier.notify(:exit, service: service.id, status: service.status)
-            }.wait
+            end
 
             ::Process.exit(service.status.success?)
           end
@@ -88,9 +88,9 @@ module Pakyow
                       service.failed!
                     end
 
-                    Pakyow.async {
+                    await do
                       @notifier.notify(:exit, service: service.id, status: service.status)
-                    }.wait
+                    end
                   end
                 end
               rescue Errno::ECHILD

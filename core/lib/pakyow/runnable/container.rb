@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "core/async"
+
 require "pakyow/support/class_state"
 require "pakyow/support/deep_freeze"
 require "pakyow/support/definable"
@@ -107,6 +109,8 @@ module Pakyow
 
       DEFAULT_TIMEOUT_IN_SECONDS = 5
 
+      include Is::Async
+
       extend Support::ClassState
       class_state :restartable, default: true, inheritable: true
       class_state :toplevel_pid, default: ::Process.pid, inheritable: true
@@ -192,7 +196,7 @@ module Pakyow
 
           yield self if block_given?
 
-          Pakyow.async {
+          await do
             while running?
               @strategy.prepare(self)
               @strategy.run(self)
@@ -202,7 +206,7 @@ module Pakyow
                 stop
               end
             end
-          }.wait
+          end
 
           if toplevel_pid?
             success?

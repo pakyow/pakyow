@@ -113,8 +113,8 @@ RSpec.shared_examples :connection do
       }.wait
     end
 
-    it "returns the created async task" do
-      expect(connection.async).to be_instance_of(Async::Task)
+    it "returns a future" do
+      expect(connection.async).to be_instance_of(Core::Async::Future)
     end
 
     context "block given" do
@@ -184,7 +184,7 @@ RSpec.shared_examples :connection do
             end
 
             streams.each do |stream|
-              expect(stream).to receive(:stop)
+              expect(stream).to receive(:cancel)
             end
 
             expect(connection.streaming?).to be(true)

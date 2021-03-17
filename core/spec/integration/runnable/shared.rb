@@ -55,7 +55,7 @@ RSpec.shared_context "runnable container" do
     end
 
     thread = Thread.new {
-      Pakyow.async { |task|
+      Pakyow.async {
         instance.run
       }.wait
     }
@@ -88,7 +88,7 @@ RSpec.shared_context "runnable container" do
 
   def with_timeout(timeout)
     if timeout
-      Pakyow.async { |task|
+      Async { |task|
         task.with_timeout(timeout) do
           yield task
         end

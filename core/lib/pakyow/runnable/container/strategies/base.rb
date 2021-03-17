@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "core/async"
+
 require "pakyow/support/deep_freeze"
 require "pakyow/support/inspectable"
 
@@ -11,6 +13,8 @@ module Pakyow
       module Strategies
         # @api private
         class Base
+          include Is::Async
+
           include Support::DeepFreeze
           insulate :backoff, :resolver
 
@@ -102,14 +106,14 @@ module Pakyow
               when :stop
                 @stopping = true
 
-                @backoff&.stop
+                @backoff&.cancel
                 @backoff = nil
 
                 resolve(payload[:signal], timeout: container.options[:timeout])
               end
             end
           ensure
-            @resolver&.stop
+            @resolver&.cancel
             @resolver = nil
           end
 
@@ -199,9 +203,9 @@ module Pakyow
 
           private def run_service(service)
             wrap_service_run do
-              Pakyow.async {
+              await do
                 service.run
-              }.wait
+              end
             ensure
               service_finished(service)
             end
@@ -214,8 +218,8 @@ module Pakyow
           end
 
           private def backoff_service(service)
-            @backoff = Pakyow.async { |task|
-              task.sleep(current_service_backoff(service))
+            @backoff = async {
+              sleep(current_service_backoff(service))
 
               manage_service(service)
             }
@@ -237,8 +241,8 @@ module Pakyow
 
             @resolving = event
 
-            @resolver&.stop
-            @resolver = Pakyow.async { |task|
+            @resolver&.cancel
+            @resolver = async {
               start = current_time
 
               @services.each do |service|
@@ -253,7 +257,7 @@ module Pakyow
               end
 
               until (current_time - start) > timeout || @services.empty?
-                task.sleep 0.25
+                sleep(0.25)
               end
 
               if @services.empty?

@@ -9,7 +9,7 @@ module Pakyow
         # @api private
         class Async < Base
           private def invoke_service(service, &block)
-            Pakyow.async do |t|
+            async do
               yield
             ensure
               if service.status.unknown?
@@ -21,7 +21,7 @@ module Pakyow
           end
 
           private def terminate_service(service)
-            service.reference.stop
+            service.reference.cancel
           end
 
           private def wrap_service_run

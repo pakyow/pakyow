@@ -3,7 +3,8 @@
 require "cgi"
 require "securerandom"
 
-require "async"
+require "core/async"
+
 require "async/http"
 require "async/http/protocol/response"
 
@@ -30,6 +31,8 @@ module Pakyow
     require_relative "connection/params"
     require_relative "connection/query_parser"
     require_relative "connection/statuses"
+
+    include Is::Async
 
     using Support::DeepDup
     using Support::Indifferentize
@@ -322,26 +325,24 @@ module Pakyow
         @body = Async::HTTP::Body::Writable.new(length)
       end
 
-      @streams << async { |task|
+      @streams << async {
         begin
           yield self
         rescue => error
           @logger.error(error: error)
         end
-
-        @streams.delete(task)
       }
     end
 
     def streaming?
-      @streams.any?
+      @streams.any?(&:pending?)
     end
 
     def async
-      Async do |task|
+      super do
         Pakyow.logger.set(@__logger)
 
-        yield task if block_given?
+        yield if block_given?
       end
     end
 
@@ -361,15 +362,16 @@ module Pakyow
       performing :finalize do
         if request_method == "HEAD"
           if streaming?
-            @streams.each(&:stop)
-            @streams = []
+            while (stream = @streams.shift)
+              stream.cancel
+            end
           end
         end
 
         set_cookies
 
         if streaming?
-          Async::Reactor.run do
+          await do
             while (stream = @streams.shift)
               stream.wait
             end

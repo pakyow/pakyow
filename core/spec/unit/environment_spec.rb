@@ -730,18 +730,13 @@ RSpec.describe Pakyow do
     }
 
     it "returns an async reactor with the default logger target" do
-      expect(Async::Reactor).to receive(:run).and_return(async_context)
-      expect(Pakyow.async).to be(async_context)
+      expect(Pakyow.async).to be_instance_of(Core::Async::Future)
     end
 
     it "sets the logger for the async context" do
-      expect(Async::Reactor).to receive(:run) do |&block|
-        expect(Pakyow.logger).to receive(:set).with(default_logger_target)
-
-        block.call
+      Pakyow.async do
+        expect(Pakyow.logger.target).to be(default_logger_target)
       end
-
-      Pakyow.async
     end
 
     context "passed a logger" do
@@ -750,13 +745,9 @@ RSpec.describe Pakyow do
       }
 
       it "sets the logger for the async context" do
-        expect(Async::Reactor).to receive(:run) do |&block|
-          expect(Pakyow.logger).to receive(:set).with(logger)
-
-          block.call
+        Pakyow.async(logger: logger) do
+          expect(Pakyow.logger.target).to be(logger)
         end
-
-        Pakyow.async(logger: logger)
       end
     end
   end

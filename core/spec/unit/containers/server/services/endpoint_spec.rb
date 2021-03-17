@@ -28,7 +28,7 @@ RSpec.describe "server.endpoint service" do
       "#{scheme}://#{host}:#{port}"
     ).and_return(endpoint)
 
-    allow(Async::Reactor).to receive(:run) do |&block|
+    allow(service).to receive(:await) do |&block|
       allow(Async::IO::SharedEndpoint).to receive(:bound).with(endpoint).and_return(bound_endpoint)
       allow(bound_endpoint).to receive(:wait).and_return(bound_endpoint)
 

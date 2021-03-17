@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require "async/reactor"
+require "core/async"
+
 require "async/io/shared_endpoint"
 require "async/http/endpoint"
 
@@ -110,14 +111,16 @@ module Pakyow
             include EnsureBooted
 
             class << self
+              include Is::Async
+
               def prerun(options)
                 endpoint = Async::HTTP::Endpoint.parse(
                   "#{options[:config].server.scheme}://#{options[:config].server.host}:#{options[:config].server.port}"
                 )
 
-                bound_endpoint = Async::Reactor.run {
+                bound_endpoint = await {
                   Async::IO::SharedEndpoint.bound(endpoint)
-                }.wait
+                }
 
                 options[:endpoint] = bound_endpoint
                 options[:protocol] = endpoint.protocol

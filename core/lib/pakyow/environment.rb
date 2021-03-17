@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-require "async"
-
-# Completely take over the responsibility of logging.
-#
-Console.logger.off!
+require "core/async"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
@@ -349,6 +345,8 @@ module Pakyow
   class_state :setup_error, default: nil
 
   class << self
+    include Is::Async
+
     extend Support::Deprecatable
 
     # Name of the environment
@@ -594,10 +592,10 @@ module Pakyow
     def async(logger: nil)
       target = logger || self.logger.target
 
-      Async::Reactor.run do |task|
+      super() do
         Pakyow.logger.set(target)
 
-        yield task if block_given?
+        yield if block_given?
       end
     end
 
