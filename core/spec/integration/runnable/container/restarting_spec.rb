@@ -155,6 +155,95 @@ RSpec.describe "restarting a service that exits successfully", :repeatable, runn
   end
 end
 
+RSpec.describe "restarting a service that has not waited on async work", :repeatable, runnable: true do
+  include_context "runnable container"
+
+  shared_examples :examples do
+    before do
+      @message = "foo"
+
+      local = self
+
+      container.service :foo do
+        define_method :perform do
+          @stopped = false
+
+          message = local.message.dup
+          options[:toplevel].notify(message)
+
+          until @stopped do
+            ::Async::Task.current.sleep(0.25)
+          end
+
+          async do
+            loop do
+              sleep(1)
+            end
+          end
+        end
+
+        define_method :shutdown do
+          @stopped = true
+        end
+      end
+    end
+
+    def restart(instance)
+      sleep 1
+      @message = "bar"
+      instance.restart
+    end
+
+    attr_reader :message
+
+    it "restarts the container" do
+      run_container do |instance|
+        listen_for length: 1, timeout: 1 do |result|
+          expect(result.count("foo")).to eq(1)
+        end
+
+        restart(instance)
+
+        listen_for length: 2, timeout: 1 do |result|
+          expect(result.count("bar")).to eq(1)
+        end
+      end
+    end
+  end
+
+  context "forked container" do
+    let(:run_options) {
+      { strategy: :forked }
+    }
+
+    include_examples :examples
+  end
+
+  context "threaded container" do
+    let(:run_options) {
+      { strategy: :threaded }
+    }
+
+    include_examples :examples
+  end
+
+  context "hybrid container" do
+    let(:run_options) {
+      { strategy: :hybrid }
+    }
+
+    include_examples :examples
+  end
+
+  context "async container" do
+    let(:run_options) {
+      { strategy: :async }
+    }
+
+    include_examples :examples
+  end
+end
+
 RSpec.describe "restarting a failing service", :repeatable, runnable: true do
   include_context "runnable container"
 
