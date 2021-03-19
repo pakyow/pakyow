@@ -36,14 +36,6 @@ module Pakyow
               service.status.success!
             end
 
-            # This seems to resolve an issue where services aren't identified as exited fast enough
-            # in `watch_forks`, so shutting down at the same time a service exits can cause the
-            # service to appear failed when it in fact succeeeded.
-            #
-            await do
-              @notifier.notify(:exit, service: service.id, status: service.status)
-            end
-
             ::Process.exit(service.status.success?)
           end
 

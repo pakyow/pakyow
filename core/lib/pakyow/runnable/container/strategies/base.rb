@@ -93,13 +93,11 @@ module Pakyow
                     @failed = true
                   end
 
-                  @services.delete(service)
-
-                  if !stopping? && container.running? && service.restartable?
-                    if service.status.success?
-                      manage_service(service)
-                    else
+                  if @services.delete(service) && container.running? && service.restartable? && !stopping?
+                    if service.status.failed?
                       backoff_service(service)
+                    else
+                      manage_service(service)
                     end
                   end
                 end
