@@ -199,12 +199,14 @@ module Pakyow
         end
 
         await do
-          async do
+          future = async do
             perform
           rescue => error
             Pakyow.houston(error)
 
             failed!
+          ensure
+            future&.cancel
           end
 
           @__blocked = false
