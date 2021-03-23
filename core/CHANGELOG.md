@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't attempt to coerce nils in the verifier.**
+
+    *Related links:*
+    - [Pull Request #559][pr-559]
+
   * `fix` **Improve the reliability of service restarts.**
 
     *Related links:*
@@ -845,6 +850,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-559]: https://github.com/pakyow/pakyow/pull/559
 [pr-558]: https://github.com/pakyow/pakyow/pull/558
 [pr-557]: https://github.com/pakyow/pakyow/pull/557
 [pr-556]: https://github.com/pakyow/pakyow/pull/556
