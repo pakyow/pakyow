@@ -38,26 +38,57 @@ RSpec.describe Pakyow::Verifier do
     end
   end
 
-  describe "normalization" do
-    let :verifier do
-      described_class.new do
-        required :foo, :datetime
+  describe "coercion" do
+    context "type is defined for a required key" do
+      let :verifier do
+        described_class.new do
+          required :foo, :datetime
+        end
       end
-    end
 
-    let :values do
-      {
-        foo: "2019-06-14 09:15:39 -0700"
-      }
-    end
+      let :values do
+        {
+          foo: "2019-06-14 09:15:39 -0700"
+        }
+      end
 
-    context "type is defined for a key" do
-      it "typecasts the value" do
+      it "coerces the value" do
         expect(values[:foo]).to be_instance_of(Time)
       end
 
       it "represents the correct value" do
         expect(values[:foo].to_s).to eq("2019-06-14 09:15:39 -0700")
+      end
+    end
+
+    context "type is defined for an optional key" do
+      let :verifier do
+        described_class.new do
+          optional :foo, :decimal, default: 0
+        end
+      end
+
+      context "value is missing" do
+        let :values do
+          {
+          }
+        end
+
+        it "uses the default value" do
+          expect(values[:foo]).to eq(0)
+        end
+      end
+
+      context "value is nil" do
+        let :values do
+          {
+            foo: nil
+          }
+        end
+
+        it "uses the default value" do
+          expect(values[:foo]).to eq(0)
+        end
       end
     end
   end

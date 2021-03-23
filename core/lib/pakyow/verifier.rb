@@ -170,9 +170,9 @@ module Pakyow
       if !value.nil? && @allowable_keys.any?
         Array.ensure(value).each do |each_value|
           @allowable_keys.each do |allowable_key|
-            # Typecase the value for each key.
+            # Coerce the value for each key.
             #
-            if each_value.key?(allowable_key)
+            unless each_value[allowable_key].nil?
               value_for_key = each_value[allowable_key]
 
               if (type = @types[allowable_key])
