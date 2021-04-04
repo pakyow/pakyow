@@ -23,9 +23,15 @@ module Pakyow
           #
           watch File.join(config.root)
 
-          # Ignore the bootsnap cache.
+          # Explicitly watch environment files.
           #
-          ignore File.join(config.root, "tmp/cache/**/*")
+          watch File.join(config.root, ".env*")
+
+          # Ignore some common paths that shouldn't trigger restarts.
+          #
+          ignore File.join(config.root, ".git")
+          ignore File.join(config.root, "node_modules")
+          ignore File.join(config.root, "tmp/cache")
 
           # Restart when any file changes.
           #
