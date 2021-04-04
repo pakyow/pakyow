@@ -21,9 +21,14 @@ RSpec.describe "watching files from the environment", :repeatable do
       Pakyow.run(env: :test, formation: Pakyow::Runnable::Formation.parse(formation), strategy: :threaded)
     end
 
+    # FileUtils.touch(File.join(test_path, "test.txt"))
+
     Timeout.timeout(10) do
       until test_calls.count > 0
-        FileUtils.touch(File.join(test_path, "test.txt"))
+        File.open(File.join(test_path, "test.txt"), "w+") do |file|
+          file.write(rand)
+        end
+
         sleep(0.25)
       end
 
@@ -67,8 +72,8 @@ RSpec.describe "watching files from the environment", :repeatable do
   }
 
   let(:changed_callbacks) {
-    Pakyow.changed do |path, event|
-      calls << [path, event]
+    Pakyow.changed do |diff|
+      calls.concat(diff.each_change.to_a)
     end
   }
 
@@ -90,7 +95,7 @@ RSpec.describe "watching files from the environment", :repeatable do
       FileUtils.touch(changed_path)
     end
 
-    expect(calls).to include([changed_path, :added])
+    expect(calls).to include([Pathname(changed_path), :added])
   end
 
   it "does not call the callback when an ignored file changes" do
@@ -103,8 +108,8 @@ RSpec.describe "watching files from the environment", :repeatable do
 
   describe "defining a callback with a matcher" do
     let(:changed_callbacks) {
-      Pakyow.changed(/baz\.txt/) do |path, event|
-        calls << [path, event]
+      Pakyow.changed(/baz\.txt/) do |diff|
+        calls.concat(diff.each_change.to_a)
       end
     }
 
@@ -121,7 +126,7 @@ RSpec.describe "watching files from the environment", :repeatable do
         FileUtils.touch(matched_path)
       end
 
-      expect(calls).to include([matched_path, :added])
+      expect(calls).to include([Pathname(matched_path), :added])
     end
 
     it "does not call the callback for unmatched changes" do
@@ -130,31 +135,6 @@ RSpec.describe "watching files from the environment", :repeatable do
       end
 
       expect(calls.count).to eq(0)
-    end
-  end
-
-  describe "defining a callback for a snapshot" do
-    let(:changed_callbacks) {
-      Pakyow.changed snapshot: true do |snapshot|
-        calls << snapshot
-      end
-    }
-
-    let(:matched_path_1) {
-      File.join(path, "foo.txt")
-    }
-
-    let(:matched_path_2) {
-      File.join(path, "bar.txt")
-    }
-
-    it "calls the callback with a snapshot" do
-      run(1) do
-        FileUtils.touch(matched_path_1)
-        FileUtils.touch(matched_path_2)
-      end
-
-      expect(calls[0]).to be_instance_of(Pakyow::Filewatcher::Diff)
     end
   end
 end

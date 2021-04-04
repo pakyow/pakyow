@@ -21,7 +21,7 @@ module Pakyow
 
           # Watch all files for changes.
           #
-          watch File.join(config.root, "**", "*")
+          watch File.join(config.root)
 
           # Ignore the bootsnap cache.
           #
@@ -29,7 +29,7 @@ module Pakyow
 
           # Restart when any file changes.
           #
-          changed snapshot: true do |diff|
+          changed do |diff|
             unless diff.include?(File.join(config.root, "Gemfile")) || diff.include?(File.join(config.root, "Gemfile.lock"))
               restart
             end
