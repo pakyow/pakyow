@@ -11,7 +11,7 @@ message:
   - content
 ```
 
-This structure is exactly what Pakyow. When Pakyow renders the view, it looks for data exposed on the backend that matches the data structure represented by the view, then populates the view with the data.
+This structure is exactly what drives Pakyow. When Pakyow renders the view, it looks for data exposed on the backend that matches the data structure represented by the view, then populates the view with the data.
 
 For example, a single message can be exposed like this:
 
