@@ -25,7 +25,7 @@ module Pakyow
           include Running::EnsureBooted
 
           def initialize(...)
-            @filewatcher = Core::Watch::System.new(interval: 0.25)
+            @filewatcher = Core::Watch::System.new(interval: 0.25, strategy: :timestamp)
 
             super
           end
