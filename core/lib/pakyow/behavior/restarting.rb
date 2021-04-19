@@ -21,15 +21,21 @@ module Pakyow
 
           # Watch all files for changes.
           #
-          watch File.join(config.root, "**", "*")
+          watch File.join(config.root)
 
-          # Ignore the bootsnap cache.
+          # Explicitly watch environment files.
           #
-          ignore File.join(config.root, "tmp/cache/**/*")
+          watch File.join(config.root, ".env*")
+
+          # Ignore some common paths that shouldn't trigger restarts.
+          #
+          ignore File.join(config.root, ".git")
+          ignore File.join(config.root, "node_modules")
+          ignore File.join(config.root, "tmp/cache")
 
           # Restart when any file changes.
           #
-          changed snapshot: true do |diff|
+          changed do |diff|
             unless diff.include?(File.join(config.root, "Gemfile")) || diff.include?(File.join(config.root, "Gemfile.lock"))
               restart
             end

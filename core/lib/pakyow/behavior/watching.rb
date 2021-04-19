@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
+require "core/watch"
+
 require "pakyow/support/deprecatable"
 require "pakyow/support/extension"
 
-require_relative "../filewatcher"
 require_relative "running/ensure_booted"
 
 module Pakyow
@@ -24,7 +25,7 @@ module Pakyow
           include Running::EnsureBooted
 
           def initialize(...)
-            @filewatcher = Filewatcher.new
+            @filewatcher = Core::Watch::System.new(interval: 0.25, strategy: :timestamp)
 
             super
           end
@@ -37,7 +38,7 @@ module Pakyow
             ensure_booted do
               Pakyow.__filewatcher_changes.each do |matcher, blocks|
                 blocks.each do |options|
-                  @filewatcher.callback(matcher, snapshot: options[:snapshot], &options[:block])
+                  @filewatcher.callback(matcher, &options[:block])
                 end
               end
 
@@ -50,7 +51,7 @@ module Pakyow
               end
             end
 
-            @filewatcher.perform
+            @filewatcher.start
           end
 
           def shutdown
@@ -66,8 +67,8 @@ module Pakyow
       class_methods do
         # Register a callback to be called when a file changes.
         #
-        def changed(matcher = nil, snapshot: false, &block)
-          (__filewatcher_changes[matcher] ||= []) << {block: block, snapshot: snapshot}
+        def changed(matcher = nil, &block)
+          (__filewatcher_changes[matcher] ||= []) << {block: block}
         end
 
         # Register one or more path for changes.
