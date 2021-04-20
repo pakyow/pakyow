@@ -18,6 +18,7 @@ module Pakyow
         @strict_https = Pakyow.config.normalizer.strict_https
         @strict_www = Pakyow.config.normalizer.strict_www
         @strict_path = Pakyow.config.normalizer.strict_path
+        @strict_host = false
 
         if (canonical_uri = Pakyow.config.normalizer.canonical_uri)
           configure_canonical_uri!(canonical_uri)
@@ -25,20 +26,51 @@ module Pakyow
       end
 
       def call(connection)
-        if strict_https? && require_https? && !https?(connection)
-          unless http_allowed?(connection)
-            redirect!(connection, "https://#{File.join(connection.authority, connection.fullpath)}")
+        redirect = false
+        redirect_scheme, redirect_host, redirect_path = nil
+
+        if strict_https?
+          if require_https?
+            unless https?(connection) || http_allowed?(connection)
+              redirect = true
+              redirect_scheme = "https"
+            end
+          elsif https?(connection)
+            redirect = true
+            redirect_scheme = "http"
           end
-        elsif strict_https? && !require_https? && https?(connection)
-          redirect!(connection, "http://#{File.join(connection.authority, connection.fullpath)}")
-        elsif strict_host? && !canonical?(connection)
-          redirect!(connection, "#{connection.scheme}://#{File.join(@canonical_uri.host, connection.fullpath)}")
-        elsif strict_www? && require_www? && !www?(connection) && !subdomain?(connection)
-          redirect!(connection, File.join(add_www(connection), connection.fullpath))
-        elsif strict_www? && !require_www? && www?(connection)
-          redirect!(connection, File.join(remove_www(connection), connection.fullpath))
-        elsif strict_path? && slash?(connection)
-          redirect!(connection, String.normalize_path(connection.fullpath))
+        end
+
+        if strict_host?
+          unless canonical?(connection)
+            redirect = true
+            redirect_host = @canonical_host
+          end
+        elsif strict_www?
+          if require_www?
+            unless www?(connection) || subdomain?(connection)
+              redirect = true
+              redirect_host = add_www(connection)
+            end
+          elsif www?(connection)
+            redirect = true
+            redirect_host = remove_www(connection)
+          end
+        end
+
+        if strict_path?
+          if slash?(connection)
+            redirect = true
+            redirect_path = String.normalize_path(connection.fullpath)
+          end
+        end
+
+        if redirect
+          redirect_uri = "#{redirect_scheme || connection.scheme}://#{File.join(redirect_host || connection.authority, redirect_path || connection.fullpath)}"
+
+          connection.status = 301
+          connection.set_header("Location", redirect_uri)
+          connection.halt
         end
       end
 
@@ -51,14 +83,10 @@ module Pakyow
           URI(canonical_uri)
         end
 
+        @canonical_host = @canonical_uri.host
         @require_https = @canonical_uri.scheme == "https"
         @require_www = false
-      end
-
-      def redirect!(connection, location)
-        connection.status = 301
-        connection.set_header("Location", location)
-        connection.halt
+        @strict_host = true
       end
 
       def add_www(connection)
@@ -120,11 +148,11 @@ module Pakyow
       end
 
       def strict_host?
-        defined?(@canonical_uri)
+        @strict_host == true
       end
 
       def canonical?(connection)
-        connection.host == @canonical_uri.host
+        connection.host == @canonical_host
       end
     end
   end
