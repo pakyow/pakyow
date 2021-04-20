@@ -694,13 +694,11 @@ RSpec.describe Pakyow do
       Pakyow.app :test_foo, path: "/foo"
       Pakyow.app :test_bar, path: "/bar"
       Pakyow.app :test_baz, path: "/baz"
-
-      Pakyow.boot
     end
 
-    context "environment has booted" do
+    context "environment has been setup" do
       before do
-        Pakyow.setup(env: :test).boot
+        Pakyow.setup(env: :test).setup
       end
 
       it "returns an app instance" do

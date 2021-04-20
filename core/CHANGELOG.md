@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Return mounted app after environment setup.**
+
+    *Related links:*
+    - [Pull Request #563][pr-563]
+
   * `fix` **Don't attempt to coerce nils in the verifier.**
 
     *Related links:*
@@ -850,6 +855,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-563]: https://github.com/pakyow/pakyow/pull/563
 [pr-559]: https://github.com/pakyow/pakyow/pull/559
 [pr-558]: https://github.com/pakyow/pakyow/pull/558
 [pr-557]: https://github.com/pakyow/pakyow/pull/557

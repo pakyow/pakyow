@@ -552,7 +552,7 @@ module Pakyow
     def app(app_name, path: "/", without: [], only: nil, mount: true, &block)
       app_name = app_name.to_sym
 
-      if booted?
+      if setup?
         @apps.find { |app|
           app.config.name == app_name
         }
