@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Initialize the normalizer with internal state rather than using config.**
+
+    *Related links:*
+    - [Pull Request #564][pr-564]
+
   * `fix` **Return mounted app after environment setup.**
 
     *Related links:*
@@ -855,6 +860,7 @@
     *Related links:*
     - [Pull Request #338][pr-338]
 
+[pr-564]: https://github.com/pakyow/pakyow/pull/564
 [pr-563]: https://github.com/pakyow/pakyow/pull/563
 [pr-559]: https://github.com/pakyow/pakyow/pull/559
 [pr-558]: https://github.com/pakyow/pakyow/pull/558

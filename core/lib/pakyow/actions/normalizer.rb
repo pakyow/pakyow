@@ -12,6 +12,13 @@ module Pakyow
       using Support::Refinements::String::Normalization
 
       def initialize
+        @allowed_http_hosts = Pakyow.config.normalizer.allowed_http_hosts
+        @require_https = Pakyow.config.normalizer.require_https
+        @require_www = Pakyow.config.normalizer.require_www
+        @strict_https = Pakyow.config.normalizer.strict_https
+        @strict_www = Pakyow.config.normalizer.strict_www
+        @strict_path = Pakyow.config.normalizer.strict_path
+
         if (canonical_uri = Pakyow.config.normalizer.canonical_uri)
           configure_canonical_uri!(canonical_uri)
         end
@@ -44,8 +51,8 @@ module Pakyow
           URI(canonical_uri)
         end
 
-        Pakyow.config.normalizer.require_https = @canonical_uri.scheme == "https"
-        Pakyow.config.normalizer.require_www = false
+        @require_https = @canonical_uri.scheme == "https"
+        @require_www = false
       end
 
       def redirect!(connection, location)
@@ -89,27 +96,27 @@ module Pakyow
       end
 
       def strict_path?
-        Pakyow.config.normalizer.strict_path == true
+        @strict_path == true
       end
 
       def strict_www?
-        Pakyow.config.normalizer.strict_www == true
+        @strict_www == true
       end
 
       def require_www?
-        Pakyow.config.normalizer.require_www == true
+        @require_www == true
       end
 
       def strict_https?
-        Pakyow.config.normalizer.strict_https == true
+        @strict_https == true
       end
 
       def require_https?
-        Pakyow.config.normalizer.require_https == true
+        @require_https == true
       end
 
       def http_allowed?(connection)
-        Pakyow.config.normalizer.allowed_http_hosts.include?(connection.host)
+        @allowed_http_hosts.include?(connection.host)
       end
 
       def strict_host?
