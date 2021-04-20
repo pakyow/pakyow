@@ -8,7 +8,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
       allow(connection).to receive(:path).and_return(path)
       allow(connection).to receive(:host).and_return(host)
       allow(connection).to receive(:port).and_return(port)
-      allow(connection).to receive(:authority).and_return("#{host}:#{port}")
+      allow(connection).to receive(:authority).and_return([host, port].compact.join(":"))
       allow(connection).to receive(:scheme).and_return(scheme)
     end
   end
@@ -29,11 +29,11 @@ RSpec.describe Pakyow::Actions::Normalizer do
   end
 
   let :host do
-    ""
+    "pakyow.com"
   end
 
   let :port do
-    "80"
+    nil
   end
 
   let :scheme do
@@ -63,7 +63,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(301)
-          expect(connection.header("Location")).to eq("/foo")
+          expect(connection.header("Location")).to eq("http://pakyow.com/foo")
         end
 
         context "request uri has a query string" do
@@ -77,7 +77,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.header("Location")).to eq("/foo/?foo=bar")
+            expect(connection.header("Location")).to eq("http://pakyow.com/foo/?foo=bar")
           end
         end
       end
@@ -93,7 +93,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
           end
 
           expect(connection.status).to eq(301)
-          expect(connection.header("Location")).to eq("/foo")
+          expect(connection.header("Location")).to eq("http://pakyow.com/foo")
         end
 
         context "request uri has a query string" do
@@ -107,7 +107,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.header("Location")).to eq("/foo/?foo=bar")
+            expect(connection.header("Location")).to eq("http://pakyow.com/foo/?foo=bar")
           end
         end
       end
@@ -187,7 +187,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.header("Location")).to eq("www.pakyow.org:80/")
+            expect(connection.header("Location")).to eq("http://www.pakyow.org/")
           end
 
           context "request uri has a query string" do
@@ -201,7 +201,22 @@ RSpec.describe Pakyow::Actions::Normalizer do
               end
 
               expect(connection.status).to eq(301)
-              expect(connection.header("Location")).to eq("www.pakyow.org:80/?foo=bar")
+              expect(connection.header("Location")).to eq("http://www.pakyow.org/?foo=bar")
+            end
+          end
+
+          context "request uri has a port" do
+            let :port do
+              8080
+            end
+
+            it "includes the port in the normalized path" do
+              catch :halt do
+                action.call(connection)
+              end
+
+              expect(connection.status).to eq(301)
+              expect(connection.header("Location")).to eq("http://www.pakyow.org:8080/")
             end
           end
         end
@@ -253,7 +268,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.header("Location")).to eq("pakyow.org:80/")
+            expect(connection.header("Location")).to eq("http://pakyow.org/")
           end
 
           context "request uri has a query string" do
@@ -267,7 +282,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
               end
 
               expect(connection.status).to eq(301)
-              expect(connection.header("Location")).to eq("pakyow.org:80/?foo=bar")
+              expect(connection.header("Location")).to eq("http://pakyow.org/?foo=bar")
             end
           end
         end
@@ -423,7 +438,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.header("Location")).to eq("https://pakyow.com:80/")
+            expect(connection.header("Location")).to eq("https://pakyow.com/")
           end
 
           context "request uri has a query string" do
@@ -437,7 +452,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
               end
 
               expect(connection.status).to eq(301)
-              expect(connection.header("Location")).to eq("https://pakyow.com:80/?foo=bar")
+              expect(connection.header("Location")).to eq("https://pakyow.com/?foo=bar")
             end
           end
 
@@ -497,7 +512,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
             end
 
             expect(connection.status).to eq(301)
-            expect(connection.header("Location")).to eq("http://pakyow.com:80/")
+            expect(connection.header("Location")).to eq("http://pakyow.com/")
           end
 
           context "request uri has a query string" do
@@ -511,7 +526,7 @@ RSpec.describe Pakyow::Actions::Normalizer do
               end
 
               expect(connection.status).to eq(301)
-              expect(connection.header("Location")).to eq("http://pakyow.com:80/?foo=bar")
+              expect(connection.header("Location")).to eq("http://pakyow.com/?foo=bar")
             end
           end
         end
@@ -614,7 +629,10 @@ RSpec.describe Pakyow::Actions::Normalizer do
 
   describe "normalizing with a canonical uri" do
     before do
-      Pakyow.config.normalizer.canonical_uri = "https://localhost"
+      Pakyow.config.normalizer.canonical_uri = "https://pakyow.com"
+      Pakyow.config.normalizer.strict_https = true
+      Pakyow.config.normalizer.strict_www = true
+      Pakyow.config.normalizer.strict_path = true
     end
 
     let :scheme do
@@ -623,29 +641,47 @@ RSpec.describe Pakyow::Actions::Normalizer do
 
     context "scheme is https" do
       before do
-        Pakyow.config.normalizer.canonical_uri = "https://localhost"
+        Pakyow.config.normalizer.canonical_uri = "https://pakyow.com"
         action
       end
 
-      it "sets require_https to true" do
-        expect(Pakyow.config.normalizer.require_https).to eq(true)
+      let :scheme do
+        "http"
+      end
+
+      it "redirects https" do
+        catch :halt do
+          action.call(connection)
+        end
+
+        expect(connection.status).to eq(301)
+        expect(connection.header("Location")).to eq("https://pakyow.com/")
       end
     end
 
     context "scheme is http" do
       before do
-        Pakyow.config.normalizer.canonical_uri = "http://localhost"
+        Pakyow.config.normalizer.canonical_uri = "http://pakyow.com"
         action
       end
 
-      it "sets require_https to false" do
-        expect(Pakyow.config.normalizer.require_https).to eq(false)
+      let :scheme do
+        "https"
+      end
+
+      it "redirects to non-https" do
+        catch :halt do
+          action.call(connection)
+        end
+
+        expect(connection.status).to eq(301)
+        expect(connection.header("Location")).to eq("http://pakyow.com/")
       end
     end
 
     context "request uri does not match the canonical host" do
       let :host do
-        "pakyow.com"
+        "pakyow.org"
       end
 
       it "redirects" do
@@ -654,13 +690,13 @@ RSpec.describe Pakyow::Actions::Normalizer do
         end
 
         expect(connection.status).to eq(301)
-        expect(connection.header("Location")).to eq("https://localhost/")
+        expect(connection.header("Location")).to eq("https://pakyow.com/")
       end
     end
 
     context "request uri matches the canonical host" do
       let :host do
-        "localhost"
+        "pakyow.com"
       end
 
       it "does not redirect" do
