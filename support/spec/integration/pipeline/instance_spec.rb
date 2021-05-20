@@ -1,11 +1,8 @@
 require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 
 RSpec.describe "defining an action on a pipeline instance" do
   let :result do
     Class.new do
-      include Pakyow::Support::Pipeline::Object
-
       attr_reader :results
 
       def initialize

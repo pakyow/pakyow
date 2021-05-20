@@ -268,7 +268,7 @@ module Pakyow
           raise error
         end
 
-        halt unless connection.rejected?
+        halt unless connection.get(:__pw_rejected)
       end
 
       # @api private
@@ -458,7 +458,9 @@ module Pakyow
       # Rejects the request, calling the next matching route.
       #
       def reject
-        @connection.reject
+        @connection.set(:__pw_rejected, true)
+
+        super
       end
 
       class_state :templates, default: {}, inheritable: true

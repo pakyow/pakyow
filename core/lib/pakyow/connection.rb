@@ -17,7 +17,6 @@ require "pakyow/support/handleable"
 require "pakyow/support/hookable"
 require "pakyow/support/indifferentize"
 require "pakyow/support/inspectable"
-require "pakyow/support/pipeline/object"
 
 require "pakyow/support/core_refinements/array/ensurable"
 
@@ -43,8 +42,6 @@ module Pakyow
 
     include Pakyow::Support::Inspectable
     inspectable :method, :params, :cookies, :@status, :@body
-
-    include Support::Pipeline::Object
 
     include Support::Handleable
 
@@ -93,6 +90,8 @@ module Pakyow
       # do things like silencing, so it's preferred over using the connection logger directly.
       #
       @logger = Pakyow.logger
+
+      @__halted = @__rejected = false
     end
 
     def request_header?(key)
@@ -356,6 +355,16 @@ module Pakyow
 
     def hijack!
       @request.hijack!
+    end
+
+    def halt
+      @__halted = true
+
+      throw :halt, self
+    end
+
+    def halted?
+      @__halted == true
     end
 
     def finalize

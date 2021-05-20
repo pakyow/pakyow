@@ -13,7 +13,7 @@ RSpec.describe "calling a pipeline within another pipeline" do
         end
 
         action :bar do |result|
-          local.nested_pipelined.call(result)
+          local.nested_pipelined.new.call(result)
         end
 
         action :baz do |result|
@@ -27,7 +27,7 @@ RSpec.describe "calling a pipeline within another pipeline" do
         include Pakyow::Support::Pipeline
 
         action do |result|
-          throw :halt, result
+          halt result
         end
       }
     }

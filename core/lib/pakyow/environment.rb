@@ -601,7 +601,11 @@ module Pakyow
 
     def call(input)
       connection = config.connection_class.new(input)
-      super(connection)
+
+      catch :halt do
+        super(connection)
+      end
+
       connection.finalize
     rescue => error
       houston(error)

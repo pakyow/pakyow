@@ -97,7 +97,7 @@ module Pakyow
           value = nil
           finished = false
 
-          halted = catch(:halt) {
+          halted = catch(:__pipeline_halt) {
             value = call_each_action(actions, context, *args, **kwargs)
 
             finished = true
@@ -107,7 +107,7 @@ module Pakyow
             value = halted
 
             unless ThreadLocalizer.thread_localized_store[:__pw_pipeline_object_id] == object_id
-              throw :halt, value
+              throw :__pipeline_halt, value
             end
           end
 
@@ -123,7 +123,7 @@ module Pakyow
           finished = false
 
           until actions.empty?
-            rejected = catch(:reject) {
+            rejected = catch(:__pipeline_reject) {
               value = actions.shift.call(context, *args, **kwargs) {
                 call_each_action(actions, context, *args, **kwargs)
               }

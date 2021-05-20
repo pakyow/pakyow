@@ -1,11 +1,8 @@
 require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 
 RSpec.describe "calling a pipeline in reverse" do
   let :result do
     Class.new do
-      include Pakyow::Support::Pipeline::Object
-
       attr_reader :results
 
       def initialize
