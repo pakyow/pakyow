@@ -11,8 +11,8 @@ RSpec.describe "handling events with handleable" do
 
   attr_accessor :handled
 
-  after do
-    @handled = false
+  before do
+    @handled = []
   end
 
   context "no handler is defined" do
@@ -42,48 +42,48 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       handleable.handle do
-        local.handled = :global
+        local.handled << :global
       end
 
       handleable.handle :bar do
-        local.handled = :bar
+        local.handled << :bar
       end
     end
 
     it "handles unhandled events on the class" do
       handleable.trigger :foo
 
-      expect(handled).to eq(:global)
+      expect(handled).to eq([:global])
     end
 
     it "handles unhandled events on the instance" do
       instance.trigger :foo
 
-      expect(handled).to eq(:global)
+      expect(handled).to eq([:global])
     end
 
     it "handles unhandled exceptions on the class" do
       handleable.trigger RuntimeError.new
 
-      expect(handled).to eq(:global)
+      expect(handled).to eq([:global])
     end
 
     it "handles unhandled exceptions on the instance" do
       instance.trigger RuntimeError.new
 
-      expect(handled).to eq(:global)
+      expect(handled).to eq([:global])
     end
 
     it "does not handle handled events on the class" do
       handleable.trigger :bar
 
-      expect(handled).to eq(:bar)
+      expect(handled).to eq([:bar])
     end
 
     it "does not handle handled events on the instance" do
       instance.trigger :bar
 
-      expect(handled).to eq(:bar)
+      expect(handled).to eq([:bar])
     end
   end
 
@@ -92,30 +92,30 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       handleable.handle :foo do
-        local.handled = :foo
+        local.handled << :foo
       end
 
       handleable.handle :bar do
-        local.handled = :bar
+        local.handled << :bar
       end
     end
 
     it "handles events on the class" do
       handleable.trigger :bar
 
-      expect(handled).to eq(:bar)
+      expect(handled).to eq([:bar])
     end
 
     it "handles events on the instance" do
       instance.trigger :bar
 
-      expect(handled).to eq(:bar)
+      expect(handled).to eq([:bar])
     end
 
     it "does not handle unrelated events" do
       handleable.trigger :baz
 
-      expect(handled).to be(nil)
+      expect(handled).to eq([])
     end
 
     it "does not handle exceptions" do
@@ -124,7 +124,7 @@ RSpec.describe "handling events with handleable" do
       rescue
       end
 
-      expect(handled).to be(nil)
+      expect(handled).to eq([])
     end
   end
 
@@ -133,20 +133,20 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       handleable.handle ArgumentError do
-        local.handled = :argument_error
+        local.handled << :argument_error
       end
     end
 
     it "handles the exception" do
       handleable.trigger ArgumentError.new
 
-      expect(handled).to eq(:argument_error)
+      expect(handled).to eq([:argument_error])
     end
 
     it "handles subclasses of the exception" do
       handleable.trigger Class.new(ArgumentError).new
 
-      expect(handled).to eq(:argument_error)
+      expect(handled).to eq([:argument_error])
     end
 
     it "does not handle unrelated exceptions" do
@@ -155,13 +155,13 @@ RSpec.describe "handling events with handleable" do
       rescue
       end
 
-      expect(handled).to be(nil)
+      expect(handled).to eq([])
     end
 
     it "does not handle unrelated events" do
       handleable.trigger :foo
 
-      expect(handled).to be(nil)
+      expect(handled).to eq([])
     end
   end
 
@@ -170,20 +170,20 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       instance.handle :bar do
-        local.handled = :bar_instance
+        local.handled << :bar_instance
       end
     end
 
     it "handles events on the instance" do
       instance.trigger :bar
 
-      expect(handled).to eq(:bar_instance)
+      expect(handled).to eq([:bar_instance])
     end
 
     it "does not handle events on the class" do
       handleable.trigger :bar
 
-      expect(handled).to be(nil)
+      expect(handled).to eq([])
     end
   end
 
@@ -192,25 +192,23 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       handleable.handle :foo do |event|
-        local.handled = :foo_class; throw :halt
+        local.handled << :foo_class
       end
 
       instance.handle :foo do |event|
-        local.handled = :foo_instance; throw :halt
+        local.handled << :foo_instance
       end
     end
 
     it "handles events on the instance with the new handler" do
       instance.trigger :foo
 
-      expect(handled).to eq(:foo_instance)
+      expect(handled).to eq([:foo_instance, :foo_class])
     end
   end
 
   context "two handlers are defined for the same event" do
     before do
-      @handled = []
-
       local = self
 
       handleable.handle :foo do
@@ -231,8 +229,6 @@ RSpec.describe "handling events with handleable" do
 
   context "two error handlers are defined that both match the error" do
     before do
-      @handled = []
-
       local = self
 
       handleable.handle Exception do
@@ -253,8 +249,6 @@ RSpec.describe "handling events with handleable" do
 
   context "error handler is defined as well as a global error handler" do
     before do
-      @handled = []
-
       local = self
 
       handleable.handle Exception do
@@ -278,22 +272,23 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       handleable.handle :foo do |event|
-        local.handled = event
+        local.handled << event
       end
     end
 
     it "receives the event" do
       handleable.trigger :foo
 
-      expect(handled).to eq(:foo)
+      expect(handled).to eq([:foo])
     end
 
     context "values are passed through trigger" do
       before do
+        @handled = []
         local = self
 
         handleable.handle :foo do |event, random: nil|
-          local.handled = [event, random]; throw :halt
+          local.handled << [event, random]
         end
       end
 
@@ -304,8 +299,8 @@ RSpec.describe "handling events with handleable" do
       it "receives values passed through trigger" do
         handleable.trigger :foo, random: random
 
-        expect(handled[0]).to eq(:foo)
-        expect(handled[1]).to eq(random)
+        expect(handled[0][0]).to eq(:foo)
+        expect(handled[0][1]).to eq(random)
       end
     end
   end
@@ -315,7 +310,7 @@ RSpec.describe "handling events with handleable" do
       local = self
 
       handleable.handle RuntimeError do |event|
-        local.handled = event
+        local.handled << event
       end
     end
 
@@ -324,8 +319,8 @@ RSpec.describe "handling events with handleable" do
         raise RuntimeError, "something went wrong"
       end
 
-      expect(handled).to be_instance_of(RuntimeError)
-      expect(handled.message).to eq("something went wrong")
+      expect(handled[0]).to be_instance_of(RuntimeError)
+      expect(handled[0].message).to eq("something went wrong")
     end
 
     it "handles through the instance" do
@@ -333,8 +328,8 @@ RSpec.describe "handling events with handleable" do
         raise RuntimeError, "something went wrong"
       end
 
-      expect(handled).to be_instance_of(RuntimeError)
-      expect(handled.message).to eq("something went wrong")
+      expect(handled[0]).to be_instance_of(RuntimeError)
+      expect(handled[0].message).to eq("something went wrong")
     end
 
     describe "passing arguments" do
@@ -342,7 +337,7 @@ RSpec.describe "handling events with handleable" do
         local = self
 
         handleable.handle RuntimeError do |event, random: nil|
-          local.handled = [event, random]; throw :halt
+          local.handled << [event, random]
         end
       end
 
@@ -355,9 +350,9 @@ RSpec.describe "handling events with handleable" do
           raise RuntimeError, "something went wrong"
         end
 
-        expect(handled[0]).to be_instance_of(RuntimeError)
-        expect(handled[0].message).to eq("something went wrong")
-        expect(handled[1]).to eq(random)
+        expect(handled[0][0]).to be_instance_of(RuntimeError)
+        expect(handled[0][0].message).to eq("something went wrong")
+        expect(handled[0][1]).to eq(random)
       end
     end
   end

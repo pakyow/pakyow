@@ -1,11 +1,8 @@
 require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 
 RSpec.describe "passing keyword arguments through pipelines" do
   let(:result) {
     Class.new {
-      include Pakyow::Support::Pipeline::Object
-
       attr_reader :results
 
       def initialize

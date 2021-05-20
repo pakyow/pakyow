@@ -50,11 +50,11 @@ module Pakyow
       end
 
       def reject(value = nil)
-        throw :reject, value
+        throw :__pipeline_reject, value
       end
 
       def halt(value = nil)
-        throw :halt, value
+        throw :__pipeline_halt, value
       end
 
       apply_extension do

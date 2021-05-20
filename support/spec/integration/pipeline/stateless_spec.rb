@@ -58,7 +58,7 @@ RSpec.describe "calling a pipeline without a pipeline object" do
         action :foo do |result|
           result << "foo"
 
-          throw :halt, result
+          halt result
         end
 
         action :bar do |result|
@@ -82,7 +82,7 @@ RSpec.describe "calling a pipeline without a pipeline object" do
         end
 
         action :bar do |result|
-          throw :reject
+          reject
 
           result << "bar"
         end

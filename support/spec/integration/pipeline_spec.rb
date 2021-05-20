@@ -1,11 +1,8 @@
 require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 
 RSpec.describe "pipelines" do
   let :result do
     Class.new do
-      include Pakyow::Support::Pipeline::Object
-
       attr_reader :results
 
       def initialize
@@ -402,7 +399,7 @@ RSpec.describe "pipelines" do
         action :baz
 
         def foo(result)
-          result.reject
+          reject
           result << "foo"
         end
 

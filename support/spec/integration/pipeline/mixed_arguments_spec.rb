@@ -1,13 +1,10 @@
 require "pakyow/support/pipeline"
-require "pakyow/support/pipeline/object"
 
 # TODO: There are several edge-cases to resolve here when pulling this out into `core-pipeline`.
 #
 RSpec.xdescribe "passing mixed arguments through pipelines" do
   let(:result) {
     Class.new {
-      include Pakyow::Support::Pipeline::Object
-
       attr_reader :results
 
       def initialize
