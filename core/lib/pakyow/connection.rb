@@ -357,16 +357,6 @@ module Pakyow
       @request.hijack!
     end
 
-    def reject
-      @__rejected = true
-
-      throw :reject, self
-    end
-
-    def rejected?
-      @__rejected == true
-    end
-
     def halt
       @__halted = true
 
