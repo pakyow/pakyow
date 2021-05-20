@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pakyow-routing", Pakyow::VERSION
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "core-async", "~> 0.6.0"
+  spec.add_dependency "core-async", "~> 0.6.1"
 
   spec.add_dependency "async-websocket", "~> 0.16.0"
   spec.add_dependency "concurrent-ruby", "~> 1.1"
