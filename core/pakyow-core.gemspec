@@ -23,8 +23,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "core-async", "~> 0.5.0"
-  spec.add_dependency "core-watch", "~> 0.0.0"
+  spec.add_dependency "core-async", "~> 0.6.1"
+  spec.add_dependency "core-watch", "~> 0.0.1"
 
   spec.add_dependency "async-http", "~> 0.54.1"
   spec.add_dependency "async-io", "~> 1.30"
