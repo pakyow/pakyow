@@ -64,4 +64,26 @@ RSpec.describe "embedding csrf meta tags in a rendered view" do
       expect(response[2]).not_to include("meta name=\"pw-authenticity-param\" content=\"authenticity_token\"")
     end
   end
+
+  context "application does not have sessions enabled" do
+    let :app_def do
+      Proc.new do
+        configure :test do
+          config.session.enabled = false
+        end
+
+        controller :default do
+          get "/" do
+            render "/"
+          end
+        end
+      end
+    end
+
+    it "does not embed an authenticity token" do
+      response = call("/")
+      expect(response[0]).to eq(200)
+      expect(response[2]).not_to include("meta name=\"pw-authenticity-token\"")
+    end
+  end
 end
