@@ -30,7 +30,11 @@ module Pakyow
                   View.from_object(node)
                 end
               } do
-                attributes[:content] = @presentables[:__verifier].sign(Support::MessageVerifier.key)
+                if (signed = @presentables[:__verifier]&.sign(Support::MessageVerifier.key))
+                  attributes[:content] = signed
+                else
+                  remove
+                end
               end
             end
 

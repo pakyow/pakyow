@@ -1,5 +1,10 @@
 # v1.1.0 (unreleased)
 
+  * `fix` **Don't present an authenticity token when the session is disabled.**
+
+    *Related links:*
+    - [Pull Request #567][pr-567]
+
   * `chg` **Support Ruby 3, Drop 2.6.**
 
     *Related links:*
@@ -46,6 +51,7 @@
     - [Pull Request #297][pr-297]
     - [Commit 802295c][802295c]
 
+[pr-567]: https://github.com/pakyow/pakyow/pull/567
 [pr-553]: https://github.com/pakyow/pakyow/pull/553
 [pr-547]: https://github.com/pakyow/pakyow/pull/547
 [pr-538]: https://github.com/pakyow/pakyow/pull/538
