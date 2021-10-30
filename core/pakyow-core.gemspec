@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.email = "bryan@bryanp.org"
   spec.homepage = "https://pakyow.com"
 
-  spec.required_ruby_version = ">= 2.7.2"
+  spec.required_ruby_version = ">= 3.0.2"
 
   spec.license = "LGPL-3.0"
 
@@ -23,8 +23,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "pakyow-support", Pakyow::VERSION
 
-  spec.add_dependency "core-async", "~> 0.6.1"
-  spec.add_dependency "core-watch", "~> 0.0.1"
+  spec.add_dependency "core-async", "~> 0.8.0"
+  spec.add_dependency "core-watch", "~> 0.3.0"
 
   spec.add_dependency "async-http", "~> 0.54.1"
   spec.add_dependency "async-io", "~> 1.30"
